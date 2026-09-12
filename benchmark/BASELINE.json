@@ -1,0 +1,23 @@
+{
+  "tool": "vh-benchmark",
+  "version": "17.6.2",
+  "note": "Pinned inputs for the reproducible benchmark pack. B1's receipt is deterministic (fixed seed 0x5eed, fixed timestamps) \u2014 its digest must match on every machine or the input drifted. Timings are machine-dependent and intentionally NOT pinned; correctness and input identity are.",
+  "B1-receipt-verify": {
+    "events": 32,
+    "seed": "0x5eed",
+    "receiptDigest": "5aa4f86816b038287c6e799e8007a70f8153dcd026a6a40d4347824e6d202eb5"
+  },
+  "B2-envelope-roundtrip": {
+    "algorithm": "ECDSA P-256 / SHA-256, ieee-p1363",
+    "iterations": 200
+  },
+  "B3-grant-authority": {
+    "gate": "protocol selftest 129 checks",
+    "dependencyBacked": true,
+    "skipWhen": "protocol/node_modules absent \u2014 stated, never faked"
+  },
+  "expectedChecks": {
+    "zeroInstall": 5,
+    "withProtocolDeps": 6
+  }
+}

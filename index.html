@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0B0C0F" />
+    <title>Vouch Harbor — Receipt OS for AI Agents</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C86428' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3C/svg%3E" type="image/svg+xml" />
+    <script>
+      // Boot: paint the brand color behind the splash so the first frame is right.
+      (function(){
+        document.documentElement.style.background = '#0B0C0F';
+        window.addEventListener('error', function(e){ console.error('[vh]', e.message); });
+        window.addEventListener('unhandledrejection', function(e){ console.error('[vh]', e.reason); });
+      })();
+    </script>
+    <style>
+      html,body{margin:0;padding:0;background:#0B0C0F;}
+      .vh-boot{position:fixed;inset:0;display:flex;flex-direction:column;gap:22px;align-items:center;justify-content:center;background:#0B0C0F;color:#F5F1E8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+      .vh-boot .mark{width:64px;height:64px;border-radius:50%;background:#C86428;display:grid;place-items:center;box-shadow:0 0 0 8px rgba(200,100,40,.15);animation:stamp .9s cubic-bezier(.34,1.56,.64,1) both}
+      .vh-boot .mark svg{width:32px;height:32px;color:#0B0C0F}
+      .vh-boot .w{font-family:'Space Grotesk',system-ui,sans-serif;font-size:22px;font-weight:600;letter-spacing:.02em}
+      .vh-boot .sub{font-size:11px;color:#9A9285;letter-spacing:.18em;text-transform:uppercase}
+      .vh-boot .bar{width:120px;height:2px;background:rgba(245,241,232,.08);overflow:hidden;border-radius:1px}
+      .vh-boot .bar i{display:block;height:100%;width:40%;background:#C86428;animation:bar .9s cubic-bezier(.45,0,.55,1) infinite}
+      @keyframes stamp{0%{transform:scale(1.6) rotate(-12deg);opacity:0}45%{transform:scale(.92) rotate(3deg);opacity:1}75%{transform:scale(1.06) rotate(-1deg)}100%{transform:scale(1) rotate(0)}}
+      @keyframes bar{from{transform:translateX(-110%)}to{transform:translateX(300%)}}
+      @media (prefers-reduced-motion:reduce){.vh-boot *{animation:none!important;opacity:1!important;transform:none!important}}
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="vh-boot" aria-hidden="true">
+        <div class="mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4"/>
+            <circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+        <div class="w">Vouch Harbor</div>
+        <div class="sub">sealing the chain…</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

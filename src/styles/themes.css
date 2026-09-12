@@ -1,0 +1,1203 @@
+/* =============================================================================
+   VH 16.9.1 — the QUIET FOUR theme system (designed dark-first, 2 dark + 2 light)
+   -----------------------------------------------------------------------------
+   The 13.0 palette (obsidian: warm jet + brass) read as every other
+   "premium template" — gold on black. 13.0.1 retires it for a set built on
+   the owner's direction: TRUE BLACK ground with rare, unsaturated mineral
+   signals. No gold, no brass, no violet, no cyan, no neon — each palette
+   carries one muted pigment that reads quiet at rest and precise when used:
+
+     ink        — black #000000, warm parchment ink, SMOKED APRICOT signal.
+                  The flagship (default).
+     pitch      — OLED black, warm white ink, DUSTY ROSE signal.
+     slag       — graphite black, steel-grey ink, WHETSTONE signal (cool).
+     fern       — black-green, parchment ink, SEEDPOD-olive signal.
+     ivory      — the paper light: warm white, ink, COPPER signal.
+     travertine — the stone light: warm stone, ink, BRONZE-OLIVE signal.
+
+   The contract is unchanged and probe-pinned:
+
+     1. BLACK IS THE CANVAS. Hierarchy is carried by neutral ink weight and
+        spacing; one signal colour per theme means "look here now". No
+        gradients in chrome, ever.
+     2. TYPE DOES THE HEAVY LIFTING. Inter for content, Space Mono for data
+        and numbers, Doto for the single hero moment.
+     3. REFINED SURFACES. Soft technical radii, hairline borders, flat
+        fills, ink-mix elevation — nothing glossy, nothing glowing.
+     4. MOTION WITH A JOB. 140-280ms, transform/opacity only; every
+        animation honours prefers-reduced-motion.
+
+   All component rules below are shared through :is(), so a palette is ONLY a
+   token block — every secondary token is derived from the five base hues with
+   color-mix, so a palette cannot rot out of sync with the system.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   SHARED DESIGN TOKENS — fonts, type scale, spacing, motion, shape.
+   --------------------------------------------------------------------------- */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) {
+  --font-ui: "Inter", "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-doto: "Doto", "Space Mono", ui-monospace, monospace;
+  --font-serif: "Georgia", "Iowan Old Style", "Palatino", ui-serif, "Times New Roman", serif;
+
+  /* Shape: refined technical — 4/7/10px, never pill. */
+  --r-sm: 4px;
+  --r-md: 7px;
+  --r-lg: 10px;
+
+  /* Motion: purposeful ease-out. */
+  --t-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
+  --t-med: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   PALETTES — every token a component in this file or in vouch.css reads.
+   --------------------------------------------------------------------------- */
+[data-theme="obsidian"] {
+  /* obsidian — soft-jet dark (default). Warm ivory ink, SMOKED APRICOT signal. The flagship. */
+  --bg: #0B0B0C;
+  --bg-elevated: color-mix(in oklab, #F1EFE9 6%, #0B0B0C);
+  --bg-panel: color-mix(in oklab, #F1EFE9 4%, #0B0B0C);
+  --bg-input: color-mix(in oklab, #F1EFE9 2%, #0B0B0C);
+  --border: color-mix(in oklab, #F1EFE9 13%, #0B0B0C);
+  --border-strong: color-mix(in oklab, #F1EFE9 24%, #0B0B0C);
+  --text: #F1EFE9;
+  --text-dim: color-mix(in oklab, #F1EFE9 78%, #0B0B0C);
+  --text-mute: color-mix(in oklab, #F1EFE9 58%, #0B0B0C);
+  --text-4: color-mix(in oklab, #F1EFE9 30%, #0B0B0C);
+  --amber: #C98A62;
+  --amber-dim: color-mix(in oklab, #C98A62 12%, transparent);
+  --amber-hot: color-mix(in oklab, #C98A62 62%, #F1EFE9);
+  --danger: #B75346;
+  --danger-dim: color-mix(in oklab, #B75346 18%, transparent);
+  --ok: #8FA284;
+  --nk-black: #0B0B0C;
+  --nk-surface: color-mix(in oklab, #F1EFE9 6%, #0B0B0C);
+  --nk-surface-2: color-mix(in oklab, #F1EFE9 13%, #0B0B0C);
+  --nk-surface-3: color-mix(in oklab, #F1EFE9 24%, #0B0B0C);
+  --nk-input: color-mix(in oklab, #F1EFE9 2%, #0B0B0C);
+  --nk-border: color-mix(in oklab, #F1EFE9 13%, #0B0B0C);
+  --nk-border-strong: color-mix(in oklab, #F1EFE9 24%, #0B0B0C);
+  --nk-hairline: color-mix(in oklab, #F1EFE9 13%, #0B0B0C);
+  --white: #F1EFE9;
+  --text-1: #F1EFE9;
+  --text-2: color-mix(in oklab, #F1EFE9 78%, #0B0B0C);
+  --text-3: color-mix(in oklab, #F1EFE9 58%, #0B0B0C);
+  --red: #B75346;
+  --red-dim: color-mix(in oklab, #B75346 13%, transparent);
+  --silver: color-mix(in oklab, #F1EFE9 55%, #0B0B0C);
+  --silver-dim: color-mix(in oklab, #F1EFE9 15%, transparent);
+  --success: #8FA284;
+  --error: #B75346;
+  --row-hover: color-mix(in oklab, #F1EFE9 5%, #0B0B0C);
+  --accent: #C98A62;
+  --accent-hot: color-mix(in oklab, #C98A62 62%, #F1EFE9);
+  --accent-contrast: color-mix(in oklab, #F1EFE9 7%, #0B0B0C);
+  --accent-dim: color-mix(in oklab, #C98A62 12%, transparent);
+  --dot-1: color-mix(in oklab, #F1EFE9 5%, transparent);
+  --dot-2: color-mix(in oklab, #C98A62 9%, transparent);
+  --wire: color-mix(in oklab, #F1EFE9 28%, transparent);
+  --wire-active: #C98A62;
+  --wire-hot: color-mix(in oklab, #C98A62 62%, #F1EFE9);
+  --wire-done: color-mix(in oklab, #F1EFE9 48%, transparent);
+  --glyph-off: color-mix(in oklab, #F1EFE9 9%, #0B0B0C);
+  --glyph-on: #C98A62;
+  --menu-hover: color-mix(in oklab, #F1EFE9 7%, #0B0B0C);
+  --seg-off: color-mix(in oklab, #F1EFE9 11%, #0B0B0C);
+  --overlay: rgba(0, 0, 0, 0.78);
+  --sel-bg: #C98A62;
+  --sel-fg: #0B0B0C;
+  --scroll-thumb: color-mix(in oklab, #F1EFE9 16%, #0B0B0C);
+  --scroll-thumb-hover: color-mix(in oklab, #F1EFE9 28%, #0B0B0C);
+  --port-edge: color-mix(in oklab, #F1EFE9 52%, #0B0B0C);
+  --inset: color-mix(in oklab, #F1EFE9 6%, #0B0B0C);
+}
+[data-theme="graphite"] {
+  /* graphite — lifted cool dark. Silver ink, WHETSTEEL signal. The 3 a.m. operator. */
+  --bg: #16171A;
+  --bg-elevated: color-mix(in oklab, #E8EAED 6%, #16171A);
+  --bg-panel: color-mix(in oklab, #E8EAED 4%, #16171A);
+  --bg-input: color-mix(in oklab, #E8EAED 2%, #16171A);
+  --border: color-mix(in oklab, #E8EAED 13%, #16171A);
+  --border-strong: color-mix(in oklab, #E8EAED 24%, #16171A);
+  --text: #E8EAED;
+  --text-dim: color-mix(in oklab, #E8EAED 78%, #16171A);
+  --text-mute: color-mix(in oklab, #E8EAED 58%, #16171A);
+  --text-4: color-mix(in oklab, #E8EAED 30%, #16171A);
+  --amber: #9CAFC7;
+  --amber-dim: color-mix(in oklab, #9CAFC7 12%, transparent);
+  --amber-hot: color-mix(in oklab, #9CAFC7 62%, #E8EAED);
+  --danger: #B95E52;
+  --danger-dim: color-mix(in oklab, #B95E52 18%, transparent);
+  --ok: #8BA395;
+  --nk-black: #16171A;
+  --nk-surface: color-mix(in oklab, #E8EAED 6%, #16171A);
+  --nk-surface-2: color-mix(in oklab, #E8EAED 13%, #16171A);
+  --nk-surface-3: color-mix(in oklab, #E8EAED 24%, #16171A);
+  --nk-input: color-mix(in oklab, #E8EAED 2%, #16171A);
+  --nk-border: color-mix(in oklab, #E8EAED 13%, #16171A);
+  --nk-border-strong: color-mix(in oklab, #E8EAED 24%, #16171A);
+  --nk-hairline: color-mix(in oklab, #E8EAED 13%, #16171A);
+  --white: #E8EAED;
+  --text-1: #E8EAED;
+  --text-2: color-mix(in oklab, #E8EAED 78%, #16171A);
+  --text-3: color-mix(in oklab, #E8EAED 58%, #16171A);
+  --red: #B95E52;
+  --red-dim: color-mix(in oklab, #B95E52 13%, transparent);
+  --silver: color-mix(in oklab, #E8EAED 55%, #16171A);
+  --silver-dim: color-mix(in oklab, #E8EAED 15%, transparent);
+  --success: #8BA395;
+  --error: #B95E52;
+  --row-hover: color-mix(in oklab, #E8EAED 5%, #16171A);
+  --accent: #9CAFC7;
+  --accent-hot: color-mix(in oklab, #9CAFC7 62%, #E8EAED);
+  --accent-contrast: color-mix(in oklab, #E8EAED 7%, #16171A);
+  --accent-dim: color-mix(in oklab, #9CAFC7 12%, transparent);
+  --dot-1: color-mix(in oklab, #E8EAED 5%, transparent);
+  --dot-2: color-mix(in oklab, #9CAFC7 9%, transparent);
+  --wire: color-mix(in oklab, #E8EAED 28%, transparent);
+  --wire-active: #9CAFC7;
+  --wire-hot: color-mix(in oklab, #9CAFC7 62%, #E8EAED);
+  --wire-done: color-mix(in oklab, #E8EAED 48%, transparent);
+  --glyph-off: color-mix(in oklab, #E8EAED 9%, #16171A);
+  --glyph-on: #9CAFC7;
+  --menu-hover: color-mix(in oklab, #E8EAED 7%, #16171A);
+  --seg-off: color-mix(in oklab, #E8EAED 11%, #16171A);
+  --overlay: rgba(0, 0, 0, 0.78);
+  --sel-bg: #9CAFC7;
+  --sel-fg: #16171A;
+  --scroll-thumb: color-mix(in oklab, #E8EAED 16%, #16171A);
+  --scroll-thumb-hover: color-mix(in oklab, #E8EAED 28%, #16171A);
+  --port-edge: color-mix(in oklab, #E8EAED 52%, #16171A);
+  --inset: color-mix(in oklab, #E8EAED 6%, #16171A);
+}
+[data-theme="porcelain"] {
+  /* porcelain — warm white light (default light). Near-black ink, DEEP APRICOT signal. */
+  --bg: #F7F5F1;
+  --bg-elevated: color-mix(in oklab, #201E1A 4%, #F7F5F1);
+  --bg-panel: color-mix(in oklab, #201E1A 3%, #F7F5F1);
+  --bg-input: color-mix(in oklab, #201E1A 7%, #F7F5F1);
+  --border: color-mix(in oklab, #201E1A 15%, #F7F5F1);
+  --border-strong: color-mix(in oklab, #201E1A 24%, #F7F5F1);
+  --text: #201E1A;
+  --text-dim: color-mix(in oklab, #201E1A 66%, #F7F5F1);
+  --text-mute: color-mix(in oklab, #201E1A 48%, #F7F5F1);
+  --text-4: color-mix(in oklab, #201E1A 30%, #F7F5F1);
+  --amber: #A5673B;
+  --amber-dim: color-mix(in oklab, #A5673B 12%, transparent);
+  --amber-hot: color-mix(in oklab, #A5673B 62%, #201E1A);
+  --danger: #A63E2E;
+  --danger-dim: color-mix(in oklab, #A63E2E 18%, transparent);
+  --ok: #55704C;
+  --nk-black: #F7F5F1;
+  --nk-surface: color-mix(in oklab, #201E1A 4%, #F7F5F1);
+  --nk-surface-2: color-mix(in oklab, #201E1A 15%, #F7F5F1);
+  --nk-surface-3: color-mix(in oklab, #201E1A 24%, #F7F5F1);
+  --nk-input: color-mix(in oklab, #201E1A 7%, #F7F5F1);
+  --nk-border: color-mix(in oklab, #201E1A 15%, #F7F5F1);
+  --nk-border-strong: color-mix(in oklab, #201E1A 24%, #F7F5F1);
+  --nk-hairline: color-mix(in oklab, #201E1A 15%, #F7F5F1);
+  --white: #201E1A;
+  --text-1: #201E1A;
+  --text-2: color-mix(in oklab, #201E1A 66%, #F7F5F1);
+  --text-3: color-mix(in oklab, #201E1A 48%, #F7F5F1);
+  --red: #A63E2E;
+  --red-dim: color-mix(in oklab, #A63E2E 13%, transparent);
+  --silver: color-mix(in oklab, #201E1A 55%, #F7F5F1);
+  --silver-dim: color-mix(in oklab, #201E1A 15%, transparent);
+  --success: #55704C;
+  --error: #A63E2E;
+  --row-hover: color-mix(in oklab, #201E1A 5%, #F7F5F1);
+  --accent: #A5673B;
+  --accent-hot: color-mix(in oklab, #A5673B 62%, #201E1A);
+  --accent-contrast: #F7F5F1;
+  --accent-dim: color-mix(in oklab, #A5673B 12%, transparent);
+  --dot-1: color-mix(in oklab, #201E1A 7%, transparent);
+  --dot-2: color-mix(in oklab, #A5673B 9%, transparent);
+  --wire: color-mix(in oklab, #201E1A 34%, transparent);
+  --wire-active: #A5673B;
+  --wire-hot: color-mix(in oklab, #A5673B 62%, #201E1A);
+  --wire-done: color-mix(in oklab, #201E1A 48%, transparent);
+  --glyph-off: color-mix(in oklab, #201E1A 9%, #F7F5F1);
+  --glyph-on: #A5673B;
+  --menu-hover: color-mix(in oklab, #201E1A 7%, #F7F5F1);
+  --seg-off: color-mix(in oklab, #201E1A 11%, #F7F5F1);
+  --overlay: rgba(30, 26, 19, 0.45);
+  --sel-bg: #A5673B;
+  --sel-fg: #F7F5F1;
+  --scroll-thumb: color-mix(in oklab, #201E1A 16%, #F7F5F1);
+  --scroll-thumb-hover: color-mix(in oklab, #201E1A 28%, #F7F5F1);
+  --port-edge: color-mix(in oklab, #201E1A 52%, #F7F5F1);
+  --inset: color-mix(in oklab, #201E1A 10%, #F7F5F1);
+}
+[data-theme="bone"] {
+  /* bone — deep paper light. Sepia ink, BRONZE-OLIVE signal. */
+  --bg: #EBE7DE;
+  --bg-elevated: color-mix(in oklab, #26231D 4%, #EBE7DE);
+  --bg-panel: color-mix(in oklab, #26231D 3%, #EBE7DE);
+  --bg-input: color-mix(in oklab, #26231D 7%, #EBE7DE);
+  --border: color-mix(in oklab, #26231D 15%, #EBE7DE);
+  --border-strong: color-mix(in oklab, #26231D 24%, #EBE7DE);
+  --text: #26231D;
+  --text-dim: color-mix(in oklab, #26231D 66%, #EBE7DE);
+  --text-mute: color-mix(in oklab, #26231D 48%, #EBE7DE);
+  --text-4: color-mix(in oklab, #26231D 30%, #EBE7DE);
+  --amber: #7A6B3A;
+  --amber-dim: color-mix(in oklab, #7A6B3A 12%, transparent);
+  --amber-hot: color-mix(in oklab, #7A6B3A 62%, #26231D);
+  --danger: #9E3E2E;
+  --danger-dim: color-mix(in oklab, #9E3E2E 18%, transparent);
+  --ok: #52684E;
+  --nk-black: #EBE7DE;
+  --nk-surface: color-mix(in oklab, #26231D 4%, #EBE7DE);
+  --nk-surface-2: color-mix(in oklab, #26231D 15%, #EBE7DE);
+  --nk-surface-3: color-mix(in oklab, #26231D 24%, #EBE7DE);
+  --nk-input: color-mix(in oklab, #26231D 7%, #EBE7DE);
+  --nk-border: color-mix(in oklab, #26231D 15%, #EBE7DE);
+  --nk-border-strong: color-mix(in oklab, #26231D 24%, #EBE7DE);
+  --nk-hairline: color-mix(in oklab, #26231D 15%, #EBE7DE);
+  --white: #26231D;
+  --text-1: #26231D;
+  --text-2: color-mix(in oklab, #26231D 66%, #EBE7DE);
+  --text-3: color-mix(in oklab, #26231D 48%, #EBE7DE);
+  --red: #9E3E2E;
+  --red-dim: color-mix(in oklab, #9E3E2E 13%, transparent);
+  --silver: color-mix(in oklab, #26231D 55%, #EBE7DE);
+  --silver-dim: color-mix(in oklab, #26231D 15%, transparent);
+  --success: #52684E;
+  --error: #9E3E2E;
+  --row-hover: color-mix(in oklab, #26231D 5%, #EBE7DE);
+  --accent: #7A6B3A;
+  --accent-hot: color-mix(in oklab, #7A6B3A 62%, #26231D);
+  --accent-contrast: #EBE7DE;
+  --accent-dim: color-mix(in oklab, #7A6B3A 12%, transparent);
+  --dot-1: color-mix(in oklab, #26231D 7%, transparent);
+  --dot-2: color-mix(in oklab, #7A6B3A 9%, transparent);
+  --wire: color-mix(in oklab, #26231D 34%, transparent);
+  --wire-active: #7A6B3A;
+  --wire-hot: color-mix(in oklab, #7A6B3A 62%, #26231D);
+  --wire-done: color-mix(in oklab, #26231D 48%, transparent);
+  --glyph-off: color-mix(in oklab, #26231D 9%, #EBE7DE);
+  --glyph-on: #7A6B3A;
+  --menu-hover: color-mix(in oklab, #26231D 7%, #EBE7DE);
+  --seg-off: color-mix(in oklab, #26231D 11%, #EBE7DE);
+  --overlay: rgba(30, 26, 19, 0.45);
+  --sel-bg: #7A6B3A;
+  --sel-fg: #EBE7DE;
+  --scroll-thumb: color-mix(in oklab, #26231D 16%, #EBE7DE);
+  --scroll-thumb-hover: color-mix(in oklab, #26231D 28%, #EBE7DE);
+  --port-edge: color-mix(in oklab, #26231D 52%, #EBE7DE);
+  --inset: color-mix(in oklab, #26231D 10%, #EBE7DE);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   NTH — MJ's flagship palette, re-cut in the FOUNDRY identity (v3 color atlas).
+   Five cold-but-warm rare tones, zero neon: carbon (#0e0f0e) · slate (#161814)
+   · paper (#f3eee3) · brass (#b8a17b) · verdigris (#5f8a74).
+   A charcoal-green "foundry" ground, warm cream paper ink, and a single brass
+   accent that reads like an engraved instrument plate. Verdigris is the "alive"
+   pulse for anything running; a functional oxide is reserved for errors only.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* chalk — the same system in light: a printed technical manual. */
+
+/* carbon — industrial cool-grey dark, phosphor-green instrument light. */
+
+/* bone — warm parchment light, sepia ink, terracotta accent. */
+
+/* indigo — deep slate-indigo dark, ice-blue accent. */
+
+/* sage — soft botanical light, forest-green accent. */
+
+/* aurora — V11.5: deep blue-teal night, one ice signal. The palette of the 3 a.m. operator
+   who still wants to read every label. Twelve hues, no gradients, no glow abuse. */
+
+/* ---------------------------------------------------------------------------
+   SHARED COMPONENT RULES — one system, four palettes.
+   --------------------------------------------------------------------------- */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) ::selection { background: var(--sel-bg); color: var(--sel-fg); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+
+/* ── chrome ─────────────────────────────────────────────────────────────── */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button {
+  border-radius: var(--r-md);
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button:hover { border-style: dashed; background: transparent; transform: none; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button.primary:hover { background: var(--accent-hot); border-style: solid; border-color: var(--accent-hot); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button.danger { color: var(--red); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) button:focus-visible { outline: 1px dashed var(--accent); outline-offset: 2px; }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .titlebar .logo i { color: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .titlebar .host-pill,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .statusbar,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .tabstrip .tab {
+  font-family: var(--font-doto);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .tabstrip .tab.active { font-weight: 700; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .kbd { font-family: var(--font-doto); letter-spacing: 0.1em; border-radius: var(--r-md); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .titlebar .win-btns button:hover { background: var(--inset); border-style: solid; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .titlebar .win-btns .close:hover { background: var(--red); color: var(--sel-fg); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .traffic span { border-radius: var(--r-md); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .traffic .m { background: var(--accent); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .menubar .menu-item:hover,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .menubar .menu-item.open { background: var(--menu-hover); box-shadow: inset 0 -2px 0 var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .menu-fly button:hover { background: var(--menu-hover); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .menu-fly { border-radius: 0; }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .tabstrip .tab.active { box-shadow: inset 0 2px 0 var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .tabstrip .tab .x:hover { color: var(--accent-hot); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .rail button.active { background: var(--menu-hover); box-shadow: inset 2px 0 0 var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .rail button:hover { background: var(--row-hover); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .statusbar .live { color: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .statusbar .live::before { background: var(--accent); border-radius: var(--r-md); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .statusbar .err { color: var(--red); }
+
+/* ── glyph interface: segmented ETA module reads like instrument LED strips ─ */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .eta-seg { background: var(--seg-off); border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .eta-seg.on { background: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .eta-seg.hot { background: var(--red); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .eta-readout { color: var(--text); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ── canvas ─────────────────────────────────────────────────────────────── */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-grid {
+  background-image:
+    radial-gradient(circle, var(--dot-1) 1px, transparent 1px),
+    radial-gradient(circle, var(--dot-2) 1px, transparent 1.5px);
+  background-size: 20px 20px, 100px 100px;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .wire { stroke: var(--wire); stroke-dasharray: 2 4; filter: none; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .wire.active { stroke: var(--wire-active) !important; stroke-dasharray: 9 8; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .wire.streaming { stroke: var(--wire-hot); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .wire.completed { stroke: var(--wire-done); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .wire.error { stroke: var(--red); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card { border-radius: var(--r-lg); box-shadow: none !important; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card:hover { border-color: var(--border-strong); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card.selected { border-color: var(--accent); outline: 1px dashed var(--accent); outline-offset: 2px; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card.agent .head .icon { color: var(--text); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card .head { border-bottom: 1px solid var(--border); padding-bottom: 7px; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .node-card .title { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* The glyph light: a dot that turns accent when the node is alive. */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .glyph-light { border-radius: var(--r-md); background: var(--glyph-off); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .glyph-light.on { background: var(--glyph-on); box-shadow: 0 0 6px var(--accent-dim); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .glyph-light.err { background: var(--red); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .glyph-light.done { background: var(--text); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .port-anchor { border-radius: 50%; border-color: var(--port-edge); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .port-anchor:hover,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .port-anchor.valid-target { border-color: var(--accent-hot); background: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .port-anchor.filled { background: var(--accent); border-color: var(--accent); }
+
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .sticky-note { border-left: 3px dotted var(--accent); background: var(--accent-dim); border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .marquee-rect { border: 1px dashed var(--accent); background: var(--accent-dim); border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-toolbar { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .minimap { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-empty { background-image: radial-gradient(circle, var(--dot-1) 1px, transparent 1px); background-size: 16px 16px; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-empty .ce-mark { color: var(--inset); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-empty .ce-title { font-family: var(--font-doto); letter-spacing: 0.1em; }
+
+/* ── panels & pages ─────────────────────────────────────────────────────── */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .card,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .modal .card { border-radius: 0; box-shadow: none !important; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .modal { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .modal-overlay,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette-overlay { background: var(--overlay); backdrop-filter: none; -webkit-backdrop-filter: none; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .library-drawer { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .lib-item:hover { background: var(--row-hover); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .inspector-head { background: var(--bg-panel); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette input { font-family: var(--font-doto); letter-spacing: 0.04em; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette .result { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette .result:hover,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .palette .result.hot { background: var(--menu-hover); box-shadow: inset 2px 0 0 var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .toast { border-radius: 0; border-left: 3px solid var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .toast.err { border-left-color: var(--red); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .assistant-panel { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .ctx-menu { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .stat { border-radius: 0; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .stat .n { color: var(--text); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .home-hero h1 span { color: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .pill { border-radius: var(--r-md); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .pill.ok { color: var(--text); border-color: var(--border-strong); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .pill.err { color: var(--red); border-color: var(--red-dim); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .gantt-bar { border-radius: 0; background: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .diff-add { color: var(--text); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .diff-del { color: var(--red); }
+
+/* ── typography: labels are instrument markings, not sentences ───────────── */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .card-title,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .ev-kind,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .lib-cat,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .eta-readout {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .stat,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .canvas-empty .ce-mark {
+  font-family: var(--font-doto);
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  font-variation-settings: "ROND" 0, "WONK" 1;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) h1,
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) h2 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* hazard — V11.4 — industrial dark: soot canvas, safety-yellow signal.
+   The workshop palette: Teenage Engineering knobs on a Nothing chassis. */
+
+/* orchid — V11.4 — noir magenta: near-black plum, orchid signal.
+   The evening palette: OLED noir with an orchid lamp. */
+
+/* porcelain — V11.4 — cool light: porcelain white, ultraviolet signal.
+   The gallery palette: white cube, one violet work of light. */
+
+/* =============================================================================
+   V11.4 — THE SIGNAL DIET (the red-retreat pass)
+   -----------------------------------------------------------------------------
+   Nothing OS keeps red for interrupts; the V11.2 inscribed painted too much of
+   the screen with it. V11.4 retreats the signal to interrupt-only duty:
+   primary buttons go monochrome (white fill / black ink), big numbers go white,
+   tinted washes halve, and the scrollbar stops shouting. Red remains where it
+   MEANS something: the live lamp, the brand dot, the active wire, the focus
+   ring, selection, danger. If nothing is urgent, nothing is red.
+   ========================================================================== */
+
+/* big numbers are data, not alarms */
+[data-theme="obsidian"] .stat .n,
+[data-theme="porcelain"] .stat .n { color: var(--text); }
+
+/* =============================================================================
+   V11.3 — THE DOT SYSTEM (the Nothing OS inscription pass)
+   -----------------------------------------------------------------------------
+   One accent of colour per screen. The grey scale is the hierarchy. The dot is
+   the atom: status pills lead with a 4px dot, toggles are mechanical switches,
+   sliders end in a dot, theme chips carry their own pigment dot, and focus is
+   a hairline ring — never a glow. Every rule here is shared through :is(),
+   exactly like the rest of the file: a palette is still only tokens.
+   ========================================================================== */
+
+/* status pills lead with a dot that inherits the pill's state colour */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .pill::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* mechanical toggle — a switch, not a checkbox. square track, square thumb,
+   percussive travel, hairline borders only. */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 14px;
+  margin: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  position: relative;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+  flex: none;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 10px;
+  height: 10px;
+  background: var(--text-mute);
+  transition: transform var(--t-fast), background var(--t-fast);
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="checkbox"]:hover { border-color: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="checkbox"]:checked { border-color: var(--accent); }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="checkbox"]:checked::before {
+  transform: translateX(14px);
+  background: var(--accent);
+}
+
+/* sliders — a hairline rail with a dot thumb */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: var(--border-strong);
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+}
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+}
+
+/* theme chips — each palette carries its own pigment dot so the settings row
+   reads like a paint card. The hex lives here in the CSS (the token home),
+   never in TypeScript. */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .theme-chip { text-transform: lowercase; letter-spacing: 0.04em; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .theme-chip .tdot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--seg-off);
+  flex: none;
+}
+
+/* the four exposure dots — one swatch per theme, the theme's own signal */
+:is([data-theme="obsidian"]) .theme-chip[data-t="obsidian"] .tdot { background: #C98A62; border-color: #C98A62; }
+:is([data-theme="graphite"]) .theme-chip[data-t="graphite"] .tdot { background: #9CAFC7; border-color: #9CAFC7; }
+:is([data-theme="porcelain"]) .theme-chip[data-t="porcelain"] .tdot { background: #A5673B; border-color: #A5673B; }
+:is([data-theme="bone"]) .theme-chip[data-t="bone"] .tdot { background: #7A6B3A; border-color: #7A6B3A; }
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .theme-chip.on { border-color: var(--accent); color: var(--text); }
+
+/* focus is a hairline ring, never a glow */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) :focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* dotted rule — the dot-matrix hairline divider */
+:is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) .dot-rule {
+  border: none;
+  border-top: 1px dotted var(--border-strong);
+  margin: 14px 0;
+}
+
+/* reduced motion, honoured ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :is(
+  [data-theme="obsidian"],
+  [data-theme="graphite"],
+  [data-theme="porcelain"],
+  [data-theme="bone"]
+) * {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
+
+/* ── wabi — the twelfth palette: five-color minimal (MJ 11.9.4-Fixed) ──────
+ * Charcoal ground, washi ink, one kiln-terracotta signal, moss alive,
+ * berry error. Exactly five hues: every secondary tone is derived from
+ * them with color-mix, so the palette stays literally five colors by
+ * construction. Flat instrument panel — no gradients, no glow.
+ */
+
+/* cyanotype — 11.9.5, the thirteenth palette: FIVE colors, one rare hue family.
+   Prussian ground #0b1524 · paper ink #e9eef7 · exposure signal #8fc6ff ·
+   madder error #d4687c · viridian alive #5fb8a0. Everything else is color-mix.
+   The story is the process: ferrous salts, sunlight, and the blueprint's blue. */
+
+/* daylight — 11.10.7 CLARITY, the fourteenth palette: warm paper ground, ink text,
+   kiln-copper signal at light-mode contrast, moss alive, madder error. */
+
+
+/* --- 13.0.1 theme option previews (per-theme ground + signal swatches) ------- */
+[data-t="ink"] .sw-ground { background: #000000; }        [data-t="ink"] .sw-signal { background: #C98A62; }
+[data-t="pitch"] .sw-ground { background: #000000; }      [data-t="pitch"] .sw-signal { background: #BD8577; }
+[data-t="slag"] .sw-ground { background: #0B0C0E; }       [data-t="slag"] .sw-signal { background: #9AA6AE; }
+[data-t="fern"] .sw-ground { background: #070A08; }       [data-t="fern"] .sw-signal { background: #A79A63; }
+[data-t="ivory"] .sw-ground { background: #F5F1E9; }      [data-t="ivory"] .sw-signal { background: #A4502C; }
+[data-t="travertine"] .sw-ground { background: #EFE9DC; } [data-t="travertine"] .sw-signal { background: #7A6B3A; }
