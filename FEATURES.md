@@ -1,4 +1,4 @@
-# Vouch Harbor 18.1.0 "TeamEvolve" — feature sheet
+# Vouch Harbor 18.2.0 "Horizon" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -103,9 +103,35 @@ Harbor/Helm → HarborProvider (src/app/harbor.tsx) → Vouch engine → bridge
 Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
 (`node tools/verify-receipt.mjs`, zero deps, zero state).
 
+## F. 18.2.0 "Horizon" — what this release added
+
+- **Horizon UI.** A new token sheet from the product owner's three palettes:
+  near-black inks, platinum mist text, Echo Park sage-gray accent (#748785).
+  SF-first system type, hairline cards, quiet motion. `probe/theme` pins the
+  identity — the old patina green cannot silently return. New app icon: the
+  minimal horizon glyph, regenerated across every desktop size.
+- **Settings, a real page.** Gear in the sidebar: appearance facts, the
+  memory/sync truth (local ledger on-device; cloud opt-in recorded but
+  non-operational — the "force sync" refusal is the proof), the self-evolution
+  floor as written, applied self-changes with reverts, live bench count.
+- **Signed collaboration invitations.** Per-member ECDSA P-256 VH identities
+  (TOFU, honestly labeled). User 1 mints a signed invite naming scope, risk
+  ceiling, duration and capabilities; tampering refuses in words; approvals
+  are signatures by the approver's own key and team-evolution adoption
+  verifies every one of them (`probe/collabInvite`).
+- **Bounded recursive self-evolution.** Tighten-only proposals minted from
+  your own ledger; human-applied, receipt-linked, revert-exact; three
+  rejections in a category suppress that category's proposals — it evolves
+  its own proposing. The floor (receipt protocol, human gate, honesty, NO
+  loosenings) is unrepresentable in the store (`probe/selfEvolve`).
+- **The team self-evolves after connection.** Once a connected team clears the
+  real bar, VH mints the evolution proposal automatically — visible, never
+  silent, never twice; adoption still needs every member, now optionally
+  signed.
+
 ## E. Version integrity
 
-Every manifest agrees on **18.1.0 "TeamEvolve"**: `src/version.ts`,
+Every manifest agrees on **18.2.0 "Horizon"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

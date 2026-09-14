@@ -15,10 +15,11 @@ import { Chart } from './views/Chart';
 import { Register } from './views/Register';
 import { HarborMaster } from './views/HarborMaster';
 import { Vh19 } from './views/Vh19';
+import { Settings } from './views/Settings';
 import { HarborProvider, useHarbor } from './app/harbor';
 import { NAV } from './app/nav';
 
-export type ViewKey = 'vh19' | 'harbor' | 'ship' | 'chart' | 'register' | 'master';
+export type ViewKey = 'vh19' | 'harbor' | 'ship' | 'chart' | 'register' | 'master' | 'settings';
 
 const VIEWS: Record<ViewKey, { label: string; Comp: React.ComponentType }> = {
   vh19:     { label: NAV.find(n => n.key === 'vh19')!.label,     Comp: Vh19 },
@@ -27,6 +28,7 @@ const VIEWS: Record<ViewKey, { label: string; Comp: React.ComponentType }> = {
   chart:    { label: NAV.find(n => n.key === 'chart')!.label,    Comp: Chart },
   register: { label: NAV.find(n => n.key === 'register')!.label, Comp: Register },
   master:   { label: NAV.find(n => n.key === 'master')!.label,   Comp: HarborMaster },
+  settings: { label: 'Settings', Comp: Settings },
 };
 
 const VouchShell: React.FC = () => {

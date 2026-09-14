@@ -9,7 +9,8 @@
  * Honesty rule: the catalog reports its OWN count (`catalogStats().count`).
  * It scales to hundreds of entries; it never claims entries it does not have.
  */
-import type { Specialist, SpecialistCategory } from "./types";
+import { loadSelfOverrides } from "./selfOverrides";
+import type { Specialist, SpecialistCategory, RiskTier } from "./types";
 
 const seed = (
   id: string,
@@ -526,6 +527,15 @@ export function listSpecialists(): Specialist[] {
 
 export function getSpecialist(id: string): Specialist | null {
   return BY_ID.get(id) ?? null;
+}
+
+/**
+ * The tier in force right now. Self-evolution may only TIGHTEN (safe→risky→
+ * critical); a stored "tighten" to a lower tier is impossible by the store's
+ * shape, and the floor audit (selfEvolve.floorIntact) pins it.
+ */
+export function effectiveRiskTier(s: Specialist): RiskTier {
+  return loadSelfOverrides().tierTightens[s.id] ?? s.riskTier;
 }
 
 export function specialistsForCategory(category: SpecialistCategory): Specialist[] {

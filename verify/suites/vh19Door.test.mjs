@@ -17372,6 +17372,74 @@ function checkEgressUrl(raw) {
 }
 var callRateGate = new RateGate(120, 6e4);
 
+// src/vh19/selfOverrides.ts
+var KEY = "vh19.self.overrides.v1";
+var EMPTY = { minScoreDelta: 0, tierTightens: {}, suppressedCategories: [], history: [] };
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function loadSelfOverrides() {
+  const s = storage();
+  if (!s) return { ...EMPTY };
+  try {
+    const raw = JSON.parse(s.getItem(KEY) ?? "null");
+    return {
+      minScoreDelta: Math.max(0, raw?.minScoreDelta ?? 0),
+      tierTightens: raw?.tierTightens ?? {},
+      suppressedCategories: raw?.suppressedCategories ?? [],
+      history: raw?.history ?? []
+    };
+  } catch {
+    return { ...EMPTY };
+  }
+}
+function save(next) {
+  storage()?.setItem(KEY, JSON.stringify(next));
+}
+function applyTightenTier(id, tier, entry) {
+  const cur = loadSelfOverrides();
+  const prev = cur.tierTightens[id] ?? null;
+  cur.tierTightens[id] = tier;
+  cur.history.push({ ...entry, kind: "tighten-tier", target: id, prev });
+  save(cur);
+  return cur;
+}
+function applyRaiseMinScore(delta, entry) {
+  const cur = loadSelfOverrides();
+  const prev = cur.minScoreDelta;
+  cur.minScoreDelta = Math.max(cur.minScoreDelta, delta);
+  cur.history.push({ ...entry, kind: "raise-min-score", target: "router.minScore", prev });
+  save(cur);
+  return cur;
+}
+function applySuppressCategory(cat, entry) {
+  const cur = loadSelfOverrides();
+  const prev = null;
+  if (!cur.suppressedCategories.includes(cat)) cur.suppressedCategories.push(cat);
+  cur.history.push({ ...entry, kind: "suppress-category", target: cat, prev });
+  save(cur);
+  return cur;
+}
+function revertSelfChange(entryId) {
+  const cur = loadSelfOverrides();
+  const idx = cur.history.findIndex((h) => h.id === entryId);
+  if (idx === -1) return cur;
+  const e = cur.history[idx];
+  if (e.kind === "tighten-tier") {
+    if (e.prev === null) delete cur.tierTightens[e.target];
+    else cur.tierTightens[e.target] = e.prev;
+  }
+  if (e.kind === "raise-min-score") cur.minScoreDelta = Math.max(0, e.prev);
+  if (e.kind === "suppress-category") cur.suppressedCategories = cur.suppressedCategories.filter((c) => c !== e.target);
+  cur.history.splice(idx, 1);
+  save(cur);
+  return cur;
+}
+
 // src/vh19/registry.ts
 var seed = (id, name, category, capabilities, keywords, riskTier, systemPrompt) => ({ id, name, category, capabilities, keywords, riskTier, systemPrompt, provenance: "vh-18.0.0-seed" });
 var SPECIALISTS = [
@@ -18308,7 +18376,7 @@ var SPECIALISTS = [
 ];
 var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
 var DISABLED_KEY = "vh19.registry.disabled.v1";
-function storage() {
+function storage2() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -18316,7 +18384,7 @@ function storage() {
   }
 }
 function disabledSpecialists() {
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   try {
     const raw = JSON.parse(s.getItem(DISABLED_KEY) ?? "[]");
@@ -18327,7 +18395,7 @@ function disabledSpecialists() {
 }
 function setSpecialistEnabled(id, enabled) {
   if (!BY_ID.has(id)) return disabledSpecialists();
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   const cur = new Set(disabledSpecialists());
   if (enabled) cur.delete(id);
@@ -18344,6 +18412,9 @@ function listSpecialists() {
 }
 function getSpecialist(id) {
   return BY_ID.get(id) ?? null;
+}
+function effectiveRiskTier(s) {
+  return loadSelfOverrides().tierTightens[s.id] ?? s.riskTier;
 }
 function catalogStats() {
   const byRisk = {};
@@ -18386,10 +18457,11 @@ function scoreSpecialist(s, request, tokens) {
 }
 function routeDeterministic(request, k = MAX_K) {
   const tokens = tokenize(request);
+  const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
   const scored = [];
   for (const s of enabledSpecialists()) {
     const { score, reasons } = scoreSpecialist(s, request, tokens);
-    if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
+    if (score >= bar) scored.push({ id: s.id, score, reasons });
   }
   scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
   const selected = scored.slice(0, k);
@@ -18534,9 +18606,9 @@ async function complete(cfg, system, user, opts = {}) {
 }
 
 // src/vh19/memory.ts
-var KEY = "vh19.memory.v1";
+var KEY2 = "vh19.memory.v1";
 var MEMORY_CAP = 500;
-function storage2() {
+function storage3() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -18544,25 +18616,25 @@ function storage2() {
   }
 }
 function loadMemory(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   if (!s) return [];
   try {
-    const raw = JSON.parse(s.getItem(KEY) ?? "[]");
+    const raw = JSON.parse(s.getItem(KEY2) ?? "[]");
     return Array.isArray(raw) ? raw.filter((r) => r && r.userId === userId) : [];
   } catch {
     return [];
   }
 }
 function saveAll(records) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return;
   const capped = records.length > MEMORY_CAP ? records.slice(records.length - MEMORY_CAP) : records;
-  s.setItem(KEY, JSON.stringify(capped));
+  s.setItem(KEY2, JSON.stringify(capped));
 }
 function recordDecision(input) {
   const rec = { id: uid("dec"), ts: input.ts ?? nowIso(), ...input };
-  const s = storage2();
-  const all = s ? JSON.parse(s.getItem(KEY) ?? "[]") : [];
+  const s = storage3();
+  const all = s ? JSON.parse(s.getItem(KEY2) ?? "[]") : [];
   all.push(rec);
   saveAll(all);
   return rec;
@@ -18602,19 +18674,135 @@ function memoryBriefing(userId = "default", maxLines = 4) {
   return lines;
 }
 
-// src/vh19/teamEvolve.ts
-var RUNS_KEY = "vh19.team.runs.v1";
-var CONFIG_KEY = "vh19.team.config.v1";
-var PENDING_KEY = "vh19.team.pending.v1";
-var RUN_CAP = 200;
-function storage3() {
+// src/vh19/collabInvite.ts
+var ID_KEY_PREFIX = "vh19.collab.key.v1:";
+var enc = new TextEncoder();
+function b64url(bytes) {
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  let s = "";
+  for (const b of u8) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function fromB64url(s) {
+  const pad = s.replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(pad + "=".repeat((4 - pad.length % 4) % 4));
+  const u8 = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
+  return u8;
+}
+async function sha256Hex(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc.encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function canonical(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+function storage4() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
     return null;
   }
 }
-async function sha256Hex(text) {
+async function collabIdentity(memberId) {
+  const s = storage4();
+  const raw = s?.getItem(ID_KEY_PREFIX + memberId);
+  if (raw) {
+    const both = JSON.parse(raw);
+    return { memberId, publicJwk: both.pub, privateJwk: both.priv };
+  }
+  const pair = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const priv = await globalThis.crypto.subtle.exportKey("jwk", pair.privateKey);
+  const pub = await globalThis.crypto.subtle.exportKey("jwk", pair.publicKey);
+  s?.setItem(ID_KEY_PREFIX + memberId, JSON.stringify({ pub, priv }));
+  return { memberId, publicJwk: pub, privateJwk: priv };
+}
+async function importPublic(jwk) {
+  return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+}
+async function importPrivate(jwk) {
+  return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+}
+var SIGN_PARAMS = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+async function createInvitation(args) {
+  const ident = await collabIdentity(args.from);
+  const payload = {
+    v: "vh19-invite/1",
+    id: `inv-${(args.now ?? (() => /* @__PURE__ */ new Date()))().getTime().toString(36)}`,
+    from: args.from,
+    to: args.to,
+    scope: args.scope,
+    riskCeiling: args.riskCeiling,
+    durationH: args.durationH,
+    capabilities: args.capabilities,
+    message: args.message,
+    createdAt: (args.now ?? (() => /* @__PURE__ */ new Date()))().toISOString(),
+    issuerPublicJwk: ident.publicJwk,
+    trustModel: "tofu"
+  };
+  const canon = canonical(payload);
+  const key = await importPrivate(ident.privateJwk);
+  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canon));
+  return { payload, signatureB64: b64url(sig), digest: await sha256Hex(canon + "." + b64url(sig)) };
+}
+async function parseInvitation(token) {
+  let obj;
+  try {
+    obj = JSON.parse(new TextDecoder().decode(fromB64url(token.trim())));
+  } catch {
+    return { ok: false, error: "not a parseable invitation token" };
+  }
+  if (!obj.payload || obj.payload.v !== "vh19-invite/1" || !obj.signatureB64) {
+    return { ok: false, error: "token is not a vh19-invite/1 payload" };
+  }
+  const canon = canonical(obj.payload);
+  let verified;
+  try {
+    const key = await importPublic(obj.payload.issuerPublicJwk);
+    verified = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(obj.signatureB64), enc.encode(canon));
+  } catch {
+    verified = false;
+  }
+  if (!verified) return { ok: false, error: "signature does not verify against the issuer key \u2014 the invite was tampered with or is not from its claimed issuer" };
+  const digest = await sha256Hex(canon + "." + obj.signatureB64);
+  if (obj.digest && obj.digest !== digest) return { ok: false, error: "invite digest mismatch" };
+  return { ok: true, invite: { payload: obj.payload, signatureB64: obj.signatureB64, digest }, issuerVerified: true };
+}
+function serializeInvitation(inv) {
+  return b64url(enc.encode(JSON.stringify(inv)));
+}
+async function signApproval(inviteDigest, approver, approved, now = () => /* @__PURE__ */ new Date()) {
+  const ident = await collabIdentity(approver);
+  const body = { inviteDigest, approver, approved, at: now().toISOString() };
+  const key = await importPrivate(ident.privateJwk);
+  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canonical(body)));
+  return { ...body, publicJwk: ident.publicJwk, signatureB64: b64url(sig) };
+}
+async function verifyApproval(a, expectedApprover) {
+  if (a.approver !== expectedApprover) return { ok: false, error: `approval claims "${a.approver}" but the team expects "${expectedApprover}"` };
+  const body = { inviteDigest: a.inviteDigest, approver: a.approver, approved: a.approved, at: a.at };
+  try {
+    const key = await importPublic(a.publicJwk);
+    const ok2 = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc.encode(canonical(body)));
+    return ok2 ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify` };
+  } catch {
+    return { ok: false, error: `approval signature for "${a.approver}" is not verifiable` };
+  }
+}
+
+// src/vh19/teamEvolve.ts
+var RUNS_KEY = "vh19.team.runs.v1";
+var CONFIG_KEY = "vh19.team.config.v1";
+var PENDING_KEY = "vh19.team.pending.v1";
+var RUN_CAP = 200;
+function storage5() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+async function sha256Hex2(text) {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -18624,7 +18812,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage3();
+  const s = storage5();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -18633,7 +18821,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage3();
+  const s = storage5();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -18686,13 +18874,13 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     sourceRunIds: verifiedRuns.map((r) => r.id),
     digest: ""
   };
-  proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage3();
+  proposal.digest = await sha256Hex2(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
+  const s = storage5();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage3();
+  const s = storage5();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -18700,9 +18888,16 @@ function pendingProposal(teamId) {
     return null;
   }
 }
-async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /* @__PURE__ */ new Date()) {
+async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /* @__PURE__ */ new Date(), signedApprovals = []) {
   const proposal = pendingProposal(teamId);
   if (!proposal || proposal.id !== proposalId) return { ok: false, error: `no pending proposal ${proposalId} for this team` };
+  for (const sa of signedApprovals) {
+    const member = approvals.find((a) => a.memberId === sa.approver);
+    if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    const v = await verifyApproval(sa, sa.approver);
+    if (!v.ok) return { ok: false, error: v.error };
+    if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
+  }
   const members = proposal.members;
   const seen = /* @__PURE__ */ new Set();
   for (const a of approvals) {
@@ -18723,9 +18918,9 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     sourceRunIds: proposal.sourceRunIds,
     approvals: approvals.map((a) => ({ ...a, at: a.at || now().toISOString() })),
     adoptedAt: now().toISOString(),
-    digest: await sha256Hex(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
+    digest: await sha256Hex2(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage3();
+  const s = storage5();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -18733,7 +18928,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage3();
+  const s = storage5();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -18741,8 +18936,16 @@ function evolvedConfig(teamId) {
     return null;
   }
 }
+async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ new Date()) {
+  if (pendingProposal(teamId)) return null;
+  const report = teamMemoryReport(teamId);
+  const proven = new Set(report.topSpecialists.map((e) => e.id));
+  if (report.runs < 3 || report.verified < 1 || proven.size < 2) return null;
+  const r = await proposeTeamEvolution(teamId, members, now);
+  return r.ok ? r.proposal : null;
+}
 function revokeEvolvedConfig(teamId) {
-  const s = storage3();
+  const s = storage5();
   if (s) s.removeItem(`${CONFIG_KEY}:${teamId}`);
 }
 function applyTeamPreference(teamId, selected) {
@@ -18758,7 +18961,7 @@ var PASS_THRESHOLD = 0.9;
 var AUTONOMY_KEY = "vh19.autonomy.v1";
 var SESSION_KEY = "vh19.exam.sessions.v1";
 var MAX_SESSIONS = 20;
-function storage4() {
+function storage6() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -18811,7 +19014,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage4();
+  const s = storage6();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -18836,7 +19039,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage4();
+  const s = storage6();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -18879,7 +19082,7 @@ function grantKey(userId, category) {
   return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
 function loadGrant(userId = "default", category) {
-  const s = storage4();
+  const s = storage6();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
@@ -18891,7 +19094,7 @@ function loadGrant(userId = "default", category) {
   }
 }
 function saveGrant(attempts, score, passed2, userId, now, category) {
-  const s = storage4();
+  const s = storage6();
   if (!s) return;
   const prev = loadGrant(userId, category);
   const grant = {
@@ -18911,14 +19114,14 @@ function autonomyCovers(userId, category) {
   return category ? loadGrant(userId, category).granted : false;
 }
 function revokeAutonomy(userId = "default", category) {
-  const s = storage4();
+  const s = storage6();
   const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
   if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
 }
 
 // src/vh19/generalist.ts
-async function sha256Hex2(text) {
+async function sha256Hex3(text) {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -18942,7 +19145,7 @@ async function askVH19(args, deps = {}) {
   void now;
   const finish = async (r) => ({
     ...r,
-    provenanceDigest: await sha256Hex2(responseCanonical(r))
+    provenanceDigest: await sha256Hex3(responseCanonical(r))
   });
   const findings = detectInjection(text);
   if (findings.length > 0) {
@@ -18976,6 +19179,7 @@ async function askVH19(args, deps = {}) {
         specialists: [],
         note: res.detail.slice(0, 160)
       });
+      void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
@@ -19074,6 +19278,142 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
   });
 }
 
+// src/vh19/selfEvolve.ts
+var PROPOSALS_KEY = "vh19.self.proposals.v1";
+var SELF_EVOLUTION_FLOOR = [
+  "the receipt protocol (vh-proof-receipt/2)",
+  "the human gate and the 90% exam requirement",
+  "the honesty contract (executed:false when nothing ran)",
+  "any LOOSENING of any control (tiers, bars, ceilings)"
+];
+function storage7() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+async function sha256Hex4(t) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function selfProposals() {
+  const s = storage7();
+  if (!s) return [];
+  try {
+    return JSON.parse(s.getItem(PROPOSALS_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+function saveProposals(list) {
+  storage7()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
+}
+async function proposeSelfChanges(userId = "default", now = () => /* @__PURE__ */ new Date()) {
+  const report = patternReport(userId);
+  const ovr = loadSelfOverrides();
+  const existing = selfProposals();
+  const disabled = new Set(disabledSpecialists());
+  const fresh = [];
+  const pendingOrApplied = new Set(existing.filter((p) => p.state !== "rejected").map((p) => `${p.kind}:${p.target}:${p.to}`));
+  for (const e of report.bySpecialist) {
+    if (e.rejects < 3) continue;
+    const spec = SPECIALISTS.find((x) => x.id === e.id);
+    if (!spec || disabled.has(e.id) || ovr.suppressedCategories.includes(spec.category)) continue;
+    if (spec.riskTier === "safe" && !ovr.tierTightens[e.id]) {
+      const key = `tighten-tier:${e.id}:risky`;
+      if (!pendingOrApplied.has(key)) {
+        fresh.push(await mk(
+          "tighten-tier",
+          e.id,
+          "risky",
+          spec.category,
+          `you rejected "${e.id}" ${e.rejects}\xD7 (acceptance ${(e.rate * 100).toFixed(0)}%) \u2014 tighten its gate tier to risky until it re-earns trust`,
+          now
+        ));
+      }
+    } else {
+      const key = `suppress-category:${spec.category}`;
+      if (!pendingOrApplied.has(key) && !ovr.suppressedCategories.includes(spec.category)) {
+        fresh.push(await mk(
+          "suppress-category",
+          spec.category,
+          spec.category,
+          spec.category,
+          `rejections keep clustering in "${spec.category}" even after tightening \u2014 propose pausing self-proposals for that category`,
+          now
+        ));
+      }
+    }
+  }
+  if (report.total >= 10 && report.acceptanceRate < 0.6 && ovr.minScoreDelta < 2 && !ovr.suppressedCategories.includes("routing")) {
+    const key = `raise-min-score:router.minScore:${ovr.minScoreDelta + 1}`;
+    if (!pendingOrApplied.has(key)) {
+      fresh.push(await mk(
+        "raise-min-score",
+        "router.minScore",
+        ovr.minScoreDelta + 1,
+        "routing",
+        `overall acceptance is ${(report.acceptanceRate * 100).toFixed(0)}% over ${report.total} decisions \u2014 raise the routing bar by 1 so weaker matches stay out`,
+        now
+      ));
+    }
+  }
+  if (fresh.length) saveProposals([...existing, ...fresh]);
+  return { proposals: selfProposals(), suppressed: ovr.suppressedCategories };
+}
+async function mk(kind, target, to, category, rationale, now) {
+  const p = { id: uid("self"), createdAt: now().toISOString(), kind, target, to, rationale, category, state: "pending", digest: "" };
+  p.digest = await sha256Hex4(JSON.stringify(["vh19-self/1", p.kind, p.target, p.to, p.createdAt]));
+  return p;
+}
+function applySelfChange(proposalId, now = () => /* @__PURE__ */ new Date()) {
+  const list = selfProposals();
+  const p = list.find((x) => x.id === proposalId);
+  if (!p) return { ok: false, error: `unknown proposal ${proposalId}` };
+  if (p.state !== "pending") return { ok: false, error: `proposal already ${p.state}` };
+  const floor = SELF_EVOLUTION_FLOOR.join(" \xB7 ");
+  void floor;
+  const entry = { id: uid("chg"), at: now().toISOString(), proposalId };
+  let ovr;
+  if (p.kind === "tighten-tier") ovr = applyTightenTier(p.target, p.to, entry);
+  else if (p.kind === "raise-min-score") ovr = applyRaiseMinScore(p.to, entry);
+  else ovr = applySuppressCategory(p.target, entry);
+  p.state = "applied";
+  saveProposals(list);
+  return { ok: true, overrides: ovr };
+}
+function rejectSelfChange(proposalId, reason, now = () => /* @__PURE__ */ new Date()) {
+  const list = selfProposals();
+  const p = list.find((x) => x.id === proposalId);
+  if (!p) return { ok: false, error: `unknown proposal ${proposalId}` };
+  p.state = "rejected";
+  p.rejectionReason = reason;
+  saveProposals(list);
+  const rejected = list.filter((x) => x.state === "rejected" && x.category === p.category && x.category);
+  if (p.category && rejected.length >= 3) {
+    const ovr = loadSelfOverrides();
+    if (!ovr.suppressedCategories.includes(p.category)) {
+      const overrides = applySuppressCategory(p.category, { id: uid("chg"), at: now().toISOString() });
+      return { ok: true, overrides, autoSuppressed: p.category };
+    }
+  }
+  return { ok: true, overrides: loadSelfOverrides() };
+}
+function revertAppliedChange(entryId) {
+  const entry = loadSelfOverrides().history.find((h) => h.id === entryId);
+  const ovr = revertSelfChange(entryId);
+  if (entry?.proposalId) {
+    const list = selfProposals();
+    const p = list.find((x) => x.id === entry.proposalId);
+    if (p && p.state === "applied") {
+      p.state = "pending";
+      saveProposals(list);
+    }
+  }
+  return ovr;
+}
+
 // src/views/Vh19.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var USER = "local";
@@ -19110,7 +19450,22 @@ var Vh19 = () => {
   const [teamProposal, setTeamProposal] = (0, import_react.useState)(null);
   const [teamConfig, setTeamConfig] = (0, import_react.useState)(null);
   const [teamNote, setTeamNote] = (0, import_react.useState)(null);
+  const [showCollab, setShowCollab] = (0, import_react.useState)(false);
+  const [showSelf, setShowSelf] = (0, import_react.useState)(false);
+  const [inviteOut, setInviteOut] = (0, import_react.useState)(null);
+  const [inviteScope, setInviteScope] = (0, import_react.useState)("one shared mission, safe-tier ceiling");
+  const [inviteCeiling, setInviteCeiling] = (0, import_react.useState)("safe");
+  const [inviteHours, setInviteHours] = (0, import_react.useState)(24);
+  const [received, setReceived] = (0, import_react.useState)("");
+  const [parsed, setParsed] = (0, import_react.useState)(null);
+  const [parseErr, setParseErr] = (0, import_react.useState)(null);
+  const [approvalOut, setApprovalOut] = (0, import_react.useState)(null);
+  const [selfList, setSelfList] = (0, import_react.useState)([]);
+  const [selfNote, setSelfNote] = (0, import_react.useState)(null);
   const seq = (0, import_react.useRef)(0);
+  const refreshSelf = () => {
+    setSelfList(selfProposals());
+  };
   const localMember = "harshen";
   const teamMembers = [localMember, teamPeer.trim() || "peer"].map((m) => m.toLowerCase());
   const teamId = teamIdFor(teamMembers);
@@ -19118,6 +19473,7 @@ var Vh19 = () => {
     setTeamReport(teamMemoryReport(id));
     setTeamProposal(pendingProposal(id));
     setTeamConfig(evolvedConfig(id));
+    void autoProposeIfReady(id, teamMembers).then(() => setTeamProposal(pendingProposal(id)));
   };
   const stats2 = (0, import_react.useMemo)(() => catalogStats(), []);
   const bench = (0, import_react.useMemo)(() => listSpecialists(), []);
@@ -19489,6 +19845,142 @@ var Vh19 = () => {
         ] })
       ] })
     ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => setShowCollab((v) => !v), children: [
+        showCollab ? "\u25BE" : "\u25B8",
+        " Collaboration invitations \xB7 signed"
+      ] }),
+      showCollab && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
+            "Invite ",
+            teamPeer,
+            " to collaborate"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, className: "mb-16", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", value: inviteScope, onChange: (e) => setInviteScope(e.target.value), placeholder: "scope" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "input", value: inviteCeiling, onChange: (e) => setInviteCeiling(e.target.value), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "safe", children: "safe ceiling" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "risky", children: "risky ceiling" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "critical", children: "critical ceiling" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "number", value: inviteHours, onChange: (e) => setInviteHours(Number(e.target.value)), style: { width: 70 } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
+              const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || "peer", scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
+              setInviteOut(serializeInvitation(inv));
+            }, children: "Create signed invite" })
+          ] }),
+          inviteOut && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
+              "Send this token to ",
+              teamPeer,
+              " over any channel \u2014 it is signed by your VH identity (TOFU until bound to A2A):"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, value: inviteOut, rows: 3, onFocus: (e) => e.currentTarget.select() })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Received invite" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input mb-16", rows: 3, placeholder: "paste an invite token", value: received, onChange: (e) => setReceived(e.target.value) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
+              const r = await parseInvitation(received);
+              if (!r.ok) {
+                setParsed(null);
+                setParseErr(r.error);
+                return;
+              }
+              setParseErr(null);
+              setParsed(r.invite);
+              setApprovalOut(null);
+            }, children: "Verify" }),
+            parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
+                const a = await signApproval(parsed.digest, localMember, true);
+                setApprovalOut(JSON.stringify(a));
+              }, children: "Approve (sign)" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
+                const a = await signApproval(parsed.digest, localMember, false);
+                setApprovalOut(JSON.stringify(a));
+              }, children: "Reject (sign)" })
+            ] })
+          ] }),
+          parseErr && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { color: "var(--warn)", fontSize: 11 }, children: parseErr }),
+          parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+              "\u2713 signature verified \xB7 from ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: parsed.payload.from }),
+              " \xB7 scope: ",
+              parsed.payload.scope,
+              " \xB7 ceiling: ",
+              parsed.payload.riskCeiling,
+              " \xB7 ",
+              parsed.payload.durationH,
+              "h \xB7 trust-on-first-use key"
+            ] }),
+            approvalOut && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, rows: 2, value: approvalOut, style: { marginTop: 6 }, onFocus: (e) => e.currentTarget.select() })
+          ] })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+        setShowSelf((v) => !v);
+        refreshSelf();
+      }, children: [
+        showSelf ? "\u25BE" : "\u25B8",
+        " Self-evolution \xB7 tighten-only, human-gated"
+      ] }),
+      showSelf && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
+          "Floor \u2014 never modifiable: ",
+          SELF_EVOLUTION_FLOOR.join(" \xB7 "),
+          ". Proposals come from YOUR ledger; applying them is always your decision; every change reverts exactly."
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm mb-16", onClick: async () => {
+          await proposeSelfChanges(USER);
+          refreshSelf();
+        }, children: "Propose from my ledger" }),
+        selfNote && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11, color: "var(--warn)" }, children: selfNote }),
+        selfList.filter((p) => p.state === "pending").map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "8px 10px", background: "var(--bg)", marginBottom: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-main", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
+              p.kind,
+              " \u2192 ",
+              p.target,
+              " = ",
+              String(p.to)
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11 }, children: p.rationale })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => {
+            const r = applySelfChange(p.id);
+            setSelfNote(r.ok ? null : r.error);
+            refreshSelf();
+          }, children: "Apply" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+            rejectSelfChange(p.id, "user declined");
+            refreshSelf();
+          }, children: "Reject" })
+        ] }, p.id)),
+        loadSelfOverrides().history.slice(-4).reverse().map((h) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "6px 10px", opacity: 0.75, marginBottom: 4 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+            h.kind,
+            " \xB7 ",
+            h.target,
+            " (applied ",
+            h.at.slice(0, 10),
+            ")"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+            revertAppliedChange(h.id);
+            refreshSelf();
+          }, children: "Revert" })
+        ] }, h.id))
+      ] })
+    ] }),
     showBench && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
         "Specialist bench \xB7 ",
@@ -19505,7 +19997,7 @@ var Vh19 = () => {
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
               s.category,
               " \xB7 ",
-              s.riskTier
+              effectiveRiskTier(s)
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
@@ -19612,6 +20104,10 @@ ok("the autonomy override floor is stated", html.includes("override") || html.in
 ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
 ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
 ok("the bench is 100+ real specialists on screen", /\b1\d\d\b/.test(html) && catalogStats().count >= 100, `count ${catalogStats().count}`);
+ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes("Collaboration invitations \xB7 signed") && /createInvitation/.test(doorSrc) && /signApproval/.test(doorSrc) && /parseInvitation/.test(doorSrc));
+ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution \xB7 tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
+ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
+ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

@@ -11,6 +11,34 @@ function uid(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
+// src/vh19/collabInvite.ts
+var enc = new TextEncoder();
+function fromB64url(s) {
+  const pad = s.replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(pad + "=".repeat((4 - pad.length % 4) % 4));
+  const u8 = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) u8[i] = raw.charCodeAt(i);
+  return u8;
+}
+function canonical(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+async function importPublic(jwk) {
+  return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+}
+var SIGN_PARAMS = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+async function verifyApproval(a, expectedApprover) {
+  if (a.approver !== expectedApprover) return { ok: false, error: `approval claims "${a.approver}" but the team expects "${expectedApprover}"` };
+  const body = { inviteDigest: a.inviteDigest, approver: a.approver, approved: a.approved, at: a.at };
+  try {
+    const key = await importPublic(a.publicJwk);
+    const ok = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc.encode(canonical(body)));
+    return ok ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify` };
+  } catch {
+    return { ok: false, error: `approval signature for "${a.approver}" is not verifiable` };
+  }
+}
+
 // src/vh19/teamEvolve.ts
 var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
@@ -109,9 +137,16 @@ function pendingProposal(teamId) {
     return null;
   }
 }
-async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /* @__PURE__ */ new Date()) {
+async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /* @__PURE__ */ new Date(), signedApprovals = []) {
   const proposal = pendingProposal(teamId);
   if (!proposal || proposal.id !== proposalId) return { ok: false, error: `no pending proposal ${proposalId} for this team` };
+  for (const sa of signedApprovals) {
+    const member = approvals.find((a) => a.memberId === sa.approver);
+    if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    const v = await verifyApproval(sa, sa.approver);
+    if (!v.ok) return { ok: false, error: v.error };
+    if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
+  }
   const members = proposal.members;
   const seen = /* @__PURE__ */ new Set();
   for (const a of approvals) {
@@ -149,6 +184,14 @@ function evolvedConfig(teamId) {
   } catch {
     return null;
   }
+}
+async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ new Date()) {
+  if (pendingProposal(teamId)) return null;
+  const report = teamMemoryReport(teamId);
+  const proven = new Set(report.topSpecialists.map((e) => e.id));
+  if (report.runs < 3 || report.verified < 1 || proven.size < 2) return null;
+  const r = await proposeTeamEvolution(teamId, members, now);
+  return r.ok ? r.proposal : null;
 }
 function revokeEvolvedConfig(teamId) {
   const s = storage();
@@ -261,6 +304,19 @@ test("teamEvolve \u2014 the team itself learns, with every member's consent", as
   revokeEvolvedConfig(TEAM_A);
   check("revocation removes the config", evolvedConfig(TEAM_A) === null);
   check("and the routing lean disappears with it", applyTeamPreference(TEAM_A, selected).find((c) => c.id === "review.code").score === 7);
+  console.log("\n\u2500\u2500 5. the team self-proposes after connection (18.2.0) \u2500\u2500");
+  {
+    const AUTO = teamIdFor(["auto-1", "auto-2"]);
+    check("a brand-new connection proposes nothing yet", await autoProposeIfReady(AUTO, ["auto-1", "auto-2"]) === null);
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a1", outcome: "verified", specialists: ["code.debugging"] });
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a2", outcome: "failed", specialists: ["testing.unit"] });
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a3", outcome: "verified", specialists: ["review.code"] });
+    const auto = await autoProposeIfReady(AUTO, ["auto-1", "auto-2"]);
+    check("3+ runs, a verified one, 2+ specialists \u2192 the team mints its own proposal", auto !== null);
+    check("the auto-proposal is visible as pending, not silently adopted", pendingProposal(AUTO)?.id === auto?.id);
+    check("and it is never proposed twice", await autoProposeIfReady(AUTO, ["auto-1", "auto-2"]) === null);
+    revokeEvolvedConfig(AUTO);
+  }
   console.log(`
 ${fail === 0 ? "\u2705" : "\u274C"} teamEvolve probe: ${pass} passed, ${fail} failed
 `);

@@ -84,6 +84,10 @@ ok("the autonomy override floor is stated", html.includes("override") || html.in
 ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
 ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
 ok("the bench is 100+ real specialists on screen", /\b1\d\d\b/.test(html) && catalogStats().count >= 100, `count ${catalogStats().count}`);
+ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes("Collaboration invitations · signed") && /createInvitation/.test(doorSrc) && /signApproval/.test(doorSrc) && /parseInvitation/.test(doorSrc));
+ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution · tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
+ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
+ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

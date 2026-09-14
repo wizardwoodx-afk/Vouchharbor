@@ -1,13 +1,13 @@
-Vouch Harbor 18.1.0 TeamEvolve
-built: 18.1.0 TeamEvolve
-ts:   2026-09-14T16:00:00Z
+Vouch Harbor 18.2.0 Horizon
+built: 18.2.0 Horizon
+ts:   2026-09-14T18:30:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-109 self-contained bundles in verify/suites (every probe suite except the pack's
+111 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 110 probe
-suites; the offline pack reproduces 109 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 112 probe
+suites; the offline pack reproduces 111 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-110 passed, 0 failed across 110 probe suites (node verify/run.mjs → 109 passed,
+112 passed, 0 failed across 112 probe suites (node verify/run.mjs → 111 passed,
 0 failed for the offline-only subset).

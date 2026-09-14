@@ -268,9 +268,9 @@ function receiptToJsonl(rc) {
 }
 
 // src/version.ts
-var VH_VERSION = "18.1.0";
-var VH_SHORT = "18.1";
-var VH_CODENAME = "TeamEvolve";
+var VH_VERSION = "18.2.0";
+var VH_SHORT = "18.2";
+var VH_CODENAME = "Horizon";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/vouch/engine/crossHarbor.ts

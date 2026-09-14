@@ -12,6 +12,7 @@ const NavIcon: React.FC<{ kind: string }> = ({ kind }) => {
     case 'book':   return (<svg {...common}><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>);
     case 'compass':return (<svg {...common}><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-5 2 2-5 5-2z"/></svg>);
     case 'cmd':    return (<svg {...common}><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 9h6v6H9z"/></svg>);
+    case 'gear':   return (<svg {...common}><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>);
     default: return null;
   }
 };
@@ -34,20 +35,11 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
     <aside className="sidebar">
       <div className="brand">
         <div className="seal-mark" aria-hidden>
-          <svg viewBox="0 0 40 40" width="36" height="36">
-            <defs>
-              <radialGradient id="patinaG" cx="50%" cy="40%" r="60%">
-                <stop offset="0%" stopColor="#56A396"/>
-                <stop offset="55%" stopColor="#3E7C71"/>
-                <stop offset="100%" stopColor="#23524A"/>
-              </radialGradient>
-            </defs>
-            <circle cx="20" cy="20" r="17" fill="url(#patinaG)"/>
-            <circle cx="20" cy="20" r="17" fill="none" stroke="#EDE6D3" strokeOpacity=".25" strokeWidth="0.6"/>
-            <circle cx="20" cy="20" r="13" fill="none" stroke="#EDE6D3" strokeOpacity=".2" strokeWidth="0.5" strokeDasharray="1 2"/>
-            <path d="M11 20.5l5.5 5.5L29 13.5" fill="none" stroke="#EDE6D3" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="20" cy="20" r="3.2" fill="#0A0C0E" stroke="#EDE6D3" strokeOpacity=".5" strokeWidth="0.6"/>
-            <circle cx="20" cy="20" r="0.8" fill="#EDE6D3" className="seal-dot"/>
+          {/* Horizon mark — a line and a rising dot. Nothing more. */}
+          <svg viewBox="0 0 40 40" width="34" height="34">
+            <rect x="6" y="6" width="28" height="28" rx="9" fill="#1A1919" stroke="rgba(233,235,237,0.10)" strokeWidth="1"/>
+            <path d="M13 25.5h14" stroke="#9BA6A8" strokeWidth="1.7" strokeLinecap="round"/>
+            <circle cx="20" cy="17.5" r="3.4" fill="none" stroke="#748785" strokeWidth="1.7"/>
           </svg>
         </div>
         <div className="brand-text">
@@ -66,6 +58,14 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
       </nav>
 
       <div className="sidebar-spacer"/>
+
+      <button className={`nav-item ${view === 'settings' ? 'active' : ''}`} onClick={() => onChange('settings')}>
+        <span className="nav-icon"><NavIcon kind="gear"/></span>
+        <span className="nav-text">
+          <span className="nav-label">Settings</span>
+          <span className="nav-sub">theme · memory · floor</span>
+        </span>
+      </button>
 
       <button className="nav-item" onClick={onOpenPalette}>
         <span className="nav-icon"><NavIcon kind="cmd"/></span>

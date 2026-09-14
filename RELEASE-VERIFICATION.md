@@ -1,8 +1,36 @@
-# Vouch Harbor 18.1.0 "TeamEvolve" — release verification record
+# Vouch Harbor 18.2.0 "Horizon" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it.
+
+## The 18.2.0 record (Horizon UI + signed invitations + bounded self-evolution)
+
+18.2.0 ships the premium minimal UI (Horizon tokens, new icon, real Settings
+page), the signed collaboration invitation lifecycle the external reviews
+named the biggest gap (`probe/collabInvite`, 14 checks), bounded recursive
+self-evolution with an unbreakable floor (`probe/selfEvolve`, 18 checks), and
+automatic team self-proposal after connection (`probe/teamEvolve`, 35 checks).
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `tsc --noEmit` | 0 errors |
+| Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
+| Unit | `npm run unit` | 20/20 |
+| Theme (Horizon) | `node tools/run-one-probe.mjs theme` | 10/10 |
+| Collab invitations | `node tools/run-one-probe.mjs collabInvite` | 14/14 |
+| Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
+| Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
+| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
+| Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
+| Offline pack | `node verify/run.mjs` | 111 passed, 0 failed |
+| Live fleet | `npm test` | 112/112 suites green |
+
+---
+
+# 18.1.0 "TeamEvolve" — release verification record (standing Team-Evolve record)
 
 ## The 18.1.0 record (cross-user Team-Evolve + category-scoped autonomy)
 

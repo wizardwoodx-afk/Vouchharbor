@@ -21,6 +21,7 @@
  * a decision — and `considered` counts the enabled bench, not the catalog.
  */
 import { enabledSpecialists } from "./registry";
+import { loadSelfOverrides } from "./selfOverrides";
 import type { ProviderConfig, RouteCandidate, RouteDecision, Specialist } from "./types";
 
 /** Below this score a specialist is not a match — honest no-match beats a forced one. */
@@ -76,10 +77,11 @@ export function scoreSpecialist(s: Specialist, request: string, tokens: string[]
  */
 export function routeDeterministic(request: string, k = MAX_K): RouteDecision {
   const tokens = tokenize(request);
+  const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
   const scored: RouteCandidate[] = [];
   for (const s of enabledSpecialists()) {
     const { score, reasons } = scoreSpecialist(s, request, tokens);
-    if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
+    if (score >= bar) scored.push({ id: s.id, score, reasons });
   }
   scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
   const selected = scored.slice(0, k);

@@ -20920,9 +20920,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.1.0";
-    VH_SHORT = "18.1";
-    VH_CODENAME = "TeamEvolve";
+    VH_VERSION = "18.2.0";
+    VH_SHORT = "18.2";
+    VH_CODENAME = "Horizon";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

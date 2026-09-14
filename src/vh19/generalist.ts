@@ -22,7 +22,7 @@ import { getSpecialist } from "./registry";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
-import { applyTeamPreference, recordTeamRun } from "./teamEvolve";
+import { applyTeamPreference, autoProposeIfReady, recordTeamRun } from "./teamEvolve";
 import { autonomyCovers } from "./exam";
 import type { GeneralistDeps, GeneralistResponse, ProviderConfig, RouteDecision } from "./types";
 
@@ -102,6 +102,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
         specialists: [],
         note: res.detail.slice(0, 160),
       });
+      void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,

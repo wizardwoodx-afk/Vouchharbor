@@ -20,6 +20,7 @@
  *   • revocation is a one-call human act.
  */
 import { uid } from "../app/id";
+import { verifyApproval, type SignedApproval } from "./collabInvite";
 import type { RouteCandidate } from "./types";
 
 const RUNS_KEY = "vh19.team.runs.v1";
@@ -206,9 +207,20 @@ export async function approveTeamEvolution(
   proposalId: string,
   approvals: TeamApproval[],
   now: () => Date = () => new Date(),
+  signedApprovals: SignedApproval[] = [],
 ): Promise<AdoptResult> {
   const proposal = pendingProposal(teamId);
   if (!proposal || proposal.id !== proposalId) return { ok: false, error: `no pending proposal ${proposalId} for this team` };
+
+  // cryptographic consent: when signed approvals are presented, each must
+  // verify against the approver's own key and match the member it claims.
+  for (const sa of signedApprovals) {
+    const member = approvals.find((a) => a.memberId === sa.approver);
+    if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    const v = await verifyApproval(sa, sa.approver);
+    if (!v.ok) return { ok: false, error: v.error };
+    if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
+  }
 
   const members = proposal.members;
   const seen = new Set<string>();
@@ -249,6 +261,21 @@ export function evolvedConfig(teamId: string): EvolvedTeamConfig | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * The team SELF-EVOLVES after connection: once the ledger clears the bar and
+ * nothing is pending, this mints the proposal without anyone pressing a
+ * button. Adoption still requires every member's explicit approval — auto
+ * proposal, human adoption. That split is the whole safety argument.
+ */
+export async function autoProposeIfReady(teamId: string, members: string[], now: () => Date = () => new Date()): Promise<EvolutionProposal | null> {
+  if (pendingProposal(teamId)) return null;
+  const report = teamMemoryReport(teamId);
+  const proven = new Set(report.topSpecialists.map((e) => e.id));
+  if (report.runs < 3 || report.verified < 1 || proven.size < 2) return null;
+  const r = await proposeTeamEvolution(teamId, members, now);
+  return r.ok ? r.proposal : null;
 }
 
 /** The human override for the team: one call, no ceremony. */

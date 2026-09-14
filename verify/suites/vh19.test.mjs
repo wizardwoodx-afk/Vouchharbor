@@ -4,6 +4,32 @@ import { createRequire as __mjCreateRequire } from "node:module"; const require 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+// src/vh19/selfOverrides.ts
+var KEY = "vh19.self.overrides.v1";
+var EMPTY = { minScoreDelta: 0, tierTightens: {}, suppressedCategories: [], history: [] };
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function loadSelfOverrides() {
+  const s = storage();
+  if (!s) return { ...EMPTY };
+  try {
+    const raw = JSON.parse(s.getItem(KEY) ?? "null");
+    return {
+      minScoreDelta: Math.max(0, raw?.minScoreDelta ?? 0),
+      tierTightens: raw?.tierTightens ?? {},
+      suppressedCategories: raw?.suppressedCategories ?? [],
+      history: raw?.history ?? []
+    };
+  } catch {
+    return { ...EMPTY };
+  }
+}
+
 // src/vh19/registry.ts
 var seed = (id, name, category, capabilities, keywords, riskTier, systemPrompt) => ({ id, name, category, capabilities, keywords, riskTier, systemPrompt, provenance: "vh-18.0.0-seed" });
 var SPECIALISTS = [
@@ -940,7 +966,7 @@ var SPECIALISTS = [
 ];
 var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
 var DISABLED_KEY = "vh19.registry.disabled.v1";
-function storage() {
+function storage2() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -948,7 +974,7 @@ function storage() {
   }
 }
 function disabledSpecialists() {
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   try {
     const raw = JSON.parse(s.getItem(DISABLED_KEY) ?? "[]");
@@ -959,7 +985,7 @@ function disabledSpecialists() {
 }
 function setSpecialistEnabled(id, enabled) {
   if (!BY_ID.has(id)) return disabledSpecialists();
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   const cur = new Set(disabledSpecialists());
   if (enabled) cur.delete(id);
@@ -1036,10 +1062,11 @@ function scoreSpecialist(s, request, tokens) {
 }
 function routeDeterministic(request, k = MAX_K) {
   const tokens = tokenize(request);
+  const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
   const scored = [];
   for (const s of enabledSpecialists()) {
     const { score, reasons } = scoreSpecialist(s, request, tokens);
-    if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
+    if (score >= bar) scored.push({ id: s.id, score, reasons });
   }
   scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
   const selected = scored.slice(0, k);
@@ -1311,10 +1338,10 @@ function nowIso() {
 }
 
 // src/vh19/memory.ts
-var KEY = "vh19.memory.v1";
+var KEY2 = "vh19.memory.v1";
 var CLOUD_KEY = "vh19.cloudsync.v1";
 var MEMORY_CAP = 500;
-function storage2() {
+function storage3() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -1322,33 +1349,33 @@ function storage2() {
   }
 }
 function loadMemory(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   if (!s) return [];
   try {
-    const raw = JSON.parse(s.getItem(KEY) ?? "[]");
+    const raw = JSON.parse(s.getItem(KEY2) ?? "[]");
     return Array.isArray(raw) ? raw.filter((r) => r && r.userId === userId) : [];
   } catch {
     return [];
   }
 }
 function saveAll(records) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return;
   const capped = records.length > MEMORY_CAP ? records.slice(records.length - MEMORY_CAP) : records;
-  s.setItem(KEY, JSON.stringify(capped));
+  s.setItem(KEY2, JSON.stringify(capped));
 }
 function recordDecision(input) {
   const rec = { id: uid("dec"), ts: input.ts ?? nowIso(), ...input };
-  const s = storage2();
-  const all = s ? JSON.parse(s.getItem(KEY) ?? "[]") : [];
+  const s = storage3();
+  const all = s ? JSON.parse(s.getItem(KEY2) ?? "[]") : [];
   all.push(rec);
   saveAll(all);
   return rec;
 }
 function clearMemory(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   if (!s) return;
-  const all = JSON.parse(s.getItem(KEY) ?? "[]");
+  const all = JSON.parse(s.getItem(KEY2) ?? "[]");
   saveAll(all.filter((r) => r.userId !== userId));
 }
 function patternReport(userId = "default") {
@@ -1386,7 +1413,7 @@ function memoryBriefing(userId = "default", maxLines = 4) {
   return lines;
 }
 function cloudSyncStatus() {
-  const s = storage2();
+  const s = storage3();
   let optedIn = false;
   let endpoint = null;
   if (s) {
@@ -1405,7 +1432,7 @@ function cloudSyncStatus() {
   };
 }
 function setCloudOptIn(optedIn, endpoint = null) {
-  const s = storage2();
+  const s = storage3();
   if (s) s.setItem(CLOUD_KEY, JSON.stringify({ optedIn, endpoint }));
   return cloudSyncStatus();
 }
@@ -1421,7 +1448,7 @@ var PASS_THRESHOLD = 0.9;
 var AUTONOMY_KEY = "vh19.autonomy.v1";
 var SESSION_KEY = "vh19.exam.sessions.v1";
 var MAX_SESSIONS = 20;
-function storage3() {
+function storage4() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -1474,7 +1501,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage3();
+  const s = storage4();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -1499,7 +1526,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -1542,7 +1569,7 @@ function grantKey(userId, category) {
   return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
 function loadGrant(userId = "default", category) {
-  const s = storage3();
+  const s = storage4();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
@@ -1554,7 +1581,7 @@ function loadGrant(userId = "default", category) {
   }
 }
 function saveGrant(attempts, score, passed, userId, now, category) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return;
   const prev = loadGrant(userId, category);
   const grant = {
@@ -1574,13 +1601,13 @@ function autonomyCovers(userId, category) {
   return category ? loadGrant(userId, category).granted : false;
 }
 function revokeAutonomy(userId = "default", category) {
-  const s = storage3();
+  const s = storage4();
   const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
   if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
 }
 function resetExams(userId = "default") {
-  const s = storage3();
+  const s = storage4();
   if (!s) return;
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]").filter((x) => x.userId !== userId);
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
@@ -1588,20 +1615,28 @@ function resetExams(userId = "default") {
   for (const cat of new Set(sessions.concat([]).map((x) => x.category).filter(Boolean))) s.removeItem(grantKey(userId, cat));
 }
 
+// src/vh19/collabInvite.ts
+var enc = new TextEncoder();
+
 // src/vh19/teamEvolve.ts
 var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
+var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage4() {
+function storage5() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
     return null;
   }
 }
+async function sha256Hex(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage4();
+  const s = storage5();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -1609,14 +1644,90 @@ function recordTeamRun(run) {
   }
   return rec;
 }
+function teamRuns(teamId) {
+  const s = storage5();
+  if (!s) return [];
+  try {
+    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
+    return all.filter((r) => r.teamId === teamId).slice(-RUN_CAP);
+  } catch {
+    return [];
+  }
+}
+function teamMemoryReport(teamId) {
+  const runs = teamRuns(teamId);
+  const verified = runs.filter((r) => r.outcome === "verified");
+  const perSpec = /* @__PURE__ */ new Map();
+  for (const r of verified) for (const id of r.specialists) perSpec.set(id, (perSpec.get(id) ?? 0) + 1);
+  return {
+    runs: runs.length,
+    verified: verified.length,
+    failed: runs.filter((r) => r.outcome === "failed").length,
+    refused: runs.filter((r) => r.outcome === "refused").length,
+    successRate: runs.length === 0 ? 0 : verified.length / runs.length,
+    topSpecialists: Array.from(perSpec.entries()).map(([id, verifiedRuns]) => ({ id, verifiedRuns })).sort((a, b) => b.verifiedRuns - a.verifiedRuns || a.id.localeCompare(b.id))
+  };
+}
+async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */ new Date()) {
+  const report = teamMemoryReport(teamId);
+  if (report.runs < 3) {
+    return { ok: false, error: `team has ${report.runs} recorded run(s) \u2014 at least 3 real runs are needed before an evolution proposal` };
+  }
+  if (report.verified < 1) {
+    return { ok: false, error: "team has no verified runs \u2014 a team that has never succeeded has nothing to evolve from" };
+  }
+  const recommended = report.topSpecialists.slice(0, 3).map((e) => e.id);
+  if (recommended.length < 2) {
+    return { ok: false, error: "verified runs used fewer than 2 distinct specialists \u2014 not enough signal to recommend a composition" };
+  }
+  const verifiedRuns = teamRuns(teamId).filter((r) => r.outcome === "verified");
+  const rationale = [
+    `${report.verified}/${report.runs} joint runs verified (${Math.round(report.successRate * 100)}% success).`,
+    ...recommended.map((id) => {
+      const e = report.topSpecialists.find((x) => x.id === id);
+      return `"${id}" proved out in ${e.verifiedRuns} verified run(s) \u2014 recommended for the evolved composition.`;
+    })
+  ];
+  const proposal = {
+    id: uid("evo"),
+    teamId,
+    members: Array.from(new Set(members)).sort(),
+    createdAt: now().toISOString(),
+    recommendedSpecialists: recommended,
+    rationale,
+    sourceRunIds: verifiedRuns.map((r) => r.id),
+    digest: ""
+  };
+  proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
+  const s = storage5();
+  if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
+  return { ok: true, proposal };
+}
+function pendingProposal(teamId) {
+  const s = storage5();
+  if (!s) return null;
+  try {
+    return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
+  } catch {
+    return null;
+  }
+}
 function evolvedConfig(teamId) {
-  const s = storage4();
+  const s = storage5();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
   } catch {
     return null;
   }
+}
+async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ new Date()) {
+  if (pendingProposal(teamId)) return null;
+  const report = teamMemoryReport(teamId);
+  const proven = new Set(report.topSpecialists.map((e) => e.id));
+  if (report.runs < 3 || report.verified < 1 || proven.size < 2) return null;
+  const r = await proposeTeamEvolution(teamId, members, now);
+  return r.ok ? r.proposal : null;
 }
 function applyTeamPreference(teamId, selected) {
   const config = evolvedConfig(teamId);
@@ -1627,7 +1738,7 @@ function applyTeamPreference(teamId, selected) {
 }
 
 // src/vh19/generalist.ts
-async function sha256Hex(text) {
+async function sha256Hex2(text) {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -1651,7 +1762,7 @@ async function askVH19(args, deps = {}) {
   void now;
   const finish = async (r) => ({
     ...r,
-    provenanceDigest: await sha256Hex(responseCanonical(r))
+    provenanceDigest: await sha256Hex2(responseCanonical(r))
   });
   const findings = detectInjection(text);
   if (findings.length > 0) {
@@ -1685,6 +1796,7 @@ async function askVH19(args, deps = {}) {
         specialists: [],
         note: res.detail.slice(0, 160)
       });
+      void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,

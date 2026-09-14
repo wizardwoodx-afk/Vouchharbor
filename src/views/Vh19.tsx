@@ -16,7 +16,12 @@ import { askVH19 } from '../vh19/generalist';
 import { catalogStats, listSpecialists, setSpecialistEnabled, disabledSpecialists } from '../vh19/registry';
 import { patternReport, recordDecision } from '../vh19/memory';
 import { autonomyStatus, gradeExam, proposeExam, revokeAutonomy, PASS_THRESHOLD } from '../vh19/exam';
-import { approveTeamEvolution, evolvedConfig, pendingProposal, proposeTeamEvolution, revokeEvolvedConfig, teamIdFor, teamMemoryReport } from '../vh19/teamEvolve';
+import { approveTeamEvolution, autoProposeIfReady, evolvedConfig, pendingProposal, proposeTeamEvolution, revokeEvolvedConfig, teamIdFor, teamMemoryReport } from '../vh19/teamEvolve';
+import { createInvitation, parseInvitation, serializeInvitation, signApproval } from '../vh19/collabInvite';
+import type { SignedInvitation } from '../vh19/collabInvite';
+import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChange, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
+import type { SelfProposal } from '../vh19/selfEvolve';
+import { effectiveRiskTier } from '../vh19/registry';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
@@ -67,7 +72,21 @@ export const Vh19: React.FC = () => {
   const [teamProposal, setTeamProposal] = useState<EvolutionProposal | null>(null);
   const [teamConfig, setTeamConfig] = useState<EvolvedTeamConfig | null>(null);
   const [teamNote, setTeamNote] = useState<string | null>(null);
+  const [showCollab, setShowCollab] = useState(false);
+  const [showSelf, setShowSelf] = useState(false);
+  const [inviteOut, setInviteOut] = useState<string | null>(null);
+  const [inviteScope, setInviteScope] = useState('one shared mission, safe-tier ceiling');
+  const [inviteCeiling, setInviteCeiling] = useState<'safe' | 'risky' | 'critical'>('safe');
+  const [inviteHours, setInviteHours] = useState(24);
+  const [received, setReceived] = useState('');
+  const [parsed, setParsed] = useState<SignedInvitation | null>(null);
+  const [parseErr, setParseErr] = useState<string | null>(null);
+  const [approvalOut, setApprovalOut] = useState<string | null>(null);
+  const [selfList, setSelfList] = useState<SelfProposal[]>([]);
+  const [selfNote, setSelfNote] = useState<string | null>(null);
   const seq = useRef(0);
+
+  const refreshSelf = () => { setSelfList(selfProposals()); };
 
   const localMember = 'harshen';
   const teamMembers = [localMember, teamPeer.trim() || 'peer'].map((m) => m.toLowerCase());
@@ -77,6 +96,8 @@ export const Vh19: React.FC = () => {
     setTeamReport(teamMemoryReport(id));
     setTeamProposal(pendingProposal(id));
     setTeamConfig(evolvedConfig(id));
+    // the team self-evolves: mint a proposal automatically once the ledger clears the bar
+    void autoProposeIfReady(id, teamMembers).then(() => setTeamProposal(pendingProposal(id)));
   };
 
   const stats = useMemo(() => catalogStats(), []);
@@ -349,6 +370,91 @@ export const Vh19: React.FC = () => {
         </div>
       </div>
 
+      {/* ── collaboration invitations (18.2.0) ── */}
+      <div className="card mt-16" style={{ padding: 14 }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => setShowCollab((v) => !v)}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed</button>
+        {showCollab && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 12 }}>
+            <div>
+              <div className="eyebrow mb-16">Invite {teamPeer} to collaborate</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="mb-16">
+                <input className="input" value={inviteScope} onChange={(e) => setInviteScope(e.target.value)} placeholder="scope" />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <select className="input" value={inviteCeiling} onChange={(e) => setInviteCeiling(e.target.value as 'safe' | 'risky' | 'critical')}>
+                    <option value="safe">safe ceiling</option><option value="risky">risky ceiling</option><option value="critical">critical ceiling</option>
+                  </select>
+                  <input className="input" type="number" value={inviteHours} onChange={(e) => setInviteHours(Number(e.target.value))} style={{ width: 70 }} />
+                </div>
+                <button className="btn btn-primary btn-sm" onClick={async () => {
+                  const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || 'peer', scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
+                  setInviteOut(serializeInvitation(inv));
+                }}>Create signed invite</button>
+              </div>
+              {inviteOut && (<>
+                <div className="row-sub mb-16" style={{ fontSize: 11 }}>Send this token to {teamPeer} over any channel — it is signed by your VH identity (TOFU until bound to A2A):</div>
+                <textarea className="input" readOnly value={inviteOut} rows={3} onFocus={(e) => e.currentTarget.select()} />
+              </>)}
+            </div>
+            <div>
+              <div className="eyebrow mb-16">Received invite</div>
+              <textarea className="input mb-16" rows={3} placeholder="paste an invite token" value={received} onChange={(e) => setReceived(e.target.value)} />
+              <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+                <button className="btn btn-ghost btn-sm" onClick={async () => {
+                  const r = await parseInvitation(received);
+                  if (!r.ok) { setParsed(null); setParseErr(r.error); return; }
+                  setParseErr(null); setParsed(r.invite); setApprovalOut(null);
+                }}>Verify</button>
+                {parsed && (<>
+                  <button className="btn btn-primary btn-sm" onClick={async () => {
+                    const a = await signApproval(parsed.digest, localMember, true);
+                    setApprovalOut(JSON.stringify(a));
+                  }}>Approve (sign)</button>
+                  <button className="btn btn-ghost btn-sm" onClick={async () => {
+                    const a = await signApproval(parsed.digest, localMember, false);
+                    setApprovalOut(JSON.stringify(a));
+                  }}>Reject (sign)</button>
+                </>)}
+              </div>
+              {parseErr && <div className="row-sub" style={{ color: 'var(--warn)', fontSize: 11 }}>{parseErr}</div>}
+              {parsed && (<>
+                <div className="row-sub" style={{ fontSize: 11 }}>✓ signature verified · from <b>{parsed.payload.from}</b> · scope: {parsed.payload.scope} · ceiling: {parsed.payload.riskCeiling} · {parsed.payload.durationH}h · trust-on-first-use key</div>
+                {approvalOut && <textarea className="input" readOnly rows={2} value={approvalOut} style={{ marginTop: 6 }} onFocus={(e) => e.currentTarget.select()} />}
+              </>)}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── recursive self-evolution (18.2.0) ── */}
+      <div className="card mt-16" style={{ padding: 14 }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setShowSelf((v) => !v); refreshSelf(); }}>{showSelf ? '▾' : '▸'} Self-evolution · tighten-only, human-gated</button>
+        {showSelf && (
+          <div style={{ marginTop: 12 }}>
+            <div className="row-sub mb-16" style={{ fontSize: 11 }}>
+              Floor — never modifiable: {SELF_EVOLUTION_FLOOR.join(' · ')}. Proposals come from YOUR ledger; applying them is always your decision; every change reverts exactly.
+            </div>
+            <button className="btn btn-ghost btn-sm mb-16" onClick={async () => { await proposeSelfChanges(USER); refreshSelf(); }}>Propose from my ledger</button>
+            {selfNote && <div className="row-sub mb-16" style={{ fontSize: 11, color: 'var(--warn)' }}>{selfNote}</div>}
+            {selfList.filter((p) => p.state === 'pending').map((p) => (
+              <div key={p.id} className="row" style={{ padding: '8px 10px', background: 'var(--bg)', marginBottom: 6 }}>
+                <div className="row-main">
+                  <div className="row-title" style={{ fontSize: 12 }}>{p.kind} → {p.target} = {String(p.to)}</div>
+                  <div className="row-sub" style={{ fontSize: 11 }}>{p.rationale}</div>
+                </div>
+                <button className="btn btn-primary btn-sm" onClick={() => { const r = applySelfChange(p.id); setSelfNote(r.ok ? null : r.error); refreshSelf(); }}>Apply</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => { rejectSelfChange(p.id, 'user declined'); refreshSelf(); }}>Reject</button>
+              </div>
+            ))}
+            {loadSelfOverrides().history.slice(-4).reverse().map((h) => (
+              <div key={h.id} className="row" style={{ padding: '6px 10px', opacity: 0.75, marginBottom: 4 }}>
+                <div className="row-sub" style={{ fontSize: 11 }}>{h.kind} · {h.target} (applied {h.at.slice(0, 10)})</div>
+                <button className="btn btn-ghost btn-sm" onClick={() => { revertAppliedChange(h.id); refreshSelf(); }}>Revert</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ── bench management ── */}
       {showBench && (
         <div className="card mt-16" style={{ padding: 14 }}>
@@ -360,7 +466,7 @@ export const Vh19: React.FC = () => {
                 <div key={s.id} className="row" style={{ padding: '8px 10px', background: 'var(--bg)', opacity: on ? 1 : 0.55 }}>
                   <div className="row-main">
                     <div className="row-title" style={{ fontSize: 12 }}>{s.name}</div>
-                    <div className="row-sub" style={{ fontSize: 11 }}>{s.category} · {s.riskTier}</div>
+                    <div className="row-sub" style={{ fontSize: 11 }}>{s.category} · {effectiveRiskTier(s)}</div>
                   </div>
                   <button className="btn btn-ghost btn-sm" onClick={() => { setSpecialistEnabled(s.id, !on); refresh(); }}>{on ? 'Disable' : 'Enable'}</button>
                 </div>

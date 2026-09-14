@@ -28,6 +28,7 @@ if (typeof globalThis.localStorage === "undefined") {
 import {
   applyTeamPreference,
   approveTeamEvolution,
+  autoProposeIfReady,
   evolvedConfig,
   pendingProposal,
   proposeTeamEvolution,
@@ -132,6 +133,20 @@ test("teamEvolve — the team itself learns, with every member's consent", async
   revokeEvolvedConfig(TEAM_A);
   check("revocation removes the config", evolvedConfig(TEAM_A) === null);
   check("and the routing lean disappears with it", applyTeamPreference(TEAM_A, selected).find((c) => c.id === "review.code")!.score === 7);
+
+  console.log("\n── 5. the team self-proposes after connection (18.2.0) ──");
+  {
+    const AUTO = teamIdFor(["auto-1", "auto-2"]);
+    check("a brand-new connection proposes nothing yet", (await autoProposeIfReady(AUTO, ["auto-1", "auto-2"])) === null);
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a1", outcome: "verified", specialists: ["code.debugging"] });
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a2", outcome: "failed", specialists: ["testing.unit"] });
+    recordTeamRun({ teamId: AUTO, members: ["auto-1", "auto-2"], task: "a3", outcome: "verified", specialists: ["review.code"] });
+    const auto = await autoProposeIfReady(AUTO, ["auto-1", "auto-2"]);
+    check("3+ runs, a verified one, 2+ specialists → the team mints its own proposal", auto !== null);
+    check("the auto-proposal is visible as pending, not silently adopted", pendingProposal(AUTO)?.id === auto?.id);
+    check("and it is never proposed twice", (await autoProposeIfReady(AUTO, ["auto-1", "auto-2"])) === null);
+    revokeEvolvedConfig(AUTO); // leave the store clean
+  }
 
   console.log(`\n${fail === 0 ? "✅" : "❌"} teamEvolve probe: ${pass} passed, ${fail} failed\n`);
   assert.equal(fail, 0, `${fail} Team-Evolve checks failed`);
