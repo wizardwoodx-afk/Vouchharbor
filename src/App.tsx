@@ -14,12 +14,14 @@ import { Ship } from './views/Ship';
 import { Chart } from './views/Chart';
 import { Register } from './views/Register';
 import { HarborMaster } from './views/HarborMaster';
+import { AgentsPage } from './pages/AgentsPage';
 import { HarborProvider, useHarbor } from './app/harbor';
 import { NAV } from './app/nav';
 
-export type ViewKey = 'harbor' | 'ship' | 'chart' | 'register' | 'master';
+export type ViewKey = 'agents' | 'harbor' | 'ship' | 'chart' | 'register' | 'master';
 
 const VIEWS: Record<ViewKey, { label: string; Comp: React.ComponentType }> = {
+  agents:   { label: NAV.find(n => n.key === 'agents')!.label,   Comp: AgentsPage },
   harbor:   { label: NAV.find(n => n.key === 'harbor')!.label,   Comp: Harbor },
   ship:     { label: NAV.find(n => n.key === 'ship')!.label,     Comp: Ship },
   chart:    { label: NAV.find(n => n.key === 'chart')!.label,    Comp: Chart },

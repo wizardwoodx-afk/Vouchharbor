@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "17.10.7";
+var VH_VERSION = "17.10.9";
 var VH_SHORT = "17.10";
 var VH_CODENAME = "WarrantTeams";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;

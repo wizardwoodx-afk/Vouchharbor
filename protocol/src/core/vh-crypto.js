@@ -187,8 +187,12 @@ export async function generateIdentity() {
 
 export async function publicBundle(id) {
   _requireIdentity(id);
+  const derivedFp = await fingerprint(id.sign.publicJwk);
+  if (id.fp !== derivedFp) {
+    throw new VHCryptoError(`publicBundle: fingerprint/public-key binding mismatch (expected ${derivedFp}, got ${id.fp ?? "missing"})`);
+  }
   return {
-    v: 2, fp: id.fp,
+    v: 2, fp: derivedFp,
     signJwk: id.sign.publicJwk,
     hpkePub: b64e(new Uint8Array(await HPKE.kem.serializePublicKey(id.hpke.publicKey))),
     pqPub:   b64e(id.pq.publicKey),
@@ -196,8 +200,12 @@ export async function publicBundle(id) {
 }
 
 export async function privateFromBundle(priv) {
-  if (!priv?.hpkePub || !priv?.hpkePriv || !priv?.pqPub || !priv?.pqPriv)
+  if (!priv?.hpkePub || !priv?.hpkePriv || !priv?.pqPub || !priv?.pqPriv || !priv?.signJwk || typeof priv?.fp !== "string")
     throw new VHCryptoError("privateFromBundle: incomplete bundle");
+  const derivedFp = await fingerprint(priv.signJwk);
+  if (derivedFp !== priv.fp) {
+    throw new VHCryptoError("privateFromBundle: fingerprint/public-key binding mismatch");
+  }
   return {
     hpke: {
       publicKey:  await HPKE.kem.deserializePublicKey(b64d(priv.hpkePub)),
@@ -209,8 +217,12 @@ export async function privateFromBundle(priv) {
 
 export async function serializePrivate(id) {
   _requireIdentity(id);
+  const derivedFp = await fingerprint(id.sign.publicJwk);
+  if (id.fp !== derivedFp) {
+    throw new VHCryptoError(`serializePrivate: fingerprint/public-key binding mismatch (expected ${derivedFp}, got ${id.fp ?? "missing"})`);
+  }
   return {
-    v: 2, fp: id.fp,
+    v: 2, fp: derivedFp,
     signJwk:  id.sign.publicJwk,
     hpkePub:  b64e(new Uint8Array(await HPKE.kem.serializePublicKey(id.hpke.publicKey))),
     hpkePriv: b64e(new Uint8Array(await HPKE.kem.serializePrivateKey(id.hpke.privateKey))),

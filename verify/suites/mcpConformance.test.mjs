@@ -7715,6 +7715,9 @@ var FIXTURES = {
 };
 var child;
 var buf = "";
+var childStderr = "";
+var childStartupError = null;
+var childExitedBeforeReady = false;
 var pending = /* @__PURE__ */ new Map();
 var nextId = 1;
 function send(method, params) {
@@ -7763,6 +7766,20 @@ var META = (caps = {}) => ({
 var TASKS_CAPS = { extensions: { "io.modelcontextprotocol/tasks": {} } };
 before(async () => {
   child = spawn(process.execPath, ["tools/mcp.mjs"], { cwd: ROOT, stdio: ["pipe", "pipe", "pipe"] });
+  const startupFailure = new Promise((_, reject) => {
+    child.once("error", (err) => {
+      childStartupError = err instanceof Error ? err : new Error(String(err));
+      reject(childStartupError);
+    });
+    child.once("exit", (code, signal) => {
+      if (!buf) {
+        childExitedBeforeReady = true;
+        const detail = childStderr.trim().slice(-4000);
+        reject(new Error(`MCP server exited before readiness (code=${code ?? "null"}, signal=${signal ?? "null"})${detail ? `\n${detail}` : ""}`));
+      }
+    });
+  });
+  child.stderr.on("data", (d) => { childStderr += d.toString("utf8"); });
   child.stdout.on("data", (d) => {
     buf += d.toString("utf8");
     let idx;
@@ -7783,7 +7800,9 @@ before(async () => {
       }
     }
   });
-  await sleep(200);
+  await Promise.race([sleep(200), startupFailure]);
+  if (childStartupError) throw childStartupError;
+  if (childExitedBeforeReady) throw new Error("MCP server exited before accepting requests");
 });
 after(() => {
   try {

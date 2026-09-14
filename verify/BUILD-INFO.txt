@@ -1,5 +1,5 @@
-Vouch Harbor 17.10.7 WarrantTeams
-built: 17.10.7 WarrantTeams
+Vouch Harbor 17.10.9 WarrantTeams
+built: 17.10.9 WarrantTeams
 ts:   2026-09-14T00:00:00Z
 git:  local
 protocol: vh-proof-receipt/2

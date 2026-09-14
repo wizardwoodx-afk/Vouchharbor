@@ -31,6 +31,13 @@ const aliceBundle = await VH.publicBundle(alice);
 const bobBundle   = await VH.publicBundle(bob);
 check("bundle completeness", !!(aliceBundle.signJwk && aliceBundle.hpkePub && aliceBundle.pqPub));
 check("bundle version 2",    aliceBundle.v === 2);
+check("bundle fp is derived from its public key", (await VH.fingerprint(aliceBundle.signJwk)) === aliceBundle.fp);
+let bundleFpTamper = false;
+try { await VH.publicBundle({ ...alice, fp: bob.fp }); } catch { bundleFpTamper = true; }
+check("bundle refuses fingerprint/public-key mismatch", bundleFpTamper);
+let privateFpTamper = false;
+try { await VH.privateFromBundle({ ...(await VH.serializePrivate(alice)), fp: bob.fp }); } catch { privateFpTamper = true; }
+check("private bundle refuses fingerprint/public-key mismatch", privateFpTamper);
 
 /* ─── L2+L8 ─── */
 section("L2+L8 · signed envelopes + replay guard");

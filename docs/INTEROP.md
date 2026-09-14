@@ -1,4 +1,4 @@
-# Vouch Harbor interop — the external-agent boundary (17.10.7)
+# Vouch Harbor interop — the external-agent boundary (17.10.9)
 
 > **MJ executes. Vouch governs. The receipt proves. The protocol carries
 > that proof across machines.** — and this document is the door that
@@ -14,7 +14,7 @@ no matter who presents it:
 | `src/vouch/engine/crossHarbor.ts` | the live Patina runtime (Register → **Anchor**) | none beyond WebCrypto |
 | `tools/vh-interop.mjs` | external agents, other harbors, CI, humans | **zero npm deps** — node builtins + the protocol bridge |
 | `protocol/bridge/vouch-receipt-bridge.mjs` | the library both of the above share | zero |
-| `src/mission/a2aRuntime.ts` + `npm run host` | a harbor mounting itself on the A2A v1.0 wire (since 17.10.7) | Node runtime; the bridge's CLI deps to execute |
+| `src/mission/a2aRuntime.ts` + `npm run host` | a harbor mounting itself on the A2A v1.0 wire (since 17.10.9) | Node runtime; the bridge's CLI deps to execute |
 
 The receipt verdicts are byte-identical to `tools/verify-receipt.mjs`.
 There is exactly one rulebook; there are no "interop mode" exceptions.
@@ -90,11 +90,11 @@ copy, zero shared state) verifies. Cross-implementation, tamper-refusing,
 replay-refusing. That is the external-validation pillar, reproducible from
 the zip.
 
-## The A2A wire — a harbor that is actually listening (17.10.7)
+## The A2A wire — a harbor that is actually listening (17.10.9)
 
 The transport pack above carries proof as files. The A2A v1.0.0 door carries
 *work*: one harbor delegates a task to another and gets back a sealed receipt.
-Until 17.10.7 that door was complete and unmounted — `createA2AServer()` and
+Until 17.10.9 that door was complete and unmounted — `createA2AServer()` and
 the delegation handler existed and were probed, but nothing in the shipped
 product called them, so the only evidence was a harness wiring them by hand.
 

@@ -1,4 +1,4 @@
-# Vouch Harbor 17.10.7 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 17.10.9 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -243,7 +243,7 @@ npm run host -- --harbor "USER 2" --repo /path/to/repo --test-cmd "node test.js"
 
 ### The zero-install gates — and the one that isn't
 
-17.10.7 keeps two notions of "zero install" strictly separate:
+17.10.9 keeps two notions of "zero install" strictly separate:
 
 | Gate | Command | Deps needed |
 |---|---|---|
@@ -260,7 +260,7 @@ release notes never call that one zero-install, and
 [`protocol/README-TEST.md`](protocol/README-TEST.md) gives the exact
 commands to install and run it from a bare archive.
 
-## A2A host — mounting a harbor on the wire (since 17.10.7)
+## A2A host — mounting a harbor on the wire (since 17.10.9)
 
 `createA2AServer()` (transport), `makeDelegationHandler()` (the receiver
 ladder) and `runInboundDelegation()` (the live execution bridge) are real and
@@ -388,3 +388,7 @@ dual-licensed with signed-key desktop licenses
 ---
 
 Built by **Sree Harshen**. Feedback and pull requests welcome.
+
+## 17.10.9 Product Layer
+
+VH-19 is the generalist head over a governed 500+ specialist registry. User-to-user agent collaboration requires explicit recipient approval; approved collaborations can retain Team-Evolve memory. User feedback trains observable preference signals, and category-scoped autonomy is gated by a generated calibration exam with a 90% threshold and explicit revocation.

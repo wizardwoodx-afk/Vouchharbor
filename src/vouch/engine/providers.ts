@@ -25,6 +25,7 @@
  */
 import { ipc, useTauri } from "../../ipc/client";
 import { localDb } from "../../ipc/localDb";
+import { PROVIDER_ENDPOINTS } from "./providerEndpoints";
 import type { VouchPlan } from "./vouch";
 
 /* ── the registry (MANAGE) ────────────────────────────────────────────────── */
@@ -72,7 +73,7 @@ export function addProvider(p: Omit<ProviderEntry, "enabled">, store: Store = de
   if (p.kind === "custom" && !p.baseUrl) return { error: "a custom provider needs its endpoint URL — refused." };
   const list = listProviders(store);
   if (list.some((x) => x.id === p.id)) return { error: `provider id "${p.id}" already exists — refused.` };
-  const entry: ProviderEntry = { ...p, enabled: true };
+  const entry: ProviderEntry = { ...p, baseUrl: p.baseUrl ?? defaultProviderBaseUrl(p.kind), enabled: true };
   list.push(entry);
   try { saveProviders(list, store); } catch (e) { return { error: `provider store refused the write: ${(e as Error).message} — nothing was silently dropped.` }; }
   return entry;
@@ -92,6 +93,13 @@ export function removeProvider(id: string, store: Store = defaultStore()): { ok:
 }
 
 /** BYOK: the key lives in the local secret store (Tauri keychain seat / localDb), never in the registry. */
+export function defaultProviderBaseUrl(kind: ProviderKind): string | undefined {
+  if (kind === "openai") return PROVIDER_ENDPOINTS.openai;
+  if (kind === "anthropic") return PROVIDER_ENDPOINTS.anthropic;
+  if (kind === "google") return PROVIDER_ENDPOINTS.google;
+  return undefined;
+}
+
 export const keyRef = (providerId: string): string => `vh.providerkey.${providerId}`;
 export function setProviderKey(providerId: string, apiKey: string, kind?: ProviderKind): { ok: boolean; refused?: string } {
   if (!apiKey.trim()) return { ok: false, refused: "empty key — refused (clear it with removeProviderKey instead)." };
@@ -233,7 +241,7 @@ export async function pingProvider(providerId: string, opts?: { caller?: LlmCall
   const provider = listProviders(opts?.store).find((x) => x.id === providerId);
   if (!provider) return { ok: false, detail: `unknown provider "${providerId}".` };
   const r = await chatStep("Reply with the single word: pong.", "cheap", { ...opts, prefs: { enabled: true, cheap: { providerId, model: provider.defaultModel } } });
-  return r.ok ? { ok: true, detail: `${provider.label}:${r.model} answered in ${r.durationMs}ms`, latencyMs: r.durationMs } : { ok: false, detail: r.refused };
+  return r.ok ? { ok: true, detail: `${provider.label}:${r.model} answered in ${r.durationMs}ms`, latencyMs: r.durationMs } : { ok: false, detail: ("refused" in r ? r.refused : "provider call refused") };
 }
 
 /* ── the usage ledger + summary (MONITOR) ─────────────────────────────────── */
@@ -349,7 +357,7 @@ export function wrapModelBrain(base: import("./vouch").VouchBrain, opts?: { pref
       const tier = tierFor(ctx.mode);
       const r = await chatStep(input.slice(0, 400), tier, opts);
       if (!r.ok) {
-        return { ...plan, thoughts: [`model routing: ${r.refused}`, ...plan.thoughts] };
+        return { ...plan, thoughts: [`model routing: ${"refused" in r ? r.refused : "provider call refused"}`, ...plan.thoughts] };
       }
       const steps = planFromModelText(r.text);
       if (steps.length === 0) {

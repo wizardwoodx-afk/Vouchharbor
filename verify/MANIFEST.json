@@ -1,5 +1,5 @@
 {
-  "mjVersion": "17.10.7",
+  "mjVersion": "17.10.9",
   "esbuild": "0.25.12",
   "suiteCount": 106,
   "note": "Self-contained bundles of every probe suite except offlinePack.test.ts (the pack's own freshness gate). Run with: node verify/run.mjs from the tree root. Built by tools/build-offline-verify.mjs.",
@@ -60,7 +60,7 @@
     "layout.test.mjs": "e34ce928ffe1a4151594dcdb75fb4d3af33ae4544d8c197c9bb95acb2b200dfa",
     "licensing.test.mjs": "83f05adb03c77d611c320ecb90ab7b5743d0cda28045b1b45d56b150b04a8440",
     "majorUpgrades.test.mjs": "040b92a762a0344f09de48f867095556a01968d27964a6c84a86876869a789df",
-    "mcpConformance.test.mjs": "d912084b86cc5b6656f0d57c5c705c6ed6e3ad9d968b34df7a21bded928b6942",
+    "mcpConformance.test.mjs": "6db912f140db8216f98d6e807f9f957b48ae37be1d0b0362b06ca8e19b3acf04",
     "mcpRouter.test.mjs": "93613e4224851d3a5c84ae81dd77616d7b7f7e73faebad70fb7ae55d36210fbc",
     "mcpSdkClient.test.mjs": "c53b180511a985b2d4445fd6f7e164a7bca9572a7a2d736717c35306e30f1bdd",
     "mcpSdkClientV2.test.mjs": "26010d7b4b5076ac12665ff72745d5df8bd958c2c3b1acdbf78f20511d60d5a4",
