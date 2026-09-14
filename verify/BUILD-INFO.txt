@@ -1,13 +1,13 @@
-Vouch Harbor 17.10.9 WarrantTeams
-built: 17.10.9 WarrantTeams
+Vouch Harbor 17.10.11 WarrantTeams
+built: 17.10.11 WarrantTeams
 ts:   2026-09-14T00:00:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-106 self-contained bundles in verify/suites (every probe suite except the pack's
+112 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 107 probe
-suites; the offline pack reproduces 106 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 113 probe
+suites; the offline pack reproduces 112 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-107 passed, 0 failed across 107 probe suites (node verify/run.mjs → 106 passed,
+113 passed, 0 failed across 113 probe suites (node verify/run.mjs → 112 passed,
 0 failed for the offline-only subset).

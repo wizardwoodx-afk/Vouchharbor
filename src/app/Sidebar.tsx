@@ -56,7 +56,6 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
       </div>
 
       <nav className="nav">
-        <NavItem icon="harbor" label="Agents" sub="VH-19 · 500+ specialists" active={view==='agents'} onClick={() => onChange('agents')}/>
         <NavItem icon="harbor" label="Harbor" sub="Live voyages" active={view==='harbor'} onClick={() => onChange('harbor')}/>
         <NavItem icon="ship"   label="Ship"    sub={`${state.totals.handsOnDeck} hands · crew ${state.totals.configuredCrews > 0 ? 'set' : 'mustered'}`} active={view==='ship'} onClick={() => onChange('ship')}/>
         <NavItem icon="chart"  label="Chart"   sub="Mission topology" active={view==='chart'} onClick={() => onChange('chart')}/>

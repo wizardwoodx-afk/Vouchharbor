@@ -1,4 +1,4 @@
-# Vouch Harbor 17.10.9 "WarrantTeams" — release verification record
+# Vouch Harbor 17.10.7 "WarrantTeams" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64, 2026-09-13. Re-run them yourself; do not take this
@@ -10,7 +10,7 @@ file's word for it.
 RULES 3–5 but not **RULE 6** — and its own attacker-grade campaign reported the two
 resulting bounds as `FINDING A` / `FINDING B` instead of scoring them.
 
-**17.10.9 back-ports RULE 6.** `protocol/` is self-contained (no app module imports
+**17.10.7 back-ports RULE 6.** `protocol/` is self-contained (no app module imports
 it), so the port is a bounded protocol-only diff and `protocol/` is now
 byte-identical to the Warrant trunk:
 
@@ -24,7 +24,7 @@ byte-identical to the Warrant trunk:
   `rotationRejected`) and ignored at consumption, so records already in a ledger
   are inert. Closes the designated-authority denial of service.
 
-Full notes: `VH-17.10-UPGRADE.md` §9–§10 and the `17.10.9` row in `CHANGELOG.md`.
+Full notes: `VH-17.10-UPGRADE.md` §9–§10 and the `17.10.7` row in `CHANGELOG.md`.
 
 ## The gates
 
@@ -70,9 +70,9 @@ vouch.rejected reason=grantor-holds-nothing  action=write:purchase_orders  held=
 vouch.rejected reason=grantor-holds-nothing  action=*                     held=["read:public"]
 ```
 
-## The A2A LiveBridge (added after external review of the first 17.10.9 package)
+## The A2A LiveBridge (added after external review of the first 17.10.7 package)
 
-An external review scored the first 17.10.9 package 9.6/10 and made one
+An external review scored the first 17.10.7 package 9.6/10 and made one
 substantive finding that was **correct**: cross-harbor delegation had the whole
 ladder real — strict A2A v1.0 discovery, JWS card verification, sender routing,
 GuardRail, both human gates, tamper-evident digests, replay guards — and then

@@ -36,7 +36,6 @@ const skipped = [];
 const NEEDS_DEPS = new RegExp([
   "REFUSED \\(needs node_modules\\)",              // the tools' honest preflight refusal
   "Cannot find package .esbuild",                  // ERR_MODULE_NOT_FOUND, any TAP quoting
-  "Cannot find package ",                          // any absent runtime dependency (e.g. zod/ajv)
   "no such file or directory, open .node_modules", // pinned-dep provenance reads (E4)
 ].join("|"));
 for (const s of suites) {
@@ -74,7 +73,7 @@ for (const s of suites) {
 }
 
 console.log("========================================");
-const skipNote = skippedNeedDeps > 0 ? `, ${skippedNeedDeps} skipped (need node_modules / runtime dependencies)` : "";
+const skipNote = skippedNeedDeps > 0 ? `, ${skippedNeedDeps} skipped (need node_modules — esbuild)` : "";
 console.log(`OFFLINE VERIFY SUMMARY: ${pass} passed, ${fail} failed${skipNote}. (node ${process.version})`);
 console.log("========================================");
 if (skipped.length > 0) {

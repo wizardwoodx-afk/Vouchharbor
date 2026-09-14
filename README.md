@@ -1,4 +1,4 @@
-# Vouch Harbor 17.10.9 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 17.10.11 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -223,7 +223,7 @@ gate.
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 107 suites
+npm test              # 113 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -231,7 +231,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (~2 min, Node alone — dependency-backed suites honestly
 #   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 106 bundles
+node verify/run.mjs   # 112 bundles
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -243,7 +243,7 @@ npm run host -- --harbor "USER 2" --repo /path/to/repo --test-cmd "node test.js"
 
 ### The zero-install gates — and the one that isn't
 
-17.10.9 keeps two notions of "zero install" strictly separate:
+17.10.7 keeps two notions of "zero install" strictly separate:
 
 | Gate | Command | Deps needed |
 |---|---|---|
@@ -260,7 +260,7 @@ release notes never call that one zero-install, and
 [`protocol/README-TEST.md`](protocol/README-TEST.md) gives the exact
 commands to install and run it from a bare archive.
 
-## A2A host — mounting a harbor on the wire (since 17.10.9)
+## A2A host — mounting a harbor on the wire (since 17.10.7)
 
 `createA2AServer()` (transport), `makeDelegationHandler()` (the receiver
 ladder) and `runInboundDelegation()` (the live execution bridge) are real and
@@ -319,7 +319,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       107 probe suites, run by `npm test`
+probe/       113 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
@@ -388,7 +388,3 @@ dual-licensed with signed-key desktop licenses
 ---
 
 Built by **Sree Harshen**. Feedback and pull requests welcome.
-
-## 17.10.9 Product Layer
-
-VH-19 is the generalist head over a governed 500+ specialist registry. User-to-user agent collaboration requires explicit recipient approval; approved collaborations can retain Team-Evolve memory. User feedback trains observable preference signals, and category-scoped autonomy is gated by a generated calibration exam with a 90% threshold and explicit revocation.

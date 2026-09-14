@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Vouch Harbor — A2A v1.0 host process (17.10.9 rev 3).
+ * Vouch Harbor — A2A v1.0 host process (17.10.7 rev 3).
  *
  *   npm run host -- --harbor "USER 2" --repo /path/to/repo --test-cmd "node test.js"
  *

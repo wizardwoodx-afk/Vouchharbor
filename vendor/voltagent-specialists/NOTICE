@@ -1,0 +1,44 @@
+NOTICE — vendored third-party material
+======================================
+
+Path: vendor/voltagent-specialists/
+
+  Source     : https://github.com/VoltAgent/awesome-claude-code-subagents
+  Pinned at  : commit 3097abe2d0d1e83a9023c7a8d054c00aace24990 (2026-09-07)
+  License    : MIT (see LICENSE-MIT, reproduced verbatim from upstream)
+  Contents   : 168 specialist agent definitions, Markdown + YAML frontmatter
+  Acquired   : 2026-09-14
+  Modifications: files renamed to `<category>--<agent>.md`; a build-time
+                 generator (tools/build-specialist-catalog.mjs) parses the
+                 frontmatter into vendor/voltagent-specialists/index.json and
+                 emits src/moe/catalog.gen.ts for runtime routing. The prompt
+                 BODIES are NOT embedded into the browser bundle — only name,
+                 title, category, description, tool ceiling, model preference and
+                 a SHA-256 integrity digest of the body. Bodies are read on the
+                 host process at dispatch time.
+
+Why this is safe to merge
+-------------------------
+MIT permits commercial use, modification and redistribution of source with
+attribution. The LICENSE-MIT file above is the attribution and is shipped with
+every build and every release archive.
+
+What was deliberately NOT merged
+--------------------------------
+  * Mastra (github.com/mastra-ai/mastra) — the framework's GitHub `license`
+    endpoint reports `NOASSERTION`, and its model is dual: Apache-2.0 core with
+    a proprietary `ee/` tree. Rather than vendoring code across that boundary,
+    Mastra is offered as an OPTIONAL npm peer
+    (`optionalDependencies["@mastra/core"]`) — nothing from it is copied into
+    this repository, so the vendored tree stays unambiguously MIT.
+  * openclaw (github.com/openclaw/openclaw) — 389k stars, TypeScript, but its
+    license is `Other`/NOASSERTION. No source from an unlicensed project is
+    merged into a codebase that will be represented to investors.
+
+Regenerating
+------------
+    node tools/build-specialist-catalog.mjs
+
+The probe `probe/specialistRegistry.test.ts` fails the gate if the vendored
+tree and `index.json` / `catalog.gen.ts` disagree, so this provenance cannot
+silently rot.

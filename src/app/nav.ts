@@ -13,7 +13,6 @@ export interface NavItem {
 }
 
 export const NAV: NavItem[] = [
-  { key: 'agents', label: 'Agents', description: 'Generalist & MoE' },
   { key: 'harbor',   label: 'Harbor',        description: 'Live voyages' },
   { key: 'ship',     label: 'Ship',          description: 'Vessel & crew' },
   { key: 'chart',    label: 'Chart',         description: 'Plot course' },
