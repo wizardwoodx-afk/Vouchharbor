@@ -1,4 +1,4 @@
-# Vouch Harbor 18.2.0 — Deploying to Vercel (web edition)
+# Vouch Harbor 18.3.0 — Deploying to Vercel (web edition)
 
 Vouch Harbor's frontend is a pure Vite + React SPA. The desktop shell (Tauri/Rust) is
 optional: on any static host MJ runs as its browser edition. The web edition runs

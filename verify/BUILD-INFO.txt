@@ -1,6 +1,6 @@
-Vouch Harbor 18.2.0 Horizon
-built: 18.2.0 Horizon
-ts:   2026-09-14T18:30:00Z
+Vouch Harbor 18.3.0 Meridian
+built: 18.3.0 Meridian
+ts:   2026-09-14T19:40:00Z
 git:  local
 protocol: vh-proof-receipt/2
 

@@ -162,9 +162,9 @@ async function verifyIssuerSignature(chainHashHex, sigHex, publicKeyHex) {
 }
 
 // src/version.ts
-var VH_VERSION = "18.2.0";
-var VH_SHORT = "18.2";
-var VH_CODENAME = "Horizon";
+var VH_VERSION = "18.3.0";
+var VH_SHORT = "18.3";
+var VH_CODENAME = "Meridian";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/securityReview.ts

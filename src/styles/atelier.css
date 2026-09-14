@@ -741,3 +741,79 @@ a { color: inherit; }
 ::-webkit-scrollbar-thumb { background: var(--ink-600); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 /* ═══ end Horizon ═══ */
+
+/* ── HORIZON motion system (18.3.0) ────────────────────────────────────────
+ * Quiet, Apple-proportioned motion: entrances only, 140–260 ms, small
+ * distances, one cubic-bezier. No parallax, no spring gimmicks. The user's
+ * OS preference always wins. */
+
+:root {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@keyframes vh-view-enter {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vh-msg-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vh-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vh-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes vh-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.view-enter {
+  animation: vh-view-enter 220ms var(--ease-out-quint) both;
+  height: 100%;
+}
+.msg-enter {
+  animation: vh-msg-enter 200ms var(--ease-out-soft) both;
+}
+.card {
+  animation: vh-fade-in 180ms var(--ease-out-soft) both;
+}
+
+/* micro-press on every button — 100 ms scale, never a bounce */
+.btn { transition: transform 100ms var(--ease-out-soft), background 120ms linear, border-color 120ms linear, color 120ms linear; }
+.btn:active { transform: scale(0.97); }
+
+/* nav active indicator glides instead of snapping */
+.nav-item { transition: background 140ms linear, color 140ms linear; }
+
+/* streaming placeholder shimmer */
+.streaming-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(155, 166, 168, 0.12) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: vh-shimmer 1.4s linear infinite;
+}
+.seal-dot.live { animation: vh-dot-pulse 2.6s var(--ease-out-soft) infinite; }
+
+/* inputs: soft focus bloom */
+.input { transition: border-color 140ms linear, box-shadow 140ms var(--ease-out-soft); }
+
+/* toasts slide up on entry */
+@keyframes vh-toast-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast { animation: vh-toast-in 220ms var(--ease-out-quint) both; }
+
+/* the OS preference always wins */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

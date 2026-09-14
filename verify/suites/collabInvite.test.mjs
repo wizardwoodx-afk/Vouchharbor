@@ -4,9 +4,183 @@ import { createRequire as __mjCreateRequire } from "node:module"; const require 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-// src/vh19/collabInvite.ts
-var ID_KEY_PREFIX = "vh19.collab.key.v1:";
+// src/vh19/secureKeys.ts
+var V2_KEY = (memberId) => `vh19.collab.key.v2:${memberId}`;
+var V1_KEY = (memberId) => `vh19.collab.key.v1:${memberId}`;
+var PBKDF_ITERATIONS = 15e4;
 var enc = new TextEncoder();
+var dec = new TextDecoder();
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+var toB64 = (buf) => {
+  const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let s = "";
+  for (const b of u8) s += String.fromCharCode(b);
+  return btoa(s);
+};
+var fromB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+var unlocked = /* @__PURE__ */ new Map();
+function identityUnlocked(memberId) {
+  return unlocked.has(memberId);
+}
+function forgetIdentity(memberId) {
+  unlocked.delete(memberId);
+}
+function purgeLegacy(memberId) {
+  const s = storage();
+  if (s && s.getItem(V1_KEY(memberId)) !== null) {
+    s.removeItem(V1_KEY(memberId));
+  }
+}
+async function deriveKey(passphrase, salt) {
+  const base = await globalThis.crypto.subtle.importKey("raw", enc.encode(passphrase), "PBKDF2", false, ["deriveKey"]);
+  return globalThis.crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: PBKDF_ITERATIONS, hash: "SHA-256" },
+    base,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+async function ensureIdentity(memberId, passphrase) {
+  if (!memberId || !passphrase || passphrase.length < 8) {
+    return { ok: false, error: "a passphrase of at least 8 characters guards the signing key" };
+  }
+  const s = storage();
+  purgeLegacy(memberId);
+  const raw = s?.getItem(V2_KEY(memberId)) ?? null;
+  if (raw === null) {
+    const pair = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    const publicJwk = await globalThis.crypto.subtle.exportKey("jwk", pair.publicKey);
+    const privateJwk = await globalThis.crypto.subtle.exportKey("jwk", pair.privateKey);
+    const salt = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+    const kek = await deriveKey(passphrase, salt);
+    const cipher = await globalThis.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      kek,
+      enc.encode(JSON.stringify(privateJwk))
+    );
+    const record2 = {
+      v: "vh19-collab-key/2",
+      memberId,
+      publicJwk,
+      saltB64: toB64(salt),
+      ivB64: toB64(iv),
+      cipherB64: toB64(cipher),
+      kdf: "PBKDF2-SHA-256",
+      iterations: PBKDF_ITERATIONS,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    s?.setItem(V2_KEY(memberId), JSON.stringify(record2));
+    unlocked.set(memberId, pair.privateKey);
+    return { ok: true, created: true, publicJwk, purgedLegacy: false };
+  }
+  const record = JSON.parse(raw);
+  try {
+    const kek = await deriveKey(passphrase, fromB64(record.saltB64));
+    const plain = await globalThis.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: fromB64(record.ivB64) },
+      kek,
+      fromB64(record.cipherB64)
+    );
+    const privateJwk = JSON.parse(dec.decode(plain));
+    const key = await globalThis.crypto.subtle.importKey("jwk", privateJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+    unlocked.set(memberId, key);
+    return { ok: true, created: false, publicJwk: record.publicJwk, purgedLegacy: false };
+  } catch {
+    return { ok: false, error: "wrong passphrase \u2014 the private key stays sealed" };
+  }
+}
+function storedPublicJwk(memberId) {
+  const raw = storage()?.getItem(V2_KEY(memberId)) ?? null;
+  if (raw === null) return null;
+  try {
+    return JSON.parse(raw).publicJwk;
+  } catch {
+    return null;
+  }
+}
+var SIGN_PARAMS = {
+  name: "ECDSA",
+  namedCurve: "P-256",
+  hash: "SHA-256"
+};
+async function signWithIdentity(memberId, data) {
+  const key = unlocked.get(memberId);
+  if (!key) throw new Error(`identity "${memberId}" is locked \u2014 unlock it before signing`);
+  const sig = await globalThis.crypto.subtle.sign(
+    SIGN_PARAMS,
+    key,
+    data
+  );
+  return toB64(sig);
+}
+function jwkEqual(a, b) {
+  return a.kty === b.kty && a.crv === b.crv && a.x === b.x && a.y === b.y;
+}
+
+// src/vh19/collabRegistry.ts
+var PEERS_KEY = "vh19.collab.peers.v1";
+function storage2() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function load() {
+  const raw = storage2()?.getItem(PEERS_KEY) ?? null;
+  if (!raw) return { peers: [] };
+  try {
+    const r = JSON.parse(raw);
+    return Array.isArray(r.peers) ? r : { peers: [] };
+  } catch {
+    return { peers: [] };
+  }
+}
+function save(r) {
+  storage2()?.setItem(PEERS_KEY, JSON.stringify(r));
+}
+function boundIdentityFor(memberId) {
+  return load().peers.find((p) => p.memberId === memberId) ?? null;
+}
+function listBoundPeers() {
+  return load().peers;
+}
+function bindPeerIdentity(memberId, publicJwk, source, now = () => /* @__PURE__ */ new Date()) {
+  const r = load();
+  const entry = { memberId, publicJwk, boundAt: now().toISOString(), source };
+  r.peers = [...r.peers.filter((p) => p.memberId !== memberId), entry];
+  save(r);
+  return entry;
+}
+function unbindPeer(memberId) {
+  const r = load();
+  r.peers = r.peers.filter((p) => p.memberId !== memberId);
+  save(r);
+}
+function clearRegistry() {
+  storage2()?.removeItem(PEERS_KEY);
+}
+function requireBoundKey(memberId, presentedJwk) {
+  const bound = boundIdentityFor(memberId);
+  if (!bound) {
+    return { ok: false, error: `"${memberId}" has no bound identity here \u2014 bind it (invite acceptance or manual verify) before approvals can be trusted` };
+  }
+  if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+    return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+  }
+  return { ok: true, bound };
+}
+
+// src/vh19/collabInvite.ts
+var enc2 = new TextEncoder();
 function b64url(bytes) {
   const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   let s = "";
@@ -21,41 +195,20 @@ function fromB64url(s) {
   return u8;
 }
 async function sha256Hex(text) {
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc.encode(text));
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc2.encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 function canonical(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }
-function storage() {
-  try {
-    return globalThis.localStorage ?? null;
-  } catch {
-    return null;
-  }
-}
-async function collabIdentity(memberId) {
-  const s = storage();
-  const raw = s?.getItem(ID_KEY_PREFIX + memberId);
-  if (raw) {
-    const both = JSON.parse(raw);
-    return { memberId, publicJwk: both.pub, privateJwk: both.priv };
-  }
-  const pair = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
-  const priv = await globalThis.crypto.subtle.exportKey("jwk", pair.privateKey);
-  const pub = await globalThis.crypto.subtle.exportKey("jwk", pair.publicKey);
-  s?.setItem(ID_KEY_PREFIX + memberId, JSON.stringify({ pub, priv }));
-  return { memberId, publicJwk: pub, privateJwk: priv };
-}
 async function importPublic(jwk) {
   return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
 }
-async function importPrivate(jwk) {
-  return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
-}
-var SIGN_PARAMS = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+var SIGN_PARAMS2 = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
 async function createInvitation(args) {
-  const ident = await collabIdentity(args.from);
+  const pub = storedPublicJwk(args.from);
+  if (!pub) return { ok: false, error: `no identity for "${args.from}" \u2014 create one with a passphrase first` };
+  if (!identityUnlocked(args.from)) return { ok: false, error: `identity "${args.from}" is locked \u2014 unlock it to sign` };
   const payload = {
     v: "vh19-invite/1",
     id: `inv-${(args.now ?? (() => /* @__PURE__ */ new Date()))().getTime().toString(36)}`,
@@ -67,13 +220,12 @@ async function createInvitation(args) {
     capabilities: args.capabilities,
     message: args.message,
     createdAt: (args.now ?? (() => /* @__PURE__ */ new Date()))().toISOString(),
-    issuerPublicJwk: ident.publicJwk,
+    issuerPublicJwk: pub,
     trustModel: "tofu"
   };
   const canon = canonical(payload);
-  const key = await importPrivate(ident.privateJwk);
-  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canon));
-  return { payload, signatureB64: b64url(sig), digest: await sha256Hex(canon + "." + b64url(sig)) };
+  const signatureB64 = await signWithIdentity(args.from, enc2.encode(canon));
+  return { payload, signatureB64, digest: await sha256Hex(canon + "." + signatureB64) };
 }
 async function parseInvitation(token) {
   let obj;
@@ -89,7 +241,7 @@ async function parseInvitation(token) {
   let verified;
   try {
     const key = await importPublic(obj.payload.issuerPublicJwk);
-    verified = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(obj.signatureB64), enc.encode(canon));
+    verified = await globalThis.crypto.subtle.verify(SIGN_PARAMS2, key, fromB64url(obj.signatureB64), enc2.encode(canon));
   } catch {
     verified = false;
   }
@@ -99,22 +251,33 @@ async function parseInvitation(token) {
   return { ok: true, invite: { payload: obj.payload, signatureB64: obj.signatureB64, digest }, issuerVerified: true };
 }
 function serializeInvitation(inv) {
-  return b64url(enc.encode(JSON.stringify(inv)));
+  return b64url(enc2.encode(JSON.stringify(inv)));
 }
 async function signApproval(inviteDigest, approver, approved, now = () => /* @__PURE__ */ new Date()) {
-  const ident = await collabIdentity(approver);
+  const pub = storedPublicJwk(approver);
+  if (!pub) return { ok: false, error: `no identity for "${approver}"` };
+  if (!identityUnlocked(approver)) return { ok: false, error: `identity "${approver}" is locked \u2014 unlock it to sign consent` };
   const body = { inviteDigest, approver, approved, at: now().toISOString() };
-  const key = await importPrivate(ident.privateJwk);
-  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canonical(body)));
-  return { ...body, publicJwk: ident.publicJwk, signatureB64: b64url(sig) };
+  const signatureB64 = await signWithIdentity(approver, enc2.encode(canonical(body)));
+  return { ...body, publicJwk: pub, signatureB64 };
+}
+async function acceptInvitation(invite, approver, approved) {
+  const approval = await signApproval(invite.digest, approver, approved);
+  if ("ok" in approval && approval.ok === false) return approval;
+  if (approved) {
+    bindPeerIdentity(invite.payload.from, invite.payload.issuerPublicJwk, "invite-acceptance");
+  }
+  return { approval, bound: approved ? invite.payload.from : "(rejected \u2014 issuer not bound)" };
 }
 async function verifyApproval(a, expectedApprover) {
   if (a.approver !== expectedApprover) return { ok: false, error: `approval claims "${a.approver}" but the team expects "${expectedApprover}"` };
+  const binding = requireBoundKey(expectedApprover, a.publicJwk);
+  if (!binding.ok) return { ok: false, error: binding.error };
   const body = { inviteDigest: a.inviteDigest, approver: a.approver, approved: a.approved, at: a.at };
   try {
-    const key = await importPublic(a.publicJwk);
-    const ok = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc.encode(canonical(body)));
-    return ok ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify` };
+    const key = await importPublic(binding.bound.publicJwk);
+    const ok = await globalThis.crypto.subtle.verify(SIGN_PARAMS2, key, fromB64url(a.signatureB64), enc2.encode(canonical(body)));
+    return ok ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify against the bound identity` };
   } catch {
     return { ok: false, error: `approval signature for "${a.approver}" is not verifiable` };
   }
@@ -132,7 +295,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage2() {
+function storage3() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -149,7 +312,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage2();
+  const s = storage3();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -158,7 +321,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -212,12 +375,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex2(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage2();
+  const s = storage3();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -231,6 +394,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   for (const sa of signedApprovals) {
     const member = approvals.find((a) => a.memberId === sa.approver);
     if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    if (sa.inviteDigest !== proposal.digest) return { ok: false, error: `signed consent of "${sa.approver}" covers a DIFFERENT proposal \u2014 stale signatures refuse` };
     const v = await verifyApproval(sa, sa.approver);
     if (!v.ok) return { ok: false, error: v.error };
     if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
@@ -257,7 +421,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     adoptedAt: now().toISOString(),
     digest: await sha256Hex2(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage2();
+  const s = storage3();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -265,7 +429,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -295,42 +459,76 @@ var check = (name, cond, detail) => {
   else fail++;
   console.log(`  ${cond ? "\u2705" : "\u274C"} ${name}${cond || detail === void 0 ? "" : ` \u2014 ${JSON.stringify(detail)}`}`);
 };
-test("collabInvite \u2014 the invitation workflow is cryptographic, not ceremonial", async () => {
-  console.log("\n\u2500\u2500 1. identities \u2500\u2500");
-  const a = await collabIdentity("harshen");
-  const a2 = await collabIdentity("harshen");
-  check("a member's identity key is stable across loads", a.publicJwk.x === a2.publicJwk.x);
-  const b = await collabIdentity("qwen");
-  check("different members get different keys", a.publicJwk.x !== b.publicJwk.x);
-  console.log("\n\u2500\u2500 2. invitations \u2500\u2500");
-  const inv = await createInvitation({ from: "harshen", to: "qwen", scope: "one shared mission", riskCeiling: "safe", durationH: 24, capabilities: ["route", "delegate"] });
-  check("the invite names scope, ceiling, duration and the issuer", inv.payload.scope === "one shared mission" && inv.payload.riskCeiling === "safe" && inv.payload.durationH === 24 && inv.payload.from === "harshen");
-  check("the trust model is labeled TOFU, not overclaimed", inv.payload.trustModel === "tofu");
-  const token = serializeInvitation(inv);
-  const parsed = await parseInvitation(token);
-  check("a round-tripped invite verifies against the issuer key", parsed.ok === true);
-  const tampered = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(token.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0))));
+var PASS = "correct-horse-battery";
+test("collabInvite \u2014 identity is sealed, binding is enforced", async () => {
+  console.log("\n\u2500\u2500 1. keys at rest \u2500\u2500");
+  check("a short passphrase refuses to mint an identity", (await ensureIdentity("harshen", "tiny")).ok === false);
+  const h = await ensureIdentity("harshen", PASS);
+  check("a passphrase mints the identity", h.ok === true && h.created === true);
+  const storedRaw = localStorage.getItem("vh19.collab.key.v2:harshen") ?? "";
+  const priv = (await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"])).privateKey;
+  const privJwk = await globalThis.crypto.subtle.exportKey("jwk", priv);
+  check("localStorage holds NO private key material", !storedRaw.includes(privJwk.d ?? "absent-sentinel") && !storedRaw.includes('"d":'));
+  check("the public half is exactly what is stored in the open", JSON.stringify(storedPublicJwk("harshen")) === JSON.stringify(h.publicJwk));
+  forgetIdentity("harshen");
+  const wrong = await ensureIdentity("harshen", "wrong-passphrase-123");
+  check("a wrong passphrase refuses \u2014 the key stays sealed", wrong.ok === false && !wrong.ok && wrong.error.includes("wrong passphrase"));
+  check("refused unlock leaves the identity locked", identityUnlocked("harshen") === false);
+  await ensureIdentity("harshen", PASS);
+  check("the right passphrase re-unlocks and the public key is unchanged", await ensureIdentity("harshen", PASS) && JSON.stringify(storedPublicJwk("harshen")) === JSON.stringify(h.publicJwk));
+  console.log("\n\u2500\u2500 2. legacy plaintext blobs are purged \u2500\u2500");
+  localStorage.setItem("vh19.collab.key.v1:legacyuser", JSON.stringify({ pub: { kty: "EC" }, priv: { kty: "EC", d: "PLAINTEXT" } }));
+  await ensureIdentity("legacyuser", PASS);
+  check("the 18.2.0 plaintext blob is gone after first contact", localStorage.getItem("vh19.collab.key.v1:legacyuser") === null);
+  check("legacy user got a sealed v2 identity", localStorage.getItem("vh19.collab.key.v2:legacyuser") !== null);
+  console.log("\n\u2500\u2500 3. invitations \u2500\u2500");
+  const q = await ensureIdentity("qwen", PASS);
+  const invR = await createInvitation({ from: "harshen", to: "qwen", scope: "one shared mission", riskCeiling: "safe", durationH: 24, capabilities: [] });
+  check("an unlocked identity mints a signed invite", "digest" in invR);
+  assert.ok("digest" in invR);
+  check("scope, ceiling, duration and TOFU model ride in the payload", invR.payload.scope === "one shared mission" && invR.payload.riskCeiling === "safe" && invR.payload.trustModel === "tofu");
+  forgetIdentity("harshen");
+  const lockedMint = await createInvitation({ from: "harshen", to: "qwen", scope: "x", riskCeiling: "safe", durationH: 1, capabilities: [] });
+  check("a LOCKED identity cannot mint invites", lockedMint.ok === false && !lockedMint.ok && lockedMint.error.includes("locked"));
+  await ensureIdentity("harshen", PASS);
+  const parsed = await parseInvitation(serializeInvitation(invR));
+  check("a round-tripped invite verifies", parsed.ok === true);
+  const tampered = JSON.parse(JSON.stringify(invR));
   tampered.payload.riskCeiling = "critical";
-  const tamperedToken = btoa(JSON.stringify(tampered)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  const badParse = await parseInvitation(tamperedToken);
-  check("raising the ceiling in transit REFUSES \u2014 signature over the canonical bytes", badParse.ok === false && !badParse.ok && badParse.error.includes("tampered"));
-  const swapped = await createInvitation({ from: "qwen", to: "harshen", scope: "x", riskCeiling: "safe", durationH: 1, capabilities: [] });
-  const franken = { ...inv, payload: { ...inv.payload, issuerPublicJwk: swapped.payload.issuerPublicJwk } };
-  const frankenParse = await parseInvitation(serializeInvitation(franken));
-  check("a foreign public key on someone else's invite refuses", frankenParse.ok === false);
-  check("garbage tokens refuse in words", (await parseInvitation("not-a-token")).ok === false);
-  console.log("\n\u2500\u2500 3. approvals are signed by the approver \u2500\u2500");
+  check("raising the ceiling in transit refuses", (await parseInvitation(serializeInvitation(tampered))).ok === false);
+  console.log("\n\u2500\u2500 4. binding closes the attacker-key hole \u2500\u2500");
+  clearRegistry();
   assert.ok(parsed.ok);
-  const approval = await signApproval(parsed.invite.digest, "qwen", true);
-  check("the approver's own key signs the approval", (await verifyApproval(approval, "qwen")).ok === true);
-  const mismatch = await verifyApproval(approval, "harshen");
-  check("an approval presented for a different member refuses", mismatch.ok === false && !mismatch.ok && mismatch.error.includes("expects"));
-  const forged = { ...approval, approved: true, approver: "qwen", at: approval.at, inviteDigest: approval.inviteDigest, publicJwk: a.publicJwk, signatureB64: approval.signatureB64 };
-  const forgedCheck = await verifyApproval(forged, "qwen");
-  check("Harshen's key cannot sign Qwen's consent", forgedCheck.ok === false);
-  const flipped = { ...approval, approved: false };
+  const appr = await signApproval(parsed.invite.digest, "qwen", true);
+  check("the approver's unlocked session key signs", appr !== null && !("ok" in appr));
+  assert.ok(!("ok" in appr));
+  const unbound = await verifyApproval(appr, "qwen");
+  check("an UNBOUND member's approval refuses \u2014 no binding, no verification", unbound.ok === false && !unbound.ok && unbound.error.includes("no bound identity"));
+  const atk = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const atkJwk = await globalThis.crypto.subtle.exportKey("jwk", atk.publicKey);
+  const atkPrivJwk = await globalThis.crypto.subtle.exportKey("jwk", atk.privateKey);
+  const atkKey = await globalThis.crypto.subtle.importKey("jwk", atkPrivJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const body = { inviteDigest: parsed.invite.digest, approver: "qwen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() };
+  const canon = JSON.stringify(body, Object.keys(body).sort());
+  const sig = await globalThis.crypto.subtle.sign({ name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" }, atkKey, new TextEncoder().encode(canon));
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(sig)));
+  const atkApproval = { ...body, publicJwk: atkJwk, signatureB64: b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") };
+  bindPeerIdentity("qwen", q.publicJwk, "manual");
+  const atkVerdict = await verifyApproval(atkApproval, "qwen");
+  check("attacker's fresh key + qwen's name REFUSES (the 18.2.0 hole, closed)", atkVerdict.ok === false && !atkVerdict.ok && atkVerdict.error.includes("does not match the bound identity"));
+  const good = await verifyApproval(appr, "qwen");
+  check("the real qwen approval verifies against the bound key", good.ok === true);
+  const flipped = { ...appr, approved: false };
   check("flipping approved without re-signing refuses", (await verifyApproval(flipped, "qwen")).ok === false);
-  console.log("\n\u2500\u2500 4. teamEvolve accepts signed consent \u2500\u2500");
+  console.log("\n\u2500\u2500 5. accepting an invitation binds the issuer \u2500\u2500");
+  clearRegistry();
+  const accept = await acceptInvitation(parsed.invite, "qwen", true);
+  check("acceptance signs consent AND binds the issuer in one human act", accept !== null && "approval" in accept && listBoundPeers().some((p) => p.memberId === "harshen" && p.source === "invite-acceptance"));
+  unbindPeer("harshen");
+  check("unbinding is a human act and takes effect", listBoundPeers().every((p) => p.memberId !== "harshen"));
+  bindPeerIdentity("qwen", q.publicJwk, "manual");
+  bindPeerIdentity("harshen", h.publicJwk, "manual");
+  console.log("\n\u2500\u2500 6. teamEvolve verifies against bindings \u2500\u2500");
   const TEAM = teamIdFor(["harshen", "qwen"]);
   for (const [task, outcome, specs] of [
     ["t1", "verified", ["code.debugging", "testing.unit"]],
@@ -343,6 +541,7 @@ test("collabInvite \u2014 the invitation workflow is cryptographic, not ceremoni
   assert.ok(prop.ok);
   const signedH = await signApproval(prop.proposal.digest, "harshen", true);
   const signedQ = await signApproval(prop.proposal.digest, "qwen", true);
+  assert.ok(!("ok" in signedH) && !("ok" in signedQ));
   const adopt = await approveTeamEvolution(
     TEAM,
     prop.proposal.id,
@@ -353,11 +552,10 @@ test("collabInvite \u2014 the invitation workflow is cryptographic, not ceremoni
     void 0,
     [signedH, signedQ]
   );
-  check("unanimous SIGNED approvals adopt", adopt.ok === true);
+  check("adoption verifies every signed approval against bindings", adopt.ok === true);
   const prop2 = await proposeTeamEvolution(TEAM, ["harshen", "qwen"]);
   assert.ok(prop2.ok);
-  const lyingSigned = { ...signedQ, approved: true, at: (/* @__PURE__ */ new Date()).toISOString() };
-  const reject = await approveTeamEvolution(
+  const stale = await approveTeamEvolution(
     TEAM,
     prop2.proposal.id,
     [
@@ -365,9 +563,9 @@ test("collabInvite \u2014 the invitation workflow is cryptographic, not ceremoni
       { memberId: "qwen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }
     ],
     void 0,
-    [signedH, lyingSigned]
+    [signedH, signedQ]
   );
-  check("a stale/foreign signed approval against the new proposal refuses", reject.ok === false && !reject.ok);
+  check("signatures over an old proposal digest refuse", stale.ok === false);
   console.log(`
 ${fail === 0 ? "\u2705" : "\u274C"} collabInvite probe: ${pass} passed, ${fail} failed
 `);

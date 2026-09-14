@@ -32,7 +32,7 @@ export const Toasts: React.FC = () => {
             borderLeft: `3px solid ${t.kind === 'ok' ? 'var(--success)' : t.kind === 'err' ? 'var(--err)' : 'var(--accent)'}`,
             borderRadius: 'var(--radius-md)', padding: '10px 16px',
             fontSize: 'var(--fs-sm)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-            animation: 'viewIn 260ms var(--ease) both',
+            animation: 'vh-toast-in 220ms var(--ease-out-quint) both',
             minWidth: 240, maxWidth: 380,
           }}>
           {t.text}

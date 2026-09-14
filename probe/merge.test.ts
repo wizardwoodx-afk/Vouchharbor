@@ -211,7 +211,7 @@ describe("merge — one mission ID, one chain, one state (16.0)", () => {
 
   it("the shell join: Patina mounts the Harbor view and the Helm drives Vouch", () => {
     const app = read("src/App.tsx");
-    assert.ok(/from ['"].\/views\/Harbor['"]/.test(app), "the shell mounts Harbor view");
+    assert.ok(/(?:from|import\()\s*['"].\/views\/Harbor['"]/.test(app), "the shell mounts Harbor view (eager or lazy chunk)");
     assert.ok(/HarborProvider/.test(app), "the HarborProvider wraps the shell");
     assert.ok(/sendMessage/.test(app) || /actions\.sendMessage/.test(read("src/app/Helm.tsx")), "the Helm drives the real sendVouchMessage path");
     const pkg = JSON.parse(read("package.json")) as { name: string; version: string };

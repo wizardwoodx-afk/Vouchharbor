@@ -1615,8 +1615,12 @@ function resetExams(userId = "default") {
   for (const cat of new Set(sessions.concat([]).map((x) => x.category).filter(Boolean))) s.removeItem(grantKey(userId, cat));
 }
 
-// src/vh19/collabInvite.ts
+// src/vh19/secureKeys.ts
 var enc = new TextEncoder();
+var dec = new TextDecoder();
+
+// src/vh19/collabInvite.ts
+var enc2 = new TextEncoder();
 
 // src/vh19/teamEvolve.ts
 var RUNS_KEY = "vh19.team.runs.v1";

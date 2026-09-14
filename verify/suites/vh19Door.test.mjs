@@ -18674,9 +18674,180 @@ function memoryBriefing(userId = "default", maxLines = 4) {
   return lines;
 }
 
-// src/vh19/collabInvite.ts
-var ID_KEY_PREFIX = "vh19.collab.key.v1:";
+// src/vh19/secureKeys.ts
+var V2_KEY = (memberId) => `vh19.collab.key.v2:${memberId}`;
+var V1_KEY = (memberId) => `vh19.collab.key.v1:${memberId}`;
+var PBKDF_ITERATIONS = 15e4;
 var enc = new TextEncoder();
+var dec = new TextDecoder();
+function storage4() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+var toB64 = (buf) => {
+  const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let s = "";
+  for (const b of u8) s += String.fromCharCode(b);
+  return btoa(s);
+};
+var fromB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+var unlocked = /* @__PURE__ */ new Map();
+function identityUnlocked(memberId) {
+  return unlocked.has(memberId);
+}
+function purgeLegacy(memberId) {
+  const s = storage4();
+  if (s && s.getItem(V1_KEY(memberId)) !== null) {
+    s.removeItem(V1_KEY(memberId));
+  }
+}
+async function deriveKey(passphrase, salt) {
+  const base = await globalThis.crypto.subtle.importKey("raw", enc.encode(passphrase), "PBKDF2", false, ["deriveKey"]);
+  return globalThis.crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: PBKDF_ITERATIONS, hash: "SHA-256" },
+    base,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+async function ensureIdentity(memberId, passphrase) {
+  if (!memberId || !passphrase || passphrase.length < 8) {
+    return { ok: false, error: "a passphrase of at least 8 characters guards the signing key" };
+  }
+  const s = storage4();
+  purgeLegacy(memberId);
+  const raw = s?.getItem(V2_KEY(memberId)) ?? null;
+  if (raw === null) {
+    const pair = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    const publicJwk = await globalThis.crypto.subtle.exportKey("jwk", pair.publicKey);
+    const privateJwk = await globalThis.crypto.subtle.exportKey("jwk", pair.privateKey);
+    const salt = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+    const kek = await deriveKey(passphrase, salt);
+    const cipher = await globalThis.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      kek,
+      enc.encode(JSON.stringify(privateJwk))
+    );
+    const record2 = {
+      v: "vh19-collab-key/2",
+      memberId,
+      publicJwk,
+      saltB64: toB64(salt),
+      ivB64: toB64(iv),
+      cipherB64: toB64(cipher),
+      kdf: "PBKDF2-SHA-256",
+      iterations: PBKDF_ITERATIONS,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    s?.setItem(V2_KEY(memberId), JSON.stringify(record2));
+    unlocked.set(memberId, pair.privateKey);
+    return { ok: true, created: true, publicJwk, purgedLegacy: false };
+  }
+  const record = JSON.parse(raw);
+  try {
+    const kek = await deriveKey(passphrase, fromB64(record.saltB64));
+    const plain = await globalThis.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: fromB64(record.ivB64) },
+      kek,
+      fromB64(record.cipherB64)
+    );
+    const privateJwk = JSON.parse(dec.decode(plain));
+    const key = await globalThis.crypto.subtle.importKey("jwk", privateJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+    unlocked.set(memberId, key);
+    return { ok: true, created: false, publicJwk: record.publicJwk, purgedLegacy: false };
+  } catch {
+    return { ok: false, error: "wrong passphrase \u2014 the private key stays sealed" };
+  }
+}
+function storedPublicJwk(memberId) {
+  const raw = storage4()?.getItem(V2_KEY(memberId)) ?? null;
+  if (raw === null) return null;
+  try {
+    return JSON.parse(raw).publicJwk;
+  } catch {
+    return null;
+  }
+}
+var SIGN_PARAMS = {
+  name: "ECDSA",
+  namedCurve: "P-256",
+  hash: "SHA-256"
+};
+async function signWithIdentity(memberId, data) {
+  const key = unlocked.get(memberId);
+  if (!key) throw new Error(`identity "${memberId}" is locked \u2014 unlock it before signing`);
+  const sig = await globalThis.crypto.subtle.sign(
+    SIGN_PARAMS,
+    key,
+    data
+  );
+  return toB64(sig);
+}
+function jwkEqual(a, b) {
+  return a.kty === b.kty && a.crv === b.crv && a.x === b.x && a.y === b.y;
+}
+function jwkFingerprint(jwk) {
+  return `${(jwk.x ?? "").slice(0, 8)}\u2026${(jwk.y ?? "").slice(-4)}`;
+}
+
+// src/vh19/collabRegistry.ts
+var PEERS_KEY = "vh19.collab.peers.v1";
+function storage5() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function load() {
+  const raw = storage5()?.getItem(PEERS_KEY) ?? null;
+  if (!raw) return { peers: [] };
+  try {
+    const r = JSON.parse(raw);
+    return Array.isArray(r.peers) ? r : { peers: [] };
+  } catch {
+    return { peers: [] };
+  }
+}
+function save2(r) {
+  storage5()?.setItem(PEERS_KEY, JSON.stringify(r));
+}
+function boundIdentityFor(memberId) {
+  return load().peers.find((p) => p.memberId === memberId) ?? null;
+}
+function listBoundPeers() {
+  return load().peers;
+}
+function bindPeerIdentity(memberId, publicJwk, source, now = () => /* @__PURE__ */ new Date()) {
+  const r = load();
+  const entry = { memberId, publicJwk, boundAt: now().toISOString(), source };
+  r.peers = [...r.peers.filter((p) => p.memberId !== memberId), entry];
+  save2(r);
+  return entry;
+}
+function unbindPeer(memberId) {
+  const r = load();
+  r.peers = r.peers.filter((p) => p.memberId !== memberId);
+  save2(r);
+}
+function requireBoundKey(memberId, presentedJwk) {
+  const bound = boundIdentityFor(memberId);
+  if (!bound) {
+    return { ok: false, error: `"${memberId}" has no bound identity here \u2014 bind it (invite acceptance or manual verify) before approvals can be trusted` };
+  }
+  if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+    return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+  }
+  return { ok: true, bound };
+}
+
+// src/vh19/collabInvite.ts
+var enc2 = new TextEncoder();
 function b64url(bytes) {
   const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   let s = "";
@@ -18691,41 +18862,20 @@ function fromB64url(s) {
   return u8;
 }
 async function sha256Hex(text) {
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc.encode(text));
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc2.encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 function canonical(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }
-function storage4() {
-  try {
-    return globalThis.localStorage ?? null;
-  } catch {
-    return null;
-  }
-}
-async function collabIdentity(memberId) {
-  const s = storage4();
-  const raw = s?.getItem(ID_KEY_PREFIX + memberId);
-  if (raw) {
-    const both = JSON.parse(raw);
-    return { memberId, publicJwk: both.pub, privateJwk: both.priv };
-  }
-  const pair = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
-  const priv = await globalThis.crypto.subtle.exportKey("jwk", pair.privateKey);
-  const pub = await globalThis.crypto.subtle.exportKey("jwk", pair.publicKey);
-  s?.setItem(ID_KEY_PREFIX + memberId, JSON.stringify({ pub, priv }));
-  return { memberId, publicJwk: pub, privateJwk: priv };
-}
 async function importPublic(jwk) {
   return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
 }
-async function importPrivate(jwk) {
-  return globalThis.crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
-}
-var SIGN_PARAMS = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+var SIGN_PARAMS2 = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
 async function createInvitation(args) {
-  const ident = await collabIdentity(args.from);
+  const pub = storedPublicJwk(args.from);
+  if (!pub) return { ok: false, error: `no identity for "${args.from}" \u2014 create one with a passphrase first` };
+  if (!identityUnlocked(args.from)) return { ok: false, error: `identity "${args.from}" is locked \u2014 unlock it to sign` };
   const payload = {
     v: "vh19-invite/1",
     id: `inv-${(args.now ?? (() => /* @__PURE__ */ new Date()))().getTime().toString(36)}`,
@@ -18737,13 +18887,12 @@ async function createInvitation(args) {
     capabilities: args.capabilities,
     message: args.message,
     createdAt: (args.now ?? (() => /* @__PURE__ */ new Date()))().toISOString(),
-    issuerPublicJwk: ident.publicJwk,
+    issuerPublicJwk: pub,
     trustModel: "tofu"
   };
   const canon = canonical(payload);
-  const key = await importPrivate(ident.privateJwk);
-  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canon));
-  return { payload, signatureB64: b64url(sig), digest: await sha256Hex(canon + "." + b64url(sig)) };
+  const signatureB64 = await signWithIdentity(args.from, enc2.encode(canon));
+  return { payload, signatureB64, digest: await sha256Hex(canon + "." + signatureB64) };
 }
 async function parseInvitation(token) {
   let obj;
@@ -18759,7 +18908,7 @@ async function parseInvitation(token) {
   let verified;
   try {
     const key = await importPublic(obj.payload.issuerPublicJwk);
-    verified = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(obj.signatureB64), enc.encode(canon));
+    verified = await globalThis.crypto.subtle.verify(SIGN_PARAMS2, key, fromB64url(obj.signatureB64), enc2.encode(canon));
   } catch {
     verified = false;
   }
@@ -18769,22 +18918,33 @@ async function parseInvitation(token) {
   return { ok: true, invite: { payload: obj.payload, signatureB64: obj.signatureB64, digest }, issuerVerified: true };
 }
 function serializeInvitation(inv) {
-  return b64url(enc.encode(JSON.stringify(inv)));
+  return b64url(enc2.encode(JSON.stringify(inv)));
 }
 async function signApproval(inviteDigest, approver, approved, now = () => /* @__PURE__ */ new Date()) {
-  const ident = await collabIdentity(approver);
+  const pub = storedPublicJwk(approver);
+  if (!pub) return { ok: false, error: `no identity for "${approver}"` };
+  if (!identityUnlocked(approver)) return { ok: false, error: `identity "${approver}" is locked \u2014 unlock it to sign consent` };
   const body = { inviteDigest, approver, approved, at: now().toISOString() };
-  const key = await importPrivate(ident.privateJwk);
-  const sig = await globalThis.crypto.subtle.sign(SIGN_PARAMS, key, enc.encode(canonical(body)));
-  return { ...body, publicJwk: ident.publicJwk, signatureB64: b64url(sig) };
+  const signatureB64 = await signWithIdentity(approver, enc2.encode(canonical(body)));
+  return { ...body, publicJwk: pub, signatureB64 };
+}
+async function acceptInvitation(invite, approver, approved) {
+  const approval = await signApproval(invite.digest, approver, approved);
+  if ("ok" in approval && approval.ok === false) return approval;
+  if (approved) {
+    bindPeerIdentity(invite.payload.from, invite.payload.issuerPublicJwk, "invite-acceptance");
+  }
+  return { approval, bound: approved ? invite.payload.from : "(rejected \u2014 issuer not bound)" };
 }
 async function verifyApproval(a, expectedApprover) {
   if (a.approver !== expectedApprover) return { ok: false, error: `approval claims "${a.approver}" but the team expects "${expectedApprover}"` };
+  const binding = requireBoundKey(expectedApprover, a.publicJwk);
+  if (!binding.ok) return { ok: false, error: binding.error };
   const body = { inviteDigest: a.inviteDigest, approver: a.approver, approved: a.approved, at: a.at };
   try {
-    const key = await importPublic(a.publicJwk);
-    const ok2 = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc.encode(canonical(body)));
-    return ok2 ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify` };
+    const key = await importPublic(binding.bound.publicJwk);
+    const ok2 = await globalThis.crypto.subtle.verify(SIGN_PARAMS2, key, fromB64url(a.signatureB64), enc2.encode(canonical(body)));
+    return ok2 ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify against the bound identity` };
   } catch {
     return { ok: false, error: `approval signature for "${a.approver}" is not verifiable` };
   }
@@ -18795,7 +18955,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage5() {
+function storage6() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -18812,7 +18972,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage5();
+  const s = storage6();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -18821,7 +18981,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -18875,12 +19035,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex2(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage5();
+  const s = storage6();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -18894,6 +19054,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   for (const sa of signedApprovals) {
     const member = approvals.find((a) => a.memberId === sa.approver);
     if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    if (sa.inviteDigest !== proposal.digest) return { ok: false, error: `signed consent of "${sa.approver}" covers a DIFFERENT proposal \u2014 stale signatures refuse` };
     const v = await verifyApproval(sa, sa.approver);
     if (!v.ok) return { ok: false, error: v.error };
     if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
@@ -18920,7 +19081,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     adoptedAt: now().toISOString(),
     digest: await sha256Hex2(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage5();
+  const s = storage6();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -18928,7 +19089,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -18945,7 +19106,7 @@ async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ n
   return r.ok ? r.proposal : null;
 }
 function revokeEvolvedConfig(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (s) s.removeItem(`${CONFIG_KEY}:${teamId}`);
 }
 function applyTeamPreference(teamId, selected) {
@@ -18961,7 +19122,7 @@ var PASS_THRESHOLD = 0.9;
 var AUTONOMY_KEY = "vh19.autonomy.v1";
 var SESSION_KEY = "vh19.exam.sessions.v1";
 var MAX_SESSIONS = 20;
-function storage6() {
+function storage7() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -19014,7 +19175,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage6();
+  const s = storage7();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -19039,7 +19200,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage6();
+  const s = storage7();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -19082,7 +19243,7 @@ function grantKey(userId, category) {
   return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
 function loadGrant(userId = "default", category) {
-  const s = storage6();
+  const s = storage7();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
@@ -19094,7 +19255,7 @@ function loadGrant(userId = "default", category) {
   }
 }
 function saveGrant(attempts, score, passed2, userId, now, category) {
-  const s = storage6();
+  const s = storage7();
   if (!s) return;
   const prev = loadGrant(userId, category);
   const grant = {
@@ -19114,7 +19275,7 @@ function autonomyCovers(userId, category) {
   return category ? loadGrant(userId, category).granted : false;
 }
 function revokeAutonomy(userId = "default", category) {
-  const s = storage6();
+  const s = storage7();
   const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
   if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
@@ -19286,7 +19447,7 @@ var SELF_EVOLUTION_FLOOR = [
   "the honesty contract (executed:false when nothing ran)",
   "any LOOSENING of any control (tiers, bars, ceilings)"
 ];
-function storage7() {
+function storage8() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -19298,7 +19459,7 @@ async function sha256Hex4(t) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 function selfProposals() {
-  const s = storage7();
+  const s = storage8();
   if (!s) return [];
   try {
     return JSON.parse(s.getItem(PROPOSALS_KEY) ?? "[]");
@@ -19307,7 +19468,7 @@ function selfProposals() {
   }
 }
 function saveProposals(list) {
-  storage7()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
+  storage8()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
 }
 async function proposeSelfChanges(userId = "default", now = () => /* @__PURE__ */ new Date()) {
   const report = patternReport(userId);
@@ -19456,6 +19617,10 @@ var Vh19 = () => {
   const [inviteScope, setInviteScope] = (0, import_react.useState)("one shared mission, safe-tier ceiling");
   const [inviteCeiling, setInviteCeiling] = (0, import_react.useState)("safe");
   const [inviteHours, setInviteHours] = (0, import_react.useState)(24);
+  const [passphrase, setPassphrase] = (0, import_react.useState)("");
+  const [idMsg, setIdMsg] = (0, import_react.useState)(null);
+  const [unlockedNow, setUnlockedNow] = (0, import_react.useState)(false);
+  const [peers, setPeers] = (0, import_react.useState)([]);
   const [received, setReceived] = (0, import_react.useState)("");
   const [parsed, setParsed] = (0, import_react.useState)(null);
   const [parseErr, setParseErr] = (0, import_react.useState)(null);
@@ -19604,7 +19769,7 @@ var Vh19 = () => {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14, minHeight: 420 }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Conversation" }),
         messages.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "view-sub", style: { padding: "40px 8px", textAlign: "center" }, children: "Ask VH-19 anything. It will show you which specialists it routed to and why \u2014 and it will tell you plainly when it did NOT execute." }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: messages.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "10px 12px", background: "var(--bg)", flexDirection: "column", alignItems: "stretch", gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: messages.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "msg-enter row", style: { padding: "10px 12px", background: "var(--bg)", flexDirection: "column", alignItems: "stretch", gap: 6 }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `chip ${m.role === "user" ? "" : "chip-ok"}`, children: m.role === "user" ? "you" : "VH-19" }),
             m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", title: m.resp.note ?? "", children: OUTCOME_LABEL[m.resp.outcome] }),
@@ -19846,81 +20011,125 @@ var Vh19 = () => {
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => setShowCollab((v) => !v), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+        setShowCollab((v) => !v);
+        setPeers(listBoundPeers());
+      }, children: [
         showCollab ? "\u25BE" : "\u25B8",
-        " Collaboration invitations \xB7 signed"
+        " Collaboration invitations \xB7 signed & identity-bound"
       ] }),
-      showCollab && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
-            "Invite ",
-            teamPeer,
-            " to collaborate"
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, className: "mb-16", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", value: inviteScope, onChange: (e) => setInviteScope(e.target.value), placeholder: "scope" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "input", value: inviteCeiling, onChange: (e) => setInviteCeiling(e.target.value), children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "safe", children: "safe ceiling" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "risky", children: "risky ceiling" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "critical", children: "critical ceiling" })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "number", value: inviteHours, onChange: (e) => setInviteHours(Number(e.target.value)), style: { width: 70 } })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
-              const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || "peer", scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
-              setInviteOut(serializeInvitation(inv));
-            }, children: "Create signed invite" })
-          ] }),
-          inviteOut && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
-              "Send this token to ",
-              teamPeer,
-              " over any channel \u2014 it is signed by your VH identity (TOFU until bound to A2A):"
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, value: inviteOut, rows: 3, onFocus: (e) => e.currentTarget.select() })
-          ] })
+      showCollab && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: "Your signing key is encrypted at rest under a passphrase (AES-GCM \xB7 PBKDF2 150k) and lives decrypted in memory only for this session. Approvals verify against BOUND identities \u2014 never against a key carried inside the approval. First contact is trust-on-first-use and says so." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "password", placeholder: "identity passphrase (min 8 chars)", value: passphrase, onChange: (e) => setPassphrase(e.target.value), style: { maxWidth: 260 } }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
+            const r = await ensureIdentity(localMember, passphrase);
+            if (r.ok) {
+              setUnlockedNow(true);
+              setIdMsg(null);
+              setPeers(listBoundPeers());
+            } else {
+              setUnlockedNow(false);
+              setIdMsg(r.error);
+            }
+          }, children: unlockedNow ? "Re-unlock" : "Create / unlock identity" }),
+          unlockedNow && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: "unlocked \xB7 session-only" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Received invite" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input mb-16", rows: 3, placeholder: "paste an invite token", value: received, onChange: (e) => setReceived(e.target.value) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
-              const r = await parseInvitation(received);
-              if (!r.ok) {
-                setParsed(null);
-                setParseErr(r.error);
-                return;
-              }
-              setParseErr(null);
-              setParsed(r.invite);
-              setApprovalOut(null);
-            }, children: "Verify" }),
-            parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        idMsg && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11, color: "var(--warn)" }, children: idMsg }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
+              "Invite ",
+              teamPeer || "a peer",
+              " to collaborate"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, className: "mb-16", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", value: inviteScope, onChange: (e) => setInviteScope(e.target.value), placeholder: "scope" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "input", value: inviteCeiling, onChange: (e) => setInviteCeiling(e.target.value), children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "safe", children: "safe ceiling" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "risky", children: "risky ceiling" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "critical", children: "critical ceiling" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "number", value: inviteHours, onChange: (e) => setInviteHours(Number(e.target.value)), style: { width: 70 } })
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
-                const a = await signApproval(parsed.digest, localMember, true);
-                setApprovalOut(JSON.stringify(a));
-              }, children: "Approve (sign)" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
-                const a = await signApproval(parsed.digest, localMember, false);
-                setApprovalOut(JSON.stringify(a));
-              }, children: "Reject (sign)" })
+                const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || "peer", scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
+                if ("digest" in inv) setInviteOut(serializeInvitation(inv));
+                else setIdMsg(inv.error);
+              }, children: "Create signed invite" })
+            ] }),
+            inviteOut && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
+                "Send this token over any channel. When ",
+                teamPeer || "the peer",
+                " approves, their signed approval arrives; bind their key from it (or let invite acceptance bind the issuer)."
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, value: inviteOut, rows: 3, onFocus: (e) => e.currentTarget.select() })
+            ] }),
+            peers.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mt-16", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Bound identities" }),
+              peers.map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "6px 10px", marginBottom: 4 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: p.memberId }),
+                  " \xB7 ",
+                  jwkFingerprint(p.publicJwk),
+                  " \xB7 via ",
+                  p.source
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+                  unbindPeer(p.memberId);
+                  setPeers(listBoundPeers());
+                }, children: "Unbind" })
+              ] }, p.memberId))
             ] })
           ] }),
-          parseErr && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { color: "var(--warn)", fontSize: 11 }, children: parseErr }),
-          parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
-              "\u2713 signature verified \xB7 from ",
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: parsed.payload.from }),
-              " \xB7 scope: ",
-              parsed.payload.scope,
-              " \xB7 ceiling: ",
-              parsed.payload.riskCeiling,
-              " \xB7 ",
-              parsed.payload.durationH,
-              "h \xB7 trust-on-first-use key"
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Received invite" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input mb-16", rows: 3, placeholder: "paste an invite token", value: received, onChange: (e) => setReceived(e.target.value) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
+                const r = await parseInvitation(received);
+                if (!r.ok) {
+                  setParsed(null);
+                  setParseErr(r.error);
+                  return;
+                }
+                setParseErr(null);
+                setParsed(r.invite);
+                setApprovalOut(null);
+              }, children: "Verify" }),
+              parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
+                  const r = await acceptInvitation(parsed, localMember, true);
+                  if ("approval" in r) {
+                    setApprovalOut(JSON.stringify(r.approval));
+                    setPeers(listBoundPeers());
+                    setIdMsg(null);
+                  } else setIdMsg(r.error);
+                }, children: "Approve + bind issuer (sign)" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
+                  const a = await signApproval(parsed.digest, localMember, false);
+                  if (a && !("ok" in a)) setApprovalOut(JSON.stringify(a));
+                  else if (a && "ok" in a && a.ok === false) setIdMsg(a.error);
+                }, children: "Reject (sign)" })
+              ] })
             ] }),
-            approvalOut && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, rows: 2, value: approvalOut, style: { marginTop: 6 }, onFocus: (e) => e.currentTarget.select() })
+            parseErr && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { color: "var(--warn)", fontSize: 11 }, children: parseErr }),
+            parsed && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+                "\u2713 signature verified \xB7 from ",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: parsed.payload.from }),
+                " \xB7 scope: ",
+                parsed.payload.scope,
+                " \xB7 ceiling: ",
+                parsed.payload.riskCeiling,
+                " \xB7 ",
+                parsed.payload.durationH,
+                "h \xB7 trust-on-first-use key, bound on approval"
+              ] }),
+              approvalOut && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input", readOnly: true, rows: 2, value: approvalOut, style: { marginTop: 6 }, onFocus: (e) => e.currentTarget.select() })
+            ] })
           ] })
         ] })
       ] })

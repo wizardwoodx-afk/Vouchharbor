@@ -17,7 +17,8 @@ import { catalogStats, listSpecialists, setSpecialistEnabled, disabledSpecialist
 import { patternReport, recordDecision } from '../vh19/memory';
 import { autonomyStatus, gradeExam, proposeExam, revokeAutonomy, PASS_THRESHOLD } from '../vh19/exam';
 import { approveTeamEvolution, autoProposeIfReady, evolvedConfig, pendingProposal, proposeTeamEvolution, revokeEvolvedConfig, teamIdFor, teamMemoryReport } from '../vh19/teamEvolve';
-import { createInvitation, parseInvitation, serializeInvitation, signApproval } from '../vh19/collabInvite';
+import { acceptInvitation, createInvitation, ensureIdentity, jwkFingerprint, listBoundPeers, parseInvitation, serializeInvitation, signApproval, unbindPeer } from '../vh19/collabInvite';
+import type { BoundPeer } from '../vh19/collabRegistry';
 import type { SignedInvitation } from '../vh19/collabInvite';
 import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChange, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
 import type { SelfProposal } from '../vh19/selfEvolve';
@@ -78,6 +79,10 @@ export const Vh19: React.FC = () => {
   const [inviteScope, setInviteScope] = useState('one shared mission, safe-tier ceiling');
   const [inviteCeiling, setInviteCeiling] = useState<'safe' | 'risky' | 'critical'>('safe');
   const [inviteHours, setInviteHours] = useState(24);
+  const [passphrase, setPassphrase] = useState('');
+  const [idMsg, setIdMsg] = useState<string | null>(null);
+  const [unlockedNow, setUnlockedNow] = useState(false);
+  const [peers, setPeers] = useState<BoundPeer[]>([]);
   const [received, setReceived] = useState('');
   const [parsed, setParsed] = useState<SignedInvitation | null>(null);
   const [parseErr, setParseErr] = useState<string | null>(null);
@@ -214,7 +219,7 @@ export const Vh19: React.FC = () => {
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {messages.map((m) => (
-              <div key={m.id} className="row" style={{ padding: '10px 12px', background: 'var(--bg)', flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+              <div key={m.id} className="msg-enter row" style={{ padding: '10px 12px', background: 'var(--bg)', flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <span className={`chip ${m.role === 'user' ? '' : 'chip-ok'}`}>{m.role === 'user' ? 'you' : 'VH-19'}</span>
                   {m.resp && <span className="chip" title={m.resp.note ?? ''}>{OUTCOME_LABEL[m.resp.outcome]}</span>}
@@ -370,56 +375,83 @@ export const Vh19: React.FC = () => {
         </div>
       </div>
 
-      {/* ── collaboration invitations (18.2.0) ── */}
+      {/* ── collaboration invitations — hardened (18.3.0) ── */}
       <div className="card mt-16" style={{ padding: 14 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => setShowCollab((v) => !v)}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setShowCollab((v) => !v); setPeers(listBoundPeers()); }}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed &amp; identity-bound</button>
         {showCollab && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 12 }}>
-            <div>
-              <div className="eyebrow mb-16">Invite {teamPeer} to collaborate</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="mb-16">
-                <input className="input" value={inviteScope} onChange={(e) => setInviteScope(e.target.value)} placeholder="scope" />
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <select className="input" value={inviteCeiling} onChange={(e) => setInviteCeiling(e.target.value as 'safe' | 'risky' | 'critical')}>
-                    <option value="safe">safe ceiling</option><option value="risky">risky ceiling</option><option value="critical">critical ceiling</option>
-                  </select>
-                  <input className="input" type="number" value={inviteHours} onChange={(e) => setInviteHours(Number(e.target.value))} style={{ width: 70 }} />
-                </div>
-                <button className="btn btn-primary btn-sm" onClick={async () => {
-                  const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || 'peer', scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
-                  setInviteOut(serializeInvitation(inv));
-                }}>Create signed invite</button>
-              </div>
-              {inviteOut && (<>
-                <div className="row-sub mb-16" style={{ fontSize: 11 }}>Send this token to {teamPeer} over any channel — it is signed by your VH identity (TOFU until bound to A2A):</div>
-                <textarea className="input" readOnly value={inviteOut} rows={3} onFocus={(e) => e.currentTarget.select()} />
-              </>)}
+          <div style={{ marginTop: 12 }}>
+            <div className="row-sub mb-16" style={{ fontSize: 11 }}>
+              Your signing key is encrypted at rest under a passphrase (AES-GCM · PBKDF2 150k) and lives decrypted in memory only for this session. Approvals verify against BOUND identities — never against a key carried inside the approval. First contact is trust-on-first-use and says so.
             </div>
-            <div>
-              <div className="eyebrow mb-16">Received invite</div>
-              <textarea className="input mb-16" rows={3} placeholder="paste an invite token" value={received} onChange={(e) => setReceived(e.target.value)} />
-              <div style={{ display: 'flex', gap: 6 }} className="mb-16">
-                <button className="btn btn-ghost btn-sm" onClick={async () => {
-                  const r = await parseInvitation(received);
-                  if (!r.ok) { setParsed(null); setParseErr(r.error); return; }
-                  setParseErr(null); setParsed(r.invite); setApprovalOut(null);
-                }}>Verify</button>
-                {parsed && (<>
+            <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+              <input className="input" type="password" placeholder="identity passphrase (min 8 chars)" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} style={{ maxWidth: 260 }} />
+              <button className="btn btn-primary btn-sm" onClick={async () => {
+                const r = await ensureIdentity(localMember, passphrase);
+                if (r.ok) { setUnlockedNow(true); setIdMsg(null); setPeers(listBoundPeers()); }
+                else { setUnlockedNow(false); setIdMsg(r.error); }
+              }}>{unlockedNow ? 'Re-unlock' : 'Create / unlock identity'}</button>
+              {unlockedNow && <span className="chip">unlocked · session-only</span>}
+            </div>
+            {idMsg && <div className="row-sub mb-16" style={{ fontSize: 11, color: 'var(--warn)' }}>{idMsg}</div>}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <div className="eyebrow mb-16">Invite {teamPeer || 'a peer'} to collaborate</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="mb-16">
+                  <input className="input" value={inviteScope} onChange={(e) => setInviteScope(e.target.value)} placeholder="scope" />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <select className="input" value={inviteCeiling} onChange={(e) => setInviteCeiling(e.target.value as 'safe' | 'risky' | 'critical')}>
+                      <option value="safe">safe ceiling</option><option value="risky">risky ceiling</option><option value="critical">critical ceiling</option>
+                    </select>
+                    <input className="input" type="number" value={inviteHours} onChange={(e) => setInviteHours(Number(e.target.value))} style={{ width: 70 }} />
+                  </div>
                   <button className="btn btn-primary btn-sm" onClick={async () => {
-                    const a = await signApproval(parsed.digest, localMember, true);
-                    setApprovalOut(JSON.stringify(a));
-                  }}>Approve (sign)</button>
+                    const inv = await createInvitation({ from: localMember, to: teamPeer.trim() || 'peer', scope: inviteScope, riskCeiling: inviteCeiling, durationH: inviteHours, capabilities: [] });
+                    if ('digest' in inv) setInviteOut(serializeInvitation(inv));
+                    else setIdMsg(inv.error);
+                  }}>Create signed invite</button>
+                </div>
+                {inviteOut && (<>
+                  <div className="row-sub mb-16" style={{ fontSize: 11 }}>Send this token over any channel. When {teamPeer || 'the peer'} approves, their signed approval arrives; bind their key from it (or let invite acceptance bind the issuer).</div>
+                  <textarea className="input" readOnly value={inviteOut} rows={3} onFocus={(e) => e.currentTarget.select()} />
+                </>)}
+                {peers.length > 0 && (<div className="mt-16">
+                  <div className="eyebrow mb-16">Bound identities</div>
+                  {peers.map((p) => (
+                    <div key={p.memberId} className="row" style={{ padding: '6px 10px', marginBottom: 4 }}>
+                      <div className="row-sub" style={{ fontSize: 11 }}><b>{p.memberId}</b> · {jwkFingerprint(p.publicJwk)} · via {p.source}</div>
+                      <button className="btn btn-ghost btn-sm" onClick={() => { unbindPeer(p.memberId); setPeers(listBoundPeers()); }}>Unbind</button>
+                    </div>
+                  ))}
+                </div>)}
+              </div>
+              <div>
+                <div className="eyebrow mb-16">Received invite</div>
+                <textarea className="input mb-16" rows={3} placeholder="paste an invite token" value={received} onChange={(e) => setReceived(e.target.value)} />
+                <div style={{ display: 'flex', gap: 6 }} className="mb-16">
                   <button className="btn btn-ghost btn-sm" onClick={async () => {
-                    const a = await signApproval(parsed.digest, localMember, false);
-                    setApprovalOut(JSON.stringify(a));
-                  }}>Reject (sign)</button>
+                    const r = await parseInvitation(received);
+                    if (!r.ok) { setParsed(null); setParseErr(r.error); return; }
+                    setParseErr(null); setParsed(r.invite); setApprovalOut(null);
+                  }}>Verify</button>
+                  {parsed && (<>
+                    <button className="btn btn-primary btn-sm" onClick={async () => {
+                      const r = await acceptInvitation(parsed, localMember, true);
+                      if ('approval' in r) { setApprovalOut(JSON.stringify(r.approval)); setPeers(listBoundPeers()); setIdMsg(null); }
+                      else setIdMsg(r.error);
+                    }}>Approve + bind issuer (sign)</button>
+                    <button className="btn btn-ghost btn-sm" onClick={async () => {
+                      const a = await signApproval(parsed.digest, localMember, false);
+                      if (a && !('ok' in a)) setApprovalOut(JSON.stringify(a));
+                      else if (a && 'ok' in a && a.ok === false) setIdMsg(a.error);
+                    }}>Reject (sign)</button>
+                  </>)}
+                </div>
+                {parseErr && <div className="row-sub" style={{ color: 'var(--warn)', fontSize: 11 }}>{parseErr}</div>}
+                {parsed && (<>
+                  <div className="row-sub" style={{ fontSize: 11 }}>✓ signature verified · from <b>{parsed.payload.from}</b> · scope: {parsed.payload.scope} · ceiling: {parsed.payload.riskCeiling} · {parsed.payload.durationH}h · trust-on-first-use key, bound on approval</div>
+                  {approvalOut && <textarea className="input" readOnly rows={2} value={approvalOut} style={{ marginTop: 6 }} onFocus={(e) => e.currentTarget.select()} />}
                 </>)}
               </div>
-              {parseErr && <div className="row-sub" style={{ color: 'var(--warn)', fontSize: 11 }}>{parseErr}</div>}
-              {parsed && (<>
-                <div className="row-sub" style={{ fontSize: 11 }}>✓ signature verified · from <b>{parsed.payload.from}</b> · scope: {parsed.payload.scope} · ceiling: {parsed.payload.riskCeiling} · {parsed.payload.durationH}h · trust-on-first-use key</div>
-                {approvalOut && <textarea className="input" readOnly rows={2} value={approvalOut} style={{ marginTop: 6 }} onFocus={(e) => e.currentTarget.select()} />}
-              </>)}
             </div>
           </div>
         )}

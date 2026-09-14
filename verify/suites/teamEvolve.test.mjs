@@ -11,8 +11,48 @@ function uid(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
-// src/vh19/collabInvite.ts
+// src/vh19/secureKeys.ts
 var enc = new TextEncoder();
+var dec = new TextDecoder();
+function jwkEqual(a, b) {
+  return a.kty === b.kty && a.crv === b.crv && a.x === b.x && a.y === b.y;
+}
+
+// src/vh19/collabRegistry.ts
+var PEERS_KEY = "vh19.collab.peers.v1";
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function load() {
+  const raw = storage()?.getItem(PEERS_KEY) ?? null;
+  if (!raw) return { peers: [] };
+  try {
+    const r = JSON.parse(raw);
+    return Array.isArray(r.peers) ? r : { peers: [] };
+  } catch {
+    return { peers: [] };
+  }
+}
+function boundIdentityFor(memberId) {
+  return load().peers.find((p) => p.memberId === memberId) ?? null;
+}
+function requireBoundKey(memberId, presentedJwk) {
+  const bound = boundIdentityFor(memberId);
+  if (!bound) {
+    return { ok: false, error: `"${memberId}" has no bound identity here \u2014 bind it (invite acceptance or manual verify) before approvals can be trusted` };
+  }
+  if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+    return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+  }
+  return { ok: true, bound };
+}
+
+// src/vh19/collabInvite.ts
+var enc2 = new TextEncoder();
 function fromB64url(s) {
   const pad = s.replace(/-/g, "+").replace(/_/g, "/");
   const raw = atob(pad + "=".repeat((4 - pad.length % 4) % 4));
@@ -29,11 +69,13 @@ async function importPublic(jwk) {
 var SIGN_PARAMS = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
 async function verifyApproval(a, expectedApprover) {
   if (a.approver !== expectedApprover) return { ok: false, error: `approval claims "${a.approver}" but the team expects "${expectedApprover}"` };
+  const binding = requireBoundKey(expectedApprover, a.publicJwk);
+  if (!binding.ok) return { ok: false, error: binding.error };
   const body = { inviteDigest: a.inviteDigest, approver: a.approver, approved: a.approved, at: a.at };
   try {
-    const key = await importPublic(a.publicJwk);
-    const ok = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc.encode(canonical(body)));
-    return ok ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify` };
+    const key = await importPublic(binding.bound.publicJwk);
+    const ok = await globalThis.crypto.subtle.verify(SIGN_PARAMS, key, fromB64url(a.signatureB64), enc2.encode(canonical(body)));
+    return ok ? { ok: true } : { ok: false, error: `approval signature for "${a.approver}" does not verify against the bound identity` };
   } catch {
     return { ok: false, error: `approval signature for "${a.approver}" is not verifiable` };
   }
@@ -44,7 +86,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage() {
+function storage2() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -61,7 +103,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage();
+  const s = storage2();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -70,7 +112,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -124,12 +166,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage();
+  const s = storage2();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage();
+  const s = storage2();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -143,6 +185,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   for (const sa of signedApprovals) {
     const member = approvals.find((a) => a.memberId === sa.approver);
     if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    if (sa.inviteDigest !== proposal.digest) return { ok: false, error: `signed consent of "${sa.approver}" covers a DIFFERENT proposal \u2014 stale signatures refuse` };
     const v = await verifyApproval(sa, sa.approver);
     if (!v.ok) return { ok: false, error: v.error };
     if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };
@@ -169,7 +212,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     adoptedAt: now().toISOString(),
     digest: await sha256Hex(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage();
+  const s = storage2();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -177,7 +220,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage();
+  const s = storage2();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -194,7 +237,7 @@ async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ n
   return r.ok ? r.proposal : null;
 }
 function revokeEvolvedConfig(teamId) {
-  const s = storage();
+  const s = storage2();
   if (s) s.removeItem(`${CONFIG_KEY}:${teamId}`);
 }
 function applyTeamPreference(teamId, selected) {

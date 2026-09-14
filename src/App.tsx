@@ -9,13 +9,16 @@ import { Helm } from './app/Helm';
 import { CommandPalette } from './panels/CommandPalette';
 import { Toasts } from './panels/Toast';
 import { Splash } from './panels/Splash';
-import { Harbor } from './views/Harbor';
-import { Ship } from './views/Ship';
-import { Chart } from './views/Chart';
-import { Register } from './views/Register';
-import { HarborMaster } from './views/HarborMaster';
+import { Suspense, lazy } from 'react';
+// 18.3.0 — route-level code splitting: the VH-19 front door stays eager
+// (it IS the first paint); every other dock loads on demand as its own chunk.
+const Harbor = lazy(() => import('./views/Harbor').then((m) => ({ default: m.Harbor })));
+const Ship = lazy(() => import('./views/Ship').then((m) => ({ default: m.Ship })));
+const Chart = lazy(() => import('./views/Chart').then((m) => ({ default: m.Chart })));
+const Register = lazy(() => import('./views/Register').then((m) => ({ default: m.Register })));
+const HarborMaster = lazy(() => import('./views/HarborMaster').then((m) => ({ default: m.HarborMaster })));
 import { Vh19 } from './views/Vh19';
-import { Settings } from './views/Settings';
+const Settings = lazy(() => import('./views/Settings').then((m) => ({ default: m.Settings })));
 import { HarborProvider, useHarbor } from './app/harbor';
 import { NAV } from './app/nav';
 
@@ -95,7 +98,7 @@ const VouchShell: React.FC = () => {
   return (
     <div className="app">
       <Sidebar view={view} onChange={setView} onOpenPalette={() => setPaletteOpen(true)} />
-      <div className="viewport"><ViewComp /></div>
+      <div className="viewport"><div key={view} className="view-enter"><Suspense fallback={<div className="streaming-shimmer" style={{ height: '100%', borderRadius: 14 }} />}><ViewComp /></Suspense></div></div>
       <Helm
         mode={helmMode}
         onModeChange={setHelmMode}

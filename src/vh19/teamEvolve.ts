@@ -217,6 +217,7 @@ export async function approveTeamEvolution(
   for (const sa of signedApprovals) {
     const member = approvals.find((a) => a.memberId === sa.approver);
     if (!member) return { ok: false, error: `signed approval from "${sa.approver}" has no matching team approval` };
+    if (sa.inviteDigest !== proposal.digest) return { ok: false, error: `signed consent of "${sa.approver}" covers a DIFFERENT proposal — stale signatures refuse` };
     const v = await verifyApproval(sa, sa.approver);
     if (!v.ok) return { ok: false, error: v.error };
     if (sa.approved !== member.approved) return { ok: false, error: `signed consent of "${sa.approver}" contradicts the presented approval` };

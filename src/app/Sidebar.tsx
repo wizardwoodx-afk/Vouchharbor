@@ -35,11 +35,11 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
     <aside className="sidebar">
       <div className="brand">
         <div className="seal-mark" aria-hidden>
-          {/* Horizon mark — a line and a rising dot. Nothing more. */}
+          {/* Horizon mark — one arc, one ring. Nothing more. */}
           <svg viewBox="0 0 40 40" width="34" height="34">
-            <rect x="6" y="6" width="28" height="28" rx="9" fill="#1A1919" stroke="rgba(233,235,237,0.10)" strokeWidth="1"/>
-            <path d="M13 25.5h14" stroke="#9BA6A8" strokeWidth="1.7" strokeLinecap="round"/>
-            <circle cx="20" cy="17.5" r="3.4" fill="none" stroke="#748785" strokeWidth="1.7"/>
+            <rect x="6" y="6" width="28" height="28" rx="9" fill="#16161A" stroke="rgba(233,235,237,0.10)" strokeWidth="1"/>
+            <path d="M12 24.5 Q20 13.5 28 24.5" fill="none" stroke="#7E8D8A" strokeWidth="1.7" strokeLinecap="round"/>
+            <circle cx="20" cy="29" r="2.6" fill="none" stroke="#B9BFC4" strokeWidth="1.5"/>
           </svg>
         </div>
         <div className="brand-text">
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
           <span className="seal-dot live"/><span>Wind is fair</span>
         </div>
         <div className="seal-info-row sub">
-          patina seal · every hand signed
+          horizon seal · every hand signed
         </div>
         {pending > 0 && (
           <button className="seal-info-row alert" onClick={() => onChange('harbor')}>

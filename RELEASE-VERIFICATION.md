@@ -1,8 +1,35 @@
-# Vouch Harbor 18.2.0 "Horizon" — release verification record
+# Vouch Harbor 18.3.0 "Meridian" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it.
+
+## The 18.3.0 record (hardening + motion + new mark + split bundle)
+
+18.3.0 closes the external review's two cryptographic findings (bound-key
+approval verification, passphrase-sealed keys), ships the Horizon motion
+system, a new icon, route-level code splitting and a browser CSP.
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `tsc --noEmit` | 0 errors |
+| Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
+| Unit | `npm run unit` | 20/20 |
+| Theme (Horizon) | `node tools/run-one-probe.mjs theme` | 10/10 |
+| Collab identity (hardened) | `node tools/run-one-probe.mjs collabInvite` | 23/23 |
+| Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
+| Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
+| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
+| Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
+| Offline pack | `node verify/run.mjs` | 111 passed, 0 failed |
+| Bundle split | `npm run build` | 9 chunks, main 528 kB |
+| Live fleet | `npm test` | 112/112 suites green |
+
+---
+
+# 18.2.0 "Horizon" — release verification record (standing Horizon record)
 
 ## The 18.2.0 record (Horizon UI + signed invitations + bounded self-evolution)
 
