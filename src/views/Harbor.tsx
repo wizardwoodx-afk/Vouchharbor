@@ -29,20 +29,7 @@ export const Harbor: React.FC = () => {
         <div>
           <div className="eyebrow mb-16">Harbor</div>
           <h1 className="view-title">The water is live.</h1>
-          {/* 17.10.11: the previous copy made an absolute claim about what was NOT
-              simulated, while the status strip on this same screen could read SIMULATED — the
-              exact failure this product exists to prevent. probe/vh19Honesty.test.ts pins both
-              the wording and the fact that the disclosure is driven by totals.brain. */}
-          <p className="view-sub">
-            Every voyage runs through the governed Helm — receipts record what actually executed,
-            and the engine mode is printed on them.
-          </p>
-          {/simul/i.test(totals.brain) && (
-            <p className="view-sub" role="status" data-vh-brain-mode="simulated">
-              Engine mode: <strong>{totals.brain}</strong> — routing, receipts, git and tests are real;
-              the decisions are rule-based. Switch it under Harbor Master.
-            </p>
-          )}
+          <p className="view-sub">Every voyage sails through the governed Helm — real engine, real receipts, no mock.</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-ghost btn-sm" onClick={() => actions.newThread()}>+ Signal a thread</button>

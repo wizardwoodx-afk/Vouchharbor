@@ -17429,9 +17429,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "17.10.11";
-var VH_SHORT = "17.10";
-var VH_CODENAME = "WarrantTeams";
+var VH_VERSION = "18.0.0";
+var VH_SHORT = "18.0";
+var VH_CODENAME = "Generalist";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts

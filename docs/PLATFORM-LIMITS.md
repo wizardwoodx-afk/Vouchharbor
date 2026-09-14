@@ -1,4 +1,4 @@
-# Vouch Harbor 17.10.11 — Platform limits
+# Vouch Harbor 18.0.0 — Platform limits
 
 Known environment-specific limits, documented so they are never mistaken for
 regressions.

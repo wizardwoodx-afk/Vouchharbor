@@ -1,8 +1,30 @@
-# Vouch Harbor 17.10.7 "WarrantTeams" — release verification record
+# Vouch Harbor 18.0.0 "Generalist" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
-on node v20.20.2, Linux x64, 2026-09-13. Re-run them yourself; do not take this
-file's word for it.
+on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
+for it.
+
+## The 18.0.0 record (Generalist — the VH-19 front door)
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `tsc --noEmit` | 0 errors |
+| Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
+| Unit | `npm run unit` | 20/20 |
+| VH-19 layer | `node tools/run-one-probe.mjs vh19` | 67/67 |
+| Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
+| Live fleet | `npm test` | see the run record below |
+
+The 18.0.0 additions (VH-19 Generalist layer, provider seam, learning ledger,
+90% exam) are documented in `VH-18.0-UPGRADE.md`; the protocol is unchanged at
+v0.10.7, so the 17.10.7 record below remains the standing verification for the
+protocol and A2A surfaces.
+
+---
+
+# 17.10.7 "WarrantTeams" — release verification record (standing protocol/A2A record)
+
+Produced on node v20.20.2, Linux x64, 2026-09-13.
 
 ## What this release is
 

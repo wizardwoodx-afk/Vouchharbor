@@ -1,4 +1,4 @@
-# Vouch Harbor 17.10.7 — Information Architecture: ONE ENGINE, six doors (the 12.0 spine, grown at 15.0)
+# Vouch Harbor 18.0.0 — Information Architecture: ONE ENGINE, six doors (the 12.0 spine, grown at 15.0)
 
 *The map is the product. `src/app/nav.ts` is the single source of truth;
 `probe/navAlign.test.ts` (32 assertions) makes every rule in this document
