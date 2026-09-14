@@ -1,4 +1,4 @@
-# Vouch Harbor 18.0.1 "Generalist" — feature sheet
+# Vouch Harbor 18.1.0 "TeamEvolve" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -9,7 +9,7 @@ User (VH-19 door — the app opens here)
    ↓
 GuardRail content gate
    ↓
-MoE-style router → specialist bench (62 real specialists, 10 categories)
+MoE-style router → specialist bench (102 real specialists, 10 categories)
    ↓
 Human gate (risky/critical work pauses; modal blocks the run)
    ↓
@@ -29,6 +29,14 @@ user Accept / Reject (+ why) → local learning memory
   response carries a provenance digest over its canonical form.
 - **The bench is manageable.** Enable/disable any specialist; the router only
   fields the enabled bench, and the count on screen is the real count.
+- **Cross-user Team-Evolve (18.1.0).** Joint runs are recorded with real
+  outcomes; evolution proposals come only from verified history; adoption
+  requires EVERY member's explicit approval (partial/duplicated/outsider
+  approvals refuse); the evolved config leans on routing with a visible
+  label; revocation is one click. `probe/teamEvolve` pins all of it.
+- **Category-scoped autonomy (18.1.0).** Exams can be scoped to one category
+  and a grant covers only that category; the gate consults the scoped grant;
+  the override floor is unchanged.
 - **Learning is local-first.** Accepts, rejects and corrections with reasons
   feed the briefings; cloud sync is opt-in and honestly non-operational until
   it ships with per-user encryption.
@@ -97,7 +105,7 @@ Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
 
 ## E. Version integrity
 
-Every manifest agrees on **18.0.1 "Generalist"**: `src/version.ts`,
+Every manifest agrees on **18.1.0 "TeamEvolve"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

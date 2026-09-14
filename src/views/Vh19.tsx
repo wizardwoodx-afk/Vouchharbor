@@ -16,8 +16,10 @@ import { askVH19 } from '../vh19/generalist';
 import { catalogStats, listSpecialists, setSpecialistEnabled, disabledSpecialists } from '../vh19/registry';
 import { patternReport, recordDecision } from '../vh19/memory';
 import { autonomyStatus, gradeExam, proposeExam, revokeAutonomy, PASS_THRESHOLD } from '../vh19/exam';
+import { approveTeamEvolution, evolvedConfig, pendingProposal, proposeTeamEvolution, revokeEvolvedConfig, teamIdFor, teamMemoryReport } from '../vh19/teamEvolve';
+import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
-import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind } from '../vh19/types';
+import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
 
 const USER = 'local';
 
@@ -59,7 +61,23 @@ export const Vh19: React.FC = () => {
   const [disabled, setDisabled] = useState<string[]>(() => disabledSpecialists());
   const [showBench, setShowBench] = useState(false);
   const [form, setForm] = useState({ kind: 'openai-compatible' as ProviderKind, baseUrl: PROVIDER_DEFAULTS['openai-compatible'], model: '', apiKey: '' });
+  const [examCategory, setExamCategory] = useState<SpecialistCategory | 'all'>('all');
+  const [teamPeer, setTeamPeer] = useState('qwen');
+  const [teamReport, setTeamReport] = useState<TeamMemoryReport | null>(null);
+  const [teamProposal, setTeamProposal] = useState<EvolutionProposal | null>(null);
+  const [teamConfig, setTeamConfig] = useState<EvolvedTeamConfig | null>(null);
+  const [teamNote, setTeamNote] = useState<string | null>(null);
   const seq = useRef(0);
+
+  const localMember = 'harshen';
+  const teamMembers = [localMember, teamPeer.trim() || 'peer'].map((m) => m.toLowerCase());
+  const teamId = teamIdFor(teamMembers);
+
+  const refreshTeam = (id: string = teamId) => {
+    setTeamReport(teamMemoryReport(id));
+    setTeamProposal(pendingProposal(id));
+    setTeamConfig(evolvedConfig(id));
+  };
 
   const stats = useMemo(() => catalogStats(), []);
   const bench = useMemo(() => listSpecialists(), []);
@@ -80,12 +98,13 @@ export const Vh19: React.FC = () => {
     seq.current += 1;
     const userMsg: ChatMsg = { id: seq.current, role: 'user', text };
     setMessages((m) => [...m, userMsg]);
-    const resp = await askVH19({ text, userId: USER }, {
+    const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
       gate: (ask) => new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); }),
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario }]);
+    refreshTeam();
     setBusy(false);
   };
 
@@ -107,7 +126,7 @@ export const Vh19: React.FC = () => {
   const startExam = () => {
     setExamResult(null);
     setGrades({});
-    const r = proposeExam(USER, 10);
+    const r = proposeExam(USER, 10, undefined, examCategory === 'all' ? undefined : examCategory);
     if (!r.ok) { setExam(null); setExamError(r.error); return; }
     setExamError(null);
     setExam(r.session);
@@ -245,6 +264,10 @@ export const Vh19: React.FC = () => {
 
           <div className="card" style={{ padding: 14 }}>
             <div className="eyebrow mb-16">Autonomy exam · ≥{Math.round(PASS_THRESHOLD * 100)}%</div>
+            <select className="input mb-16" value={examCategory} onChange={(e) => setExamCategory(e.target.value as SpecialistCategory | 'all')}>
+              <option value="all">overall (all categories)</option>
+              {Array.from(new Set(bench.map((b) => b.category))).sort().map((c) => <option key={c} value={c}>{c} only</option>)}
+            </select>
             {exam ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 360, overflowY: 'auto' }}>
                 {exam.questions.map((q, i) => (
@@ -284,15 +307,44 @@ export const Vh19: React.FC = () => {
           </div>
 
           <div className="card" style={{ padding: 14 }}>
-            <div className="eyebrow mb-16">Team memory · Team-Evolve</div>
-            <div className="row-sub mb-16">
-              {patterns.accepts} accepted · {patterns.rejects} rejected · {patterns.corrections} corrections.
-              These shape every future briefing; the bench you keep enabled plus this ledger is the evolving team.
+            <div className="eyebrow mb-16">Team-Evolve · shared team learning</div>
+            <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+              <input className="input" placeholder="peer member id (e.g. qwen)" value={teamPeer} onChange={(e) => setTeamPeer(e.target.value)} onBlur={() => refreshTeam()} />
+              <button className="btn btn-ghost btn-sm" onClick={() => refreshTeam()}>Load</button>
             </div>
-            {patterns.recentRejections.slice(-3).reverse().map((r) => (
-              <div key={r.id} className="row-sub" style={{ fontSize: 11, marginBottom: 4 }}>✗ {r.scenario.slice(0, 60)}{r.reason ? ` — ${r.reason.slice(0, 60)}` : ''}</div>
-            ))}
-            <div className="row-sub" style={{ fontSize: 11, fontStyle: 'italic' }}>Cross-user (A2A) team evolution runs on the host runtime (npm run host) — receipts, not promises.</div>
+            <div className="row-sub mb-16" style={{ fontSize: 11 }}>
+              team <span style={{ fontFamily: 'var(--font-mono)' }}>{teamId}</span>
+              {teamReport ? ` · ${teamReport.runs} runs · ${teamReport.verified} verified · ${Math.round(teamReport.successRate * 100)}% success` : ' · no recorded runs yet'}
+            </div>
+            {teamConfig ? (
+              <>
+                <div className="row-sub mb-16">
+                  Evolved config v{teamConfig.version}: {teamConfig.specialists.join(', ')} · adopted with {teamConfig.approvals.length}/{teamMembers.length} member approvals · digest {teamConfig.digest.slice(0, 12)}…
+                </div>
+                <button className="btn btn-ghost btn-sm" onClick={() => { revokeEvolvedConfig(teamId); refreshTeam(); }}>Revoke config</button>
+              </>
+            ) : teamProposal ? (
+              <>
+                <div className="row-sub mb-16">Proposal: {teamProposal.recommendedSpecialists.join(', ')}</div>
+                <div className="row-sub mb-16" style={{ fontSize: 11 }}>{teamProposal.rationale.join(' ')}</div>
+                <button className="btn btn-primary btn-sm" onClick={async () => {
+                  const approvals = [{ memberId: localMember, approved: true, at: new Date().toISOString() }];
+                  const r = await approveTeamEvolution(teamId, teamProposal.id, approvals);
+                  setTeamNote(r.ok ? 'Your approval is recorded. Adoption needs EVERY member to approve — peer approvals arrive via the A2A runtime.' : r.error);
+                  refreshTeam();
+                }}>Approve as {localMember}</button>
+              </>
+            ) : (
+              <button className="btn btn-ghost btn-sm" onClick={async () => {
+                const r = await proposeTeamEvolution(teamId, teamMembers);
+                setTeamNote(r.ok ? null : r.error);
+                refreshTeam();
+              }}>Propose evolution</button>
+            )}
+            {teamNote && <div className="row-sub mt-16" style={{ fontSize: 11, color: 'var(--warn)' }}>{teamNote}</div>}
+            <div className="row-sub mt-16" style={{ fontSize: 11, fontStyle: 'italic' }}>
+              {patterns.accepts} personal accepts · {patterns.rejects} rejects feed your private ledger; the team ledger above records joint runs only. Peer delegation runs on the host runtime (npm run host) — receipts, not promises.
+            </div>
           </div>
         </div>
       </div>

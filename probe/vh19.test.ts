@@ -30,7 +30,7 @@ import { SPECIALISTS, catalogStats, catalogDigest, catalogCanonical, getSpeciali
 import { routeDeterministic, routeWithModel, scoreSpecialist, tokenize, MIN_SCORE } from "../src/vh19/router";
 import { complete, providerFromEnv, redactSecrets, PROVIDER_DEFAULTS } from "../src/vh19/providers";
 import { clearMemory, cloudSyncStatus, loadMemory, memoryBriefing, patternReport, recordDecision, requestCloudSync, setCloudOptIn } from "../src/vh19/memory";
-import { autonomyStatus, gradeExam, PASS_THRESHOLD, proposeExam, resetExams, revokeAutonomy } from "../src/vh19/exam";
+import { autonomyCovers, autonomyStatus, gradeExam, PASS_THRESHOLD, proposeExam, resetExams, revokeAutonomy } from "../src/vh19/exam";
 import { askVH19, responseCanonical } from "../src/vh19/generalist";
 import type { DecisionRecord, ProviderConfig } from "../src/vh19/types";
 
@@ -65,7 +65,7 @@ const testProvider: ProviderConfig = { kind: "openai-compatible", baseUrl: "http
 test("vh19 — registry, router, providers, memory, exam, generalist", async () => {
   console.log("\n── 1. the specialist bench ──");
   const stats = catalogStats();
-  check("the catalog holds the expanded real bench (60+ specialists)", stats.count >= 60, stats);
+  check("the catalog holds the expanded real bench (100+ specialists)", stats.count >= 100, stats);
   check("every specialist id is unique", new Set(SPECIALISTS.map((s) => s.id)).size === SPECIALISTS.length);
   check("every specialist has capabilities, keywords, a prompt and provenance", SPECIALISTS.every((s) => s.capabilities.length > 0 && s.keywords.length > 0 && s.systemPrompt.length > 20 && s.provenance.length > 0));
   check("risk tiers are only the product's own vocabulary", SPECIALISTS.every((s) => ["safe", "risky", "critical"].includes(s.riskTier)));
@@ -205,6 +205,25 @@ test("vh19 — registry, router, providers, memory, exam, generalist", async () 
   const grades8 = exam3.session.questions.map((q, i) => ({ questionId: q.id, verdict: (i < 8 ? "correct" : "wrong") as "correct" | "wrong" }));
   const g8 = gradeExam(exam3.session.id, grades8);
   check("8/10 does NOT pass — below 90% stays in the learning loop", g8.ok && g8.passed === false && autonomyStatus("probe-user").granted === false);
+
+  console.log("\n── 5b. category-scoped autonomy (18.1.0) ──");
+  clearMemory("cat-user");
+  resetExams("cat-user");
+  for (let i = 0; i < 7; i++) {
+    recordDecision({ userId: "cat-user", scenario: `security scenario ${i}`, action: "flag and fix", kind: i % 5 === 4 ? "reject" : "accept", reason: i % 5 === 4 ? "wanted defense in depth" : undefined, specialistId: "security.review", category: "security" });
+  }
+  recordDecision({ userId: "cat-user", scenario: "code scenario", action: "refactor", kind: "accept", specialistId: "code.typescript", category: "code" });
+  const secExam = proposeExam("cat-user", 5, undefined, "security");
+  check("a category-scoped exam proposes from that category only", secExam.ok === true && secExam.ok === true && secExam.session.category === "security" && secExam.session.questions.every((q) => loadMemory("cat-user").find((r) => r.id === q.sourceRecordId)?.category === "security"));
+  const thinScope = proposeExam("cat-user", 10, undefined, "data");
+  check("a category without enough history is refused BY NAME", thinScope.ok === false && !thinScope.ok && thinScope.error.includes('"data"'));
+  assert.ok(secExam.ok);
+  const secPass = gradeExam(secExam.session.id, secExam.session.questions.map((q) => ({ questionId: q.id, verdict: "correct" as const })));
+  check("passing a scoped exam passes", secPass.ok && secPass.passed === true);
+  check("the grant covers ONLY its category", autonomyStatus("cat-user", "security").granted === true && autonomyStatus("cat-user", "code").granted === false && autonomyStatus("cat-user").granted === false);
+  check("autonomyCovers answers per category honestly", autonomyCovers("cat-user", "security") === true && autonomyCovers("cat-user", "code") === false && autonomyCovers("cat-user") === false);
+  revokeAutonomy("cat-user", "security");
+  check("category revocation is scoped — the rest is untouched", autonomyStatus("cat-user", "security").granted === false && autonomyCovers("cat-user", "security") === false);
 
   console.log("\n── 6. the Generalist front door ──");
   const noProv = await askVH19({ text: "refactor the TypeScript auth module and fix the types", userId: "gen-user" });

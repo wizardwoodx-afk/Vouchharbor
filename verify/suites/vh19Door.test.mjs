@@ -17952,6 +17952,358 @@ var SPECIALISTS = [
     ["onboarding", "firstrun", "activation", "welcome", "setup", "empty", "state"],
     "safe",
     "You design first runs: value before setup, every permission asked in context, and the empty state teaches instead of staring back."
+  ),
+  /* ── 18.1.0 bench expansion — 38 more real specialists (62 → 100) ─────── */
+  seed(
+    "code.frontend-state",
+    "Frontend State Architect",
+    "code",
+    ["Designs client state and caching strategy", "Chooses stores by data shape, not fashion"],
+    ["state", "store", "cache", "redux", "zustand", "react-query", "client"],
+    "safe",
+    "You architect frontend state: server state and client state stay separate; caches name their invalidation story; no store holds what a URL can."
+  ),
+  seed(
+    "code.web-perf",
+    "Web Performance Engineer",
+    "code",
+    ["Optimizes Core Web Vitals", "Budgets bundles and render paths"],
+    ["performance", "lcp", "cls", "bundle", "render", "lazy", "vitals", "fast"],
+    "safe",
+    "You optimize web performance: measure in the field first, budget every kilobyte, and never trade accessibility for a metric."
+  ),
+  seed(
+    "code.legacy-modernization",
+    "Legacy Modernization Specialist",
+    "code",
+    ["Plans incremental strangler migrations", "Adds seams before rewriting"],
+    ["legacy", "modernize", "migration", "strangler", "rewrite", "old", "deprecate"],
+    "risky",
+    "You modernize legacy systems incrementally: seams before rewrites, tests before refactors, and every step ships behind a switch you can flip back."
+  ),
+  seed(
+    "code.event-architecture",
+    "Event & Queue Architect",
+    "code",
+    ["Designs event schemas and delivery semantics", "Reasons about idempotency and ordering"],
+    ["event", "queue", "kafka", "pubsub", "broker", "idempotent", "ordering", "stream"],
+    "safe",
+    "You design event architectures: schemas versioned from day one, consumers idempotent, and delivery semantics stated \u2014 at-least-once is the honest default."
+  ),
+  seed(
+    "code.ml-pipelines",
+    "ML Pipeline Engineer",
+    "code",
+    ["Builds reproducible training and inference flows", "Versions data, models and code together"],
+    ["ml", "model", "training", "inference", "pipeline", "feature", "dataset", "reproducibility"],
+    "safe",
+    "You build ML pipelines: every run reproducible from (data, code, config); drift monitored; a model without its training lineage does not ship."
+  ),
+  seed(
+    "security.api-auth",
+    "API Authentication Specialist",
+    "security",
+    ["Designs OAuth2/OIDC flows correctly", "Reviews token handling and scopes"],
+    ["oauth", "oidc", "jwt", "token", "scope", "sso", "authentication", "flow"],
+    "risky",
+    "You get auth flows right: the standard flow for the client type, tokens scoped least-privilege, and every shortcut named as the risk it is."
+  ),
+  seed(
+    "security.mobile-app",
+    "Mobile Security Specialist",
+    "security",
+    ["Reviews mobile storage, transport and permissions", "Checks deep-link and IPC surfaces"],
+    ["mobile", "ios", "android", "keychain", "keystore", "deeplink", "permission"],
+    "safe",
+    "You review mobile security: secrets in platform keystores only, certificate pinning where it pays, and deep links treated as untrusted input."
+  ),
+  seed(
+    "security.audit-trails",
+    "Audit Trail Designer",
+    "security",
+    ["Designs tamper-evident audit logging", "Maps events to accountability"],
+    ["audit", "trail", "logging", "tamper", "accountability", "compliance", "siem"],
+    "safe",
+    "You design audit trails: append-only, hash-chained where it matters, and every entry answers who, what, when, and on whose authority."
+  ),
+  seed(
+    "security.adversarial-testing",
+    "Adversarial Testing Specialist",
+    "security",
+    ["Designs attack campaigns against stated models", "Reports refusals as evidence"],
+    ["red", "team", "adversarial", "attack", "campaign", "exploit", "penetration"],
+    "risky",
+    "You design adversarial tests: scope agreed in writing, every attack class scored refused-or-not, and a refusal is reported with the mechanism that refused it."
+  ),
+  seed(
+    "testing.accessibility",
+    "Accessibility Test Specialist",
+    "testing",
+    ["Audits against WCAG with real assistive tech", "Pins a11y in CI"],
+    ["accessibility", "a11y", "wcag", "screen", "reader", "aria", "contrast"],
+    "safe",
+    "You test accessibility: automated scans are the floor, not the ceiling; keyboard paths are walked; findings cite the WCAG criterion and the user impact."
+  ),
+  seed(
+    "testing.chaos",
+    "Chaos Engineering Specialist",
+    "testing",
+    ["Injects failures to verify recovery", "Defines blast radius before experiments"],
+    ["chaos", "failure", "injection", "resilience", "recovery", "blast", "experiment"],
+    "risky",
+    "You run chaos experiments: steady-state defined first, blast radius bounded, abort criteria agreed \u2014 and a recovery that only works in the demo is a failure."
+  ),
+  seed(
+    "testing.mutation",
+    "Mutation Testing Specialist",
+    "testing",
+    ["Measures test suite strength by mutation", "Finds assertions that assert nothing"],
+    ["mutation", "mutant", "coverage", "strength", "assertion", "stryker"],
+    "safe",
+    "You measure test strength: coverage is a claim, mutation score is evidence; every surviving mutant names the test that should have killed it."
+  ),
+  seed(
+    "review.security-diff",
+    "Security Diff Reviewer",
+    "review",
+    ["Reviews diffs specifically for security regressions", "Flags new attack surface in changes"],
+    ["security", "diff", "review", "regression", "surface", "vulnerability"],
+    "safe",
+    "You review diffs for security: new inputs, new surfaces, new trust assumptions \u2014 each named with the code path that introduced it."
+  ),
+  seed(
+    "review.test-quality",
+    "Test Quality Reviewer",
+    "review",
+    ["Reviews tests for what they actually pin", "Flags tautologies and brittle assertions"],
+    ["test", "quality", "review", "brittle", "flaky", "assertion", "pin"],
+    "safe",
+    "You review tests: a test that cannot fail is decoration; name what each test pins, and flag the ones that pass for the wrong reason."
+  ),
+  seed(
+    "review.migration",
+    "Migration Reviewer",
+    "review",
+    ["Reviews migrations for reversibility", "Checks data-loss paths"],
+    ["migration", "review", "reversible", "rollback", "data", "loss", "schema"],
+    "risky",
+    "You review migrations: reversible or explicitly flagged, tested on a copy of real-shaped data, and the rollback rehearsed \u2014 not imagined."
+  ),
+  seed(
+    "data.streaming",
+    "Stream Processing Engineer",
+    "data",
+    ["Builds stream processors with exactly-once care", "Handles late data and watermarks"],
+    ["stream", "kafka", "flink", "watermark", "window", "late", "exactly-once"],
+    "safe",
+    "You build stream processing: late data has a stated policy, windows have stated semantics, and exactly-once claims name the mechanism that provides it."
+  ),
+  seed(
+    "data.warehouse",
+    "Warehouse Modeling Specialist",
+    "data",
+    ["Designs star schemas and marts", "Balances normalization against query reality"],
+    ["warehouse", "star", "mart", "dimension", "fact", "dbt", "modeling", "olap"],
+    "safe",
+    "You model warehouses: facts and dimensions named for the business, incremental strategies stated, and every mart answers a question someone actually asks."
+  ),
+  seed(
+    "data.governance",
+    "Data Governance Specialist",
+    "data",
+    ["Builds catalogs, lineage and ownership maps", "Defines retention and access policy"],
+    ["governance", "lineage", "catalog", "ownership", "retention", "policy", "gdpr"],
+    "risky",
+    "You build data governance: every dataset has an owner, a lineage you can walk, and a retention rule that is enforced, not documented."
+  ),
+  seed(
+    "devops.secrets-ops",
+    "Secrets Operations Specialist",
+    "devops",
+    ["Operates vaults and rotation pipelines", "Audits secret sprawl"],
+    ["vault", "secrets", "rotation", "kms", "credential", "sprawl", "lease"],
+    "risky",
+    "You operate secrets: short leases over long lives, rotation automated, and sprawl found by scanning \u2014 every discovery gets a death date."
+  ),
+  seed(
+    "devops.finops",
+    "Cloud Cost Operations Specialist",
+    "devops",
+    ["Attributes cloud spend to teams and features", "Finds and kills waste with evidence"],
+    ["cost", "finops", "spend", "budget", "rightsizing", "waste", "attribution"],
+    "safe",
+    "You run cloud cost ops: spend attributed before it is optimized, savings stated with their risk, and the top waste source killed with a number, not a guess."
+  ),
+  seed(
+    "devops.release-eng",
+    "Release Engineer",
+    "devops",
+    ["Runs release trains and feature flags", "Designs rollout and rollback paths"],
+    ["release", "flag", "rollout", "canary", "rollback", "train", "deploy"],
+    "risky",
+    "You engineer releases: every rollout staged with a kill switch, rollback rehearsed, and a release that cannot be reverted does not leave the station."
+  ),
+  seed(
+    "devops.edge-serverless",
+    "Edge & Serverless Specialist",
+    "devops",
+    ["Deploys and observes edge functions", "Manages cold starts and limits"],
+    ["edge", "serverless", "lambda", "worker", "cold", "start", "cdn", "runtime"],
+    "safe",
+    "You run edge and serverless: cold starts measured, platform limits known before they bite, and observability wired before traffic arrives."
+  ),
+  seed(
+    "research.user-research",
+    "User Research Synthesizer",
+    "research",
+    ["Synthesizes interviews into findings", "Separates user behavior from user requests"],
+    ["user", "research", "interview", "usability", "finding", "synthesis", "persona"],
+    "safe",
+    "You synthesize user research: behaviors over opinions, quotes carry context, and a finding without an observed behavior is labeled a hypothesis."
+  ),
+  seed(
+    "research.standards",
+    "Standards & RFC Analyst",
+    "research",
+    ["Tracks specs and their real-world drift", "Maps compliance to actual interop"],
+    ["rfc", "standard", "spec", "compliance", "interop", "protocol", "w3c", "ietf"],
+    "safe",
+    "You analyze standards: the spec is the claim, deployed behavior is the truth; you report where they diverge and who diverges."
+  ),
+  seed(
+    "research.benchmarking",
+    "Benchmark Evaluation Designer",
+    "research",
+    ["Designs fair comparisons", "Exposes benchmark gaming"],
+    ["benchmark", "evaluation", "compare", "leaderboard", "fair", "gaming", "harness"],
+    "safe",
+    "You design benchmark evaluations: the setup is published with the result, baselines are current, and a number without its harness is not a result."
+  ),
+  seed(
+    "research.pricing",
+    "Pricing & Packaging Researcher",
+    "research",
+    ["Analyzes pricing models in a category", "Maps willingness-to-pay signals"],
+    ["pricing", "packaging", "monetization", "tier", "willingness", "pay", "revenue"],
+    "safe",
+    "You research pricing: comparables dated and sourced, value metrics tied to cost structure, and every recommendation states its uncertainty."
+  ),
+  seed(
+    "writing.runbooks",
+    "Runbook Writer",
+    "writing",
+    ["Writes operational runbooks that work at 3am", "Keeps steps copy-pasteable"],
+    ["runbook", "operations", "procedure", "oncall", "steps", "recovery"],
+    "safe",
+    "You write runbooks: every step copy-pasteable, every decision point branched, and the whole thing tested by someone who did not write it."
+  ),
+  seed(
+    "writing.rfc",
+    "Design Proposal Writer",
+    "writing",
+    ["Writes RFCs and design docs", "Surfaces alternatives and costs honestly"],
+    ["rfc", "proposal", "design", "document", "alternative", "decision", "tradeoff"],
+    "safe",
+    "You write design proposals: the problem before the solution, rejected alternatives with reasons, and the cost of being wrong stated up front."
+  ),
+  seed(
+    "writing.microcopy",
+    "Interface Copywriter",
+    "writing",
+    ["Writes UI microcopy", "Turns error messages into next steps"],
+    ["microcopy", "ux", "copy", "button", "label", "error", "message", "interface"],
+    "safe",
+    "You write interface copy: every string answers what happened and what to do next; buttons say what they do; no string blames the user."
+  ),
+  seed(
+    "writing.incident-comms",
+    "Incident Communications Writer",
+    "writing",
+    ["Writes status pages and incident updates", "Keeps comms honest under pressure"],
+    ["incident", "status", "communication", "update", "outage", "postmortem", "public"],
+    "safe",
+    "You write incident comms: what is known, what is not, what is being done \u2014 updated on a stated cadence; optimism does not outrun evidence."
+  ),
+  seed(
+    "analysis.cohort",
+    "Cohort & Retention Analyst",
+    "analysis",
+    ["Builds cohort retention analysis", "Separates novelty from habit"],
+    ["cohort", "retention", "churn", "lifetime", "curve", "segment"],
+    "safe",
+    "You analyze cohorts: curves labeled by acquisition period, novelty separated from habit, and retention claims state the cohort definition."
+  ),
+  seed(
+    "analysis.capacity",
+    "Capacity Planning Analyst",
+    "analysis",
+    ["Forecasts load and headroom", "Names the constraint that breaks first"],
+    ["capacity", "forecast", "load", "headroom", "scaling", "limit", "growth"],
+    "safe",
+    "You plan capacity: forecasts carry their assumption set, the first-breaking constraint is named, and headroom is stated against a scenario, not a wish."
+  ),
+  seed(
+    "analysis.risk-register",
+    "Risk Register Analyst",
+    "analysis",
+    ["Maintains honest risk registers", "Ranks by likelihood times blast radius"],
+    ["risk", "register", "likelihood", "impact", "mitigation", "exposure", "threat"],
+    "safe",
+    "You maintain risk registers: every risk has an owner and a trigger, ranked by likelihood times blast radius \u2014 a mitigation without an owner is a hope."
+  ),
+  seed(
+    "analysis.funnel",
+    "Funnel Analyst",
+    "analysis",
+    ["Maps conversion funnels step by step", "Finds the step that actually leaks"],
+    ["funnel", "conversion", "drop", "step", "activation", "leak", "journey"],
+    "safe",
+    "You analyze funnels: every step defined by an event, drop-offs segmented before they are explained, and the biggest leak fixed before the prettiest one."
+  ),
+  seed(
+    "design.inclusive",
+    "Inclusive Design Specialist",
+    "design",
+    ["Designs for the widest usable range", "Checks flows with real constraints"],
+    ["inclusive", "accessibility", "universal", "design", "contrast", "motor", "cognitive"],
+    "safe",
+    "You design inclusively: the constrained path is the design path; solving for one edge usually helps everyone, and you can name who it helps."
+  ),
+  seed(
+    "design.systems-lib",
+    "Design Systems Specialist",
+    "design",
+    ["Builds component libraries and tokens", "Keeps design and code in one contract"],
+    ["design", "system", "component", "library", "token", "theme", "figma"],
+    "safe",
+    "You build design systems: tokens are the contract between design and code; every component documents its states; variants exist because a real screen needed them."
+  ),
+  seed(
+    "design.info-architecture",
+    "Information Architect",
+    "design",
+    ["Structures navigation and content models", "Names things so users find them"],
+    ["information", "architecture", "navigation", "taxonomy", "structure", "sitemap", "findability"],
+    "safe",
+    "You architect information: labels tested against the words users actually say; structure follows tasks; a feature nobody can find is a feature nobody has."
+  ),
+  seed(
+    "design.conversational",
+    "Conversational Design Specialist",
+    "design",
+    ["Designs agent conversation patterns", "Writes recovery and clarification flows"],
+    ["conversation", "chat", "agent", "dialog", "clarify", "recovery", "prompt"],
+    "safe",
+    "You design conversations: the agent says what it did and did not do, asks one clear question at a time, and every dead end has a door back."
+  ),
+  seed(
+    "design.trust-ux",
+    "Trust & Transparency Designer",
+    "design",
+    ["Surfaces evidence and control in UI", "Designs gate and approval moments"],
+    ["trust", "transparency", "evidence", "approval", "gate", "control", "consent"],
+    "safe",
+    "You design for trust: evidence visible where claims are made, approvals state their consequence, and the user always sees the off switch."
   )
 ];
 var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
@@ -18250,11 +18602,11 @@ function memoryBriefing(userId = "default", maxLines = 4) {
   return lines;
 }
 
-// src/vh19/exam.ts
-var PASS_THRESHOLD = 0.9;
-var AUTONOMY_KEY = "vh19.autonomy.v1";
-var SESSION_KEY = "vh19.exam.sessions.v1";
-var MAX_SESSIONS = 20;
+// src/vh19/teamEvolve.ts
+var RUNS_KEY = "vh19.team.runs.v1";
+var CONFIG_KEY = "vh19.team.config.v1";
+var PENDING_KEY = "vh19.team.pending.v1";
+var RUN_CAP = 200;
 function storage3() {
   try {
     return globalThis.localStorage ?? null;
@@ -18262,13 +18614,165 @@ function storage3() {
     return null;
   }
 }
-function proposeExam(userId = "default", questionCount = 10, now = () => /* @__PURE__ */ new Date()) {
+async function sha256Hex(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function teamIdFor(members) {
+  const clean = Array.from(new Set(members.map((m) => m.trim().toLowerCase()).filter(Boolean))).sort();
+  return `team:${clean.join("+")}`;
+}
+function recordTeamRun(run) {
+  const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
+  const s = storage3();
+  if (s) {
+    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
+    all.push(rec);
+    s.setItem(RUNS_KEY, JSON.stringify(all.slice(-RUN_CAP * 4)));
+  }
+  return rec;
+}
+function teamRuns(teamId) {
+  const s = storage3();
+  if (!s) return [];
+  try {
+    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
+    return all.filter((r) => r.teamId === teamId).slice(-RUN_CAP);
+  } catch {
+    return [];
+  }
+}
+function teamMemoryReport(teamId) {
+  const runs = teamRuns(teamId);
+  const verified = runs.filter((r) => r.outcome === "verified");
+  const perSpec = /* @__PURE__ */ new Map();
+  for (const r of verified) for (const id of r.specialists) perSpec.set(id, (perSpec.get(id) ?? 0) + 1);
+  return {
+    runs: runs.length,
+    verified: verified.length,
+    failed: runs.filter((r) => r.outcome === "failed").length,
+    refused: runs.filter((r) => r.outcome === "refused").length,
+    successRate: runs.length === 0 ? 0 : verified.length / runs.length,
+    topSpecialists: Array.from(perSpec.entries()).map(([id, verifiedRuns]) => ({ id, verifiedRuns })).sort((a, b) => b.verifiedRuns - a.verifiedRuns || a.id.localeCompare(b.id))
+  };
+}
+async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */ new Date()) {
+  const report = teamMemoryReport(teamId);
+  if (report.runs < 3) {
+    return { ok: false, error: `team has ${report.runs} recorded run(s) \u2014 at least 3 real runs are needed before an evolution proposal` };
+  }
+  if (report.verified < 1) {
+    return { ok: false, error: "team has no verified runs \u2014 a team that has never succeeded has nothing to evolve from" };
+  }
+  const recommended = report.topSpecialists.slice(0, 3).map((e) => e.id);
+  if (recommended.length < 2) {
+    return { ok: false, error: "verified runs used fewer than 2 distinct specialists \u2014 not enough signal to recommend a composition" };
+  }
+  const verifiedRuns = teamRuns(teamId).filter((r) => r.outcome === "verified");
+  const rationale = [
+    `${report.verified}/${report.runs} joint runs verified (${Math.round(report.successRate * 100)}% success).`,
+    ...recommended.map((id) => {
+      const e = report.topSpecialists.find((x) => x.id === id);
+      return `"${id}" proved out in ${e.verifiedRuns} verified run(s) \u2014 recommended for the evolved composition.`;
+    })
+  ];
+  const proposal = {
+    id: uid("evo"),
+    teamId,
+    members: Array.from(new Set(members)).sort(),
+    createdAt: now().toISOString(),
+    recommendedSpecialists: recommended,
+    rationale,
+    sourceRunIds: verifiedRuns.map((r) => r.id),
+    digest: ""
+  };
+  proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
+  const s = storage3();
+  if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
+  return { ok: true, proposal };
+}
+function pendingProposal(teamId) {
+  const s = storage3();
+  if (!s) return null;
+  try {
+    return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
+  } catch {
+    return null;
+  }
+}
+async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /* @__PURE__ */ new Date()) {
+  const proposal = pendingProposal(teamId);
+  if (!proposal || proposal.id !== proposalId) return { ok: false, error: `no pending proposal ${proposalId} for this team` };
+  const members = proposal.members;
+  const seen = /* @__PURE__ */ new Set();
+  for (const a of approvals) {
+    if (!members.includes(a.memberId)) return { ok: false, error: `"${a.memberId}" is not a member of this team \u2014 outsider approvals are refused` };
+    if (seen.has(a.memberId)) return { ok: false, error: `duplicate approval from "${a.memberId}" \u2014 one voice per member` };
+    seen.add(a.memberId);
+    if (!a.approved) return { ok: false, error: `"${a.memberId}" declined the evolution \u2014 a decline is not adopted` };
+  }
+  const missing = members.filter((m) => !seen.has(m));
+  if (missing.length > 0) {
+    return { ok: false, error: `missing explicit approval from: ${missing.join(", ")} \u2014 EVERY member must approve; there is no partial adoption` };
+  }
+  const prev = evolvedConfig(teamId);
+  const config = {
+    teamId,
+    version: (prev?.version ?? 0) + 1,
+    specialists: proposal.recommendedSpecialists,
+    sourceRunIds: proposal.sourceRunIds,
+    approvals: approvals.map((a) => ({ ...a, at: a.at || now().toISOString() })),
+    adoptedAt: now().toISOString(),
+    digest: await sha256Hex(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
+  };
+  const s = storage3();
+  if (s) {
+    s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
+    s.removeItem(`${PENDING_KEY}:${teamId}`);
+  }
+  return { ok: true, config };
+}
+function evolvedConfig(teamId) {
+  const s = storage3();
+  if (!s) return null;
+  try {
+    return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
+  } catch {
+    return null;
+  }
+}
+function revokeEvolvedConfig(teamId) {
+  const s = storage3();
+  if (s) s.removeItem(`${CONFIG_KEY}:${teamId}`);
+}
+function applyTeamPreference(teamId, selected) {
+  const config = evolvedConfig(teamId);
+  if (!config) return selected;
+  return selected.map(
+    (c) => config.specialists.includes(c.id) ? { ...c, score: c.score + 2, reasons: [...c.reasons, `team-evolved preference (config v${config.version})`] } : c
+  ).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+}
+
+// src/vh19/exam.ts
+var PASS_THRESHOLD = 0.9;
+var AUTONOMY_KEY = "vh19.autonomy.v1";
+var SESSION_KEY = "vh19.exam.sessions.v1";
+var MAX_SESSIONS = 20;
+function storage4() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function proposeExam(userId = "default", questionCount = 10, now = () => /* @__PURE__ */ new Date(), category) {
   const mem = loadMemory(userId);
-  const usable = mem.filter((r) => r.kind === "accept" || r.kind === "reject");
+  const scoped = category ? mem.filter((r) => r.category === category) : mem;
+  const usable = scoped.filter((r) => r.kind === "accept" || r.kind === "reject");
   if (usable.length < Math.min(5, questionCount)) {
     return {
       ok: false,
-      error: `the exam is generated from your real accept/reject history \u2014 ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`
+      error: `the exam is generated from your real accept/reject history${category ? ` in the "${category}" category` : ""} \u2014 ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`
     };
   }
   const rejects = usable.filter((r) => r.kind === "reject");
@@ -18294,6 +18798,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
     id: uid("exam"),
     createdAt: now().toISOString(),
     userId,
+    category: category ?? null,
     state: "proposed",
     score: null,
     passed: null,
@@ -18306,7 +18811,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage3();
+  const s = storage4();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -18331,7 +18836,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -18367,28 +18872,28 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
       feedbackLearned += 1;
     }
   }
-  saveGrant(loadGrant(session.userId).attempts + 1, passed2 ? score : null, passed2, session.userId, now);
+  saveGrant(loadGrant(session.userId, session.category ?? void 0).attempts + 1, passed2 ? score : null, passed2, session.userId, now, session.category ?? void 0);
   return { ok: true, score, passed: passed2, feedbackLearned };
 }
-function grantKey(userId) {
-  return `${AUTONOMY_KEY}:${userId}`;
+function grantKey(userId, category) {
+  return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
-function loadGrant(userId = "default") {
-  const s = storage3();
+function loadGrant(userId = "default", category) {
+  const s = storage4();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
-    const raw = JSON.parse(s.getItem(grantKey(userId)) ?? "null");
+    const raw = JSON.parse(s.getItem(grantKey(userId, category)) ?? "null");
     if (!raw) return fallback;
     return { ...raw, monitorOverrideAlwaysOn: true };
   } catch {
     return fallback;
   }
 }
-function saveGrant(attempts, score, passed2, userId, now) {
-  const s = storage3();
+function saveGrant(attempts, score, passed2, userId, now, category) {
+  const s = storage4();
   if (!s) return;
-  const prev = loadGrant(userId);
+  const prev = loadGrant(userId, category);
   const grant = {
     granted: passed2 ? true : prev.granted,
     score: score ?? prev.score,
@@ -18396,20 +18901,24 @@ function saveGrant(attempts, score, passed2, userId, now) {
     monitorOverrideAlwaysOn: true,
     attempts
   };
-  s.setItem(grantKey(userId), JSON.stringify(grant));
+  s.setItem(grantKey(userId, category), JSON.stringify(grant));
 }
-function autonomyStatus(userId = "default") {
-  return loadGrant(userId);
+function autonomyStatus(userId = "default", category) {
+  return loadGrant(userId, category);
 }
-function revokeAutonomy(userId = "default") {
-  const s = storage3();
-  const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId).attempts };
-  if (s) s.setItem(grantKey(userId), JSON.stringify(next));
+function autonomyCovers(userId, category) {
+  if (loadGrant(userId).granted) return true;
+  return category ? loadGrant(userId, category).granted : false;
+}
+function revokeAutonomy(userId = "default", category) {
+  const s = storage4();
+  const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
+  if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
 }
 
 // src/vh19/generalist.ts
-async function sha256Hex(text) {
+async function sha256Hex2(text) {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -18433,7 +18942,7 @@ async function askVH19(args, deps = {}) {
   void now;
   const finish = async (r) => ({
     ...r,
-    provenanceDigest: await sha256Hex(responseCanonical(r))
+    provenanceDigest: await sha256Hex2(responseCanonical(r))
   });
   const findings = detectInjection(text);
   if (findings.length > 0) {
@@ -18458,6 +18967,16 @@ async function askVH19(args, deps = {}) {
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    if (args.team) {
+      recordTeamRun({
+        teamId: args.team.id,
+        members: args.team.members,
+        task: text.slice(0, 200),
+        outcome: res.ok ? "verified" : "refused",
+        specialists: [],
+        note: res.detail.slice(0, 160)
+      });
+    }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -18477,10 +18996,14 @@ async function askVH19(args, deps = {}) {
   } else {
     routed = routeDeterministic(text);
   }
+  if (args.team) {
+    routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
+  }
   const specialists = routed.selected.map((c) => getSpecialist(c.id)).filter(Boolean);
   const worstTier = specialists.some((s) => s.riskTier === "critical") ? "critical" : specialists.some((s) => s.riskTier === "risky") ? "risky" : "safe";
-  const autonomy = autonomyStatus(userId);
-  const needsGate = worstTier !== "safe" && !(autonomy.granted && worstTier === "risky");
+  const primaryCategory = specialists[0]?.category;
+  const autonomyEarned = autonomyCovers(userId, primaryCategory);
+  const needsGate = worstTier !== "safe" && !(autonomyEarned && worstTier === "risky");
   if (needsGate) {
     if (!deps.gate) {
       return finish({
@@ -18547,7 +19070,7 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
     executed: true,
     outcome: "answered",
     specialistIds: specialists.map((s) => s.id),
-    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomy.granted ? " \xB7 running under earned autonomy (override always available)" : ""}`
+    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomyEarned ? " \xB7 running under earned autonomy (override always available)" : ""}`
   });
 }
 
@@ -18581,7 +19104,21 @@ var Vh19 = () => {
   const [disabled, setDisabled] = (0, import_react.useState)(() => disabledSpecialists());
   const [showBench, setShowBench] = (0, import_react.useState)(false);
   const [form, setForm] = (0, import_react.useState)({ kind: "openai-compatible", baseUrl: PROVIDER_DEFAULTS["openai-compatible"], model: "", apiKey: "" });
+  const [examCategory, setExamCategory] = (0, import_react.useState)("all");
+  const [teamPeer, setTeamPeer] = (0, import_react.useState)("qwen");
+  const [teamReport, setTeamReport] = (0, import_react.useState)(null);
+  const [teamProposal, setTeamProposal] = (0, import_react.useState)(null);
+  const [teamConfig, setTeamConfig] = (0, import_react.useState)(null);
+  const [teamNote, setTeamNote] = (0, import_react.useState)(null);
   const seq = (0, import_react.useRef)(0);
+  const localMember = "harshen";
+  const teamMembers = [localMember, teamPeer.trim() || "peer"].map((m) => m.toLowerCase());
+  const teamId = teamIdFor(teamMembers);
+  const refreshTeam = (id = teamId) => {
+    setTeamReport(teamMemoryReport(id));
+    setTeamProposal(pendingProposal(id));
+    setTeamConfig(evolvedConfig(id));
+  };
   const stats2 = (0, import_react.useMemo)(() => catalogStats(), []);
   const bench = (0, import_react.useMemo)(() => listSpecialists(), []);
   const enabledCount = bench.length - disabled.length;
@@ -18599,7 +19136,7 @@ var Vh19 = () => {
     seq.current += 1;
     const userMsg = { id: seq.current, role: "user", text };
     setMessages((m) => [...m, userMsg]);
-    const resp = await askVH19({ text, userId: USER }, {
+    const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
       gate: (ask) => new Promise((resolve) => {
         setDenyReason("");
@@ -18608,6 +19145,7 @@ var Vh19 = () => {
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario }]);
+    refreshTeam();
     setBusy(false);
   };
   const giveFeedback = (msg, kind, reason) => {
@@ -18627,7 +19165,7 @@ var Vh19 = () => {
   const startExam = () => {
     setExamResult(null);
     setGrades({});
-    const r = proposeExam(USER, 10);
+    const r = proposeExam(USER, 10, void 0, examCategory === "all" ? void 0 : examCategory);
     if (!r.ok) {
       setExam(null);
       setExamError(r.error);
@@ -18810,6 +19348,13 @@ var Vh19 = () => {
             Math.round(PASS_THRESHOLD * 100),
             "%"
           ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "input mb-16", value: examCategory, onChange: (e) => setExamCategory(e.target.value), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "all", children: "overall (all categories)" }),
+            Array.from(new Set(bench.map((b) => b.category))).sort().map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("option", { value: c, children: [
+              c,
+              " only"
+            ] }, c))
+          ] }),
           exam ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 10, maxHeight: 360, overflowY: "auto" }, children: [
             exam.questions.map((q, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: 10, background: "var(--bg)" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
@@ -18886,21 +19431,61 @@ var Vh19 = () => {
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Team memory \xB7 Team-Evolve" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
-            patterns.accepts,
-            " accepted \xB7 ",
-            patterns.rejects,
-            " rejected \xB7 ",
-            patterns.corrections,
-            " corrections. These shape every future briefing; the bench you keep enabled plus this ledger is the evolving team."
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Team-Evolve \xB7 shared team learning" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "peer member id (e.g. qwen)", value: teamPeer, onChange: (e) => setTeamPeer(e.target.value), onBlur: () => refreshTeam() }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => refreshTeam(), children: "Load" })
           ] }),
-          patterns.recentRejections.slice(-3).reverse().map((r) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginBottom: 4 }, children: [
-            "\u2717 ",
-            r.scenario.slice(0, 60),
-            r.reason ? ` \u2014 ${r.reason.slice(0, 60)}` : ""
-          ] }, r.id)),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11, fontStyle: "italic" }, children: "Cross-user (A2A) team evolution runs on the host runtime (npm run host) \u2014 receipts, not promises." })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
+            "team ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontFamily: "var(--font-mono)" }, children: teamId }),
+            teamReport ? ` \xB7 ${teamReport.runs} runs \xB7 ${teamReport.verified} verified \xB7 ${Math.round(teamReport.successRate * 100)}% success` : " \xB7 no recorded runs yet"
+          ] }),
+          teamConfig ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
+              "Evolved config v",
+              teamConfig.version,
+              ": ",
+              teamConfig.specialists.join(", "),
+              " \xB7 adopted with ",
+              teamConfig.approvals.length,
+              "/",
+              teamMembers.length,
+              " member approvals \xB7 digest ",
+              teamConfig.digest.slice(0, 12),
+              "\u2026"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+              revokeEvolvedConfig(teamId);
+              refreshTeam();
+            }, children: "Revoke config" })
+          ] }) : teamProposal ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
+              "Proposal: ",
+              teamProposal.recommendedSpecialists.join(", ")
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: teamProposal.rationale.join(" ") }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
+              const approvals = [{ memberId: localMember, approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }];
+              const r = await approveTeamEvolution(teamId, teamProposal.id, approvals);
+              setTeamNote(r.ok ? "Your approval is recorded. Adoption needs EVERY member to approve \u2014 peer approvals arrive via the A2A runtime." : r.error);
+              refreshTeam();
+            }, children: [
+              "Approve as ",
+              localMember
+            ] })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
+            const r = await proposeTeamEvolution(teamId, teamMembers);
+            setTeamNote(r.ok ? null : r.error);
+            refreshTeam();
+          }, children: "Propose evolution" }),
+          teamNote && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mt-16", style: { fontSize: 11, color: "var(--warn)" }, children: teamNote }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mt-16", style: { fontSize: 11, fontStyle: "italic" }, children: [
+            patterns.accepts,
+            " personal accepts \xB7 ",
+            patterns.rejects,
+            " rejects feed your private ledger; the team ledger above records joint runs only. Peer delegation runs on the host runtime (npm run host) \u2014 receipts, not promises."
+          ] })
         ] })
       ] })
     ] }),
@@ -18994,6 +19579,7 @@ ok("App.tsx registers the Vh19 view", /Comp:\s*Vh19\b/.test(appSrc));
 ok("the app OPENS on the VH-19 dock (the front door is the Generalist)", /useState<ViewKey>\(['"]vh19['"]\)/.test(appSrc));
 ok("NAV lists VH-19", /key:\s*['"]vh19['"]/.test(navSrc));
 ok("the sidebar surfaces the VH-19 dock", /label="VH-19"/.test(sidebarSrc));
+ok("the nav comment names six docks \u2014 no stale five-docks drift", /Six docks/i.test(navSrc) && !/five docks/i.test(navSrc));
 section("2. the door imports the real engine \u2014 the reviewer's grep, enforced");
 var doorSrc = read("src/views/Vh19.tsx");
 ok("the door imports askVH19 from the engine", /import\s*\{[^}]*askVH19[^}]*\}\s*from\s*['"]\.\.\/vh19\/generalist['"]/.test(doorSrc));
@@ -19020,9 +19606,12 @@ ok("it states the one-agent premise", html.includes("One agent"));
 ok("it shows the real bench count", html.includes(`>${stats.count}<`) || html.includes(`${stats.count}`), `catalog count ${stats.count}`);
 ok("the exam surface is present", html.includes("Autonomy exam") && html.includes("Propose exam"));
 ok("the provider surface is present with env honesty", html.includes("Provider") && html.includes("VH_OPENAI_API_KEY") && html.includes("in memory only"));
-ok("the learning surface is present", html.includes("Team memory") && html.includes("accept/reject history"));
+ok("the learning surface is present", html.includes("Team-Evolve") && html.includes("accept/reject history"));
 ok("the no-provider placeholder tells the truth", html.includes("answers will be plans, not executions"));
 ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
+ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
+ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
+ok("the bench is 100+ real specialists on screen", /\b1\d\d\b/.test(html) && catalogStats().count >= 100, `count ${catalogStats().count}`);
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

@@ -1,7 +1,7 @@
 /**
  * VOUCH HARBOR 17.1 — PATINA
  * The Receipt OS for AI Agents.
- * Five docks, one helm, one patina signature — wired to the real engine.
+ * Six docks (VH-19 Generalist first), one helm — wired to the real engine.
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { Sidebar } from './app/Sidebar';

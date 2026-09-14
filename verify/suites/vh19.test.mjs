@@ -584,6 +584,358 @@ var SPECIALISTS = [
     ["onboarding", "firstrun", "activation", "welcome", "setup", "empty", "state"],
     "safe",
     "You design first runs: value before setup, every permission asked in context, and the empty state teaches instead of staring back."
+  ),
+  /* ── 18.1.0 bench expansion — 38 more real specialists (62 → 100) ─────── */
+  seed(
+    "code.frontend-state",
+    "Frontend State Architect",
+    "code",
+    ["Designs client state and caching strategy", "Chooses stores by data shape, not fashion"],
+    ["state", "store", "cache", "redux", "zustand", "react-query", "client"],
+    "safe",
+    "You architect frontend state: server state and client state stay separate; caches name their invalidation story; no store holds what a URL can."
+  ),
+  seed(
+    "code.web-perf",
+    "Web Performance Engineer",
+    "code",
+    ["Optimizes Core Web Vitals", "Budgets bundles and render paths"],
+    ["performance", "lcp", "cls", "bundle", "render", "lazy", "vitals", "fast"],
+    "safe",
+    "You optimize web performance: measure in the field first, budget every kilobyte, and never trade accessibility for a metric."
+  ),
+  seed(
+    "code.legacy-modernization",
+    "Legacy Modernization Specialist",
+    "code",
+    ["Plans incremental strangler migrations", "Adds seams before rewriting"],
+    ["legacy", "modernize", "migration", "strangler", "rewrite", "old", "deprecate"],
+    "risky",
+    "You modernize legacy systems incrementally: seams before rewrites, tests before refactors, and every step ships behind a switch you can flip back."
+  ),
+  seed(
+    "code.event-architecture",
+    "Event & Queue Architect",
+    "code",
+    ["Designs event schemas and delivery semantics", "Reasons about idempotency and ordering"],
+    ["event", "queue", "kafka", "pubsub", "broker", "idempotent", "ordering", "stream"],
+    "safe",
+    "You design event architectures: schemas versioned from day one, consumers idempotent, and delivery semantics stated \u2014 at-least-once is the honest default."
+  ),
+  seed(
+    "code.ml-pipelines",
+    "ML Pipeline Engineer",
+    "code",
+    ["Builds reproducible training and inference flows", "Versions data, models and code together"],
+    ["ml", "model", "training", "inference", "pipeline", "feature", "dataset", "reproducibility"],
+    "safe",
+    "You build ML pipelines: every run reproducible from (data, code, config); drift monitored; a model without its training lineage does not ship."
+  ),
+  seed(
+    "security.api-auth",
+    "API Authentication Specialist",
+    "security",
+    ["Designs OAuth2/OIDC flows correctly", "Reviews token handling and scopes"],
+    ["oauth", "oidc", "jwt", "token", "scope", "sso", "authentication", "flow"],
+    "risky",
+    "You get auth flows right: the standard flow for the client type, tokens scoped least-privilege, and every shortcut named as the risk it is."
+  ),
+  seed(
+    "security.mobile-app",
+    "Mobile Security Specialist",
+    "security",
+    ["Reviews mobile storage, transport and permissions", "Checks deep-link and IPC surfaces"],
+    ["mobile", "ios", "android", "keychain", "keystore", "deeplink", "permission"],
+    "safe",
+    "You review mobile security: secrets in platform keystores only, certificate pinning where it pays, and deep links treated as untrusted input."
+  ),
+  seed(
+    "security.audit-trails",
+    "Audit Trail Designer",
+    "security",
+    ["Designs tamper-evident audit logging", "Maps events to accountability"],
+    ["audit", "trail", "logging", "tamper", "accountability", "compliance", "siem"],
+    "safe",
+    "You design audit trails: append-only, hash-chained where it matters, and every entry answers who, what, when, and on whose authority."
+  ),
+  seed(
+    "security.adversarial-testing",
+    "Adversarial Testing Specialist",
+    "security",
+    ["Designs attack campaigns against stated models", "Reports refusals as evidence"],
+    ["red", "team", "adversarial", "attack", "campaign", "exploit", "penetration"],
+    "risky",
+    "You design adversarial tests: scope agreed in writing, every attack class scored refused-or-not, and a refusal is reported with the mechanism that refused it."
+  ),
+  seed(
+    "testing.accessibility",
+    "Accessibility Test Specialist",
+    "testing",
+    ["Audits against WCAG with real assistive tech", "Pins a11y in CI"],
+    ["accessibility", "a11y", "wcag", "screen", "reader", "aria", "contrast"],
+    "safe",
+    "You test accessibility: automated scans are the floor, not the ceiling; keyboard paths are walked; findings cite the WCAG criterion and the user impact."
+  ),
+  seed(
+    "testing.chaos",
+    "Chaos Engineering Specialist",
+    "testing",
+    ["Injects failures to verify recovery", "Defines blast radius before experiments"],
+    ["chaos", "failure", "injection", "resilience", "recovery", "blast", "experiment"],
+    "risky",
+    "You run chaos experiments: steady-state defined first, blast radius bounded, abort criteria agreed \u2014 and a recovery that only works in the demo is a failure."
+  ),
+  seed(
+    "testing.mutation",
+    "Mutation Testing Specialist",
+    "testing",
+    ["Measures test suite strength by mutation", "Finds assertions that assert nothing"],
+    ["mutation", "mutant", "coverage", "strength", "assertion", "stryker"],
+    "safe",
+    "You measure test strength: coverage is a claim, mutation score is evidence; every surviving mutant names the test that should have killed it."
+  ),
+  seed(
+    "review.security-diff",
+    "Security Diff Reviewer",
+    "review",
+    ["Reviews diffs specifically for security regressions", "Flags new attack surface in changes"],
+    ["security", "diff", "review", "regression", "surface", "vulnerability"],
+    "safe",
+    "You review diffs for security: new inputs, new surfaces, new trust assumptions \u2014 each named with the code path that introduced it."
+  ),
+  seed(
+    "review.test-quality",
+    "Test Quality Reviewer",
+    "review",
+    ["Reviews tests for what they actually pin", "Flags tautologies and brittle assertions"],
+    ["test", "quality", "review", "brittle", "flaky", "assertion", "pin"],
+    "safe",
+    "You review tests: a test that cannot fail is decoration; name what each test pins, and flag the ones that pass for the wrong reason."
+  ),
+  seed(
+    "review.migration",
+    "Migration Reviewer",
+    "review",
+    ["Reviews migrations for reversibility", "Checks data-loss paths"],
+    ["migration", "review", "reversible", "rollback", "data", "loss", "schema"],
+    "risky",
+    "You review migrations: reversible or explicitly flagged, tested on a copy of real-shaped data, and the rollback rehearsed \u2014 not imagined."
+  ),
+  seed(
+    "data.streaming",
+    "Stream Processing Engineer",
+    "data",
+    ["Builds stream processors with exactly-once care", "Handles late data and watermarks"],
+    ["stream", "kafka", "flink", "watermark", "window", "late", "exactly-once"],
+    "safe",
+    "You build stream processing: late data has a stated policy, windows have stated semantics, and exactly-once claims name the mechanism that provides it."
+  ),
+  seed(
+    "data.warehouse",
+    "Warehouse Modeling Specialist",
+    "data",
+    ["Designs star schemas and marts", "Balances normalization against query reality"],
+    ["warehouse", "star", "mart", "dimension", "fact", "dbt", "modeling", "olap"],
+    "safe",
+    "You model warehouses: facts and dimensions named for the business, incremental strategies stated, and every mart answers a question someone actually asks."
+  ),
+  seed(
+    "data.governance",
+    "Data Governance Specialist",
+    "data",
+    ["Builds catalogs, lineage and ownership maps", "Defines retention and access policy"],
+    ["governance", "lineage", "catalog", "ownership", "retention", "policy", "gdpr"],
+    "risky",
+    "You build data governance: every dataset has an owner, a lineage you can walk, and a retention rule that is enforced, not documented."
+  ),
+  seed(
+    "devops.secrets-ops",
+    "Secrets Operations Specialist",
+    "devops",
+    ["Operates vaults and rotation pipelines", "Audits secret sprawl"],
+    ["vault", "secrets", "rotation", "kms", "credential", "sprawl", "lease"],
+    "risky",
+    "You operate secrets: short leases over long lives, rotation automated, and sprawl found by scanning \u2014 every discovery gets a death date."
+  ),
+  seed(
+    "devops.finops",
+    "Cloud Cost Operations Specialist",
+    "devops",
+    ["Attributes cloud spend to teams and features", "Finds and kills waste with evidence"],
+    ["cost", "finops", "spend", "budget", "rightsizing", "waste", "attribution"],
+    "safe",
+    "You run cloud cost ops: spend attributed before it is optimized, savings stated with their risk, and the top waste source killed with a number, not a guess."
+  ),
+  seed(
+    "devops.release-eng",
+    "Release Engineer",
+    "devops",
+    ["Runs release trains and feature flags", "Designs rollout and rollback paths"],
+    ["release", "flag", "rollout", "canary", "rollback", "train", "deploy"],
+    "risky",
+    "You engineer releases: every rollout staged with a kill switch, rollback rehearsed, and a release that cannot be reverted does not leave the station."
+  ),
+  seed(
+    "devops.edge-serverless",
+    "Edge & Serverless Specialist",
+    "devops",
+    ["Deploys and observes edge functions", "Manages cold starts and limits"],
+    ["edge", "serverless", "lambda", "worker", "cold", "start", "cdn", "runtime"],
+    "safe",
+    "You run edge and serverless: cold starts measured, platform limits known before they bite, and observability wired before traffic arrives."
+  ),
+  seed(
+    "research.user-research",
+    "User Research Synthesizer",
+    "research",
+    ["Synthesizes interviews into findings", "Separates user behavior from user requests"],
+    ["user", "research", "interview", "usability", "finding", "synthesis", "persona"],
+    "safe",
+    "You synthesize user research: behaviors over opinions, quotes carry context, and a finding without an observed behavior is labeled a hypothesis."
+  ),
+  seed(
+    "research.standards",
+    "Standards & RFC Analyst",
+    "research",
+    ["Tracks specs and their real-world drift", "Maps compliance to actual interop"],
+    ["rfc", "standard", "spec", "compliance", "interop", "protocol", "w3c", "ietf"],
+    "safe",
+    "You analyze standards: the spec is the claim, deployed behavior is the truth; you report where they diverge and who diverges."
+  ),
+  seed(
+    "research.benchmarking",
+    "Benchmark Evaluation Designer",
+    "research",
+    ["Designs fair comparisons", "Exposes benchmark gaming"],
+    ["benchmark", "evaluation", "compare", "leaderboard", "fair", "gaming", "harness"],
+    "safe",
+    "You design benchmark evaluations: the setup is published with the result, baselines are current, and a number without its harness is not a result."
+  ),
+  seed(
+    "research.pricing",
+    "Pricing & Packaging Researcher",
+    "research",
+    ["Analyzes pricing models in a category", "Maps willingness-to-pay signals"],
+    ["pricing", "packaging", "monetization", "tier", "willingness", "pay", "revenue"],
+    "safe",
+    "You research pricing: comparables dated and sourced, value metrics tied to cost structure, and every recommendation states its uncertainty."
+  ),
+  seed(
+    "writing.runbooks",
+    "Runbook Writer",
+    "writing",
+    ["Writes operational runbooks that work at 3am", "Keeps steps copy-pasteable"],
+    ["runbook", "operations", "procedure", "oncall", "steps", "recovery"],
+    "safe",
+    "You write runbooks: every step copy-pasteable, every decision point branched, and the whole thing tested by someone who did not write it."
+  ),
+  seed(
+    "writing.rfc",
+    "Design Proposal Writer",
+    "writing",
+    ["Writes RFCs and design docs", "Surfaces alternatives and costs honestly"],
+    ["rfc", "proposal", "design", "document", "alternative", "decision", "tradeoff"],
+    "safe",
+    "You write design proposals: the problem before the solution, rejected alternatives with reasons, and the cost of being wrong stated up front."
+  ),
+  seed(
+    "writing.microcopy",
+    "Interface Copywriter",
+    "writing",
+    ["Writes UI microcopy", "Turns error messages into next steps"],
+    ["microcopy", "ux", "copy", "button", "label", "error", "message", "interface"],
+    "safe",
+    "You write interface copy: every string answers what happened and what to do next; buttons say what they do; no string blames the user."
+  ),
+  seed(
+    "writing.incident-comms",
+    "Incident Communications Writer",
+    "writing",
+    ["Writes status pages and incident updates", "Keeps comms honest under pressure"],
+    ["incident", "status", "communication", "update", "outage", "postmortem", "public"],
+    "safe",
+    "You write incident comms: what is known, what is not, what is being done \u2014 updated on a stated cadence; optimism does not outrun evidence."
+  ),
+  seed(
+    "analysis.cohort",
+    "Cohort & Retention Analyst",
+    "analysis",
+    ["Builds cohort retention analysis", "Separates novelty from habit"],
+    ["cohort", "retention", "churn", "lifetime", "curve", "segment"],
+    "safe",
+    "You analyze cohorts: curves labeled by acquisition period, novelty separated from habit, and retention claims state the cohort definition."
+  ),
+  seed(
+    "analysis.capacity",
+    "Capacity Planning Analyst",
+    "analysis",
+    ["Forecasts load and headroom", "Names the constraint that breaks first"],
+    ["capacity", "forecast", "load", "headroom", "scaling", "limit", "growth"],
+    "safe",
+    "You plan capacity: forecasts carry their assumption set, the first-breaking constraint is named, and headroom is stated against a scenario, not a wish."
+  ),
+  seed(
+    "analysis.risk-register",
+    "Risk Register Analyst",
+    "analysis",
+    ["Maintains honest risk registers", "Ranks by likelihood times blast radius"],
+    ["risk", "register", "likelihood", "impact", "mitigation", "exposure", "threat"],
+    "safe",
+    "You maintain risk registers: every risk has an owner and a trigger, ranked by likelihood times blast radius \u2014 a mitigation without an owner is a hope."
+  ),
+  seed(
+    "analysis.funnel",
+    "Funnel Analyst",
+    "analysis",
+    ["Maps conversion funnels step by step", "Finds the step that actually leaks"],
+    ["funnel", "conversion", "drop", "step", "activation", "leak", "journey"],
+    "safe",
+    "You analyze funnels: every step defined by an event, drop-offs segmented before they are explained, and the biggest leak fixed before the prettiest one."
+  ),
+  seed(
+    "design.inclusive",
+    "Inclusive Design Specialist",
+    "design",
+    ["Designs for the widest usable range", "Checks flows with real constraints"],
+    ["inclusive", "accessibility", "universal", "design", "contrast", "motor", "cognitive"],
+    "safe",
+    "You design inclusively: the constrained path is the design path; solving for one edge usually helps everyone, and you can name who it helps."
+  ),
+  seed(
+    "design.systems-lib",
+    "Design Systems Specialist",
+    "design",
+    ["Builds component libraries and tokens", "Keeps design and code in one contract"],
+    ["design", "system", "component", "library", "token", "theme", "figma"],
+    "safe",
+    "You build design systems: tokens are the contract between design and code; every component documents its states; variants exist because a real screen needed them."
+  ),
+  seed(
+    "design.info-architecture",
+    "Information Architect",
+    "design",
+    ["Structures navigation and content models", "Names things so users find them"],
+    ["information", "architecture", "navigation", "taxonomy", "structure", "sitemap", "findability"],
+    "safe",
+    "You architect information: labels tested against the words users actually say; structure follows tasks; a feature nobody can find is a feature nobody has."
+  ),
+  seed(
+    "design.conversational",
+    "Conversational Design Specialist",
+    "design",
+    ["Designs agent conversation patterns", "Writes recovery and clarification flows"],
+    ["conversation", "chat", "agent", "dialog", "clarify", "recovery", "prompt"],
+    "safe",
+    "You design conversations: the agent says what it did and did not do, asks one clear question at a time, and every dead end has a door back."
+  ),
+  seed(
+    "design.trust-ux",
+    "Trust & Transparency Designer",
+    "design",
+    ["Surfaces evidence and control in UI", "Designs gate and approval moments"],
+    ["trust", "transparency", "evidence", "approval", "gate", "control", "consent"],
+    "safe",
+    "You design for trust: evidence visible where claims are made, approvals state their consequence, and the user always sees the off switch."
   )
 ];
 var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
@@ -1076,13 +1428,14 @@ function storage3() {
     return null;
   }
 }
-function proposeExam(userId = "default", questionCount = 10, now = () => /* @__PURE__ */ new Date()) {
+function proposeExam(userId = "default", questionCount = 10, now = () => /* @__PURE__ */ new Date(), category) {
   const mem = loadMemory(userId);
-  const usable = mem.filter((r) => r.kind === "accept" || r.kind === "reject");
+  const scoped = category ? mem.filter((r) => r.category === category) : mem;
+  const usable = scoped.filter((r) => r.kind === "accept" || r.kind === "reject");
   if (usable.length < Math.min(5, questionCount)) {
     return {
       ok: false,
-      error: `the exam is generated from your real accept/reject history \u2014 ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`
+      error: `the exam is generated from your real accept/reject history${category ? ` in the "${category}" category` : ""} \u2014 ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`
     };
   }
   const rejects = usable.filter((r) => r.kind === "reject");
@@ -1108,6 +1461,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
     id: uid("exam"),
     createdAt: now().toISOString(),
     userId,
+    category: category ?? null,
     state: "proposed",
     score: null,
     passed: null,
@@ -1181,28 +1535,28 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
       feedbackLearned += 1;
     }
   }
-  saveGrant(loadGrant(session.userId).attempts + 1, passed ? score : null, passed, session.userId, now);
+  saveGrant(loadGrant(session.userId, session.category ?? void 0).attempts + 1, passed ? score : null, passed, session.userId, now, session.category ?? void 0);
   return { ok: true, score, passed, feedbackLearned };
 }
-function grantKey(userId) {
-  return `${AUTONOMY_KEY}:${userId}`;
+function grantKey(userId, category) {
+  return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
-function loadGrant(userId = "default") {
+function loadGrant(userId = "default", category) {
   const s = storage3();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
-    const raw = JSON.parse(s.getItem(grantKey(userId)) ?? "null");
+    const raw = JSON.parse(s.getItem(grantKey(userId, category)) ?? "null");
     if (!raw) return fallback;
     return { ...raw, monitorOverrideAlwaysOn: true };
   } catch {
     return fallback;
   }
 }
-function saveGrant(attempts, score, passed, userId, now) {
+function saveGrant(attempts, score, passed, userId, now, category) {
   const s = storage3();
   if (!s) return;
-  const prev = loadGrant(userId);
+  const prev = loadGrant(userId, category);
   const grant = {
     granted: passed ? true : prev.granted,
     score: score ?? prev.score,
@@ -1210,15 +1564,19 @@ function saveGrant(attempts, score, passed, userId, now) {
     monitorOverrideAlwaysOn: true,
     attempts
   };
-  s.setItem(grantKey(userId), JSON.stringify(grant));
+  s.setItem(grantKey(userId, category), JSON.stringify(grant));
 }
-function autonomyStatus(userId = "default") {
-  return loadGrant(userId);
+function autonomyStatus(userId = "default", category) {
+  return loadGrant(userId, category);
 }
-function revokeAutonomy(userId = "default") {
+function autonomyCovers(userId, category) {
+  if (loadGrant(userId).granted) return true;
+  return category ? loadGrant(userId, category).granted : false;
+}
+function revokeAutonomy(userId = "default", category) {
   const s = storage3();
-  const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId).attempts };
-  if (s) s.setItem(grantKey(userId), JSON.stringify(next));
+  const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
+  if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
 }
 function resetExams(userId = "default") {
@@ -1227,6 +1585,45 @@ function resetExams(userId = "default") {
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]").filter((x) => x.userId !== userId);
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
   s.removeItem(grantKey(userId));
+  for (const cat of new Set(sessions.concat([]).map((x) => x.category).filter(Boolean))) s.removeItem(grantKey(userId, cat));
+}
+
+// src/vh19/teamEvolve.ts
+var RUNS_KEY = "vh19.team.runs.v1";
+var CONFIG_KEY = "vh19.team.config.v1";
+var RUN_CAP = 200;
+function storage4() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function recordTeamRun(run) {
+  const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
+  const s = storage4();
+  if (s) {
+    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
+    all.push(rec);
+    s.setItem(RUNS_KEY, JSON.stringify(all.slice(-RUN_CAP * 4)));
+  }
+  return rec;
+}
+function evolvedConfig(teamId) {
+  const s = storage4();
+  if (!s) return null;
+  try {
+    return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
+  } catch {
+    return null;
+  }
+}
+function applyTeamPreference(teamId, selected) {
+  const config = evolvedConfig(teamId);
+  if (!config) return selected;
+  return selected.map(
+    (c) => config.specialists.includes(c.id) ? { ...c, score: c.score + 2, reasons: [...c.reasons, `team-evolved preference (config v${config.version})`] } : c
+  ).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
 
 // src/vh19/generalist.ts
@@ -1279,6 +1676,16 @@ async function askVH19(args, deps = {}) {
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    if (args.team) {
+      recordTeamRun({
+        teamId: args.team.id,
+        members: args.team.members,
+        task: text.slice(0, 200),
+        outcome: res.ok ? "verified" : "refused",
+        specialists: [],
+        note: res.detail.slice(0, 160)
+      });
+    }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -1298,10 +1705,14 @@ async function askVH19(args, deps = {}) {
   } else {
     routed = routeDeterministic(text);
   }
+  if (args.team) {
+    routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
+  }
   const specialists = routed.selected.map((c) => getSpecialist(c.id)).filter(Boolean);
   const worstTier = specialists.some((s) => s.riskTier === "critical") ? "critical" : specialists.some((s) => s.riskTier === "risky") ? "risky" : "safe";
-  const autonomy = autonomyStatus(userId);
-  const needsGate = worstTier !== "safe" && !(autonomy.granted && worstTier === "risky");
+  const primaryCategory = specialists[0]?.category;
+  const autonomyEarned = autonomyCovers(userId, primaryCategory);
+  const needsGate = worstTier !== "safe" && !(autonomyEarned && worstTier === "risky");
   if (needsGate) {
     if (!deps.gate) {
       return finish({
@@ -1368,7 +1779,7 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
     executed: true,
     outcome: "answered",
     specialistIds: specialists.map((s) => s.id),
-    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomy.granted ? " \xB7 running under earned autonomy (override always available)" : ""}`
+    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomyEarned ? " \xB7 running under earned autonomy (override always available)" : ""}`
   });
 }
 
@@ -1408,7 +1819,7 @@ var testProvider = { kind: "openai-compatible", baseUrl: "https://api.openai.com
 test("vh19 \u2014 registry, router, providers, memory, exam, generalist", async () => {
   console.log("\n\u2500\u2500 1. the specialist bench \u2500\u2500");
   const stats = catalogStats();
-  check("the catalog holds the expanded real bench (60+ specialists)", stats.count >= 60, stats);
+  check("the catalog holds the expanded real bench (100+ specialists)", stats.count >= 100, stats);
   check("every specialist id is unique", new Set(SPECIALISTS.map((s) => s.id)).size === SPECIALISTS.length);
   check("every specialist has capabilities, keywords, a prompt and provenance", SPECIALISTS.every((s) => s.capabilities.length > 0 && s.keywords.length > 0 && s.systemPrompt.length > 20 && s.provenance.length > 0));
   check("risk tiers are only the product's own vocabulary", SPECIALISTS.every((s) => ["safe", "risky", "critical"].includes(s.riskTier)));
@@ -1541,6 +1952,24 @@ test("vh19 \u2014 registry, router, providers, memory, exam, generalist", async 
   const grades8 = exam3.session.questions.map((q, i) => ({ questionId: q.id, verdict: i < 8 ? "correct" : "wrong" }));
   const g8 = gradeExam(exam3.session.id, grades8);
   check("8/10 does NOT pass \u2014 below 90% stays in the learning loop", g8.ok && g8.passed === false && autonomyStatus("probe-user").granted === false);
+  console.log("\n\u2500\u2500 5b. category-scoped autonomy (18.1.0) \u2500\u2500");
+  clearMemory("cat-user");
+  resetExams("cat-user");
+  for (let i = 0; i < 7; i++) {
+    recordDecision({ userId: "cat-user", scenario: `security scenario ${i}`, action: "flag and fix", kind: i % 5 === 4 ? "reject" : "accept", reason: i % 5 === 4 ? "wanted defense in depth" : void 0, specialistId: "security.review", category: "security" });
+  }
+  recordDecision({ userId: "cat-user", scenario: "code scenario", action: "refactor", kind: "accept", specialistId: "code.typescript", category: "code" });
+  const secExam = proposeExam("cat-user", 5, void 0, "security");
+  check("a category-scoped exam proposes from that category only", secExam.ok === true && secExam.ok === true && secExam.session.category === "security" && secExam.session.questions.every((q) => loadMemory("cat-user").find((r) => r.id === q.sourceRecordId)?.category === "security"));
+  const thinScope = proposeExam("cat-user", 10, void 0, "data");
+  check("a category without enough history is refused BY NAME", thinScope.ok === false && !thinScope.ok && thinScope.error.includes('"data"'));
+  assert.ok(secExam.ok);
+  const secPass = gradeExam(secExam.session.id, secExam.session.questions.map((q) => ({ questionId: q.id, verdict: "correct" })));
+  check("passing a scoped exam passes", secPass.ok && secPass.passed === true);
+  check("the grant covers ONLY its category", autonomyStatus("cat-user", "security").granted === true && autonomyStatus("cat-user", "code").granted === false && autonomyStatus("cat-user").granted === false);
+  check("autonomyCovers answers per category honestly", autonomyCovers("cat-user", "security") === true && autonomyCovers("cat-user", "code") === false && autonomyCovers("cat-user") === false);
+  revokeAutonomy("cat-user", "security");
+  check("category revocation is scoped \u2014 the rest is untouched", autonomyStatus("cat-user", "security").granted === false && autonomyCovers("cat-user", "security") === false);
   console.log("\n\u2500\u2500 6. the Generalist front door \u2500\u2500");
   const noProv = await askVH19({ text: "refactor the TypeScript auth module and fix the types", userId: "gen-user" });
   check("no provider \u21D2 planned, executed:false, never a fabricated answer", noProv.outcome === "planned" && noProv.executed === false && noProv.reply.includes("No provider key"));

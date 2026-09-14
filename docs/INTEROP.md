@@ -1,4 +1,4 @@
-# Vouch Harbor interop — the external-agent boundary (18.0.1)
+# Vouch Harbor interop — the external-agent boundary (18.1.0)
 
 > **MJ executes. Vouch governs. The receipt proves. The protocol carries
 > that proof across machines.** — and this document is the door that

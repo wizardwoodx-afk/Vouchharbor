@@ -1,32 +1,38 @@
-# Vouch Harbor 18.0.1 "Generalist" — release verification record
+# Vouch Harbor 18.1.0 "TeamEvolve" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it.
 
-## The 18.0.1 record (the Generalist is the front door)
+## The 18.1.0 record (cross-user Team-Evolve + category-scoped autonomy)
 
-18.0.1 closes the integration gap the 18.0.0 external reviews named: the VH-19
-engine is now the product's primary UI. The app opens on the VH-19 door
-(`src/views/Vh19.tsx`), which imports the real `askVH19`, shows every routing
-decision with its reasons, blocks risky work on a real gate modal, records
-accept/reject into the learning ledger, and runs the 90% exam end to end.
-The bench grew from 30 to 62 real specialists with a user-facing
-enable/disable surface the router honors. `probe/vh19Door` pins the wiring and
-the render; `probe/vh19` grew to 73 checks.
+18.1.0 ships the differentiator the external reviews named as missing: the
+team itself learns across users, with every member's explicit consent
+structural (`probe/teamEvolve`, 31 checks), autonomy scoped per category, and
+the bench grown to 102 real specialists. The stale five-docks comment class
+from the 18.0.1 review is fixed and pinned.
 
 | Gate | Command | Result |
 |---|---|---|
 | TypeScript | `tsc --noEmit` | 0 errors |
 | Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
 | Unit | `npm run unit` | 20/20 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 73/73 |
-| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 18/18 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 31/31 |
+| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 22/22 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Live fleet | `npm test` | see the run record below |
 
 The protocol is unchanged at v0.10.7, so the 17.10.7 record below remains the
 standing verification for the protocol and A2A surfaces.
+
+---
+
+# 18.0.1 "Generalist" — release verification record (standing front-door record)
+
+The VH-19 front-door wiring (18.0.1) was verified at: tsc 0, protocol 171/171,
+unit 20/20, vh19 73/73, vh19Door 18/18, versionDrift 41/41, full live fleet
+109/109 on node v20.20.2, Linux x64, 2026-09-14.
 
 ---
 

@@ -132,6 +132,8 @@ export interface ExamSession {
   id: string;
   createdAt: string;
   userId: string;
+  /** The category this exam is scoped to — null for an overall exam. */
+  category: SpecialistCategory | null;
   questions: ExamQuestion[];
   grades: ExamGrade[];
   score: number | null;

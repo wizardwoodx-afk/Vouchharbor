@@ -22,7 +22,8 @@ import { getSpecialist } from "./registry";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
-import { autonomyStatus } from "./exam";
+import { applyTeamPreference, recordTeamRun } from "./teamEvolve";
+import { autonomyCovers } from "./exam";
 import type { GeneralistDeps, GeneralistResponse, ProviderConfig, RouteDecision } from "./types";
 
 async function sha256Hex(text: string): Promise<string> {
@@ -50,6 +51,8 @@ export interface AskArgs {
   userId?: string;
   /** Explicit peer delegation ("ask <peer> to …") takes the A2A path. */
   peer?: string;
+  /** Cross-user team context: the evolved config leans on routing, and peer runs land in the team ledger. */
+  team?: { id: string; members: string[] };
 }
 
 export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise<GeneralistResponse> {
@@ -90,6 +93,16 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    if (args.team) {
+      recordTeamRun({
+        teamId: args.team.id,
+        members: args.team.members,
+        task: text.slice(0, 200),
+        outcome: res.ok ? "verified" : "refused",
+        specialists: [],
+        note: res.detail.slice(0, 160),
+      });
+    }
     return finish({
       reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -112,6 +125,9 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   } else {
     routed = routeDeterministic(text);
   }
+  if (args.team) {
+    routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
+  }
   const specialists = routed.selected.map((c) => getSpecialist(c.id)!).filter(Boolean);
 
   /* 3 — the human gate. Risky/critical output without an approved gate does
@@ -122,8 +138,9 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     : specialists.some((s) => s.riskTier === "risky")
       ? "risky"
       : "safe";
-  const autonomy = autonomyStatus(userId);
-  const needsGate = worstTier !== "safe" && !(autonomy.granted && worstTier === "risky");
+  const primaryCategory = specialists[0]?.category;
+  const autonomyEarned = autonomyCovers(userId, primaryCategory);
+  const needsGate = worstTier !== "safe" && !(autonomyEarned && worstTier === "risky");
   if (needsGate) {
     if (!deps.gate) {
       return finish({
@@ -197,7 +214,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     outcome: "answered",
     specialistIds: specialists.map((s) => s.id),
     note: `provider ${provider.kind}/${result.model} · ${result.latencyMs}ms · accept or reject this answer so I can learn${
-      autonomy.granted ? " · running under earned autonomy (override always available)" : ""
+      autonomyEarned ? " · running under earned autonomy (override always available)" : ""
     }`,
   });
 }

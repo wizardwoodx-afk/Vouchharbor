@@ -1,8 +1,9 @@
 /**
  * Shared navigation metadata.
  *
- * Patina (17.1) — five docks, one helm. Both App.tsx and the sidebar render
- * from this map; nothing hardcodes the list twice. Probe (navAlign) pins this.
+ * Six docks — the VH-19 Generalist front door plus the five Patina docks —
+ * one helm. Both App.tsx and the sidebar render from this map; nothing
+ * hardcodes the list twice. Probes (navAlign, vh19Door) pin this.
  */
 import type { ViewKey } from '../App';
 

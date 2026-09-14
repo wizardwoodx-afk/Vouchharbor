@@ -4,8 +4,8 @@
  * README, BUILD-NATIVE, Cargo.lock, package-lock) must agree with this.
  * `probe/versionDrift.test.ts` enforces that.
  */
-export const VH_VERSION = "18.0.1";
-export const VH_SHORT = "18.0";
-export const VH_CODENAME = "Generalist";
+export const VH_VERSION = "18.1.0";
+export const VH_SHORT = "18.1";
+export const VH_CODENAME = "TeamEvolve";
 export const VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 export const VH_TAGLINE = "The Receipt OS for AI Agents.";

@@ -53,6 +53,7 @@ ok("App.tsx registers the Vh19 view", /Comp:\s*Vh19\b/.test(appSrc));
 ok("the app OPENS on the VH-19 dock (the front door is the Generalist)", /useState<ViewKey>\(['"]vh19['"]\)/.test(appSrc));
 ok("NAV lists VH-19", /key:\s*['"]vh19['"]/.test(navSrc));
 ok("the sidebar surfaces the VH-19 dock", /label="VH-19"/.test(sidebarSrc));
+ok("the nav comment names six docks — no stale five-docks drift", /Six docks/i.test(navSrc) && !/five docks/i.test(navSrc));
 
 section("2. the door imports the real engine — the reviewer's grep, enforced");
 const doorSrc = read("src/views/Vh19.tsx");
@@ -77,9 +78,12 @@ ok("it states the one-agent premise", html.includes("One agent"));
 ok("it shows the real bench count", html.includes(`>${stats.count}<`) || html.includes(`${stats.count}`), `catalog count ${stats.count}`);
 ok("the exam surface is present", html.includes("Autonomy exam") && html.includes("Propose exam"));
 ok("the provider surface is present with env honesty", html.includes("Provider") && html.includes("VH_OPENAI_API_KEY") && html.includes("in memory only"));
-ok("the learning surface is present", html.includes("Team memory") && html.includes("accept/reject history"));
+ok("the learning surface is present", html.includes("Team-Evolve") && html.includes("accept/reject history"));
 ok("the no-provider placeholder tells the truth", html.includes("answers will be plans, not executions"));
 ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
+ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
+ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
+ok("the bench is 100+ real specialists on screen", /\b1\d\d\b/.test(html) && catalogStats().count >= 100, `count ${catalogStats().count}`);
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

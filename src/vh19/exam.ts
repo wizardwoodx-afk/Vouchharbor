@@ -20,7 +20,7 @@
  */
 import { uid } from "../app/id";
 import { loadMemory, recordDecision } from "./memory";
-import type { AutonomyGrant, DecisionRecord, ExamGrade, ExamSession } from "./types";
+import type { AutonomyGrant, DecisionRecord, ExamGrade, ExamSession, SpecialistCategory } from "./types";
 
 export const PASS_THRESHOLD = 0.9;
 export const AUTONOMY_KEY = "vh19.autonomy.v1";
@@ -44,13 +44,14 @@ export type ProposeResult =
  * specialists/scenarios), rejection scenarios prioritized — those are where
  * the agent's model of the user is most likely wrong.
  */
-export function proposeExam(userId = "default", questionCount = 10, now: () => Date = () => new Date()): ProposeResult {
+export function proposeExam(userId = "default", questionCount = 10, now: () => Date = () => new Date(), category?: SpecialistCategory): ProposeResult {
   const mem = loadMemory(userId);
-  const usable = mem.filter((r) => r.kind === "accept" || r.kind === "reject");
+  const scoped = category ? mem.filter((r) => r.category === category) : mem;
+  const usable = scoped.filter((r) => r.kind === "accept" || r.kind === "reject");
   if (usable.length < Math.min(5, questionCount)) {
     return {
       ok: false,
-      error: `the exam is generated from your real accept/reject history — ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`,
+      error: `the exam is generated from your real accept/reject history${category ? ` in the "${category}" category` : ""} — ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`,
     };
   }
 
@@ -79,6 +80,7 @@ export function proposeExam(userId = "default", questionCount = 10, now: () => D
     id: uid("exam"),
     createdAt: now().toISOString(),
     userId,
+    category: category ?? null,
     state: "proposed",
     score: null,
     passed: null,
@@ -178,22 +180,22 @@ export function gradeExam(sessionId: string, grades: ExamGrade[], now: () => Dat
     }
   }
 
-  saveGrant(loadGrant(session.userId).attempts + 1, passed ? score : null, passed, session.userId, now);
+  saveGrant(loadGrant(session.userId, session.category ?? undefined).attempts + 1, passed ? score : null, passed, session.userId, now, session.category ?? undefined);
   return { ok: true, score, passed, feedbackLearned };
 }
 
 /* ── the grant itself ─────────────────────────────────────────────────────── */
 
-function grantKey(userId: string): string {
-  return `${AUTONOMY_KEY}:${userId}`;
+function grantKey(userId: string, category?: SpecialistCategory): string {
+  return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
 
-export function loadGrant(userId = "default"): AutonomyGrant {
+export function loadGrant(userId = "default", category?: SpecialistCategory): AutonomyGrant {
   const s = storage();
   const fallback: AutonomyGrant = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
-    const raw = JSON.parse(s.getItem(grantKey(userId)) ?? "null") as AutonomyGrant | null;
+    const raw = JSON.parse(s.getItem(grantKey(userId, category)) ?? "null") as AutonomyGrant | null;
     if (!raw) return fallback;
     // the override floor is structural — a stored record cannot switch it off
     return { ...raw, monitorOverrideAlwaysOn: true };
@@ -202,10 +204,10 @@ export function loadGrant(userId = "default"): AutonomyGrant {
   }
 }
 
-function saveGrant(attempts: number, score: number | null, passed: boolean, userId: string, now: () => Date): void {
+function saveGrant(attempts: number, score: number | null, passed: boolean, userId: string, now: () => Date, category?: SpecialistCategory): void {
   const s = storage();
   if (!s) return;
-  const prev = loadGrant(userId);
+  const prev = loadGrant(userId, category);
   // A failed re-exam does not silently strip a prior grant — revocation is an
   // explicit human act (revokeAutonomy); failing simply does not extend it.
   const grant: AutonomyGrant = {
@@ -215,18 +217,28 @@ function saveGrant(attempts: number, score: number | null, passed: boolean, user
     monitorOverrideAlwaysOn: true,
     attempts,
   };
-  s.setItem(grantKey(userId), JSON.stringify(grant));
+  s.setItem(grantKey(userId, category), JSON.stringify(grant));
 }
 
-export function autonomyStatus(userId = "default"): AutonomyGrant {
-  return loadGrant(userId);
+export function autonomyStatus(userId = "default", category?: SpecialistCategory): AutonomyGrant {
+  return loadGrant(userId, category);
+}
+
+/**
+ * The gate's question, answered honestly: may risky-tier work in THIS
+ * category run gate-free? A category grant covers its category only; the
+ * overall grant covers everything. Safe-tier work never needs either.
+ */
+export function autonomyCovers(userId: string, category?: SpecialistCategory): boolean {
+  if (loadGrant(userId).granted) return true;
+  return category ? loadGrant(userId, category).granted : false;
 }
 
 /** The human override — always available, one call, no exam required. */
-export function revokeAutonomy(userId = "default"): AutonomyGrant {
+export function revokeAutonomy(userId = "default", category?: SpecialistCategory): AutonomyGrant {
   const s = storage();
-  const next: AutonomyGrant = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId).attempts };
-  if (s) s.setItem(grantKey(userId), JSON.stringify(next));
+  const next: AutonomyGrant = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
+  if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
 }
 
@@ -237,4 +249,5 @@ export function resetExams(userId = "default"): void {
   const sessions = (JSON.parse(s.getItem(SESSION_KEY) ?? "[]") as ExamSession[]).filter((x) => x.userId !== userId);
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
   s.removeItem(grantKey(userId));
+  for (const cat of new Set(sessions.concat([]).map((x) => x.category).filter(Boolean) as SpecialistCategory[])) s.removeItem(grantKey(userId, cat));
 }
