@@ -2409,9 +2409,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "17.6.2";
-    VH_SHORT = "17.6";
-    VH_CODENAME = "Patina";
+    VH_VERSION = "17.10.7";
+    VH_SHORT = "17.10";
+    VH_CODENAME = "WarrantTeams";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3929,6 +3929,29 @@ init_version();
 
 // src/vouch/engine/proof.ts
 var enc = new TextEncoder();
+
+// src/security/guardrail.ts
+var RateGate = class {
+  constructor(limit, windowMs, now = () => Date.now()) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+    this.now = now;
+  }
+  hits = /* @__PURE__ */ new Map();
+  /** Returns true when the action is within budget (and records it). */
+  check(key) {
+    const t = this.now();
+    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+    if (arr.length >= this.limit) {
+      this.hits.set(key, arr);
+      return false;
+    }
+    arr.push(t);
+    this.hits.set(key, arr);
+    return true;
+  }
+};
+var callRateGate = new RateGate(120, 6e4);
 
 // src/mission/missionLoop.ts
 init_id();
@@ -25947,6 +25970,8 @@ var looksLikeMath = (t) => {
     return false;
   }
 };
+var APPROVAL_TTL_MS = 10 * 60 * 1e3;
+var badApprovalProbeGate = new RateGate(10, 6e4);
 var brain;
 var JOKES = [
   `An agent walks into a bar. The bar asks for proof of identity. The agent hands over a hash-chained, Ed25519-signed receipt. The bar says: "we don't accept that here." The agent says: "watch me verify it offline."`,

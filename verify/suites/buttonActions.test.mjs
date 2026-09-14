@@ -30,9 +30,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "17.6.2";
-    VH_SHORT = "17.6";
-    VH_CODENAME = "Patina";
+    VH_VERSION = "17.10.7";
+    VH_SHORT = "17.10";
+    VH_CODENAME = "WarrantTeams";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -5948,6 +5948,39 @@ init_version();
 init_id();
 
 // src/mission/missionLoop.ts
+var LS_KEY = "mj.missionLoop.v1";
+function emptyLoopState() {
+  return {
+    schemaVersion: 1,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    running: false,
+    currentPhase: "idle",
+    cycles: [],
+    feedbackByCycle: {},
+    lastError: null
+  };
+}
+function loadMissionLoopState() {
+  try {
+    const raw = globalThis.localStorage?.getItem(LS_KEY);
+    if (!raw) return emptyLoopState();
+    const parsed = JSON.parse(raw);
+    if (parsed.schemaVersion !== 1 || !Array.isArray(parsed.cycles)) return emptyLoopState();
+    return {
+      schemaVersion: 1,
+      createdAt: parsed.createdAt ?? (/* @__PURE__ */ new Date()).toISOString(),
+      updatedAt: parsed.updatedAt ?? (/* @__PURE__ */ new Date()).toISOString(),
+      running: parsed.running ?? false,
+      currentPhase: parsed.currentPhase ?? "idle",
+      cycles: parsed.cycles,
+      feedbackByCycle: parsed.feedbackByCycle ?? {},
+      lastError: parsed.lastError ?? null
+    };
+  } catch {
+    return emptyLoopState();
+  }
+}
 function noHostDeps() {
   return {
     cliInvoke: async () => ({ exitCode: null, stdout: "", stderr: "no host CLI layer", durationMs: 0, timedOut: true }),
@@ -5967,6 +6000,70 @@ function persistCrew(current, team) {
 
 // src/vouch/engine/bridge.ts
 init_version();
+
+// src/mission/assuranceScore.ts
+var round2 = (n2) => Math.round(n2 * 100) / 100;
+var clamp = (n2, lo, hi) => Math.min(hi, Math.max(lo, n2));
+function scoreAssurance(i) {
+  if (!Number.isFinite(i.measuredRuns) || i.measuredRuns <= 0) {
+    return {
+      status: "unevaluated",
+      score: null,
+      band: null,
+      evidenceCoverage: null,
+      factors: [],
+      unevaluatedReason: "No measured runs \u2014 the score refuses to exist without evidence (simulated runs teach nothing)."
+    };
+  }
+  const measured = i.measuredRuns;
+  const factors = [];
+  const cvRatio = clamp(i.crossVendorVerifiedRuns / measured, 0, 1);
+  const svRatio = clamp(i.sameVendorVerifiedRuns / measured, 0, 1);
+  const verificationPoints = cvRatio === 1 ? 35 : round2(25 * cvRatio + Math.min(10, 10 * svRatio));
+  factors.push({
+    name: "verification",
+    points: verificationPoints,
+    max: 35,
+    note: cvRatio === 1 ? "100% cross-vendor verified \u2014 the full factor" : `${Math.round(cvRatio * 100)}% cross-vendor verified (25 pts), ${Math.round(svRatio * 100)}% same-vendor (capped 10)`
+  });
+  const arenaRatio = clamp(i.arenaPassRuns / measured, 0, 1);
+  factors.push({
+    name: "governance arena",
+    points: round2(20 * arenaRatio),
+    max: 20,
+    note: `${Math.round(arenaRatio * 100)}% of measured runs passed the arena preflight`
+  });
+  const measurable = i.budgetAdherences.filter((a) => a !== null);
+  const budgetCoverage = clamp(measurable.length / measured, 0, 1);
+  const meanAdherence = measurable.length > 0 ? measurable.reduce((a, b) => a + b, 0) / measurable.length : 0;
+  factors.push({
+    name: "budget discipline",
+    points: round2(20 * meanAdherence * budgetCoverage),
+    max: 20,
+    note: measurable.length === 0 ? "no mission reported measured spend against a cap" : `mean adherence ${round2(meanAdherence)} over ${measurable.length}/${measured} measurable missions`
+  });
+  const integrityPoints = round2(clamp(15 - 5 * i.egressViolations, 0, 15));
+  factors.push({
+    name: "egress integrity",
+    points: integrityPoints,
+    max: 15,
+    note: i.egressViolations === 0 ? "no egress-gate violations on record" : `${i.egressViolations} violation(s) on record`
+  });
+  const feedbackMean = i.feedbackRatings.length > 0 ? i.feedbackRatings.reduce((a, b) => a + b, 0) / i.feedbackRatings.length : 0;
+  factors.push({
+    name: "human feedback",
+    points: round2(clamp(2 * feedbackMean, 0, 10)),
+    max: 10,
+    note: i.feedbackRatings.length === 0 ? "no human ratings yet" : `mean rating ${round2(feedbackMean)} over ${i.feedbackRatings.length} cycle(s)`
+  });
+  const raw = round2(factors.reduce((a, f) => a + f.points, 0));
+  const coverage = clamp(measured / (measured + Math.max(0, i.simulatedRuns)), 0, 1);
+  const score = Math.round(clamp(raw * coverage, 0, 100));
+  const band = score >= 85 ? "A" : score >= 70 ? "B" : score >= 50 ? "C" : "D";
+  return { status: "evaluated", score, band, evidenceCoverage: round2(coverage), factors };
+}
+
+// src/vouch/engine/bridge.ts
 function harborCreateCrew(name) {
   const crew = {
     id: `team.${Date.now().toString(36)}`,
@@ -6023,15 +6120,62 @@ function harborMusterHand() {
   persistCrew(crews, updated);
   return { crew: updated, seat: seat2 };
 }
-function harborRerate() {
-  const crews = loadCrews();
-  const team = crews[crews.length - 1];
-  const seats = team?.seats.length ?? 0;
+function assuranceEvidence() {
+  const state = loadMissionLoopState();
+  const cycles = state.cycles ?? [];
+  const unrecorded = [];
+  let sealed = 0, wins = 0, skills = 0;
+  let sameVendor = 0, crossVendor = 0, arenaPass = 0;
+  const budgetAdherences = [];
+  for (const c of cycles) {
+    if (c.receipt?.ok) sealed++;
+    if (/^(done|success|completed|ok)$/i.test(String(c.status ?? ""))) wins++;
+    skills += c.lessonsAdded ?? 0;
+    if (c.receipt?.ok) {
+      const harnesses = new Set((c.seats ?? []).filter((s) => s.verified).map((s) => s.harness));
+      if (harnesses.size >= 2) crossVendor++;
+      else sameVendor++;
+    }
+    if (c.arena && /^pass/i.test(String(c.arena.gate ?? ""))) arenaPass++;
+    if (typeof c.budgetUsd === "number" && c.budgetUsd > 0 && typeof c.spentUsd === "number") {
+      budgetAdherences.push(c.spentUsd <= c.budgetUsd ? 1 : Math.max(0, c.budgetUsd / c.spentUsd));
+    } else {
+      budgetAdherences.push(null);
+    }
+  }
+  unrecorded.push("egress-violations");
+  const feedbackRatings = Object.values(state.feedbackByCycle ?? {}).map((f) => Number(f?.rating)).filter((n2) => Number.isFinite(n2) && n2 >= 1 && n2 <= 5);
   return {
-    assurance: Math.min(96, 60 + seats * 3),
-    sealed: 0,
-    wins: 0,
-    skills: 0
+    inputs: {
+      measuredRuns: cycles.length,
+      simulatedRuns: 0,
+      crossVendorVerifiedRuns: crossVendor,
+      sameVendorVerifiedRuns: sameVendor,
+      arenaPassRuns: arenaPass,
+      budgetAdherences,
+      egressViolations: 0,
+      feedbackRatings
+    },
+    sealed,
+    wins,
+    skills,
+    unrecorded
+  };
+}
+function harborRerate() {
+  const ev = assuranceEvidence();
+  const score = scoreAssurance(ev.inputs);
+  const note = score.status === "evaluated" ? `${ev.inputs.measuredRuns} measured cycle(s); ${ev.sealed} sealed receipt(s).` : score.unevaluatedReason ?? "No measured runs.";
+  return {
+    status: score.status,
+    assurance: score.score,
+    band: score.band,
+    sealed: ev.sealed,
+    wins: ev.wins,
+    skills: ev.skills,
+    measured: ev.inputs.measuredRuns,
+    factors: score.factors,
+    note
   };
 }
 var bridgeDeps = null;
@@ -6044,6 +6188,29 @@ init_version();
 
 // src/vouch/engine/proof.ts
 var enc2 = new TextEncoder();
+
+// src/security/guardrail.ts
+var RateGate = class {
+  constructor(limit, windowMs, now = () => Date.now()) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+    this.now = now;
+  }
+  hits = /* @__PURE__ */ new Map();
+  /** Returns true when the action is within budget (and records it). */
+  check(key) {
+    const t = this.now();
+    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+    if (arr.length >= this.limit) {
+      this.hits.set(key, arr);
+      return false;
+    }
+    arr.push(t);
+    this.hits.set(key, arr);
+    return true;
+  }
+};
+var callRateGate = new RateGate(120, 6e4);
 
 // src/vouch/engine/brainSeam.ts
 import fs from "node:fs";
@@ -26239,6 +26406,8 @@ var looksLikeMath = (t) => {
     return false;
   }
 };
+var APPROVAL_TTL_MS = 10 * 60 * 1e3;
+var badApprovalProbeGate = new RateGate(10, 6e4);
 var brain;
 var JOKES = [
   `An agent walks into a bar. The bar asks for proof of identity. The agent hands over a hash-chained, Ed25519-signed receipt. The bar says: "we don't accept that here." The agent says: "watch me verify it offline."`,
@@ -26649,19 +26818,41 @@ describe3("buttonActions \u2014 Patina primary buttons mutate real state", () =>
     const harborSrc = read("src/app/harbor.tsx");
     assert2.ok(/vh:focus-helm/.test(harborSrc), "launchVoyage dispatches the helm-focus event");
   });
-  it("Re-rate \u2014 returns an assurance snapshot tied to the mustered crew", () => {
+  it("Re-rate \u2014 reports the REAL assurance score, never a headcount", () => {
     const before = harborRerate();
-    assert2.strictEqual(typeof before.assurance, "number", "rerate returns an assurance number");
-    assert2.ok(before.assurance >= 0 && before.assurance <= 100, `assurance in 0..100 (got ${before.assurance})`);
+    assert2.ok(
+      ["evaluated", "unevaluated"].includes(before.status),
+      `rerate reports a status (got ${before.status})`
+    );
+    assert2.strictEqual(typeof before.sealed, "number", "sealed count is a number");
+    assert2.strictEqual(typeof before.measured, "number", "measured count is a number");
+    assert2.ok(Array.isArray(before.factors), "factors breakdown is present");
+    if (before.status === "unevaluated") {
+      assert2.strictEqual(
+        before.assurance,
+        null,
+        "unevaluated \u21D2 assurance is null, not a fabricated number"
+      );
+    } else {
+      assert2.ok(
+        before.assurance !== null && before.assurance >= 0 && before.assurance <= 100,
+        `assurance in 0..100 (got ${before.assurance})`
+      );
+      assert2.ok(before.factors.length > 0, "an evaluated score names its factors");
+    }
     const r = harborMusterHand();
     if (!("error" in r)) {
       const after = harborRerate();
-      assert2.ok(
-        after.assurance >= before.assurance,
-        `rerate reflects crew growth (${before.assurance} \u2192 ${after.assurance})`
+      assert2.strictEqual(
+        after.measured,
+        before.measured,
+        "mustering an agent is not a measured run \u2014 it must not move assurance"
       );
-    } else {
-      assert2.ok(before.assurance > 0);
+      assert2.deepStrictEqual(
+        after.factors.map((f) => f.points),
+        before.factors.map((f) => f.points),
+        "adding headcount leaves every assurance factor unchanged"
+      );
     }
   });
   it("Muster a hand \u2014 returns a TeamSeat that is persisted to the crew ledger", () => {

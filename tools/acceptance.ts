@@ -12,9 +12,14 @@
  *
  * Everything else — planning, staffing, permissions, resource management,
  * failure classification, the repair ladder, graph evolution, checkpoints,
- * rollback, the audit chain, reputation, scoring — runs for real.
+ *   rollback, the audit chain, reputation, scoring — runs for real.
  *
- * Run:  npm run accept
+ * STATUS: LEGACY (MJ 6.0). This file targets the pre-12.0 tree
+ * (src/domain/mission, src/engine/orgRuntime, src/ipc/v6, …) which no longer
+ * exists, so it does NOT compile and has no runnable script. The live §39
+ * acceptance test is probe/acceptance.test.ts — run it with `npm test`.
+ * This file is retained only because tools/make-bundle.mjs inlines it into
+ * the historical MJ-Desktop-6.0 archive bundle.
  */
 type Store = { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void };
 const mem = new Map<string, string>();

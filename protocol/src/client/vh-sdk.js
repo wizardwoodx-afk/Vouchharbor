@@ -47,8 +47,13 @@ export class VHClient {
 
   on(event, fn) { return this.#bus.on(event, fn); }
 
-  async join(name, group = "") {
-    this.#identity = await VH.generateIdentity();
+  async join(name, group = "", { identity = null } = {}) {
+    /* v0.10.6: an operator designates an identity by FINGERPRINT, and
+       fingerprints are generated at join — so a caller may now present an
+       already-known identity (from a key file, or a harness) instead of a fresh
+       one. Possession of the private key IS the identity: this grants no
+       authority, it makes operator designation possible at all. */
+    this.#identity = identity ?? await VH.generateIdentity();
     const bundle   = await VH.publicBundle(this.#identity);
 
     this.#socket = io(this.url, {

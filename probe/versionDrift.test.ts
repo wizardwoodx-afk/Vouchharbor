@@ -11,7 +11,7 @@
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { VH_VERSION, VH_SHORT, VH_TITLE } from "../src/version";
+import { VH_VERSION, VH_SHORT, VH_TITLE, VH_CODENAME } from "../src/version";
 
 let passed = 0;
 let failed = 0;
@@ -59,7 +59,12 @@ const json = <T,>(p: string): T => JSON.parse(read(p)) as T;
 section("0. the single source of truth is well formed");
 ok("VH_VERSION looks like a semver release", /^\d+\.\d+\.\d+$/.test(VH_VERSION), VH_VERSION);
 ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".").slice(0, 2).join("."), `${VH_VERSION} -> ${VH_SHORT}`);
-ok("VH_TITLE names the short version and codename", VH_TITLE === `Vouch Harbor ${VH_SHORT} "Patina"`, VH_TITLE);
+// The codename is owned by version.ts, so assert the RELATIONSHIP rather than a
+// literal. This check previously hardcoded "Patina", which meant a codename bump
+// failed here and the fix looked like "edit the test" — the drift trap this suite
+// exists to catch, aimed at itself.
+ok("VH_TITLE names the short version and codename",
+   VH_TITLE === `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, VH_TITLE);
 
 section("1. every manifest states the same version");
 const pkg = json<{ name: string; version: string }>("package.json");

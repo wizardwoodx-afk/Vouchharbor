@@ -33,6 +33,8 @@ export type WebProviderId = "wikipedia" | "hn" | "github" | "searxng" | "brave";
 /** primary = first-party artifact; secondary = summarizes/discusses; meta = index. */
 export type SourceKind = "primary" | "secondary" | "meta";
 
+import { checkEgressUrl } from "../../security/guardrail";
+
 export interface WebProviderSpec {
   id: WebProviderId;
   name: string;
@@ -124,8 +126,15 @@ export const WEB_PROVIDERS: WebProviderSpec[] = [
     kind: "meta",
     needsConfig: true,
     note: "user's own metasearch endpoint — keeps queries local-first",
-    buildUrl: (q, o) =>
-      o?.searxngRoot ? `${o.searxngRoot.replace(/\/$/, "")}/search?q=${encodeURIComponent(q)}&format=json` : null,
+    buildUrl: (q, o) => {
+      if (!o?.searxngRoot) return null;
+      /* FINALFIX: the user-configured root is still egress-checked — an
+       * SSRF-shaped root (metadata endpoint, link-local, non-http scheme)
+       * is refused here instead of fetched. */
+      const root = o.searxngRoot.replace(/\/$/, "");
+      if (!checkEgressUrl(`${root}/search`).ok) return null;
+      return `${root}/search?q=${encodeURIComponent(q)}&format=json`;
+    },
   },
   {
     id: "brave",

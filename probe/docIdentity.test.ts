@@ -91,3 +91,70 @@ test("docIdentity — current-facing documents name only the current release (ou
   }
   assert.equal(failures.length, 0, failures.join("; "));
 });
+
+test("docIdentity — protocol-version labels agree with the single source (17.10.3 review finding)", () => {
+  /* The 17.10.3 external review found the security-review artifact still
+     labelling the grant-authority surface "protocol v0.10.3" while the
+     implementation and the threat model were both v0.10.4. This suite scans
+     CURRENT-FACING surfaces for the label and requires every one of them to
+     name the version the code actually declares. Historical records
+     (CHANGELOG.md, *-UPGRADE.md, docs/history/) and protocol/src comments
+     legitimately name older versions and are out of scope by design. */
+  console.log("\n== protocol version label scan ==\n");
+  const pkgVersion = JSON.parse(fs.readFileSync(path.join(root, "protocol", "package.json"), "utf8")).version as string;
+  const core = fs.readFileSync(path.join(root, "protocol", "src", "core", "vh-crypto.js"), "utf8");
+  const cryptoVersion = core.match(/version:\s*"(\d+\.\d+\.\d+)"/)?.[1] ?? null;
+
+  const localFailures: string[] = [];
+  const okk = (label: string, cond: boolean, detail = ""): void => {
+    console.log(`  ${cond ? "ok " : "FAIL"} ${label}${cond ? "" : ` — ${detail}`}`);
+    if (!cond) localFailures.push(detail ? `${label} — ${detail}` : label);
+  };
+
+  okk(
+    "protocol/package.json and vh-crypto.js agree on the protocol version",
+    cryptoVersion !== null && cryptoVersion === pkgVersion,
+    `package.json ${pkgVersion} vs vh-crypto.js ${cryptoVersion}`,
+  );
+
+  const LABEL_RE = /protocol v(\d+\.\d+\.\d+)/gi;
+  const files: string[] = ["README.md", "protocol/README.md", "protocol/THREAT-MODEL.md"];
+  const walk = (dir: string): void => {
+    for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${e.name}`;
+      if (e.isDirectory()) {
+        if (e.name === "node_modules" || e.name === "dist" || e.name === "build") continue;
+        walk(rel);
+      } else if (/\.tsx?$/.test(e.name)) files.push(rel);
+    }
+  };
+  walk("src");
+
+  const offenders: string[] = [];
+  let labels = 0;
+  for (const rel of files) {
+    const text = fs.readFileSync(path.join(root, rel), "utf8");
+    for (const [i, line] of text.split(/\r?\n/).entries()) {
+      LABEL_RE.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = LABEL_RE.exec(line)) !== null) {
+        labels++;
+        if (m[1] === pkgVersion) continue;
+        offenders.push(`${rel}:${i + 1} — "protocol v${m[1]}" but the code declares v${pkgVersion}`);
+      }
+    }
+  }
+  okk(
+    "every current-facing protocol-version label names the shipped protocol",
+    offenders.length === 0,
+    offenders.slice(0, 5).join(" | "),
+  );
+  okk(
+    `the scan still finds the labels it guards (${labels} found, across ${files.length} files)`,
+    labels > 0,
+    "no label matched — the pattern no longer matches the codebase, so this gate guards nothing",
+  );
+
+  console.log(`\n${files.length} files scanned, ${labels} labels, ${localFailures.length} failed`);
+  assert.equal(localFailures.length, 0, localFailures.join("; "));
+});

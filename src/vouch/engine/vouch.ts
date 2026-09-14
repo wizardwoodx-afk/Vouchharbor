@@ -54,6 +54,9 @@ import { wrapModelBrain } from "./providers";
  * alongside the receipt chain. */
 import { propose, riskyTools as policyRiskyTools } from "./policyGateway";
 import { validateWithRetry as _schemaValidateWithRetry } from "./toolSchema";
+/* FINALFIX: the GuardRail content gate — one decision seam in front of the
+ * schema validator, the human gate and execution (src/security/guardrail.ts). */
+import { scanToolCall, sanitizeText, detectInjection, secureId, RateGate } from "../../security/guardrail";
 import {
   nextRunId,
   emitRunStarted, emitRunFinished, emitRunError,
@@ -133,7 +136,7 @@ export interface VouchApproval {
   id: string;
   action: string;
   detail: string;
-  status: "pending" | "approved" | "denied";
+  status: "pending" | "approved" | "denied" | "expired";
   ts: string;
 }
 
@@ -301,9 +304,15 @@ export function setVouchMode(m: VouchMode): void {
 }
 
 export function addVouchFact(text: string): void {
-  const t = text.trim();
+  /* FINALFIX: durable memory is persisted content — it is sanitized, capped,
+   * injection-scanned and never allowed to grow unboundedly. A fact that
+   * tests as an injection payload is refused outright: stored memory rides
+   * future briefings, so poisoning it is persistent prompt injection. */
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, facts: [...session.facts, { id: `f${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: new Date().toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.facts.length >= 200) return;
+  session = { ...session, facts: [...session.facts, { id: secureId("f"), text: t, ts: new Date().toISOString() }] };
   commit();
 }
 
@@ -314,9 +323,12 @@ export function removeVouchFact(id: string): void {
 
 /* ── preferences (learned, visible, deletable — part of the RECALL stage) ─── */
 export function addVouchPreference(text: string): void {
-  const t = text.trim();
+  /* FINALFIX: same discipline as facts — sanitize, injection-scan, cap. */
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, preferences: [...session.preferences, { id: `p${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: new Date().toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.preferences.length >= 200) return;
+  session = { ...session, preferences: [...session.preferences, { id: secureId("p"), text: t, ts: new Date().toISOString() }] };
   commit();
 }
 
@@ -444,10 +456,18 @@ export function vouchWorkspaceFiles(): Array<{ name: string; chars: number; upda
 }
 
 function workspaceWrite(name: string, content: string): { name: string; chars: number } {
+  /* FINALFIX: the virtual workspace is still bounded — sanitized names, a
+   * content cap and a file-count cap, so no caller can use it as a
+   * storage-exhaustion vector. */
+  const safeName = sanitizeText(name, 200) || "untitled.txt";
+  const safeContent = content.slice(0, 200_000);
   const ws = loadWorkspace();
-  ws[name] = { name, content, updated: new Date().toISOString() };
+  if (ws[safeName] === undefined && Object.keys(ws).length >= 500) {
+    throw new Error("workspace is full (500 files) — remove a file before writing a new one");
+  }
+  ws[safeName] = { name: safeName, content: safeContent, updated: new Date().toISOString() };
   saveWorkspace(ws);
-  return { name, chars: content.length };
+  return { name: safeName, chars: safeContent.length };
 }
 
 /* ── knowledge base (offline — the demo brain's world, 2026-current) ──────── */
@@ -757,8 +777,19 @@ export function checkPrediction(action: VouchAction, _sim: VouchSimulation, ok: 
 /* ── approvals ───────────────────────────────────────────────────────────── */
 const approvalWaiters = new Map<string, (ok: boolean) => void>();
 
+/* FINALFIX approval-gate hardening:
+ *  - ids are cryptographically random (secureId — never Math.random), so a
+ *    co-connected client cannot guess or enumerate pending approvals;
+ *  - approvals EXPIRE after APPROVAL_TTL_MS — an abandoned gate cannot be
+ *    approved hours later by whoever holds the handle;
+ *  - an approval resolves ONCE — re-resolving a decided id is a no-op, so a
+ *    replayed approve can never re-execute;
+ *  - unknown ids are rate-limited so blind probing of the gate is throttled. */
+const APPROVAL_TTL_MS = 10 * 60 * 1000;
+const badApprovalProbeGate = new RateGate(10, 60_000);
+
 export function requestVouchApproval(action: string, detail: string): Promise<boolean> {
-  const id = `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
+  const id = secureId("a");
   session = { ...session, approvals: [...session.approvals, { id, action, detail, status: "pending", ts: new Date().toISOString() }] };
   commit();
   /* OS notification at the human gate (native Tauri host only; the web
@@ -775,14 +806,22 @@ export function requestVouchApproval(action: string, detail: string): Promise<bo
 }
 
 export function resolveVouchApproval(id: string, ok: boolean): void {
+  const approval = session.approvals.find((a) => a.id === id);
+  if (!approval) {
+    /* Unknown ids: counted and rate-limited, nothing else changes. */
+    badApprovalProbeGate.check("unknown-approval-id");
+    return;
+  }
+  if (approval.status !== "pending") return; /* one decision per approval — replays are no-ops */
+  const expired = Date.now() - new Date(approval.ts).getTime() > APPROVAL_TTL_MS;
   const settle = approvalWaiters.get(id);
   /* The run may already have been stopped — the card must still be dismissable,
    * and the record must still say what the human decided. */
-  session = { ...session, approvals: session.approvals.map((a) => (a.id === id ? { ...a, status: ok ? "approved" as const : "denied" as const } : a)) };
+  session = { ...session, approvals: session.approvals.map((a) => (a.id === id ? { ...a, status: expired ? ("expired" as const) : ok ? ("approved" as const) : ("denied" as const) } : a)) };
   commit();
   if (settle) {
     approvalWaiters.delete(id);
-    settle(ok);
+    settle(!expired && ok);
   }
 }
 
@@ -2202,7 +2241,7 @@ export async function runVouchToolCall(
     });
     const head = receipt.events.length > 0 ? receipt.events[receipt.events.length - 1].hash : "";
     const ref: VouchReceiptRef = {
-      id: `r${Date.now()}${Math.random().toString(36).slice(2, 4)}`,
+      id: secureId("r"),
       mission: receipt.header.mission,
       threadTitle: `${origin} tool call: ${tool}`,
       startedAt,
@@ -2237,6 +2276,22 @@ export async function runVouchToolCall(
     return finalize({ ok: false, output: `Policy denied: ${policy.reason} (rule: ${policy.rule})`, approved: false, simulated: false, mission: null });
   }
   const risky = policy.decision === "steer";
+
+  /* Step 1.5 (FINALFIX): the GuardRail content gate — BEFORE schema
+   * validation, BEFORE the human gate. Refuses poison keys, oversized or
+   * over-deep arguments, malformed tool names and rate floods; injection
+   * findings ride the approval card as warnings. A refusal here still
+   * finalizes through the receipt-vouched path — nothing executes, and the
+   * denial is audited like every other outcome. */
+  const gr = scanToolCall(tool, args);
+  if (!gr.ok) {
+    events.push({ kind: "tool.guardrail_refused", seatId: "vouch-guardrail", data: { tool, code: gr.code, reason: gr.reason } });
+    emitInterrupt(agRunId2, `toolcall:${callId}`, agTcId2, tool, `guardrail: ${gr.reason}`);
+    return finalize({ ok: false, output: `GuardRail refused ${tool}: ${gr.reason} (code: ${gr.code}) — nothing executed.`, approved: false, simulated: false, mission: null });
+  }
+  if (gr.warnings.length > 0) {
+    events.push({ kind: "tool.guardrail_warnings", seatId: "vouch-guardrail", data: { tool, warnings: gr.warnings.slice(0, 8) } });
+  }
 
   /* Step 2: Zod schema validation with ONE structured retry (same seam as
    * the per-action loop in sendVouchMessage). Applies to BOTH tools and

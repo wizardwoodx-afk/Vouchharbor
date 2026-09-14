@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Vouch Harbor 17.6.2 — the external-agent interop CLI.
+ * Vouch Harbor 17.10.4 — the external-agent interop CLI.
  *
  * WHAT THIS IS
  *   The machine boundary for "real external agents". Any agent, tool or
@@ -32,7 +32,7 @@ import {
   generateBridgeIdentity, anchorReceipt, verifyReceiptChain, verifyAnchor, openFact,
 } from "../protocol/bridge/vouch-receipt-bridge.mjs";
 
-const VH_INTEROP_VERSION = "17.6.2";
+const VH_INTEROP_VERSION = "17.10.4";
 const SEEN_LIMIT = 4096;
 
 function fail(msg, code = 1) { console.error(`REFUSED: ${msg}`); process.exit(code); }

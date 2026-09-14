@@ -1,13 +1,13 @@
-Vouch Harbor 17.6.2 Patina
-built: 17.6.2 Patina
-ts:   2026-09-12T00:00:00Z
+Vouch Harbor 17.10.7 WarrantTeams
+built: 17.10.7 WarrantTeams
+ts:   2026-09-14T00:00:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-100 self-contained bundles in verify/suites (every probe suite except the pack's
+106 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 101 probe
-suites; the offline pack reproduces 100 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 107 probe
+suites; the offline pack reproduces 106 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-101 passed, 0 failed across 101 probe suites (node verify/run.mjs → 100 passed,
+107 passed, 0 failed across 107 probe suites (node verify/run.mjs → 106 passed,
 0 failed for the offline-only subset).

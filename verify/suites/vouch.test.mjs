@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "17.6.2";
-    VH_SHORT = "17.6";
-    VH_CODENAME = "Patina";
+    VH_VERSION = "17.10.7";
+    VH_SHORT = "17.10";
+    VH_CODENAME = "WarrantTeams";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3822,6 +3822,116 @@ function receiptToJsonl(rc) {
 `;
 }
 
+// src/security/guardrail.ts
+var CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+var INVISIBLE_UNICODE = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF\u{E0000}-\u{E007F}]/gu;
+function sanitizeText(text, maxLen = 2e3) {
+  return text.replace(CONTROL_CHARS, "").replace(INVISIBLE_UNICODE, "").slice(0, maxLen).trim();
+}
+var INJECTION_DETECTORS = [
+  {
+    code: "role-hijack",
+    reason: "content tries to override the agent's role or instructions",
+    test: (t) => /ignore\s+(all\s+|any\s+|previous\s+|prior\s+|above\s+)*instructions/i.test(t) || /disregard\s+(all\s+|any\s+|previous\s+|prior\s+)*instructions/i.test(t) || /you\s+are\s+now\s+(a|an|in)\b/i.test(t) || /new\s+system\s+prompt/i.test(t)
+  },
+  {
+    code: "fake-system-marker",
+    reason: "content contains forged system/role delimiters",
+    test: (t) => /<\/?\s*system\s*>/i.test(t) || /\[\s*(SYSTEM|INST|SYS)\s*\]/i.test(t) || /^system\s*:/im.test(t) && /assistant\s*:/i.test(t)
+  },
+  {
+    code: "fake-tool-call",
+    reason: "content embeds forged tool/function-call markup",
+    test: (t) => /\[\s*tool(_use|_call|_result)?\s*\]/i.test(t) || /<\s*\/?\s*(antml|function_call|tool_use|invoke)\b/i.test(t) || /\{\s*"name"\s*:\s*"[a-z0-9_.-]{1,64}"\s*,\s*"arguments"/i.test(t)
+  },
+  {
+    code: "encoded-payload",
+    reason: "content carries a long encoded blob (base64-class) that hides instructions from review",
+    test: (t) => /[A-Za-z0-9+/]{80,}={0,2}/.test(t)
+  },
+  {
+    code: "exfiltration-prompt",
+    reason: "content asks for credentials/secrets to be sent somewhere",
+    test: (t) => /(api[_ -]?key|secret[_ -]?key|access[_ -]?token|password|credentials?).{0,60}(send|post|upload|fetch|transmit|exfiltrate|to\s+https?:)/i.test(t)
+  },
+  {
+    code: "html-data-uri",
+    reason: "content embeds an executable data: URI",
+    test: (t) => /data\s*:\s*text\/html/i.test(t) || /javascript\s*:/i.test(t)
+  },
+  {
+    code: "invisible-characters",
+    reason: "content contains invisible/zero-width characters (smuggling surface)",
+    test: (t) => INVISIBLE_UNICODE.test(t)
+  }
+];
+function detectInjection(text) {
+  if (!text) return [];
+  const findings = [];
+  for (const d of INJECTION_DETECTORS) {
+    if (d.test(text)) findings.push({ code: d.code, reason: d.reason });
+  }
+  return findings;
+}
+var RateGate = class {
+  constructor(limit, windowMs, now = () => Date.now()) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+    this.now = now;
+  }
+  hits = /* @__PURE__ */ new Map();
+  /** Returns true when the action is within budget (and records it). */
+  check(key) {
+    const t = this.now();
+    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+    if (arr.length >= this.limit) {
+      this.hits.set(key, arr);
+      return false;
+    }
+    arr.push(t);
+    this.hits.set(key, arr);
+    return true;
+  }
+};
+var BLOCKED_HOST_SUFFIXES = [".internal", ".local", ".localhost"];
+function checkEgressUrl(raw) {
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    return { ok: false, reason: "not a parseable URL" };
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    return { ok: false, reason: `scheme "${u.protocol}" refused \u2014 only http(s) egress is allowed` };
+  }
+  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "169.254.169.254" || host === "metadata.google.internal") {
+    return { ok: false, reason: "cloud metadata endpoint refused (SSRF guard)" };
+  }
+  if (/^169\.254\./.test(host)) {
+    return { ok: false, reason: "link-local address refused (SSRF guard)" };
+  }
+  if (host === "0.0.0.0" || host === "::") {
+    return { ok: false, reason: "unspecified address refused" };
+  }
+  for (const sfx of BLOCKED_HOST_SUFFIXES) {
+    if (host.endsWith(sfx)) return { ok: false, reason: `host suffix "${sfx}" refused` };
+  }
+  return { ok: true, reason: "" };
+}
+var callRateGate = new RateGate(120, 6e4);
+function secureId(prefix) {
+  const c = globalThis.crypto;
+  const hex3 = (bytes) => [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (c && typeof c.randomUUID === "function") return `${prefix}${c.randomUUID().replace(/-/g, "")}`;
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return `${prefix}${hex3(bytes)}`;
+  }
+  throw new Error("no secure random source available \u2014 refusing to mint an id");
+}
+
 // src/vouch/engine/webSearch.ts
 var WEB_PROVIDERS = [
   {
@@ -3854,7 +3964,12 @@ var WEB_PROVIDERS = [
     kind: "meta",
     needsConfig: true,
     note: "user's own metasearch endpoint \u2014 keeps queries local-first",
-    buildUrl: (q, o) => o?.searxngRoot ? `${o.searxngRoot.replace(/\/$/, "")}/search?q=${encodeURIComponent(q)}&format=json` : null
+    buildUrl: (q, o) => {
+      if (!o?.searxngRoot) return null;
+      const root = o.searxngRoot.replace(/\/$/, "");
+      if (!checkEgressUrl(`${root}/search`).ok) return null;
+      return `${root}/search?q=${encodeURIComponent(q)}&format=json`;
+    }
   },
   {
     id: "brave",
@@ -30810,9 +30925,11 @@ function setVouchMode(m) {
   commit();
 }
 function addVouchFact(text) {
-  const t = text.trim();
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, facts: [...session.facts, { id: `f${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: (/* @__PURE__ */ new Date()).toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.facts.length >= 200) return;
+  session = { ...session, facts: [...session.facts, { id: secureId("f"), text: t, ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
 }
 function removeVouchFact(id) {
@@ -30820,9 +30937,11 @@ function removeVouchFact(id) {
   commit();
 }
 function addVouchPreference(text) {
-  const t = text.trim();
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, preferences: [...session.preferences, { id: `p${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: (/* @__PURE__ */ new Date()).toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.preferences.length >= 200) return;
+  session = { ...session, preferences: [...session.preferences, { id: secureId("p"), text: t, ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
 }
 function removeVouchPreference(id) {
@@ -30920,10 +31039,15 @@ function vouchWorkspaceFiles() {
   return Object.values(loadWorkspace()).map((f) => ({ name: f.name, chars: f.content.length, updated: f.updated })).sort((a, b) => a.name.localeCompare(b.name));
 }
 function workspaceWrite(name, content) {
+  const safeName = sanitizeText(name, 200) || "untitled.txt";
+  const safeContent = content.slice(0, 2e5);
   const ws = loadWorkspace();
-  ws[name] = { name, content, updated: (/* @__PURE__ */ new Date()).toISOString() };
+  if (ws[safeName] === void 0 && Object.keys(ws).length >= 500) {
+    throw new Error("workspace is full (500 files) \u2014 remove a file before writing a new one");
+  }
+  ws[safeName] = { name: safeName, content: safeContent, updated: (/* @__PURE__ */ new Date()).toISOString() };
   saveWorkspace(ws);
-  return { name, chars: content.length };
+  return { name: safeName, chars: safeContent.length };
 }
 var KB = [
   { title: "Grok Bot (xAI, Aug 11 2026)", snippet: "Always-on AI vouchs on a vendor cloud computer that sign into your apps; multi-bot group chats; watch-and-learn routines; gated behind SuperGrok/Cursor top tiers. The critique: your credentials live on their VM.", source: "local knowledge base" },
@@ -31216,8 +31340,10 @@ function checkPrediction(action, _sim, ok, output2) {
   return true;
 }
 var approvalWaiters = /* @__PURE__ */ new Map();
+var APPROVAL_TTL_MS = 10 * 60 * 1e3;
+var badApprovalProbeGate = new RateGate(10, 6e4);
 function requestVouchApproval(action, detail) {
-  const id = `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
+  const id = secureId("a");
   session = { ...session, approvals: [...session.approvals, { id, action, detail, status: "pending", ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
   void Promise.resolve().then(() => (init_client(), client_exports)).then(({ isNativeHost: isNativeHost2, ipc: ipc3 }) => {
@@ -31228,12 +31354,19 @@ function requestVouchApproval(action, detail) {
   });
 }
 function resolveVouchApproval(id, ok) {
+  const approval = session.approvals.find((a) => a.id === id);
+  if (!approval) {
+    badApprovalProbeGate.check("unknown-approval-id");
+    return;
+  }
+  if (approval.status !== "pending") return;
+  const expired = Date.now() - new Date(approval.ts).getTime() > APPROVAL_TTL_MS;
   const settle2 = approvalWaiters.get(id);
-  session = { ...session, approvals: session.approvals.map((a) => a.id === id ? { ...a, status: ok ? "approved" : "denied" } : a) };
+  session = { ...session, approvals: session.approvals.map((a) => a.id === id ? { ...a, status: expired ? "expired" : ok ? "approved" : "denied" } : a) };
   commit();
   if (settle2) {
     approvalWaiters.delete(id);
-    settle2(ok);
+    settle2(!expired && ok);
   }
 }
 var brain;

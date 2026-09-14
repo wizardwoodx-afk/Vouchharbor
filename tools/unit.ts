@@ -1,10 +1,13 @@
 /**
  * MJ 6.0 — unit tests for the pure engine logic.
  *
- * `npm run accept` drives one whole mission end to end and asserts the twenty
- * observable behaviours of §39. What it cannot do is pin down the *pure* decision
- * functions: given this exact state, does the supervisor classify it this way?
- * Those are the functions most worth testing, because they are the ones a wrong
+ * Run:  npm run unit   (bundled by tools/run-unit.mjs)
+ *
+ * One whole mission end to end — asserting the twenty observable behaviours
+ * of §39 — lives in probe/acceptance.test.ts and runs with `npm test`. What
+ * that acceptance run cannot do is pin down the *pure* decision functions:
+ * given this exact state, does the supervisor classify it this way? Those are
+ * the functions most worth testing, because they are the ones a wrong
  * refactor would silently change — the mission would still "finish", just for
  * worse reasons.
  *

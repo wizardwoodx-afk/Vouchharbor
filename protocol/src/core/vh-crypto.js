@@ -32,7 +32,7 @@ const HPKE = new CipherSuite({
 });
 
 export const PROTOCOL = Object.freeze({
-  version:         "0.10.3",
+  version:         "0.10.7",
   majorVersion:    0,
   minorVersion:    10,
   patchVersion:    3,
@@ -40,6 +40,9 @@ export const PROTOCOL = Object.freeze({
   hybridAlg:       "VH-HYBRID-PQ3",
   vaultAlg:        "VH-VAULT-v3",
   rotatePrefix:    "VH-ROTATE-v2",
+  /* v0.10.7 RULE 6: a rotation must prove possession of the NEW key too, not
+     only continuity from the old one (see protocol/THREAT-MODEL.md). */
+  rotatePopPrefix: "VH-ROTATE-POP-v1",
   challengePrefix: "VH-CHALLENGE-v1",
   signingLayer: Object.freeze({
     current:    "ECDSA-P256",
@@ -358,13 +361,29 @@ export async function rotateIdentity(oldIdentity) {
   const next       = await generateIdentity();
   const nextBundle = await publicBundle(next);
   const ts         = Date.now();
-  return { next, proof: { newBundle: nextBundle, ts, sig: await sign(oldIdentity.sign.privateKey, `${PROTOCOL.rotatePrefix}|${JSON.stringify(nextBundle)}|${ts}`) } };
+  const oldFp      = await fingerprint(oldIdentity.sign.publicJwk);
+  /* RULE 6 (v0.10.7): continuity is not enough. The proof carries TWO
+     signatures — the outgoing key says "this successor is mine", and the
+     INCOMING key says "and I am here, holding my own private key". Without the
+     second, a member could name an OFFLINE identity's public bundle as its
+     successor and squat that fingerprint (see THREAT-MODEL, RULE 6). */
+  const pop = await sign(next.sign.privateKey, `${PROTOCOL.rotatePopPrefix}|${oldFp}|${nextBundle.fp}|${ts}`);
+  return { next, proof: { newBundle: nextBundle, ts, sig: await sign(oldIdentity.sign.privateKey, `${PROTOCOL.rotatePrefix}|${JSON.stringify(nextBundle)}|${ts}`), pop } };
 }
 
-export async function verifyRotationProof(proof, oldSignJwk) {
+export async function verifyRotationProof(proof, oldSignJwk, { oldFp = null } = {}) {
   if (!proof?.newBundle || !proof?.sig || typeof proof.ts !== "number") return false;
   if (Math.abs(Date.now() - proof.ts) > 10 * 60_000) return false;
-  return verify(oldSignJwk, `${PROTOCOL.rotatePrefix}|${JSON.stringify(proof.newBundle)}|${proof.ts}`, proof.sig);
+  /* (1) continuity: the OUTGOING key authorises this successor. */
+  const continuity = await verify(oldSignJwk, `${PROTOCOL.rotatePrefix}|${JSON.stringify(proof.newBundle)}|${proof.ts}`, proof.sig);
+  if (!continuity) return false;
+  /* (2) RULE 6 possession: the INCOMING key must actually be here. `oldFp` is
+     the caller's authenticated fingerprint; binding it into the signed string
+     stops a possession proof being lifted onto another rotation. A proof with
+     no `pop`, a wrong key, or a mismatched oldFp fails closed. */
+  if (typeof oldFp !== "string" || !oldFp) return false;
+  if (typeof proof.pop !== "string" || !proof.pop) return false;
+  return verify(proof.newBundle.signJwk, `${PROTOCOL.rotatePopPrefix}|${oldFp}|${proof.newBundle.fp}|${proof.ts}`, proof.pop);
 }
 
 /* ═══════════════════════════ L6 · HYBRID CONTENT ENCRYPTION ════════════════ */

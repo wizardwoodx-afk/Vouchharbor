@@ -21,10 +21,12 @@ import {
   loadCrews,
   persistCrew,
   loopHostDeps,
+  loadMissionLoopState,
 } from "../../mission/missionLoop";
 import type { TeamRunnerDeps } from "../../mission/teamExecutor";
 import type { CliAgentTeam, TeamSeat, TeamRole } from "../../mission/agentTeam";
 import { VH_VERSION } from "../../version";
+import { scoreAssurance, type AssuranceFactor, type AssuranceInput, type AssuranceScore } from "../../mission/assuranceScore";
 
 /** One event projected from the execution core's stream into the unified chain. */
 export interface MissionTraceEvent {
@@ -134,19 +136,135 @@ export function harborMusterHand(): { crew: CliAgentTeam; seat: TeamSeat } | { e
   return { crew: updated, seat };
 }
 
+/** A rerate report. `assurance` is null when the fleet has no measured evidence. */
+export interface RerateReport {
+  status: AssuranceScore["status"];
+  /** Real score 0..100, or null — never a fabricated number. */
+  assurance: number | null;
+  band: AssuranceScore["band"];
+  /** Cycles with a signed receipt — the "sealed" count the UI reports. */
+  sealed: number;
+  /** Cycles that reached a terminal success status. */
+  wins: number;
+  /** Learned skills on record (lessons added across cycles). */
+  skills: number;
+  measured: number;
+  factors: AssuranceFactor[];
+  note: string;
+}
+
 /**
- * Re-rate: recalculate assurance by walking sealed receipts + learned skills.
- * Returns a fresh Assurance snapshot the UI can read on next render.
+ * Gather assurance evidence from the mission loop's own ledger.
+ *
+ * Every field traces to a persisted artifact — nothing is synthesised. Where the
+ * ledger genuinely does not record a signal we pass the honest default and say so
+ * in the note rather than inventing a value.
+ *
+ * Derivation, stated plainly:
+ *   measured          one persisted cycle = one measured run
+ *   same-vendor       receipt.ok (the cycle produced a verifiable signed receipt)
+ *   cross-vendor      verified seats span ≥2 distinct harnesses — a second vendor
+ *                     actually attested the work
+ *   arena pass        cycle.arena.gate reports a PASS
+ *   budget adherence  within cap ⇒ 1.0; over cap ⇒ cap/spent (narrowed share)
+ *   feedback          1–5 human ratings recorded against cycles
  */
-export function harborRerate(): { assurance: number; sealed: number; wins: number; skills: number } {
-  const crews = loadCrews();
-  const team = crews[crews.length - 1];
-  const seats = team?.seats.length ?? 0;
-  // The real assurance score lives in mission/assuranceScore.ts — to avoid pulling that
-  // dep tree into the bridge, we compute the equivalent shell score from persisted crews.
+export function assuranceEvidence(): { inputs: AssuranceInput; sealed: number; wins: number; skills: number; unrecorded: string[] } {
+  const state = loadMissionLoopState();
+  const cycles = state.cycles ?? [];
+  const unrecorded: string[] = [];
+
+  let sealed = 0, wins = 0, skills = 0;
+  let sameVendor = 0, crossVendor = 0, arenaPass = 0;
+  const budgetAdherences: Array<number | null> = [];
+
+  for (const c of cycles) {
+    if (c.receipt?.ok) sealed++;
+    if (/^(done|success|completed|ok)$/i.test(String(c.status ?? ""))) wins++;
+    skills += c.lessonsAdded ?? 0;
+
+    if (c.receipt?.ok) {
+      const harnesses = new Set((c.seats ?? []).filter((s) => s.verified).map((s) => s.harness));
+      if (harnesses.size >= 2) crossVendor++; else sameVendor++;
+    }
+    if (c.arena && /^pass/i.test(String(c.arena.gate ?? ""))) arenaPass++;
+
+    if (typeof c.budgetUsd === "number" && c.budgetUsd > 0 && typeof c.spentUsd === "number") {
+      budgetAdherences.push(c.spentUsd <= c.budgetUsd ? 1 : Math.max(0, c.budgetUsd / c.spentUsd));
+    } else {
+      budgetAdherences.push(null);
+    }
+  }
+
+  /* the loop ledger records no egress-gate verdicts today — report the honest
+     default rather than inferring cleanliness from silence */
+  unrecorded.push("egress-violations");
+
+  const feedbackRatings = Object.values(state.feedbackByCycle ?? {})
+    .map((f) => Number(f?.rating))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
+
   return {
-    assurance: Math.min(96, 60 + seats * 3),
-    sealed: 0, wins: 0, skills: 0,
+    inputs: {
+      measuredRuns: cycles.length,
+      simulatedRuns: 0,
+      crossVendorVerifiedRuns: crossVendor,
+      sameVendorVerifiedRuns: sameVendor,
+      arenaPassRuns: arenaPass,
+      budgetAdherences,
+      egressViolations: 0,
+      feedbackRatings,
+    },
+    sealed, wins, skills, unrecorded,
+  };
+}
+
+/**
+ * Re-rate: recompute assurance from the fleet's OWN record.
+ *
+ * v17.10 — this used to return `60 + seats * 3`: a number that rose every time
+ * you added an agent, regardless of whether any work was ever verified. It
+ * bypassed `scoreAssurance()` entirely while its docstring claimed to walk
+ * "sealed receipts + learned skills" — which were hardcoded to 0. An assurance
+ * figure that only measures headcount is worse than no figure: it reads as
+ * evidence and is not.
+ *
+ * It now delegates to the real scorer. With no measured runs the score is
+ * `unevaluated` and `assurance` is null — the module's own doctrine, which
+ * refuses to exist without evidence. Nothing simulated counts.
+ */
+/**
+ * The ONE way a surface renders an assurance figure. Views must call this rather
+ * than computing a display value of their own — that is how 17.10.0 shipped a
+ * real scorer in the bridge AND a fabricated `60 + receipts*2 + skills*3` KPI in
+ * the app shell. One metric, one source of truth.
+ */
+export function assuranceKpi(report: RerateReport): { value: string; note: string } {
+  if (report.status !== "evaluated" || report.assurance === null) {
+    return { value: "—", note: `unevaluated — ${report.note}` };
+  }
+  return {
+    value: String(report.assurance),
+    note: `band ${report.band} · ${report.measured} measured · ${report.sealed} sealed`,
+  };
+}
+
+export function harborRerate(): RerateReport {
+  const ev = assuranceEvidence();
+  const score = scoreAssurance(ev.inputs);
+  const note = score.status === "evaluated"
+    ? `${ev.inputs.measuredRuns} measured cycle(s); ${ev.sealed} sealed receipt(s).`
+    : (score.unevaluatedReason ?? "No measured runs.");
+  return {
+    status: score.status,
+    assurance: score.score,
+    band: score.band,
+    sealed: ev.sealed,
+    wins: ev.wins,
+    skills: ev.skills,
+    measured: ev.inputs.measuredRuns,
+    factors: score.factors,
+    note,
   };
 }
 

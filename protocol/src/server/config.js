@@ -39,6 +39,26 @@ export function loadConfig(env = process.env) {
     requireMetaSig: strictBool(env.VH_REQUIRE_META_SIG, true, "VH_REQUIRE_META_SIG"),
     /* v0.10.3: cap on delegated-authority depth (see protocol/THREAT-MODEL.md) */
     maxDelegationDepth: ranged(env.VH_MAX_DELEGATION_DEPTH ?? 2, 0, 8, "VH_MAX_DELEGATION_DEPTH"),
+    /* v0.10.5/0.10.6 RULES 4+5: the fingerprints permitted to HAND OUT
+       authority — the operator-authorized identities. A capability declaration
+       by one of these is delegable; anyone else's is descriptive only, and
+       "*"-class tokens belong to these alone. Empty by default: a fresh harbour
+       grants nothing until the operator names somebody (its own root key is
+       added at boot). An OPERATOR decision, never a self-claim.
+       VH_WILDCARD_AUTHORITIES is the v0.10.5 name and is still read.
+       (see protocol/THREAT-MODEL.md, RULES 4 and 5) */
+    authorities: [
+      ...String(env.VH_AUTHORITIES ?? "").split(","),
+      ...String(env.VH_WILDCARD_AUTHORITIES ?? "").split(","),
+    ].map((s) => s.trim().toUpperCase()).filter(Boolean),
+    /* v0.10.4: grant-authority coverage posture (see protocol/THREAT-MODEL.md RULE 3).
+       "strict" (default): a granter may only delegate authority it HOLDS.
+       "compat" : v0.10.3 attested-only — migration only, widens attack surface.
+       "off"    : gate disabled — TEST FIXTURES ONLY, never in production. */
+    grantPolicy: (() => {
+      const v = String(env.VH_GRANT_POLICY ?? "strict").toLowerCase();
+      return ["strict", "compat", "off"].includes(v) ? v : "strict";
+    })(),
     failFastOnTamper: strictBool(env.VH_FAIL_FAST_ON_TAMPER, true, "VH_FAIL_FAST_ON_TAMPER"),
     rate: Object.freeze({
       join:   ranged(env.VH_RATE_JOIN   ?? 2,  0.01, 100,   "VH_RATE_JOIN"),

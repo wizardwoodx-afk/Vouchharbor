@@ -1,0 +1,31 @@
+{
+  "tool": "vh-benchmark",
+  "version": "17.6.2",
+  "ts": "2026-09-13T18:10:21.310Z",
+  "node": "v20.20.2",
+  "benchmarks": [
+    {
+      "id": "B1-receipt-verify",
+      "iterations": 500,
+      "elapsedMs": 83.1,
+      "perOpMs": 0.1662,
+      "receiptDigest": "5aa4f86816b038287c6e799e8007a70f8153dcd026a6a40d4347824e6d202eb5"
+    },
+    {
+      "id": "B2-envelope-roundtrip",
+      "iterations": 200,
+      "elapsedMs": 57.1,
+      "perOpMs": 0.2855
+    },
+    {
+      "id": "B3-grant-authority",
+      "elapsedMs": 854.9,
+      "result": "171/171"
+    }
+  ],
+  "checks": {
+    "pass": 6,
+    "fail": 0
+  },
+  "totalMs": 1004
+}

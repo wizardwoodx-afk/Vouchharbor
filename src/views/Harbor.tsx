@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHarbor } from '../app/harbor';
+import { useHarbor, assuranceKpi } from '../app/harbor';
 import type { VouchTraceStep } from '../vouch/engine/vouch';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -42,7 +42,7 @@ export const Harbor: React.FC = () => {
         <div className="card"><div className="kpi"><div className="kpi-label">Sealed voyages</div><div className="kpi-value accent">{totals.sealedVoyages}</div></div></div>
         <div className="card"><div className="kpi"><div className="kpi-label">Hands on deck</div><div className="kpi-value">{totals.handsOnDeck}</div></div></div>
         <div className="card"><div className="kpi"><div className="kpi-label">Signed acts</div><div className="kpi-value">{totals.signedActs}</div></div></div>
-        <div className="card"><div className="kpi"><div className="kpi-label">Safe harbor</div><div className="kpi-value accent">{totals.assuranceScore}</div></div></div>
+        <div className="card" title={assuranceKpi(totals.assurance).note}><div className="kpi"><div className="kpi-label">Safe harbor</div><div className="kpi-value accent">{assuranceKpi(totals.assurance).value}</div></div></div>
       </div>
 
       {/* Pending approvals (human gate) */}

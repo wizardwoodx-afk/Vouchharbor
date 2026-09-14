@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "17.6.2";
-var VH_SHORT = "17.6";
-var VH_CODENAME = "Patina";
+var VH_VERSION = "17.10.7";
+var VH_SHORT = "17.10";
+var VH_CODENAME = "WarrantTeams";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/versionDrift.test.ts
@@ -39,7 +39,11 @@ var json = (p) => JSON.parse(read(p));
 section("0. the single source of truth is well formed");
 ok("VH_VERSION looks like a semver release", /^\d+\.\d+\.\d+$/.test(VH_VERSION), VH_VERSION);
 ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".").slice(0, 2).join("."), `${VH_VERSION} -> ${VH_SHORT}`);
-ok("VH_TITLE names the short version and codename", VH_TITLE === `Vouch Harbor ${VH_SHORT} "Patina"`, VH_TITLE);
+ok(
+  "VH_TITLE names the short version and codename",
+  VH_TITLE === `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`,
+  VH_TITLE
+);
 section("1. every manifest states the same version");
 var pkg = json("package.json");
 var lock = json("package-lock.json");

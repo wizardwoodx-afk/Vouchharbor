@@ -1,0 +1,233 @@
+# Vouch Harbor 17.10.7 "WarrantTeams" — release verification record
+
+Every number below was produced by running the named command in **this archive**,
+on node v20.20.2, Linux x64, 2026-09-13. Re-run them yourself; do not take this
+file's word for it.
+
+## What this release is
+
+17.10.5 shipped WarrantTeams on the 17.10.4 Warrant core, so it carried protocol
+RULES 3–5 but not **RULE 6** — and its own attacker-grade campaign reported the two
+resulting bounds as `FINDING A` / `FINDING B` instead of scoring them.
+
+**17.10.7 back-ports RULE 6.** `protocol/` is self-contained (no app module imports
+it), so the port is a bounded protocol-only diff and `protocol/` is now
+byte-identical to the Warrant trunk:
+
+- **Rotation must prove possession of the incoming key** — a second signature over
+  `VH-ROTATE-POP-v1 | oldFp | newFp | ts`, bound to the caller's fingerprint.
+  Missing `pop`, a wrong key or a mismatched `oldFp` fail closed as
+  `invalid-rotation-proof`. Closes offline-fingerprint squatting.
+- **Authority is withdrawn by authority** — a revocation against a DESIGNATED
+  identity is honoured only from an authorised writer, refused at submission
+  (`policy:revocation-requires-authority`, metrics `revocationRejected` /
+  `rotationRejected`) and ignored at consumption, so records already in a ledger
+  are inert. Closes the designated-authority denial of service.
+
+Full notes: `VH-17.10-UPGRADE.md` §9–§10 and the `17.10.7` row in `CHANGELOG.md`.
+
+## The gates
+
+| Gate | Command | Result |
+|---|---|---|
+| Live probe suites | `npm ci && npm test` | **107 passed, 0 failed** |
+| Offline pack | `node verify/run.mjs` | **106 passed, 0 failed** |
+| Protocol self-test | `cd protocol && npm ci && npm test` | **ALL 171 UNIFIED-SENTINEL CHECKS PASSED** |
+| Typecheck | `npx tsc --noEmit` | exit 0, no diagnostics |
+| Production build | `npx vite build` | 478.33 kB main chunk (147.10 kB gzip), 2.77 s |
+| Bridge gate | `node protocol/bridge/bridge-selftest.mjs` | **17/17** (zero-install) |
+| Unit runner | `npm run unit` | **20 passed, 0 failed** |
+| Version drift | `npm test` → `versionDrift` | **41 passed, 0 failed** |
+| A2A runtime mount | `npm test` → `a2aRuntime` | **48 passed, 0 failed** — two independent VH processes |
+| A2A host engine pin | `npm test` → `a2aRuntime` §2 | byte-identical rebuild + tampered engine fails closed |
+| Benchmark | `node benchmark/run.mjs` | **6 passed, 0 failed** — B3 reports "171 checks" |
+| Drill | `node tools/drill-benchmark.mjs` | guard passed · maths passed · **impossible FAILED (correct)** · digest `6a08e448e79255fe1e32ffe998eec7b8788d63ef59625b6b24f72c043c304f24` |
+
+## The attack battery
+
+Start a harbor first:
+
+```bash
+cd protocol && npm ci
+PORT=3200 VH_DATA_DIR=/tmp/vh-verify node src/server/harbor.js
+```
+
+It boots `"version":"0.10.7"`. Then, from the archive root:
+
+| Harness | Expected | Measured |
+|---|---|---|
+| `node protocol/wcarena/exploit-self-attestation.mjs` | every leg refused | **refused** — `policy:grantor-holds-nothing` |
+| `node protocol/wcarena/adversarial-campaign.mjs` | 14/14, control intact | **14/14**, control YES |
+| `node protocol/wcarena/v104-authority-matrix.mjs` | 10/10 | **10/10** |
+| `node protocol/wcarena/governance-attacks.mjs` | 0 of 4 false-accepts | **0 of 4**, legitimate path true |
+| `node protocol/wcarena/warrant-compromise-campaign.mjs` | 22/22 + 4 posture notes | **22/22**, 4 posture notes, **0 findings** |
+
+The harbor's audit log records the blocked attack:
+
+```
+member.join    name=attacker_market_data_feed
+vouch.rejected reason=grantor-holds-nothing  action=write:purchase_orders  held=["read:public"]
+vouch.rejected reason=grantor-holds-nothing  action=*                     held=["read:public"]
+```
+
+## The A2A LiveBridge (added after external review of the first 17.10.7 package)
+
+An external review scored the first 17.10.7 package 9.6/10 and made one
+substantive finding that was **correct**: cross-harbor delegation had the whole
+ladder real — strict A2A v1.0 discovery, JWS card verification, sender routing,
+GuardRail, both human gates, tamper-evident digests, replay guards — and then
+ended in a template literal.
+
+```ts
+const artifact = `${toTeammate.name} completed: "${task}" — executed under … governance.`
+```
+
+A claim of execution with no execution behind it, in the one product whose premise
+is that a claim without evidence is not a claim. `probe/harborTeams` and
+`probe/a2aV10` could not see it: they pinned the ladder, and the ladder was
+genuinely real. Only the last step lied.
+
+`src/mission/a2aBridge.ts` replaces it. The chain is now:
+
+```
+A2A → Warrant → GuardRail → receiver gate → REAL TeamExecutor
+    → real git / CLI result → vh-proof-receipt/2
+```
+
+- The verdict is the **repository's own test command**, not the seat's and not ours.
+- The bridge runs a **writer plus a read-only reviewer on a different harness**,
+  because a single seat tiers `self-verification` and the adversarial gate BLOCKS
+  it. The first draft tried one seat; the product's own gate correctly refused it.
+- `DelegationRecord` gains `execution` (harness, run status, seats run/verified,
+  measured USD, wall clock, `notRun` reasons) and `receipt`. Both are null
+  whenever nothing ran.
+- **No fallback.** No deps, no harness, no `repoRoot`, or a missing binary →
+  refused in words with `artifact: null`. A run whose verification did not pass is
+  `executed-failed`, never `completed`. Demos must ask explicitly
+  (`allowUnexecuted`) and get a record whose note reads `NOT EXECUTED`.
+
+`probe/a2aBridge` (34 checks) pins it on a real git repo with a real CLI boundary,
+including the anti-cheat (a repo whose tests fail never reports a completion) and a
+**regression pin** so no path can fabricate a completion string again.
+
+### One correction to the review, in the interest of accuracy
+
+The review asked to "restore the 17.10.6 LiveBridge". **There is no 17.10.6.**
+Checked at the time of writing:
+
+- GitHub releases: newest is `v17.10.5` (25 releases total) — no 17.10.6
+- GitHub tags: 25 tags, none matching 17.10.6
+- Branches: `main` only
+- No `a2aBridge.ts` and no `LiveBridge` string in any tree in this workspace,
+  including both 17.10.5 release ZIPs
+
+So this bridge was **written, not restored** — built to the architecture the review
+specified. If a 17.10.6 LiveBridge exists on a machine that never pushed, its
+implementation should be diffed against this one and the better parts kept; the
+regression pin in `probe/a2aBridge` will catch any attempt to drop it again.
+
+The review's other findings were all confirmed and fixed: `docs/INTEROP.md` and
+`docs/INFORMATION-ARCHITECTURE.md` titles read 17.10.5, `README.md` described the
+protocol as "v0.10.2 … 122/122", and `protocol/package.json`'s description said
+v0.10.4 while the code declared 0.10.7. None of those were in `versionDrift`'s
+enforced set, which is exactly why they survived — the reviewer's proposed release
+gate is the right fix, and `probe/a2aBridge` §6 is the first piece of it.
+
+## The A2A runtime mount (rev 3, after the second external review)
+
+The second review scored the LiveBridge 9.9 and then found the thing that
+mattered more: the bridge was implemented and probed but **never mounted by the
+application**. Its grep was correct — at that point `createA2AServer` appeared in
+`src/` once (its own definition) and in comments; the only callers were probe
+suites. A harness proves the architecture works when a test wires it. It does not
+prove the shipped product exposes it.
+
+Fixed by adding the missing layer, not by re-labelling the old one:
+
+| Piece | What it is |
+|---|---|
+| `src/mission/a2aRuntime.ts` | `startA2ARuntime()` — the ONE bootstrap: identity → team → signed v1.0 card → delegation handler → receiver risk policy → LiveBridge → listen. Plus `nodeRunnerDeps()` (real process spawning, real git, the repo's own test as the verdict) and `drillBridgeConfig()` (the labelled deterministic seat). |
+| `tools/vh-host.entry.ts` → `tools/vh-host-engine.mjs` | the host process, bundled and byte-pinned (`.sha256`) the same way the MCP engine is. |
+| `tools/vh-host.mjs` (`npm run host`) | the launcher. Verifies the pin on every start; a doctored engine exits 2 instead of listening. |
+| `probe/a2aRuntime.test.ts` | **48 checks**, including the launch-time end-to-end the review asked for. |
+| `src/mission/a2aServer.ts` | now accepts a bind port (the signed card advertises an interface URL, so the listener has to be on it) and reports its real host in `baseUrl`. |
+| `src/mission/harborTeams.ts` | `receiverRiskVerdict()` — the receiver re-classifies an inbound task with its own §10 table and takes the worse of that and the sender's claim. A sender's `"safe"` is a claim, not a clearance. Every settled record carries the verdict as `receiverPolicy`. |
+
+What `probe/a2aRuntime` actually runs:
+
+1. **§1** a runtime mounts: the signed card is served over real HTTP, passes the
+   strict v1.0.0 validator, its JWS verifies against the harbor's own key, and a
+   request without the bearer token never reaches a task.
+2. **§2** the shipped launcher runs the shipped engine: `tools/vh-host-engine.mjs`
+   is byte-identical to a rebuild of `tools/vh-host.entry.ts` and matches its
+   committed sha256; a one-byte-flipped copy makes the launcher exit 2.
+3. **§3** **two independently running VH processes.** The receiver mounts and
+   publishes its JWK; a stranger discovers the card over HTTP and verifies its
+   signature; the sender process delegates; the receiver process runs a real
+   TeamExecutor mission (2 seats, cross-vendor gate PASS, real worktree, the
+   repo's own test as the verdict) and returns a sealed `vh-proof-receipt/2`
+   that verifies in the sender's process **and in a third process**
+   (`tools/verify-receipt.mjs`, exit 0 with the issuer key pinned out of band,
+   exit 3 — integrity valid, issuer UNVERIFIED — without it).
+4. **§4** a mounted harbor with no bridge refuses in words: no artifact, no
+   execution, no receipt, and the note names the missing capability.
+5. **§5** anti-cheat across the wire: a repository whose tests fail comes back
+   `refused` with the measured execution attached, never as a completion.
+6. **§6** the receiver's own risk table overrules a sender: `git push --force …
+   to production` declared `"safe"` is classified CRITICAL, upgraded to risky and
+   **denied at a headless gate** — nothing executes — while genuinely read-only
+   work stays safe. A sender that declares `"risky"` is never talked down.
+
+Honesty notes for this section:
+
+- **The drill seat is not a model.** §3/§5 run with `--seat-mode drill` because no
+  agent CLI is installed on this build host: a real child process, a real
+  worktree, a real git repo, the repository's own test as the verdict — and a
+  deterministic brain. It is labelled in `describe()`, in the process log and in
+  every artifact. The default `--seat-mode real` refuses instead of substituting.
+- **A mounted harbor always enforces a bearer token.** Omit `--token` and one is
+  minted and reported. The card advertises `harborIdentity`; a card that claims a
+  scheme the listener does not enforce refuses everything, so "no auth" is not an
+  option the mount offers.
+- **The Warrant harbour process is not yet in the same boot.** `npm run host`
+  mounts the A2A listener with the receiver ladder, the GuardRail and the
+  receiver's own risk policy; it does not spawn
+  `protocol/src/server/harbor.js` alongside it or consult that harbour's grant
+  ledger before accepting a delegation. Authority on this door is: JWS-verified
+  card identity + bearer token + receiver policy + human gate. Wiring the
+  protocol harbour's grant check into the receiver gate is the next seam.
+
+## What this archive does not prove
+
+- **The Rust crate was not compiled.** `cargo check` / `cargo test` / `clippy` were
+  not run for this record. `src-tauri/Cargo.lock` was updated by hand to keep the
+  `vouchharbor` package version consistent with `Cargo.toml`; regenerate it with
+  cargo on a host that has the toolchain.
+- **No native build.** `npm run tauri:build` was not run.
+- **The drill's seats are deterministic built-ins, not a model.** The suite's own
+  `scope` string says so: it validates the runtime, governance and verification
+  machinery — not frontier-model intelligence. No mission in this record was
+  executed by a live model.
+- **Still no native brain.** 23 of 25 harnesses are external CLIs; the in-process
+  `hermes` seat routes to Ollama at `127.0.0.1:11434`.
+
+## Reproducing
+
+`node_modules/` and `protocol/node_modules/` are not shipped. Two installs:
+
+```bash
+npm ci                              # app toolchain
+cd protocol && npm ci && cd ..      # protocol gate + attack harnesses
+```
+
+Then every command in the tables above runs unchanged. `dist/` is also not
+shipped; regenerate it with `npx vite build`.
+
+**One environment note, learned the hard way.** `probe/offlinePack` rebuilds all
+106 bundles into a temp directory and byte-compares them against the shipped
+pack. On a host where the temp filesystem is small, that rebuild fails with
+`no space left on device` and the suite reports a false drift across every
+bundle after the failure point. It is an environment failure, not a code
+failure — but it looks like one. Give `$TMPDIR` at least ~700 MB free. With
+space available the suite reports **17 passed, 0 failed**, including
+*every shipped bundle is BYTE-IDENTICAL to a fresh rebuild (106 bundles)*.

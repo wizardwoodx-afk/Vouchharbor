@@ -39,9 +39,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "17.6.2";
-    VH_SHORT = "17.6";
-    VH_CODENAME = "Patina";
+    VH_VERSION = "17.10.7";
+    VH_SHORT = "17.10";
+    VH_CODENAME = "WarrantTeams";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

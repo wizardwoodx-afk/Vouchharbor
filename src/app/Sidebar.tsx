@@ -33,10 +33,20 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
     <aside className="sidebar">
       <div className="brand">
         <div className="seal-mark" aria-hidden>
-          <svg width="28" height="28" viewBox="0 0 46 46" fill="none">
-            <path d="M6 34 L23 10 L40 34" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-            <line x1="4" y1="34" x2="42" y2="34" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"/>
-            <circle cx="23" cy="20" r="3.4" fill="var(--patina)" stroke="var(--patina-bright)" strokeWidth="1"/>
+          <svg viewBox="0 0 40 40" width="36" height="36">
+            <defs>
+              <radialGradient id="patinaG" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stopColor="#56A396"/>
+                <stop offset="55%" stopColor="#3E7C71"/>
+                <stop offset="100%" stopColor="#23524A"/>
+              </radialGradient>
+            </defs>
+            <circle cx="20" cy="20" r="17" fill="url(#patinaG)"/>
+            <circle cx="20" cy="20" r="17" fill="none" stroke="#EDE6D3" strokeOpacity=".25" strokeWidth="0.6"/>
+            <circle cx="20" cy="20" r="13" fill="none" stroke="#EDE6D3" strokeOpacity=".2" strokeWidth="0.5" strokeDasharray="1 2"/>
+            <path d="M11 20.5l5.5 5.5L29 13.5" fill="none" stroke="#EDE6D3" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="20" cy="20" r="3.2" fill="#0A0C0E" stroke="#EDE6D3" strokeOpacity=".5" strokeWidth="0.6"/>
+            <circle cx="20" cy="20" r="0.8" fill="#EDE6D3" className="seal-dot"/>
           </svg>
         </div>
         <div className="brand-text">

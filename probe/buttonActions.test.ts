@@ -49,21 +49,36 @@ describe("buttonActions — Patina primary buttons mutate real state", () => {
     assert.ok(/vh:focus-helm/.test(harborSrc), "launchVoyage dispatches the helm-focus event");
   });
 
-  it("Re-rate — returns an assurance snapshot tied to the mustered crew", () => {
-    // Measure assurance BEFORE muster (may already have seats from prior
-    // tests; we only assert that mustering strictly raises or preserves it).
+  it("Re-rate — reports the REAL assurance score, never a headcount", () => {
+    // v17.10: this test used to assert `after.assurance >= before.assurance` after
+    // mustering a hand — i.e. it asserted that adding an agent RAISES assurance.
+    // That was the defect: assurance was `60 + seats * 3`, a payroll count wearing
+    // the word "assurance", with sealed/wins/skills hardcoded to 0. The honest
+    // contract is the opposite: with no measured evidence the score is
+    // `unevaluated`, and mustering a hand must NOT move it.
     const before = harborRerate();
-    assert.strictEqual(typeof before.assurance, "number", "rerate returns an assurance number");
-    assert.ok(before.assurance >= 0 && before.assurance <= 100, `assurance in 0..100 (got ${before.assurance})`);
+    assert.ok(["evaluated", "unevaluated"].includes(before.status),
+      `rerate reports a status (got ${before.status})`);
+    assert.strictEqual(typeof before.sealed, "number", "sealed count is a number");
+    assert.strictEqual(typeof before.measured, "number", "measured count is a number");
+    assert.ok(Array.isArray(before.factors), "factors breakdown is present");
+
+    if (before.status === "unevaluated") {
+      assert.strictEqual(before.assurance, null,
+        "unevaluated ⇒ assurance is null, not a fabricated number");
+    } else {
+      assert.ok(before.assurance !== null && before.assurance >= 0 && before.assurance <= 100,
+        `assurance in 0..100 (got ${before.assurance})`);
+      assert.ok(before.factors.length > 0, "an evaluated score names its factors");
+    }
+
     const r = harborMusterHand();
     if (!("error" in r)) {
       const after = harborRerate();
-      assert.ok(after.assurance >= before.assurance,
-        `rerate reflects crew growth (${before.assurance} → ${after.assurance})`);
-    } else {
-      // Crew is already full (HAND_ROLES exhausted) — rerate should still
-      // return a number, which is the behavioral contract we care about.
-      assert.ok(before.assurance > 0);
+      assert.strictEqual(after.measured, before.measured,
+        "mustering an agent is not a measured run — it must not move assurance");
+      assert.deepStrictEqual(after.factors.map((f) => f.points), before.factors.map((f) => f.points),
+        "adding headcount leaves every assurance factor unchanged");
     }
   });
 

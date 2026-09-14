@@ -1,5 +1,5 @@
 /**
- * crossHarbor.ts — Vouch Harbor 17.6.2: the Patina ⇄ Protocol runtime join.
+ * crossHarbor.ts — Vouch Harbor 17.10.4: the Warrant ⇄ Protocol runtime join.
  *
  * WHAT THIS IS
  *   The agent OS proves its work with vh-proof-receipt/2 receipts (proof.ts).

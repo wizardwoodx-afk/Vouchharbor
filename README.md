@@ -1,4 +1,4 @@
-# Vouch Harbor 17.6.2 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 17.10.7 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -223,7 +223,7 @@ gate.
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 101 suites
+npm test              # 107 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -231,15 +231,19 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (~2 min, Node alone — dependency-backed suites honestly
 #   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 100 bundles
+node verify/run.mjs   # 106 bundles
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
+
+# mount THIS harbor on the A2A v1.0 wire — signed card, JSON-RPC endpoint,
+#   receiver ladder and the live execution bridge behind it (see below)
+npm run host -- --harbor "USER 2" --repo /path/to/repo --test-cmd "node test.js"
 ```
 
 ### The zero-install gates — and the one that isn't
 
-17.6.2 keeps two notions of "zero install" strictly separate:
+17.10.7 keeps two notions of "zero install" strictly separate:
 
 | Gate | Command | Deps needed |
 |---|---|---|
@@ -250,9 +254,64 @@ node benchmark/run.mjs
 | **Protocol cryptographic self-test** | `cd protocol && npm install && npm test` | **yes** — dependency-backed, lock-pinned |
 
 The bridge gate, interop CLI and benchmark run on a bare extraction with
-node alone. The full protocol suite (129 checks incl. grant-authority)
-needs its installed dependencies — the lockfile ships in-tree, and the
-release notes never call that one zero-install.
+node alone. The full protocol suite (171 checks incl. grant-authority)
+needs its installed dependencies — the lockfile ships in-tree, the
+release notes never call that one zero-install, and
+[`protocol/README-TEST.md`](protocol/README-TEST.md) gives the exact
+commands to install and run it from a bare archive.
+
+## A2A host — mounting a harbor on the wire (since 17.10.7)
+
+`createA2AServer()` (transport), `makeDelegationHandler()` (the receiver
+ladder) and `runInboundDelegation()` (the live execution bridge) are real and
+probed — but a passing harness only proves the architecture works *when a test
+wires it*. `startA2ARuntime()` in `src/mission/a2aRuntime.ts` is the single
+bootstrap that wires it in the shipped product, and `npm run host` launches it
+as a process:
+
+```text
+load harbor identity  → ECDSA P-256 keypair + fingerprint
+load the team         → the teammates this harbor will route work to
+sign the A2A card     → JWS over the canonical card bytes (v1.0.0 shape)
+attach the handler    → GuardRail scan → routing → this harbor's human gate
+attach the risk policy → the receiver re-classifies; a sender cannot downgrade
+attach the LiveBridge → real TeamExecutor, real CLI, real git, the repo's test
+listen                → GET /.well-known/agent-card.json · POST / (JSON-RPC 2.0)
+```
+
+Two such processes are a working pair: one discovers the other's card over
+HTTP, verifies its JWS against the published key, presents the bearer token,
+and the receiver executes the delegated task for real and returns a sealed
+`vh-proof-receipt/2` the sender can verify itself. `probe/a2aRuntime.test.ts`
+pins exactly that across independent OS processes (48 checks), including the
+byte-pin on the shipped engine bundle — a stale `tools/vh-host-engine.mjs`
+fails the gate, and a doctored one fails closed instead of listening.
+
+Honesty rules, inherited from the bridge:
+
+- **No execution deps, no harness binary, no bound repository** → the harbor
+  still mounts (it has to, to refuse politely) and every delegation is refused
+  in words. `describe()` says which piece is missing.
+- **Risky work is denied by default.** A headless host has no operator at the
+  gate; `--allow-risky` exists for a supervised host that wires a real one.
+- **The receiver grades the request itself.** A sender's `tier: "safe"` is a
+  claim: the receiver runs the task through its own §10 risk table and takes
+  the worse of the two, so a remote harbor cannot label a `git push --force`
+  as safe and walk past the gate. The verdict is recorded on the delegation
+  record as `receiverPolicy`.
+- **A mounted harbor always enforces a bearer token.** Omit `--token` and one
+  is minted and reported — the card advertises `harborIdentity`, and a card
+  that claims a scheme the listener does not enforce would refuse everything.
+- **`--seat-mode drill`** runs a deterministic local seat (a real child
+  process, a deterministic brain) so the mount is testable on a host with no
+  agent CLI installed. It is labelled in `describe()`, in the process log and
+  in every artifact it produces. The default `--seat-mode real` refuses
+  instead of substituting.
+
+```bash
+node tools/vh-host.mjs --help     # every flag
+npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
+```
 
 ## Repository layout
 
@@ -260,7 +319,7 @@ release notes never call that one zero-install.
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       101 probe suites, run by `npm test`
+probe/       107 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
@@ -295,10 +354,10 @@ surface, `vouch.*` persistence keys only, and both wire generations
 - Installing on a laptop: [INSTALL-ON-LAPTOP.md](INSTALL-ON-LAPTOP.md)
 - Web deployment (Vercel): [DEPLOY-VERCEL.md](DEPLOY-VERCEL.md)
 - What Vouch Harbor wraps: [VENDOR.md](VENDOR.md) · [NOTICE](NOTICE)
-## Communication layer — the Vouch Harbor Protocol (since 17.6)
+## Communication layer — the Vouch Harbor Protocol (since 17.10)
 
-`protocol/` ships the fixed device-to-device trust substrate (v0.10.2,
-"Unified Sentinel-Hybrid Fix1": 122/122 gate green) plus the receipt bridge
+`protocol/` ships the fixed device-to-device trust substrate (v0.10.7,
+"Unified Sentinel-Hybrid": 171/171 gate green) plus the receipt bridge
 that anchors `vh-proof-receipt/2` chain heads into the vouch chain — the
 cross-org capability channel's trust anchor. Patina proves the work on one
 machine; the protocol carries that proof, with identity, authorization,
@@ -308,9 +367,13 @@ reputation and revocation, to any other. Start here:
 node protocol/bridge/bridge-selftest.mjs   # zero-install gate: 17/17
 ```
 
-See `protocol/README.md` for the layer stack and the v0.10.2 fix record.
+See `protocol/README.md` for the layer stack and the full rule record —
+RULE 3 (scope-bounded delegation), RULE 4 (designated unbounded authority),
+RULE 5 (a capability claim is not a licence) and RULE 6 (rotation possession +
+revocation authority). The v0.10.2 "Fix1" history is preserved further down
+that file.
 
-- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 17.6.2: [VH-17.6-UPGRADE.md](VH-17.6-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
 - Problem map (what each feature exists to solve): [docs/PROBLEM-FOCUS.md](docs/PROBLEM-FOCUS.md)
 - Information architecture (one product, one spine): [docs/INFORMATION-ARCHITECTURE.md](docs/INFORMATION-ARCHITECTURE.md)
 

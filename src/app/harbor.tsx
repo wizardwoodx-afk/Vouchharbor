@@ -71,6 +71,15 @@ const crossHarborStore: CrossHarborStore = {
 
 export type AnchorOutcome = { ok: boolean; evidence?: string; fp?: string; reason?: string };
 
+/**
+ * v17.10.3 — the app layer's single re-export point for the assurance KPI.
+ * Views import it from here, not from the engine: the view never reaches the
+ * bridge directly (house rule), and there must be exactly ONE way to turn an
+ * assurance report into something a surface can render.
+ */
+export { assuranceKpi } from "../vouch/engine/bridge";
+export type { RerateReport } from "../vouch/engine/bridge";
+
 /** Verify-then-anchor a sealed receipt into the vouch chain (17.6.1). */
 export async function anchorVouchReceipt(id: string): Promise<AnchorOutcome> {
   const jsonl = vouchReceiptJsonl(id);
@@ -125,7 +134,14 @@ export interface HarborTotals {
   sealedVoyages: number;
   handsOnDeck: number;
   signedActs: number;
-  assuranceScore: number;
+  /**
+   * v17.10.3 — was `assuranceScore: number`, fed by `60 + receipts*2 + skills*3`.
+   * That was a SECOND fabricated formula: the bridge had been fixed to use the
+   * real evidence-based scorer while this path kept inventing a number, and both
+   * the Harbor and Register KPI cards rendered it. Now the report itself, so the
+   * only way to display assurance is to read what the scorer actually said.
+   */
+  assurance: ReturnType<typeof harborRerate>;
   winRate: number;
   chainLength: number;
   pendingApprovals: number;
@@ -274,7 +290,7 @@ function buildState(): HarborState {
     sealedVoyages: voyages.filter((v) => v.status === "sealed").length,
     handsOnDeck: seats.length,
     signedActs: s.receipts.length,
-    assuranceScore: Math.min(96, 60 + s.receipts.length * 2 + s.skills.length * 3),
+    assurance: harborRerate(),
     winRate,
     chainLength: s.receipts.length,
     pendingApprovals: pending.length,
@@ -404,9 +420,15 @@ export const HarborProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         forceRender();
       },
       rerate: () => {
-        // Recompute assurance snapshot from the engine — not a no-op.
+        // v17.10 — assurance now comes from the real scorer. It is null when the
+        // fleet has no measured runs, and we say so rather than printing a number
+        // derived from headcount.
         const snap = harborRerate();
-        addVouchFact(`Rerate — assurance ${snap.assurance}, seats reported.`);
+        addVouchFact(
+          snap.status === "evaluated"
+            ? `Rerate — assurance ${snap.assurance} (${snap.band}) over ${snap.measured} measured cycle(s), ${snap.sealed} sealed.`
+            : `Rerate — unevaluated. ${snap.note}`,
+        );
         forceRender();
       },
       launchVoyage: () => {

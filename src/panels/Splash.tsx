@@ -3,11 +3,10 @@ import React from 'react';
 export const Splash: React.FC = () => (
   <div className="splash">
     <div style={{ textAlign: 'center' }}>
-      <div className="splash-mark" aria-hidden>
-        <svg width="48" height="48" viewBox="0 0 46 46" fill="none">
-          <path d="M6 34 L23 10 L40 34" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-          <line x1="4" y1="34" x2="42" y2="34" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
-          <circle cx="23" cy="20" r="3.6" fill="var(--patina)" stroke="var(--patina-bright)" strokeWidth="1.2"/>
+      <div className="splash-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 12l2 2 4-4"/>
+          <circle cx="12" cy="12" r="9"/>
         </svg>
       </div>
       <div className="splash-text">

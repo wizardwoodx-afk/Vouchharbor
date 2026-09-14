@@ -17,25 +17,136 @@ var BLOCKED = /* @__PURE__ */ new Set([
   "fetch",
   "XMLHttpRequest",
   "import",
-  "export"
+  "export",
+  // FINALFIX: widen the identifier denylist to the rest of the escape surface.
+  "arguments",
+  "caller",
+  "callee",
+  "Symbol",
+  "Reflect",
+  "Proxy",
+  "new",
+  "super",
+  "with",
+  "delete",
+  "self",
+  "top",
+  "parent",
+  "frames",
+  "location",
+  "navigator",
+  "localStorage",
+  "sessionStorage",
+  "indexedDB",
+  "WebSocket",
+  "Worker",
+  "setTimeout",
+  "setInterval",
+  "setImmediate",
+  "queueMicrotask",
+  "structuredClone",
+  "atob",
+  "btoa",
+  // growth primitives (denial-of-service via string/array inflation)
+  "repeat",
+  "padStart",
+  "padEnd"
 ]);
+var DANGEROUS_SUBSTRINGS = [
+  "constructor",
+  "__proto__",
+  "prototype",
+  "arguments",
+  "caller",
+  "callee",
+  "function",
+  "eval",
+  "globalthis",
+  "window",
+  "document",
+  "process",
+  "require",
+  "fromcharcode",
+  "fromcodepoint",
+  "defineproperty",
+  "getprototypeof",
+  "setprototypeof",
+  "getownproperty",
+  "import"
+];
 var WHITELIST_CALLS = /* @__PURE__ */ new Set(["String", "Number", "Boolean", "Math", "Array", "Object", "JSON"]);
+var STRING_FACADE = Object.freeze(Object.assign((value) => String(value), {}));
+var ARRAY_FACADE = Object.freeze(
+  Object.assign(
+    (...items) => {
+      if (items.length === 1 && typeof items[0] === "number") {
+        if (!Number.isInteger(items[0]) || items[0] < 0 || items[0] > 1e5) throw new Error("blocked: array size");
+        return new Array(items[0]);
+      }
+      return items;
+    },
+    { isArray: Array.isArray }
+  )
+);
+var OBJECT_FACADE = Object.freeze({
+  keys: Object.keys,
+  values: Object.values,
+  entries: Object.entries,
+  freeze: Object.freeze
+});
+var NUMBER_FACADE = Object.freeze(Object.assign((value) => Number(value), { isFinite: Number.isFinite, isInteger: Number.isInteger, isNaN: Number.isNaN, MAX_SAFE_INTEGER: Number.MAX_SAFE_INTEGER }));
+var BOOLEAN_FACADE = Object.freeze(Object.assign((value) => Boolean(value), {}));
+function shieldClone(value, depth) {
+  if (depth > 12) return null;
+  if (value === null || typeof value !== "object") {
+    return typeof value === "function" || typeof value === "symbol" ? void 0 : value;
+  }
+  if (Array.isArray(value)) return value.map((x) => shieldClone(x, depth + 1));
+  const out = {};
+  for (const key of Object.keys(value)) {
+    if (key === "__proto__" || key === "constructor" || key === "prototype") continue;
+    const desc = Object.getOwnPropertyDescriptor(value, key);
+    if (!desc || desc.get || desc.set || typeof desc.value === "function") continue;
+    out[key] = shieldClone(desc.value, depth + 1);
+  }
+  return out;
+}
+function shieldInput(input) {
+  try {
+    return shieldClone(input ?? null, 0);
+  } catch {
+    return null;
+  }
+}
 function safeEvaluate(expr, input) {
   const src = expr.trim();
   if (!src) throw new Error("empty expression");
   if (src.length > 600) throw new Error("expression too long");
   if (/[;`\\]/.test(src)) throw new Error("illegal character");
+  const lower = src.toLowerCase();
+  for (const w of DANGEROUS_SUBSTRINGS) {
+    if (lower.includes(w)) throw new Error("blocked property");
+  }
   const tokens = src.match(/[A-Za-z_][A-Za-z0-9_]*|["'][^"']*["']|[0-9]+(?:\.[0-9]+)?|[=!<>]=?|&&|\|\||[()[\].,+\-*/%?:]|true|false|null/g);
   if (!tokens || tokens.join("") !== src.replace(/\s+/g, "")) {
     throw new Error("malformed expression");
   }
+  let depth = 0;
+  let prev = null;
   for (const t2 of tokens) {
+    if (t2 === "(" || t2 === "[") depth += 1;
+    if (t2 === ")" || t2 === "]") depth -= 1;
+    if (depth > 48) throw new Error("expression too deep");
+    if (t2 === "[" && prev !== null) {
+      const prevIsValue = /^[A-Za-z_][A-Za-z0-9_]*$/.test(prev) || /^["']/.test(prev) || /^[0-9]/.test(prev) || prev === ")" || prev === "]";
+      if (prevIsValue) throw new Error("blocked property");
+    }
     if (/^[A-Za-z_]/.test(t2) && !["input", "true", "false", "null", "undefined"].includes(t2) && !WHITELIST_CALLS.has(t2)) {
       if (BLOCKED.has(t2)) throw new Error(`blocked identifier: ${t2}`);
     }
     if (BLOCKED.has(t2)) throw new Error(`blocked identifier: ${t2}`);
+    prev = t2;
   }
-  if (/\bconstructor\b|\b__proto__\b|\bprototype\b/.test(src)) throw new Error("blocked property");
   const fn = new Function(
     "input",
     "String",
@@ -47,7 +158,9 @@ function safeEvaluate(expr, input) {
     "JSON",
     `"use strict"; return (${src});`
   );
-  return fn(input, String, Number, Boolean, Math, Array, Object, JSON);
+  const result = fn(shieldInput(input), STRING_FACADE, NUMBER_FACADE, BOOLEAN_FACADE, Math, ARRAY_FACADE, OBJECT_FACADE, JSON);
+  if (typeof result === "function" || typeof result === "symbol") throw new Error("blocked value");
+  return result;
 }
 
 // src/engine/controlRuntime.ts

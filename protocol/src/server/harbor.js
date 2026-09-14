@@ -11,7 +11,7 @@ import { CheckpointStore }            from "./checkpoints.js";
 import { loadOrCreateHarborIdentity } from "./harbor-identity.js";
 import { PolicyEngine }               from "../core/vh-policy.js";
 import { assertSignerBinding }        from "../core/vh-binding.js";
-import { findAuthorization, assessActionRisk, computeReputationSignals, verifyGrantAuthority } from "../core/vh-trust.js";
+import { findAuthorization, assessActionRisk, computeReputationSignals, verifyGrantAuthority, authorityFps } from "../core/vh-trust.js";
 import {
   openSecure, createReplayGuard, verifyRotationProof,
   fingerprint, verifyChallenge, b64e, randomHex, PROTOCOL, GENESIS,
@@ -25,6 +25,9 @@ function createMetrics() {
     started: Date.now(),
     joins: 0, leaves: 0, signals: 0,
     vouchAccepted: 0, vouchRejected: 0,
+    grantAuthorityRejected: 0,   /* v0.10.4: grants refused by the coverage rule */
+    revocationRejected: 0,       /* v0.10.7 RULE 6: revocations of designated authority by an unauthorised writer */
+    rotationRejected: 0,         /* v0.10.7 RULE 6: rotations that do not prove possession of the new key */
     rotations: 0, checkpoints: 0,
     rateLimited: 0, banned: 0,
     challengesFailed: 0,
@@ -50,6 +53,15 @@ function parseVersion(v) {
  * ========================================================================== */
 export async function createHarbor(config = loadConfig()) {
   const harborKey = await loadOrCreateHarborIdentity(config.dataDir);
+  /* v0.10.5 RULES 4+5: who may HAND OUT authority at all. The harbour's own root
+     key always may; operators name others explicitly (VH_AUTHORITIES, or the
+     v0.10.5 name VH_WILDCARD_AUTHORITIES). Nobody gets it by claiming it — a
+     self-declared capability is a claim, not a licence. */
+  const authorities = [
+    harborKey.fp,
+    ...(Array.isArray(config.authorities) ? config.authorities : []),
+    ...(Array.isArray(config.wildcardAuthorities) ? config.wildcardAuthorities : []),
+  ];
 
   const policy  = new PolicyEngine();
   const ledger  = new Ledger(`${config.dataDir}/${config.ledgerFile}`, {
@@ -303,17 +315,40 @@ export async function createHarbor(config = loadConfig()) {
          (see protocol/THREAT-MODEL.md). Signer binding above already proves
          facts.from.fp is the authenticated session identity. */
       if (facts.kind === "authorization") {
-        const authority = verifyGrantAuthority(facts.from?.fp, facts, ledger.links, { maxDepth: config.maxDelegationDepth });
+        const authority = verifyGrantAuthority(facts.from?.fp, facts, ledger.links, { maxDepth: config.maxDelegationDepth, grantPolicy: config.grantPolicy, authorities });
         if (!authority.ok) {
           metrics.vouchRejected++;
-          log.audit("vouch.rejected", { reason: authority.reason, from: user.name, fp: user.fp, kind: facts.kind });
+          metrics.grantAuthorityRejected++;
+          log.audit("vouch.rejected", {
+            reason: authority.reason, from: user.name, fp: user.fp, kind: facts.kind,
+            action: facts.action, scope: facts.scope, held: authority.held,
+          });
           return ack(cb, { ok: false, reason: `policy:${authority.reason}`, risk: "unauthorized-grantor" });
+        }
+      }
+
+      /* v0.10.7 RULE 6: withdrawing authority obeys the same rule as handing it
+         out. A revocation against a DESIGNATED identity is only honoured from an
+         authorised writer; anyone else's record is refused here and ignored at
+         consumption (vh-trust `_revokedActions`), so a ledger that already holds
+         one cannot be used to switch a principal off. */
+      if (facts.kind === "revocation") {
+        const authorized = authorityFps(ledger.links, { authorities });
+        const targetFp   = facts.target?.fp;
+        if (typeof targetFp === "string" && authorized.has(targetFp) && !authorized.has(facts.from?.fp)) {
+          metrics.vouchRejected++;
+          metrics.revocationRejected++;
+          log.audit("vouch.rejected", {
+            reason: "revocation-requires-authority", from: user.name, fp: user.fp,
+            target: targetFp, targetAction: facts.target?.action ?? "*",
+          });
+          return ack(cb, { ok: false, reason: "policy:revocation-requires-authority", risk: "unauthorized-revoker" });
         }
       }
 
       /* authorization gate for agent actions */
       if (facts.kind === "agent_action") {
-        const grant = findAuthorization(facts.agent.fp, facts.action, ledger.links);
+        const grant = findAuthorization(facts.agent.fp, facts.action, ledger.links, Date.now(), { grantPolicy: config.grantPolicy, authorities });
         if (!grant) { metrics.vouchRejected++; return ack(cb, { ok: false, reason: "policy:no-authorization", risk: "unauthorized" }); }
       }
 
@@ -334,11 +369,20 @@ export async function createHarbor(config = loadConfig()) {
       if (!user) return ack(cb, { ok: false, reason: "not-joined" });
       if (!guard(socket, "rotate", 1 / 60, 60_000)) { metrics.rateLimited++; return ack(cb, { ok: false, reason: "rate-limited" }); }
       if (!proof?.ts || Math.abs(Date.now() - proof.ts) > 5 * 60_000) return ack(cb, { ok: false, reason: "stale-rotation-proof" });
-      const ok = await verifyRotationProof(proof, user.bundle.signJwk);
-      if (!ok) { rate.violation(ip); log.audit("rotate.rejected", { from: user.name, ip }); return ack(cb, { ok: false, reason: "invalid-rotation-proof" }); }
+      /* v0.10.7 RULE 6: the proof must show continuity FROM the caller's current
+         key AND possession OF the incoming key (bound to this fingerprint), so a
+         member cannot name an offline identity's public bundle as its successor
+         and squat that fingerprint. */
+      const oldFp = user.fp;
+      const ok = await verifyRotationProof(proof, user.bundle.signJwk, { oldFp });
+      if (!ok) {
+        metrics.rotationRejected++;
+        rate.violation(ip);
+        log.audit("rotate.rejected", { from: user.name, ip, reason: proof?.pop ? "continuity-or-possession-invalid" : "no-possession-proof" });
+        return ack(cb, { ok: false, reason: "invalid-rotation-proof" });
+      }
       for (const m of members.values())
         if (m.id !== socket.id && m.fp === proof.newBundle.fp) return ack(cb, { ok: false, reason: "new-fp-already-taken" });
-      const oldFp = user.fp;
       user.bundle = proof.newBundle; user.fp = proof.newBundle.fp; metrics.rotations++;
       await appendSystem("rotate", { who: user.name, from: oldFp, to: user.fp });
       socket.broadcast.emit("peer:rotated", { id: user.id, fp: user.fp, bundle: user.bundle });
@@ -377,14 +421,14 @@ export async function createHarbor(config = loadConfig()) {
       if (typeof cb !== "function") return;
       const { fp, action } = payload ?? {};
       if (typeof fp !== "string" || typeof action !== "string") return ack(cb, { ok: false, reason: "missing-args" });
-      ack(cb, { ok: true, assessment: assessActionRisk(fp, action, ledger.links) });
+      ack(cb, { ok: true, assessment: assessActionRisk(fp, action, ledger.links, Date.now(), { authorities }) });
     });
 
     socket.on("authorization:find", (payload, cb) => {
       if (typeof cb !== "function") return;
       const { fp, action } = payload ?? {};
       if (typeof fp !== "string" || typeof action !== "string") return ack(cb, { ok: false, reason: "missing-args" });
-      ack(cb, { ok: true, grant: findAuthorization(fp, action, ledger.links) });
+      ack(cb, { ok: true, grant: findAuthorization(fp, action, ledger.links, Date.now(), { grantPolicy: config.grantPolicy, authorities }) });
     });
 
     socket.on("disconnect", async (reason) => {

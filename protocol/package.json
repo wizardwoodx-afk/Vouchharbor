@@ -1,9 +1,9 @@
 {
   "name": "vouchharbor-protocol",
-  "version": "0.10.3",
+  "version": "0.10.7",
   "private": true,
   "type": "module",
-  "description": "Vouch Harbor Protocol v0.10.2 (Unified Sentinel-Hybrid Fix1) — the fixed device-to-device communication + trust substrate under the Vouch Harbor agent OS: selective sharing, signature-verified vouching, hybrid-PQ content transfer, authorization/reputation/revocation for humans and AI agents.",
+  "description": "Vouch Harbor Protocol v0.10.7 (Scope-Bounded Delegation, Designated Authority, Authority Provenance, Rotation Possession \u0026 Revocation Authority) \u2014 the fixed device-to-device communication + trust substrate under the Vouch Harbor agent OS: selective sharing, signature-verified vouching, hybrid-PQ content transfer, authorization/reputation/revocation for humans and AI agents.",
   "main": "src/server/harbor.js",
   "engines": {
     "node": ">=20.0.0"

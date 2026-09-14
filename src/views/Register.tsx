@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHarbor } from '../app/harbor';
+import { useHarbor, assuranceKpi } from '../app/harbor';
 
 export const Register: React.FC = () => {
   const { state, actions } = useHarbor();
@@ -66,7 +66,7 @@ export const Register: React.FC = () => {
       <div className="grid-4 mb-24">
         <div className="card"><div className="kpi"><div className="kpi-label">Chain length</div><div className="kpi-value">{state.totals.chainLength}</div></div></div>
         <div className="card"><div className="kpi"><div className="kpi-label">Pass rate</div><div className="kpi-value accent">{winRate}%</div></div></div>
-        <div className="card"><div className="kpi"><div className="kpi-label">Assurance score</div><div className="kpi-value">{state.totals.assuranceScore}</div></div></div>
+        <div className="card" title={assuranceKpi(state.totals.assurance).note}><div className="kpi"><div className="kpi-label">Assurance score</div><div className="kpi-value">{assuranceKpi(state.totals.assurance).value}</div></div></div>
         <div className="card"><div className="kpi"><div className="kpi-label">Compliance</div><div className="kpi-value accent">EU AI Act</div></div></div>
       </div>
 

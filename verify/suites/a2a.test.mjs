@@ -1,9 +1,9 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
 // src/version.ts
-var VH_VERSION = "17.6.2";
-var VH_SHORT = "17.6";
-var VH_CODENAME = "Patina";
+var VH_VERSION = "17.10.7";
+var VH_SHORT = "17.10";
+var VH_CODENAME = "WarrantTeams";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/a2a.ts
@@ -105,6 +105,7 @@ function remoteAgentToSeatDraft(card2) {
     fence: fence().error
   };
 }
+var v1Encoder = new TextEncoder();
 
 // probe/a2a.test.ts
 var passed = 0;

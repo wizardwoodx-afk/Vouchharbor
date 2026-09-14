@@ -1,4 +1,4 @@
-# Vouch Harbor Protocol v0.10.2 — "Unified Sentinel-Hybrid (Fix1)"
+# Vouch Harbor Protocol v0.10.7 — "Unified Sentinel-Hybrid"
 
 The device-to-device communication + trust substrate under the Vouch Harbor
 agent OS. Shipped inside `protocol/` since **17.6**.
@@ -49,12 +49,68 @@ node protocol/bridge/bridge-selftest.mjs   # 🏆 17 checks, zero install
 
 ```bash
 cd protocol
-npm install
-npm test          # 🏆 122 checks (selftest)
+npm ci            # lockfile-pinned. The archive ships the lockfile, not node_modules
+npm test          # 🏆 171 checks (selftest) — exact from-a-bare-archive steps: README-TEST.md
 npm start         # harbor server (PORT env, default 3000)
 ```
 
-## v0.10.2 fix record (why this is "Fix1")
+## v0.10.4 → v0.10.7 — bounded delegation (RULE 3), designated authority (RULE 4), authority provenance (RULE 5), possession & revocation authority (RULE 6)
+
+An attested granter may only delegate authority it **holds**: the exact action,
+a `delegate:<scope>` / `admin:<scope>` token, or `*` where the granter itself
+carries `*`-class authority. Sub-delegation may **narrow, never widen**;
+coverage is re-checked at consumption, so a narrowed or revoked issuer stops
+working; replayed grants are refused. Refusals are counted in
+`metrics.grantAuthorityRejected` and audited with the action, the scope, and the
+tokens actually held.
+
+**v0.10.5 adds RULE 4: unbounded authority is never a self-claim.** A `*`,
+`delegate:*` or `admin:*` token is meaningful only when the harbour root key or
+an operator-designated fingerprint (`VH_WILDCARD_AUTHORITIES`) holds it, and it
+is never transitive. Rationale: `THREAT-MODEL.md` Decision 3.
+
+**v0.10.7 adds RULE 6: possession, and who may revoke whom.** The attacker-grade
+campaign shipped in 17.10.4 measured two bounds and reported them. Both are closed:
+a **rotation proof must prove possession of the INCOMING key** (so a member cannot
+squat an offline identity's fingerprint), and **a revocation against a designated
+identity counts only from an authorised writer** (so no member can switch the
+principal that hands authority out off — the refusal is `revocation-requires-authority`,
+applied at submission and at consumption). Revocations of ordinary identities are
+unchanged, pinned so the rule cannot over-reach. The campaign grew to **22/22
+refused** by promoting those two findings from INFO rows to scored attacks.
+
+**v0.10.6 adds RULE 5: a capability claim is not a licence.** RULES 3 and 4 asked
+whether a granter *holds* what it hands out — but for **named** tokens "holding"
+was still a **self-signed declaration**, so any participant could
+`declareCapability(["write:payroll"])` and mint a real payroll grant. Delegable
+authority now has exactly two sources: a **live grant** naming the fingerprint as
+subject (revocation- and expiry-aware), or a declaration by an
+**operator-authorized identity** (`VH_AUTHORITIES=<fp>`; the harbour root key
+always qualifies; the v0.10.5 name `VH_WILDCARD_AUTHORITIES` is still read).
+Anything else is a claim — descriptive for reputation, reporting and audit, never
+a licence — refused as `capability-claim-is-not-authority`. **Designation follows
+the identity across a proven key rotation** (the harbour records a rotation only
+after verifying a proof from the outgoing key, and `rotate` is not a
+member-submittable kind); grants and revocations stay keyed to the exact
+fingerprint, so a revoked key cannot rotate out of its own revocation.
+Rationale, bootstrap and upgrade impact: `THREAT-MODEL.md` RULE 5.
+
+**Reproduce it** (installed dependencies; `README-TEST.md` has the exact steps).
+Since RULE 5 changed what "legitimate" means, the authority harnesses were
+re-based on **given** authority: they now start their own harbour, designate an
+operator at boot, and hand every honest actor real grants — so a refusal proves
+the *bound*, not the absence of a setup.
+
+| Harness | Expected |
+|---|---|
+| `node wcarena/adversarial-campaign.mjs` — 14 attack classes + control, self-contained | **14/14 refused, control intact** |
+| `node wcarena/v104-authority-matrix.mjs` — legitimate paths and amplification routes | **10/10** |
+| `node wcarena/governance-attacks.mjs` — four WeClawArena governance attacks + control | **control permitted, 4/4 refused** |
+| `node wcarena/exploit-self-attestation.mjs` — the 17.6.2 exploit (attaches to a running harbour) | every leg REFUSED |
+| `node wcarena/warrant-compromise-campaign.mjs` — attacker-grade pass: designation compromise, rotation, delegation, revocation race, replay, cross-harbour (two harbours) | **22/22 refused, control intact** · 4 posture notes |
+| `cd protocol && npm test` — the full protocol gate | **171/171** |
+
+## v0.10.2 fix record (history — why that release was "Fix1")
 
 v0.10.1 shipped 9 defects found by executing its own suite; all fixed and
 re-verified 122/122:

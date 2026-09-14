@@ -143,11 +143,15 @@ console.log("\nB3 — grant-authority gate (protocol selftest, dependency-backed
     let out = "", passed = false;
     try {
       out = execFileSync("npm", ["test", "--silent"], { cwd: path.join(root, "protocol"), encoding: "utf8", timeout: 180_000 });
-      passed = /ALL 129 UNIFIED-SENTINEL CHECKS PASSED/.test(out);
+      /* the count is READ from the selftest's own summary, never restated here:
+         a benchmark that hardcodes the number it guards goes stale on every
+         protocol release (it read 129 while the gate said 134 — fixed 17.10.3) */
+      passed = /ALL \d+ UNIFIED-SENTINEL CHECKS PASSED/.test(out);
     } catch (e) { out = String(e.stdout ?? "") + String(e.stderr ?? ""); }
     const elapsed = ms(start);
-    ok("protocol selftest passes (129 checks incl. grant authority)", passed);
-    results.benchmarks.push({ id: "B3-grant-authority", elapsedMs: +elapsed.toFixed(1), result: passed ? "129/129" : "FAILED" });
+    const nChecks = out.match(/ALL (\d+) UNIFIED-SENTINEL CHECKS PASSED/)?.[1] ?? null;
+    ok(`protocol selftest passes (${nChecks ?? "count unavailable"} checks incl. grant authority)`, passed);
+    results.benchmarks.push({ id: "B3-grant-authority", elapsedMs: +elapsed.toFixed(1), result: nChecks ? `${nChecks}/${nChecks}` : "FAILED" });
     console.log(`       full protocol gate in ${elapsed.toFixed(0)} ms`);
   }
 }

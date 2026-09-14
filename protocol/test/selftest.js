@@ -6,13 +6,15 @@ import { VHClient }         from "../src/client/vh-sdk.js";
 import { VHTamperError, VHLedgerError, VHCryptoError } from "../src/core/vh-errors.js";
 import { CheckpointStore }  from "../src/server/checkpoints.js";
 import { loadOrCreateHarborIdentity } from "../src/server/harbor-identity.js";
-import { computeReputationSignals } from "../src/core/vh-trust.js";
+import { computeReputationSignals, canDelegate, delegableTokens, isAttested, authorityFps, VOUCH_KINDS } from "../src/core/vh-trust.js";
 import fs   from "node:fs";
 import path from "node:path";
 
 let pass = 0, fail = 0;
 const section = (n)       => console.log("\n── " + n + " ──");
-const check   = (name, c) => { c ? pass++ : fail++; console.log((c ? "  ✅ " : "  ❌ ") + name); };
+const check   = (name, c, detail) => { c ? pass++ : fail++; console.log((c ? "  ✅ " : "  ❌ ") + name);
+  if (!c && detail !== undefined) console.log("        ↳ " + (typeof detail === "string" ? detail : JSON.stringify(detail)));
+};
 const waitFor = async (cond, ms = 5000) => {
   const t0 = Date.now();
   while (!cond()) { if (Date.now() - t0 > ms) return false; await new Promise((r) => setTimeout(r, 30)); }
@@ -116,7 +118,7 @@ let bf = false; try { await VH.hybridOpenBy(bob, { ...sealed, bindTag: "VH-BIND:
 check("tampered bindTag fails",        bf);
 check("encryptionScope accurate",      VH.PROTOCOL.encryptionScope === "hybrid-pq-content-only");
 check("hybrid algorithm bumped",       VH.PROTOCOL.hybridAlg === "VH-HYBRID-PQ3");
-check("protocol version bumped",       VH.PROTOCOL.version === "0.10.3");
+check("protocol version bumped",       VH.PROTOCOL.version === "0.10.7");
 check("vault algorithm bumped",        VH.PROTOCOL.vaultAlg === "VH-VAULT-v3");
 check("hybrid combiner declared",       VH.PROTOCOL.hybridCombiner === "independent-secrets-hkdf-v1");
 check("crypto boundary marks identity classical", VH.CRYPTO_BOUNDARY.identity.quantumStatus === "classical");
@@ -153,8 +155,9 @@ check("wrong alg rejected",      v3);
 /* ─── L9 ─── */
 section("L9 · key rotation");
 const { next: aN, proof: rP } = await VH.rotateIdentity(alice);
-check("rotation valid",        await VH.verifyRotationProof(rP, alice.sign.publicJwk));
-check("rotation wrong key",    !(await VH.verifyRotationProof(rP, bob.sign.publicJwk)));
+const aliceFpForRot = await VH.fingerprint(alice.sign.publicJwk);
+check("rotation valid",        await VH.verifyRotationProof(rP, alice.sign.publicJwk, { oldFp: aliceFpForRot }));
+check("rotation wrong key",    !(await VH.verifyRotationProof(rP, bob.sign.publicJwk, { oldFp: aliceFpForRot })));
 check("new fp differs",        aN.fp !== alice.fp);
 
 /* ─── FIX A ─── */
@@ -189,7 +192,15 @@ section("Fix B · Harbor identity keypair self-test");
 /* ─── Harbor integration ─── */
 section("Harbor · full integration");
 const tmpDir = fs.mkdtempSync("/tmp/vh-test-");
+/* v0.10.6 RULE 5 — the operator authorizes WHO may delegate authority. In this
+   suite the operator authorizes Alice only; every other identity's capability
+   declarations are CLAIMS (descriptive), never licences to grant.
+   NOTE: Alice rotates her key later in this suite, so this also exercises the
+   RULE 5 lineage clause — the designation follows the IDENTITY across a proven
+   rotation, not the key material. */
+const aliceIdentity = await VH.generateIdentity();
 const harbor = await createHarbor({
+  authorities: [aliceIdentity.fp],
   port: 0, dataDir: tmpDir, ledgerFile: "ledger.jsonl",
   chainMemory: 500, tsWindowMs: 300_000, maxFileMB: 500, maxNameLen: 60,
   maxSocketsPerIp: 50, maxPayloadBytes: 1_048_576,
@@ -202,7 +213,7 @@ const url  = `http://127.0.0.1:${port}`;
 
 const clientA = new VHClient(url);
 const clientB = new VHClient(url);
-await clientA.join("Alice", "eng");
+await clientA.join("Alice", "eng", { identity: aliceIdentity });
 await clientB.join("Bob",   "eng");
 check("both joined",        clientA.me && clientB.me);
 check("B sees A",           [...clientB.peers.values()].some((p) => p.name === "Alice"));
@@ -291,10 +302,14 @@ const capRes = await clientB.declareCapability(["execute_trade","read_market_dat
 check("capability accepted",              capRes.ok);
 const unauth = await clientB.vouchAction({ action:"execute_trade", tool:"broker_api" });
 check("unauthorized REJECTED",            !unauth.ok && unauth.reason === "policy:no-authorization");
-/* v0.10.3: granting requires an on-record attestation — Alice declares one */
-await clientA.declareCapability(["delegate_portfolio_ops"], { runtime: "node" });
+/* v0.10.3: granting requires an on-record attestation — Alice declares one.
+   v0.10.4 RULE 3: attestation says she MAY delegate; coverage says WHAT she may
+   delegate. Alice must hold authority for portfolio-v3 herself. Before v0.10.4
+   any unrelated declaration (e.g. "delegate_portfolio_ops") licensed granting
+   anything at all — the self-attestation amplification defect. */
+await clientA.declareCapability(["delegate:portfolio-v3","read_market_data"], { runtime: "node" });
 const grantRes = await clientA.authorize(bobId2,"execute_trade",{ scope:"portfolio-v3", ttlMs:3_600_000 });
-check("authorization accepted",           grantRes.ok);
+check("authorization accepted",           grantRes.ok, grantRes);
 const authAction = await clientB.vouchAction({ action:"execute_trade", tool:"broker_api", purpose:"rebalance_portfolio", policy:"portfolio-v3", evidence:"order_id=12345", result:"success" });
 check("authorized action ACCEPTED",       authAction.ok);
 
@@ -344,31 +359,81 @@ section("Sentinel · capability-specific reputation signals + time decay");
 }
 
 /* ─── v0.10.3 · grant authority (threat-model decision) ─── */
-section("Grant authority · attested granters + capped delegation");
+section("Grant authority · attested granters + capped delegation + coverage");
 {
   const clientC = new VHClient(url);
   await clientC.join("Carol", "eng");
   await waitFor(() => clientC.peers.size >= 1);
   const aliceIdC = [...clientC.peers.values()].find((x) => x.name === "Alice")?.id;
+  /* wait for Alice to discover Carol — peer tables converge independently */
+  await waitFor(() => [...clientA.peers.values()].some((x) => x.name === "Carol"));
+  const carolIdA = [...clientA.peers.values()].find((x) => x.name === "Carol")?.id;
 
   /* RULE 1: an unattested signer cannot mint authorizations */
   const naked = await clientC.authorize(aliceIdC, "anything_at_all", { ttlMs: 3_600_000 });
   check("unattested granter REJECTED",      !naked.ok && naked.reason === "policy:grantor-unattested");
 
-  /* attestation via endorsement received: Alice endorses Carol */
-  const carolIdA = [...clientA.peers.values()].find((x) => x.name === "Carol")?.id;
+  /* attestation via endorsement received: Alice endorses Carol.
+     v0.10.4: endorsement supplies STANDING (who may delegate) but not SCOPE.
+     Carol now passes the attestation test and fails the coverage test — the
+     distinct reason proves the two rules are independent. */
   await clientA.endorse(carolIdA, 4, "trusted teammate");
-  const attested = await clientC.authorize(aliceIdC, "review_docs", { ttlMs: 3_600_000 });
-  check("endorsed granter ACCEPTED",         attested.ok === true);
+  const endorsedNoScope = await clientC.authorize(aliceIdC, "review_docs", { ttlMs: 3_600_000 });
+  check("endorsed but uncovered REJECTED (scope, not standing)",
+        !endorsedNoScope.ok && endorsedNoScope.reason === "policy:grantor-holds-nothing");
+
+  /* RULE 5 (NEW, v0.10.6) — A CLAIM IS NOT A LICENCE.
+     Carol DECLARES review-queue authority. Under 0.10.5 that declaration made
+     her delegable. It does not: a self-signed capability is descriptive. */
+  await clientC.declareCapability(["delegate:review-queue"], { runtime: "node" });
+  const claimedOnly = await clientC.authorize(aliceIdC, "review_docs", { ttlMs: 3_600_000, scope: "review-queue" });
+  check("RULE 5 · self-declared capability cannot license a grant REJECTED",
+        !claimedOnly.ok && claimedOnly.reason === "policy:capability-claim-is-not-authority");
+
+  /* …and the SAME token is delegable once the operator-authorized identity
+     GIVES it. Provenance, not prohibition. */
+  await clientA.declareCapability(["delegate:review-queue"], { runtime: "node" });
+  const givenByAlice = await clientA.authorize(carolIdA, "delegate:review-queue", { scope: "review-queue", ttlMs: 3_600_000 });
+  const attested = await clientC.authorize(aliceIdC, "review_docs", { ttlMs: 3_600_000, scope: "review-queue" });
+  check("RULE 5 · the same token GIVEN by an authorized issuer is delegable ACCEPTED",
+        givenByAlice.ok === true && attested.ok === true, { givenByAlice, attested });
+
+  /* RULE 3 (NEW, v0.10.4): a granter may not widen. Carol holds delegate:review-queue
+     and a bare "review_docs" grant authority; neither covers another scope. */
+  const widen = await clientC.authorize(aliceIdC, "review_docs", { ttlMs: 3_600_000, scope: "payroll" });
+  check("out-of-scope grant REJECTED",       !widen.ok && widen.reason === "policy:grantor-out-of-scope", widen);
+
+  /* RULE 3 on wildcards: a narrow capability can never be widened to "*" */
+  const wild = await clientC.authorize(aliceIdC, "*", { ttlMs: 3_600_000 });
+  check("wildcard from narrow REJECTED",     !wild.ok && wild.reason === "policy:wildcard-grant-requires-wildcard-authority", wild);
+
+  /* ── REGRESSION: self-attestation amplification (the v0.10.4 defect) ──
+     A read-only identity must not be able to mint purchase-order authority.
+     This is the exact chain the WeClawArena governance family probes. */
+  const feed = new VHClient(url);
+  await feed.join("MarketFeed", "eavesdropper");
+  await waitFor(() => feed.peers.size >= 1);
+  await feed.declareCapability(["read:public"], { runtime: "node" });
+  const esc = await feed.authorize(aliceIdC, "write:purchase_orders", { ttlMs: 3_600_000 });
+  check("read-only ⇒ no purchase authority REJECTED",
+        !esc.ok && esc.reason === "policy:grantor-holds-nothing");
 
   /* RULE 2: delegated grant chains to an attested root via a live parent grant.
-     Alice (attested root) must first grant Carol — delegation is never self-invented. */
-  await clientA.authorize(carolIdA, "delegate_review", { ttlMs: 3_600_000 });
+     Sub-delegation may NARROW, never widen: Alice grants Carol read_reports,
+     so Carol can pass read_reports on — and nothing else. */
   const bobIdC = [...clientC.peers.values()].find((x) => x.name === "Bob")?.id;
+  await clientA.declareCapability(["read_reports"], { runtime: "node" });
+  await clientA.authorize(carolIdA, "read_reports", { ttlMs: 3_600_000 });
   const delegated = await clientC.authorize(bobIdC, "read_reports", {
     ttlMs: 3_600_000, authority: { root: clientA.me.fp, depth: 1 },
   });
   check("delegated grant (depth 1) ACCEPTED", delegated.ok === true);
+
+  const escalate = await clientC.authorize(bobIdC, "write_payroll", {
+    ttlMs: 3_600_000, authority: { root: clientA.me.fp, depth: 1 },
+  });
+  check("sub-delegation cannot widen REJECTED",
+        !escalate.ok && escalate.reason === "policy:grantor-out-of-scope");
 
   /* depth cap: config maxDelegationDepth = 2 */
   const tooDeep = await clientC.authorize(bobIdC, "deep_action", {
@@ -388,11 +453,223 @@ section("Grant authority · attested granters + capped delegation");
     action: "y", scope: "*", policy: "default", expiresAt: Date.now() + 3_600_000, authority: { root: "abc" }, ts: Date.now() });
   check("malformed authority REJECTED",      !malformed.ok && malformed.reason.includes("malformed-authority"));
 
+  /* ── RULE 4 (NEW, v0.10.5) · UNBOUNDED AUTHORITY IS NEVER A SELF-CLAIM ──
+     Found by the 17.10.3 adversarial campaign. RULE 3 asked whether a granter
+     HOLDS what it hands out — but "holding" was established by a self-signed
+     capability declaration, so any participant could declare ["*"] (or
+     ["delegate:*"]) and mint unbounded authority in two messages: the same
+     amplification 17.10 closed, one level up. A "*"-class token now counts
+     only when the harbour root (or an operator-listed fingerprint,
+     VH_WILDCARD_AUTHORITIES) DESIGNATED the holder. */
+  const sybil = new VHClient(url);
+  await sybil.join("WildSybil", "unknown");
+  await waitFor(() => sybil.peers.size >= 1);
+  await sybil.declareCapability(["*"], { runtime: "node" });
+  const aliceForSybil = [...sybil.peers.values()].find((x) => x.name === "Alice");
+  const sybilStar = await sybil.authorize(aliceForSybil?.id, "*", { ttlMs: 3_600_000 });
+  check("RULE 4 · self-declared '*' cannot mint '*' REJECTED",
+        !sybilStar.ok && sybilStar.reason === "policy:wildcard-authority-not-designated");
+
+  const sybil2 = new VHClient(url);
+  await sybil2.join("DelegateSybil", "unknown");
+  await waitFor(() => sybil2.peers.size >= 1);
+  await sybil2.declareCapability(["delegate:*"], { runtime: "node" });
+  const aliceForSybil2 = [...sybil2.peers.values()].find((x) => x.name === "Alice");
+  const sybilScoped = await sybil2.authorize(aliceForSybil2?.id, "write:payroll", { scope: "payroll", ttlMs: 3_600_000 });
+  check("RULE 4 · self-declared 'delegate:*' cannot confer payroll REJECTED",
+        !sybilScoped.ok && sybilScoped.reason === "policy:wildcard-authority-not-designated");
+
+  /* the rule is exact — and the DESIGNATION path is proven at unit level, so
+     the check is not merely "wildcards never work" */
+  const capLinks = (fp, caps) => [{ payloadStr: JSON.stringify({ v: 2, kind: "capability", agent: { n: "X", fp }, capabilities: caps, meta: {}, ts: Date.now() }) }];
+  check("RULE 4 · claimed '*' refused without designation",
+        canDelegate("FP-WILD", "*", "*", capLinks("FP-WILD", ["*"])).reason === "wildcard-authority-not-designated");
+  check("RULE 4 · designation makes the SAME claim usable",
+        canDelegate("FP-WILD", "*", "*", capLinks("FP-WILD", ["*"]), Date.now(), { wildcardAuthorities: ["FP-WILD"] }).ok === true);
+  check("RULE 4 · unbounded authority is not transitive",
+        canDelegate("FP-CHILD", "*", "*", [{ payloadStr: JSON.stringify({ v: 2, kind: "authorization", from: { n: "R", fp: "FP-WILD" }, subject: { n: "C", fp: "FP-CHILD" }, action: "*", scope: "*", expiresAt: Date.now() + 60_000 }) }], Date.now(), { wildcardAuthorities: ["FP-WILD"] }).reason === "wildcard-authority-not-designated");
+  /* RULE 5 supersedes the last line of RULE 4's story: a NAMED claim was never
+     only about wildcards. Unbounded claims are refused by the designation rule;
+     named ones are refused because a claim is not a licence at all. */
+  check("RULE 5 · a NAMED claim is not authority either",
+        canDelegate("FP-NAMED", "write:offers", "offers", capLinks("FP-NAMED", ["write:offers"])).reason === "capability-claim-is-not-authority");
+  check("RULE 5 · …and designation makes the same named claim delegable",
+        canDelegate("FP-NAMED", "write:offers", "offers", capLinks("FP-NAMED", ["write:offers"]), Date.now(), { authorities: ["FP-NAMED"] }).ok === true);
+  /* RULE 5 lineage: a designated identity's successor inherits designation when
+     the ledger records a rotation (the harbour only records one after verifying
+     a proof from the OUTGOING key). Without the record, it inherits nothing. */
+  const rot = (from, to) => ({ payloadStr: JSON.stringify({ kind: "rotate", who: "X", from, to }) });
+  check("RULE 5 · designation follows a PROVEN rotation",
+        canDelegate("FP-NEW", "write:offers", "offers",
+          [...capLinks("FP-NEW", ["write:offers"]), rot("FP-OLD", "FP-NEW")], Date.now(), { authorities: ["FP-OLD"] }).ok === true);
+  check("RULE 5 · without the rotation record the same claim is just a claim",
+        canDelegate("FP-NEW", "write:offers", "offers",
+          capLinks("FP-NEW", ["write:offers"]), Date.now(), { authorities: ["FP-OLD"] }).reason === "capability-claim-is-not-authority");
+  /* Deliberate asymmetry, pinned so nobody "fixes" it later: designation follows
+     the IDENTITY (operator intent), but GRANTS and REVOCATIONS stay keyed to the
+     exact fingerprint that was named. If grants followed lineage, a revoked key
+     could rotate once and walk out of its own revocation. Fail closed. */
+  const grantTo = (subject) => ({ payloadStr: JSON.stringify({ v: 2, kind: "authorization",
+    from: { n: "R", fp: "FP-ROOT" }, subject: { n: "S", fp: subject }, action: "read_reports",
+    scope: "default", expiresAt: Date.now() + 60_000 }) });
+  check("RULE 5 · a rotation does NOT carry GRANTS across (no revocation escape)",
+        canDelegate("FP-NEW", "read_reports", undefined,
+          [grantTo("FP-OLD"), rot("FP-OLD", "FP-NEW")], Date.now(), { authorities: ["FP-OLD"] }).reason === "grantor-holds-nothing");
+  /* …and the lineage trust root: "rotate" is not a member-submittable kind, so
+     a participant cannot mint its own predecessor out of thin air. */
+  check("RULE 5 · lineage records are never member-submittable",
+        !VOUCH_KINDS.includes("rotate") && !VOUCH_KINDS.includes("join"));
+  /* RULE 1 × RULE 5: designation is the operator's own statement about who an
+     identity is, so it satisfies attestation by construction. Without this a
+     designated key would still be refused as grantor-unattested — the trap that
+     makes an operator believe it has delegated authority it cannot use. */
+  check("RULE 5 · an operator-designated identity is attested by construction",
+        isAttested("FP-OP", capLinks("FP-OP", ["anything"]), Date.now(), { authorities: ["FP-OP"] }) === true);
+
+  sybil.disconnect();
+  sybil2.disconnect();
+
+  /* ── RULE 5 (NEW, v0.10.6) · A CLAIM IS NOT A LICENCE ──
+     Found by the review of the 17.10.3 campaign: RULES 3+4 left a NAMED
+     self-declared capability counting as delegable authority, so a participant
+     could simply declare ["write:payroll"] and mint a real payroll grant —
+     no "*", no forgery, no collusion. Provenance now decides: live grant, or
+     an operator-authorized identity's declaration. Nothing else. */
+  const claimer = new VHClient(url);
+  await claimer.join("PayrollClaimer", "unknown");
+  await waitFor(() => claimer.peers.size >= 1);
+  await claimer.declareCapability(["write:payroll"], { runtime: "node" });
+  const claimerAlice = [...claimer.peers.values()].find((x) => x.name === "Alice");
+  const claimedPayroll = await claimer.authorize(claimerAlice?.id, "write:payroll", { scope: "payroll", ttlMs: 3_600_000 });
+  check("RULE 5 · self-declared 'write:payroll' cannot mint payroll REJECTED",
+        !claimedPayroll.ok && claimedPayroll.reason === "policy:capability-claim-is-not-authority");
+
+  const adminClaimer = new VHClient(url);
+  await adminClaimer.join("FinanceAdminClaimer", "unknown");
+  await waitFor(() => adminClaimer.peers.size >= 1);
+  await adminClaimer.declareCapability(["admin:finance"], { runtime: "node" });
+  const adminAlice = [...adminClaimer.peers.values()].find((x) => x.name === "Alice");
+  const claimedAdmin = await adminClaimer.authorize(adminAlice?.id, "write:ledger", { scope: "finance", ttlMs: 3_600_000 });
+  check("RULE 5 · self-declared 'admin:finance' cannot confer finance authority REJECTED",
+        !claimedAdmin.ok && claimedAdmin.reason === "policy:capability-claim-is-not-authority");
+
+  const claimLinks = (fp, caps) => [{ payloadStr: JSON.stringify({ v: 2, kind: "capability", agent: { n: "X", fp }, capabilities: caps, meta: {}, ts: Date.now() }) }];
+  check("RULE 5 · an unauthorized claim yields NO delegable token",
+        delegableTokens("FP-CLAIM", claimLinks("FP-CLAIM", ["write:payroll"])).size === 0);
+  check("RULE 5 · the SAME claim is delegable once the operator authorizes it",
+        delegableTokens("FP-AUTH", claimLinks("FP-AUTH", ["write:payroll"]), Date.now(), { authorities: ["FP-AUTH"] }).has("write:payroll"));
+  check("RULE 5 · a live grant is delegable with no declaration at all",
+        delegableTokens("FP-GIVEN", [{ payloadStr: JSON.stringify({ v: 2, kind: "authorization", from: { n: "R", fp: "FP-AUTH" }, subject: { n: "G", fp: "FP-GIVEN" }, action: "write:ledger", scope: "finance", expiresAt: Date.now() + 60_000 }) }]).has("write:ledger"));
+
+  claimer.disconnect();
+  adminClaimer.disconnect();
+
+  /* ── RULE 6 (NEW, v0.10.7) · POSSESSION, AND WHO MAY REVOKE WHOM ──
+     The compromise campaign measured two bounds that were not privilege
+     escalation but were real: (a) a rotation proof showed CONTINUITY from the
+     outgoing key but never possession of the INCOMING one, so a member could
+     name an offline identity's public bundle as its successor and squat that
+     fingerprint; (b) ANY member could file a revocation against a DESIGNATED
+     identity and switch the principal off — stickily, since re-declaring did
+     not restore it. Both are closed here and pinned below. */
+
+  /* (a) possession. Build both halves by hand so each failure mode is isolated. */
+  const rotA = await VH.generateIdentity();
+  const rotAOldFp = await VH.fingerprint(rotA.sign.publicJwk);
+  const { proof: goodRot } = await VH.rotateIdentity(rotA);
+  check("RULE 6 · a rotation proves possession of the NEW key",
+        await VH.verifyRotationProof(goodRot, rotA.sign.publicJwk, { oldFp: rotAOldFp }) === true);
+  const noPop = { newBundle: goodRot.newBundle, ts: goodRot.ts, sig: goodRot.sig };
+  check("RULE 6 · a continuity-only proof (no possession) is REFUSED",
+        await VH.verifyRotationProof(noPop, rotA.sign.publicJwk, { oldFp: rotAOldFp }) === false);
+  const rotB = await VH.generateIdentity();
+  const bundleA = await VH.publicBundle(aN);
+  const wrongKeyPop = { newBundle: goodRot.newBundle, ts: goodRot.ts, sig: goodRot.sig,
+    pop: await VH.sign(rotB.sign.privateKey, `${VH.PROTOCOL.rotatePopPrefix}|${rotAOldFp}|${goodRot.newBundle.fp}|${goodRot.ts}`) };
+  check("RULE 6 · possession signed by the WRONG key is REFUSED",
+        await VH.verifyRotationProof(wrongKeyPop, rotA.sign.publicJwk, { oldFp: rotAOldFp }) === false);
+  check("RULE 6 · possession bound to a DIFFERENT caller fingerprint is REFUSED",
+        await VH.verifyRotationProof(goodRot, rotA.sign.publicJwk, { oldFp: await VH.fingerprint(rotB.sign.publicJwk) }) === false);
+  check("RULE 6 · possession cannot be verified without the caller fingerprint",
+        await VH.verifyRotationProof(goodRot, rotA.sign.publicJwk) === false);
+  void bundleA;
+
+  /* live: a joined member tries to squat an OFFLINE identity's fingerprint. It
+     holds the continuity key but not the incoming private key, so it can produce
+     only the two broken proofs — and the real keyholder must still be able to join.
+     Two sockets, because the harbour rate-limits rotation to 1/60s per socket. */
+  const victimId = await VH.generateIdentity();
+  const victimBundle = await VH.publicBundle(victimId);
+  const sqTs = Date.now();
+
+  const squatterId = await VH.generateIdentity();
+  const squatter = new VHClient(url);
+  await squatter.join("Squatter", "unknown", { identity: squatterId });
+  await waitFor(() => squatter.peers.size >= 1);
+  const squatNoPop = await squatter._emit("key:rotate", {
+    newBundle: victimBundle, ts: sqTs,
+    sig: await VH.sign(squatterId.sign.privateKey, `${VH.PROTOCOL.rotatePrefix}|${JSON.stringify(victimBundle)}|${sqTs}`),
+  });
+  check("RULE 6 · offline-fingerprint squatting REFUSED (no possession proof)",
+        squatNoPop?.ok === false && squatNoPop.reason === "invalid-rotation-proof");
+
+  const squatter2Id = await VH.generateIdentity();
+  const squatter2 = new VHClient(url);
+  await squatter2.join("Squatter2", "unknown", { identity: squatter2Id });
+  await waitFor(() => squatter2.peers.size >= 1);
+  const squatBadPop = await squatter2._emit("key:rotate", {
+    newBundle: victimBundle, ts: sqTs,
+    sig: await VH.sign(squatter2Id.sign.privateKey, `${VH.PROTOCOL.rotatePrefix}|${JSON.stringify(victimBundle)}|${sqTs}`),
+    pop: await VH.sign(squatter2Id.sign.privateKey, `${VH.PROTOCOL.rotatePopPrefix}|${squatter2Id.fp}|${victimBundle.fp}|${sqTs}`),
+  });
+  check("RULE 6 · offline-fingerprint squatting REFUSED (wrong-key possession)",
+        squatBadPop?.ok === false && squatBadPop.reason === "invalid-rotation-proof");
+
+  const victim = new VHClient(url);
+  let victimJoin = null;
+  try { victimJoin = await victim.join("Victim", "staff", { identity: victimId }); }
+  catch (e) { victimJoin = { reason: String(e?.message ?? e) }; }
+  check("RULE 6 · the squatted fingerprint is still FREE for its real keyholder",
+        victimJoin?.fp === victimBundle.fp);
+  victim.disconnect(); squatter.disconnect(); squatter2.disconnect();
+
+  /* (b) revocation authority. Pure layer first: a stranger's revocation against a
+     DESIGNATED identity is inert, everywhere it could bite. */
+  const opClaim = [{ payloadStr: JSON.stringify({ v: 2, kind: "capability", agent: { n: "OP", fp: "FP-OP" }, capabilities: ["write:payroll"] }) }];
+  const strangerRev = (target, action, by = "FP-STRANGER") => ({ payloadStr: JSON.stringify({ v: 2, kind: "revocation", from: { n: "S", fp: by }, target: { fp: target, action } }) });
+  const opLinks = [...opClaim, strangerRev("FP-OP", "write:payroll")];
+  check("RULE 6 · a stranger cannot strip a DESIGNATED identity's declared capability",
+        delegableTokens("FP-OP", opLinks, Date.now(), { authorities: ["FP-OP"] }).has("write:payroll"));
+  check("RULE 6 · …and cannot strip its attestation either",
+        isAttested("FP-OP", opLinks, Date.now(), { authorities: ["FP-OP"] }) === true);
+  check("RULE 6 · …nor switch it off with a blanket '*' record",
+        delegableTokens("FP-OP", [...opClaim, strangerRev("FP-OP", "*")], Date.now(), { authorities: ["FP-OP"] }).has("write:payroll"));
+  check("RULE 6 · an AUTHORISED writer CAN withdraw designated authority",
+        delegableTokens("FP-OP", [...opClaim, strangerRev("FP-OP", "write:payroll", "FP-OP")], Date.now(), { authorities: ["FP-OP"] }).size === 0);
+  /* …and the fix must not over-reach: ordinary identities are revocable as before. */
+  const plainClaim = [{ payloadStr: JSON.stringify({ v: 2, kind: "capability", agent: { n: "P", fp: "FP-PLAIN" }, capabilities: ["write:notes"] }) }];
+  check("RULE 6 · an ORDINARY identity's claim is still revocable by a peer (unchanged)",
+        delegableTokens("FP-PLAIN", [...plainClaim, strangerRev("FP-PLAIN", "write:notes")]).size === 0);
+  check("RULE 6 · authorityFps() resolves the managing set through recorded rotations",
+        authorityFps([{ payloadStr: JSON.stringify({ kind: "rotate", from: "FP-OLD", to: "FP-NEW" }) }], { authorities: ["FP-OLD"] }).has("FP-NEW"));
+
+  /* live: the same attack through the harbour — refused at submission, and the
+     designated identity keeps working (Alice is the suite's designated principal). */
+  const dosAttempt = await clientC.revoke({ fp: clientA.me.fp, action: "*" }, "governance DoS attempt");
+  check("RULE 6 · the harbour REFUSES a member's revocation of a designated identity",
+        dosAttempt?.ok === false && dosAttempt.reason === "policy:revocation-requires-authority");
+  const carolIdForA = [...clientA.peers.values()].find((x) => x.name === "Carol")?.id;
+  const stillWorks = await clientA.authorize(carolIdForA, "read_reports", { scope: "*", ttlMs: 3_600_000 });
+  check("RULE 6 · …and the designated identity still hands authority out afterwards",
+        stillWorks?.ok === true);
+
   /* revocation of attestation kills future granting */
-  await clientA.revoke({ fp: clientC.me.fp, kind: "capability", action: "*" }, "trust withdrawn");
+  const revokeRes = await clientA.revoke({ fp: clientC.me.fp, kind: "capability", action: "*" }, "trust withdrawn");
+  check("revocation of a peer's attestation is ACCEPTED (submission)", revokeRes?.ok === true, JSON.stringify(revokeRes));
   const postRevoke = await clientC.authorize(aliceIdC, "after_revoke", { ttlMs: 3_600_000 });
   check("revoked attestation blocks grants", !postRevoke.ok && postRevoke.reason === "policy:grantor-unattested");
   clientC.disconnect();
+  feed.disconnect();
 }
 
 /* checkpoint */
@@ -411,6 +688,8 @@ check("healthz has no 'quantum-safe'",       !JSON.stringify(health).includes("q
 const metricsRes = await (await fetch(url + "/metrics")).json();
 check("metrics: vouches counted",            metricsRes.vouchAccepted >= 3);
 check("metrics: bindingRejected tracked",    typeof metricsRes.bindingRejected === "number");
+check("metrics: rotationRejected tracked",   metricsRes.rotationRejected >= 2);
+check("metrics: revocationRejected tracked", metricsRes.revocationRejected >= 1);
 
 clientA.disconnect();
 clientB.disconnect();

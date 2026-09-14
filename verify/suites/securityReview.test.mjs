@@ -162,9 +162,9 @@ async function verifyIssuerSignature(chainHashHex, sigHex, publicKeyHex) {
 }
 
 // src/version.ts
-var VH_VERSION = "17.6.2";
-var VH_SHORT = "17.6";
-var VH_CODENAME = "Patina";
+var VH_VERSION = "17.10.7";
+var VH_SHORT = "17.10";
+var VH_CODENAME = "WarrantTeams";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/securityReview.ts
@@ -225,14 +225,24 @@ function securityScope() {
       evidence: "probe/crossHarbor (9 tests incl. replay) \xB7 probe/interop (two process-isolated machines) \xB7 protocol/bridge/bridge-selftest (zero-install 17/17)"
     },
     {
-      surface: "Grant authority \u2014 delegation control (protocol v0.10.3)",
-      posture: "An authorization is accepted only from an ATTESTED granter (unrevoked capability declaration or live vouch); delegated grants must name an attested root and a live parent grant, depth \u2264 maxDelegationDepth (default 2); capability revocation strips attestation live.",
-      evidence: "protocol selftest gate 129/129 (grant-authority section) \xB7 protocol/THREAT-MODEL.md \xB7 benchmark/run.mjs B3"
+      surface: "Grant authority \u2014 bounded delegation, designated unbounded authority, authority provenance (protocol v0.10.7)",
+      posture: "An authorization is accepted only from an ATTESTED granter (unrevoked capability declaration or live vouch) \u2014 and that granter may only hand out authority it HOLDS: the exact action, a scope token (delegate:<scope> / admin:<scope>), or `*` where it itself carries `*`-class authority. Sub-delegation may narrow, never widen; delegated grants name an attested root and a live parent grant, depth \u2264 maxDelegationDepth (default 2); coverage is re-checked at consumption, so a narrowed or revoked issuer stops working; replayed grants are refused. RULE 4: unbounded (`*`-class) authority is never a SELF-CLAIM \u2014 a `*`, `delegate:*` or `admin:*` token counts only when the harbour root key or an operator-designated fingerprint (VH_WILDCARD_AUTHORITIES) holds it, and it is never transitive. RULE 5: a capability CLAIM is not a licence \u2014 delegable authority comes only from a live grant naming the fingerprint as subject, or a declaration by an operator-authorized identity (VH_AUTHORITIES; the harbour root key always qualifies; the v0.10.5 name VH_WILDCARD_AUTHORITIES is still read), refused otherwise as capability-claim-is-not-authority. RULE 6: a key rotation must prove POSSESSION of the incoming key (a second signature over VH-ROTATE-POP-v1 | oldFp | newFp | ts, bound to the caller fingerprint) so a member cannot squat an offline identity's fingerprint; and a revocation against a DESIGNATED identity is honoured only from an authorised writer (refused as policy:revocation-requires-authority, ignored at consumption), so no member can switch off the principal that hands authority out. Designation follows the identity across a harbour-verified key rotation; grants and revocations stay keyed to the exact fingerprint, so a revoked key cannot rotate out of its own revocation. Posture selector VH_GRANT_POLICY = strict (default) / compat (migration only \u2014 reopens the defects) / off (fixtures).",
+      evidence: "protocol/wcarena/adversarial-campaign.mjs (14/14 attack classes refused, legitimate control intact; self-contained \u2014 it starts its own harbour with an operator-designated identity) \xB7 protocol/wcarena/v104-authority-matrix.mjs (10/10 \u2014 re-based on given authority: the operator's grants accepted end-to-end, six amplification routes refused) \xB7 protocol/wcarena/governance-attacks.mjs (legitimate control permitted; poisoned consent, attacker-supplied mandate, stale replay and forged approval all refused) \xB7 protocol/wcarena/warrant-compromise-campaign.mjs (22/22 refused, control intact \u2014 RULE 6: rotation possession + revocation authority) \xB7 protocol selftest \u2014 grant-authority section, 171 checks (run steps: protocol/README-TEST.md) \xB7 protocol/THREAT-MODEL.md Decision 3 \xB7 benchmark/run.mjs B3"
     },
     {
-      surface: "External-agent boundary \u2014 the interop CLI (17.6.2)",
+      surface: "External-agent boundary \u2014 the interop CLI (17.10.3)",
       posture: "Non-Patina agents enter through tools/vh-interop.mjs: same rulebook as the live product, zero npm dependencies, exit code 1 + refusal in words on any failed proof; transport packs carry proof and identity only \u2014 never content.",
       evidence: "probe/interop (tamper + replay refusals across the process boundary) \xB7 benchmark/run.mjs B1 (same rulebook)"
+    },
+    {
+      surface: "Content gate \u2014 the GuardRail (Warrant-Teams)",
+      posture: "One decision seam (src/security/guardrail.ts) in front of every content-bearing surface: tool calls, stored memory, teammate descriptions and cross-harbor payloads are injection-scanned and sanitized; durable memory is capped and injection-poisoned facts are refused outright; the expression sandbox refuses ALL computed member access and ships frozen global facades; SSRF-shaped egress URLs (cloud metadata, link-local, non-http(s)) are refused; approval ids are cryptographically random, single-use and TTL-expiring. Deny by default; findings are refusals, never warnings.",
+      evidence: "probe/guardrail.test.ts (pinned PoCs for both sandbox escapes, injection battery, egress refusals) \xB7 probe/harborTeams.test.ts (poisoned description / poisoned task refusals) \xB7 probe/a2aV10.test.ts \xA7D (injection refused at the A2A transport before any task state)"
+    },
+    {
+      surface: "A2A v1.0 transport \u2014 the remote-agent boundary (Warrant-Teams)",
+      posture: "Real Linux-Foundation A2A 1.0.0 wire, not a v1-style shape: agent cards carry NO top-level url/protocolVersion (supportedInterfaces carries them), securitySchemes is a map of discriminated unions, cards are JWS-signed over canonical bytes (any mutation breaks verification) and discovery REFUSES legacy-shape cards. The server binds loopback by default, enforces declared securitySchemes through an authorize hook, content-gates inbound text through the GuardRail before touching task state, refuses replayed request fingerprints within a 30s window, caps bodies at 1 MiB and audits every decision. Cross-harbor delegation over the wire keeps the full ladder: unverified cards carry nothing, injection hard-refuses on BOTH sides, dual SHA-256 digests make the artifact tamper-evident, TTL 10 min, each side's replay registry settles a delegation exactly once.",
+      evidence: "probe/a2aV10.test.ts \u2014 53 checks: strict schema, JWS sign/verify + tamper, well-known discovery, message/send + task lifecycle, SSE streaming, push webhooks with Authorization, auth enforcement, replay + injection + egress refusals, and USER 1 \u21C4 USER 2 dual-gate delegation over the wire"
     }
   ];
 }

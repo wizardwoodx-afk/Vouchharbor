@@ -20920,9 +20920,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "17.6.2";
-    VH_SHORT = "17.6";
-    VH_CODENAME = "Patina";
+    VH_VERSION = "17.10.7";
+    VH_SHORT = "17.10";
+    VH_CODENAME = "WarrantTeams";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -21190,6 +21190,190 @@ var init_proof = __esm({
   }
 });
 
+// src/security/guardrail.ts
+function sanitizeText(text, maxLen = 2e3) {
+  return text.replace(CONTROL_CHARS, "").replace(INVISIBLE_UNICODE, "").slice(0, maxLen).trim();
+}
+function detectInjection(text) {
+  if (!text) return [];
+  const findings = [];
+  for (const d of INJECTION_DETECTORS) {
+    if (d.test(text)) findings.push({ code: d.code, reason: d.reason });
+  }
+  return findings;
+}
+function scanArgs(value, depth = 0) {
+  if (depth > MAX_ARG_DEPTH) {
+    return { code: "args-too-deep", reason: `arguments nested deeper than ${MAX_ARG_DEPTH} levels \u2014 refused` };
+  }
+  if (typeof value === "string") {
+    if (value.length > MAX_ARG_STRING_CHARS) {
+      return { code: "arg-string-too-large", reason: `a string argument exceeds ${MAX_ARG_STRING_CHARS} chars \u2014 refused` };
+    }
+    return null;
+  }
+  if (Array.isArray(value)) {
+    if (value.length > 1e4) {
+      return { code: "args-too-many", reason: "an array argument exceeds 10,000 entries \u2014 refused" };
+    }
+    for (const item of value) {
+      const r = scanArgs(item, depth + 1);
+      if (r) return r;
+    }
+    return null;
+  }
+  if (value !== null && typeof value === "object") {
+    for (const key of Object.keys(value)) {
+      if (POISON_KEYS.has(key)) {
+        return { code: "prototype-pollution", reason: `argument key "${key}" is a prototype-pollution vector \u2014 refused` };
+      }
+      const r = scanArgs(value[key], depth + 1);
+      if (r) return r;
+    }
+    return null;
+  }
+  return null;
+}
+function checkEgressUrl(raw) {
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    return { ok: false, reason: "not a parseable URL" };
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    return { ok: false, reason: `scheme "${u.protocol}" refused \u2014 only http(s) egress is allowed` };
+  }
+  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "169.254.169.254" || host === "metadata.google.internal") {
+    return { ok: false, reason: "cloud metadata endpoint refused (SSRF guard)" };
+  }
+  if (/^169\.254\./.test(host)) {
+    return { ok: false, reason: "link-local address refused (SSRF guard)" };
+  }
+  if (host === "0.0.0.0" || host === "::") {
+    return { ok: false, reason: "unspecified address refused" };
+  }
+  for (const sfx of BLOCKED_HOST_SUFFIXES) {
+    if (host.endsWith(sfx)) return { ok: false, reason: `host suffix "${sfx}" refused` };
+  }
+  return { ok: true, reason: "" };
+}
+function scanToolCall(tool, args) {
+  if (!TOOL_NAME_RE.test(tool)) {
+    return { ok: false, code: "bad-tool-name", reason: `tool name "${String(tool).slice(0, 40)}" refused \u2014 names are [a-z0-9_] only` };
+  }
+  const argFinding = scanArgs(args);
+  if (argFinding) return { ok: false, code: argFinding.code, reason: argFinding.reason };
+  let serialized = "";
+  try {
+    serialized = JSON.stringify(args ?? {});
+  } catch {
+    return { ok: false, code: "args-not-serializable", reason: "arguments are not plain JSON \u2014 refused" };
+  }
+  if (serialized.length > MAX_ARG_JSON_CHARS) {
+    return { ok: false, code: "args-too-large", reason: `arguments exceed ${MAX_ARG_JSON_CHARS} chars serialized \u2014 refused` };
+  }
+  if (!callRateGate.check(tool)) {
+    return { ok: false, code: "rate-limited", reason: `tool "${tool}" exceeded its rate budget \u2014 slow down` };
+  }
+  const warnings = [];
+  const walk = (v) => {
+    if (typeof v === "string") {
+      for (const f of detectInjection(v)) warnings.push(`${f.code}: ${f.reason}`);
+    } else if (Array.isArray(v)) {
+      for (const x of v) walk(x);
+    } else if (v !== null && typeof v === "object") {
+      for (const x of Object.values(v)) walk(x);
+    }
+  };
+  walk(args);
+  return { ok: true, warnings };
+}
+function secureId(prefix) {
+  const c = globalThis.crypto;
+  const hex3 = (bytes) => [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (c && typeof c.randomUUID === "function") return `${prefix}${c.randomUUID().replace(/-/g, "")}`;
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return `${prefix}${hex3(bytes)}`;
+  }
+  throw new Error("no secure random source available \u2014 refusing to mint an id");
+}
+var CONTROL_CHARS, INVISIBLE_UNICODE, INJECTION_DETECTORS, POISON_KEYS, MAX_ARG_DEPTH, MAX_ARG_JSON_CHARS, MAX_ARG_STRING_CHARS, RateGate, BLOCKED_HOST_SUFFIXES, TOOL_NAME_RE, callRateGate;
+var init_guardrail = __esm({
+  "src/security/guardrail.ts"() {
+    "use strict";
+    CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+    INVISIBLE_UNICODE = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF\u{E0000}-\u{E007F}]/gu;
+    INJECTION_DETECTORS = [
+      {
+        code: "role-hijack",
+        reason: "content tries to override the agent's role or instructions",
+        test: (t) => /ignore\s+(all\s+|any\s+|previous\s+|prior\s+|above\s+)*instructions/i.test(t) || /disregard\s+(all\s+|any\s+|previous\s+|prior\s+)*instructions/i.test(t) || /you\s+are\s+now\s+(a|an|in)\b/i.test(t) || /new\s+system\s+prompt/i.test(t)
+      },
+      {
+        code: "fake-system-marker",
+        reason: "content contains forged system/role delimiters",
+        test: (t) => /<\/?\s*system\s*>/i.test(t) || /\[\s*(SYSTEM|INST|SYS)\s*\]/i.test(t) || /^system\s*:/im.test(t) && /assistant\s*:/i.test(t)
+      },
+      {
+        code: "fake-tool-call",
+        reason: "content embeds forged tool/function-call markup",
+        test: (t) => /\[\s*tool(_use|_call|_result)?\s*\]/i.test(t) || /<\s*\/?\s*(antml|function_call|tool_use|invoke)\b/i.test(t) || /\{\s*"name"\s*:\s*"[a-z0-9_.-]{1,64}"\s*,\s*"arguments"/i.test(t)
+      },
+      {
+        code: "encoded-payload",
+        reason: "content carries a long encoded blob (base64-class) that hides instructions from review",
+        test: (t) => /[A-Za-z0-9+/]{80,}={0,2}/.test(t)
+      },
+      {
+        code: "exfiltration-prompt",
+        reason: "content asks for credentials/secrets to be sent somewhere",
+        test: (t) => /(api[_ -]?key|secret[_ -]?key|access[_ -]?token|password|credentials?).{0,60}(send|post|upload|fetch|transmit|exfiltrate|to\s+https?:)/i.test(t)
+      },
+      {
+        code: "html-data-uri",
+        reason: "content embeds an executable data: URI",
+        test: (t) => /data\s*:\s*text\/html/i.test(t) || /javascript\s*:/i.test(t)
+      },
+      {
+        code: "invisible-characters",
+        reason: "content contains invisible/zero-width characters (smuggling surface)",
+        test: (t) => INVISIBLE_UNICODE.test(t)
+      }
+    ];
+    POISON_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
+    MAX_ARG_DEPTH = 12;
+    MAX_ARG_JSON_CHARS = 262144;
+    MAX_ARG_STRING_CHARS = 1e5;
+    RateGate = class {
+      constructor(limit, windowMs, now = () => Date.now()) {
+        this.limit = limit;
+        this.windowMs = windowMs;
+        this.now = now;
+      }
+      hits = /* @__PURE__ */ new Map();
+      /** Returns true when the action is within budget (and records it). */
+      check(key) {
+        const t = this.now();
+        const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+        if (arr.length >= this.limit) {
+          this.hits.set(key, arr);
+          return false;
+        }
+        arr.push(t);
+        this.hits.set(key, arr);
+        return true;
+      }
+    };
+    BLOCKED_HOST_SUFFIXES = [".internal", ".local", ".localhost"];
+    TOOL_NAME_RE = /^[a-z0-9_]{1,64}$/;
+    callRateGate = new RateGate(120, 6e4);
+  }
+});
+
 // src/vouch/engine/webSearch.ts
 function normalizeWikipedia(json2, query) {
   if (!Array.isArray(json2) || json2.length < 4) return [];
@@ -21310,6 +21494,7 @@ var WEB_PROVIDERS, SOURCE_PRIOR;
 var init_webSearch = __esm({
   "src/vouch/engine/webSearch.ts"() {
     "use strict";
+    init_guardrail();
     WEB_PROVIDERS = [
       {
         id: "wikipedia",
@@ -21341,7 +21526,12 @@ var init_webSearch = __esm({
         kind: "meta",
         needsConfig: true,
         note: "user's own metasearch endpoint \u2014 keeps queries local-first",
-        buildUrl: (q, o) => o?.searxngRoot ? `${o.searxngRoot.replace(/\/$/, "")}/search?q=${encodeURIComponent(q)}&format=json` : null
+        buildUrl: (q, o) => {
+          if (!o?.searxngRoot) return null;
+          const root = o.searxngRoot.replace(/\/$/, "");
+          if (!checkEgressUrl(`${root}/search`).ok) return null;
+          return `${root}/search?q=${encodeURIComponent(q)}&format=json`;
+        }
       },
       {
         id: "brave",
@@ -31682,6 +31872,13 @@ var init_missionLoop = __esm({
   }
 });
 
+// src/mission/assuranceScore.ts
+var init_assuranceScore = __esm({
+  "src/mission/assuranceScore.ts"() {
+    "use strict";
+  }
+});
+
 // src/vouch/engine/bridge.ts
 function mintMissionId() {
   return `mission_${Math.random().toString(36).slice(2, 6)}`;
@@ -31745,6 +31942,7 @@ var init_bridge = __esm({
     "use strict";
     init_missionLoop();
     init_version();
+    init_assuranceScore();
     MissionNotConfiguredError = class extends Error {
     };
     bridgeDeps = null;
@@ -32175,9 +32373,11 @@ function setVouchMode(m) {
   commit();
 }
 function addVouchFact(text) {
-  const t = text.trim();
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, facts: [...session.facts, { id: `f${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: (/* @__PURE__ */ new Date()).toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.facts.length >= 200) return;
+  session = { ...session, facts: [...session.facts, { id: secureId("f"), text: t, ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
 }
 function removeVouchFact(id) {
@@ -32185,9 +32385,11 @@ function removeVouchFact(id) {
   commit();
 }
 function addVouchPreference(text) {
-  const t = text.trim();
+  const t = sanitizeText(text, 300);
   if (!t) return;
-  session = { ...session, preferences: [...session.preferences, { id: `p${Date.now()}${Math.random().toString(36).slice(2, 5)}`, text: t.slice(0, 300), ts: (/* @__PURE__ */ new Date()).toISOString() }] };
+  if (detectInjection(t).length > 0) return;
+  if (session.preferences.length >= 200) return;
+  session = { ...session, preferences: [...session.preferences, { id: secureId("p"), text: t, ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
 }
 function removeVouchPreference(id) {
@@ -32287,10 +32489,15 @@ function vouchWorkspaceFiles() {
   return Object.values(loadWorkspace()).map((f) => ({ name: f.name, chars: f.content.length, updated: f.updated })).sort((a, b) => a.name.localeCompare(b.name));
 }
 function workspaceWrite(name, content) {
+  const safeName = sanitizeText(name, 200) || "untitled.txt";
+  const safeContent = content.slice(0, 2e5);
   const ws = loadWorkspace();
-  ws[name] = { name, content, updated: (/* @__PURE__ */ new Date()).toISOString() };
+  if (ws[safeName] === void 0 && Object.keys(ws).length >= 500) {
+    throw new Error("workspace is full (500 files) \u2014 remove a file before writing a new one");
+  }
+  ws[safeName] = { name: safeName, content: safeContent, updated: (/* @__PURE__ */ new Date()).toISOString() };
   saveWorkspace(ws);
-  return { name, chars: content.length };
+  return { name: safeName, chars: safeContent.length };
 }
 function searchKnowledge(query) {
   const q = query.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((w) => w.length > 2);
@@ -32454,7 +32661,7 @@ function checkPrediction(action, _sim, ok, output2) {
   return true;
 }
 function requestVouchApproval(action, detail) {
-  const id = `a${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
+  const id = secureId("a");
   session = { ...session, approvals: [...session.approvals, { id, action, detail, status: "pending", ts: (/* @__PURE__ */ new Date()).toISOString() }] };
   commit();
   void Promise.resolve().then(() => (init_client(), client_exports)).then(({ isNativeHost: isNativeHost2, ipc: ipc3 }) => {
@@ -32465,12 +32672,19 @@ function requestVouchApproval(action, detail) {
   });
 }
 function resolveVouchApproval(id, ok) {
+  const approval = session.approvals.find((a) => a.id === id);
+  if (!approval) {
+    badApprovalProbeGate.check("unknown-approval-id");
+    return;
+  }
+  if (approval.status !== "pending") return;
+  const expired = Date.now() - new Date(approval.ts).getTime() > APPROVAL_TTL_MS;
   const settle2 = approvalWaiters.get(id);
-  session = { ...session, approvals: session.approvals.map((a) => a.id === id ? { ...a, status: ok ? "approved" : "denied" } : a) };
+  session = { ...session, approvals: session.approvals.map((a) => a.id === id ? { ...a, status: expired ? "expired" : ok ? "approved" : "denied" } : a) };
   commit();
   if (settle2) {
     approvalWaiters.delete(id);
-    settle2(ok);
+    settle2(!expired && ok);
   }
 }
 function setVouchBrain(b) {
@@ -33240,7 +33454,7 @@ async function runVouchToolCall(tool, args, opts = {}) {
     });
     const head = receipt.events.length > 0 ? receipt.events[receipt.events.length - 1].hash : "";
     const ref = {
-      id: `r${Date.now()}${Math.random().toString(36).slice(2, 4)}`,
+      id: secureId("r"),
       mission: receipt.header.mission,
       threadTitle: `${origin} tool call: ${tool}`,
       startedAt,
@@ -33271,6 +33485,15 @@ async function runVouchToolCall(tool, args, opts = {}) {
     return finalize2({ ok: false, output: `Policy denied: ${policy.reason} (rule: ${policy.rule})`, approved: false, simulated: false, mission: null });
   }
   const risky = policy.decision === "steer";
+  const gr = scanToolCall(tool, args);
+  if (!gr.ok) {
+    events.push({ kind: "tool.guardrail_refused", seatId: "vouch-guardrail", data: { tool, code: gr.code, reason: gr.reason } });
+    emitInterrupt(agRunId2, `toolcall:${callId}`, agTcId2, tool, `guardrail: ${gr.reason}`);
+    return finalize2({ ok: false, output: `GuardRail refused ${tool}: ${gr.reason} (code: ${gr.code}) \u2014 nothing executed.`, approved: false, simulated: false, mission: null });
+  }
+  if (gr.warnings.length > 0) {
+    events.push({ kind: "tool.guardrail_warnings", seatId: "vouch-guardrail", data: { tool, warnings: gr.warnings.slice(0, 8) } });
+  }
   const v = await validateWithRetry2(tool, args);
   args = v.args;
   if (v.audit.retried) {
@@ -33371,7 +33594,7 @@ function appendVouchReceiptRef(ref) {
   session = { ...session, receipts: [...session.receipts.slice(-19), ref] };
   commit();
 }
-var hasLS2, mem2, store, SESSION_KEY, WORKSPACE_KEY, BOT_NAME, session, listeners, MISSIONS_KEY, KB, looksLikeMath, VOUCH_TOOLS, _savedProbeTools, RISKY_TOOLS, approvalWaiters, brain, JOKES, CODE_SNIPPETS, simulatedBrain, runToken, sleep2, lastMission, finalRef, toolCallTracks;
+var hasLS2, mem2, store, SESSION_KEY, WORKSPACE_KEY, BOT_NAME, session, listeners, MISSIONS_KEY, KB, looksLikeMath, VOUCH_TOOLS, _savedProbeTools, RISKY_TOOLS, approvalWaiters, APPROVAL_TTL_MS, badApprovalProbeGate, brain, JOKES, CODE_SNIPPETS, simulatedBrain, runToken, sleep2, lastMission, finalRef, toolCallTracks;
 var init_vouch = __esm({
   "src/vouch/engine/vouch.ts"() {
     "use strict";
@@ -33383,6 +33606,7 @@ var init_vouch = __esm({
     init_providers();
     init_policyGateway();
     init_toolSchema();
+    init_guardrail();
     init_agui();
     hasLS2 = typeof globalThis.localStorage !== "undefined";
     mem2 = /* @__PURE__ */ new Map();
@@ -33560,6 +33784,8 @@ ${p}`;
     _savedProbeTools = /* @__PURE__ */ new Map();
     RISKY_TOOLS = riskyTools;
     approvalWaiters = /* @__PURE__ */ new Map();
+    APPROVAL_TTL_MS = 10 * 60 * 1e3;
+    badApprovalProbeGate = new RateGate(10, 6e4);
     JOKES = [
       `An agent walks into a bar. The bar asks for proof of identity. The agent hands over a hash-chained, Ed25519-signed receipt. The bar says: "we don't accept that here." The agent says: "watch me verify it offline."`,
       "Why did the chatbot break up with the cloud? Too much trust, not enough receipts.",
