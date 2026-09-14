@@ -27,8 +27,8 @@ declare const MJ_ROOT: string | undefined;
 const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 
-const EXPECTED_DOCKS: ViewKey[] = ["harbor", "ship", "chart", "register", "master"];
-type ViewKey = "harbor" | "ship" | "chart" | "register" | "master";
+const EXPECTED_DOCKS: ViewKey[] = ["vh19", "harbor", "ship", "chart", "register", "master"];
+type ViewKey = "vh19" | "harbor" | "ship" | "chart" | "register" | "master";
 
 const navSrc = read("src/app/nav.ts");
 const appSrc = read("src/App.tsx");
@@ -38,12 +38,12 @@ const helmSrc = read("src/app/Helm.tsx");
 const pkg = JSON.parse(read("package.json")) as { name?: string };
 ok("root resolves to Vouch Harbor", typeof pkg.name === "string" && /vouchharbor/i.test(pkg.name), `name=${String(pkg.name)}`);
 
-const keys = [...navSrc.matchAll(/key:\s*["']([a-z]+)["']/g)].map(m => m[1] as ViewKey);
-ok("NAV lists the five Patina docks exactly once", keys.length === 5 && new Set(keys).size === 5 && EXPECTED_DOCKS.every(k => keys.includes(k)), keys.join(","));
+const keys = [...navSrc.matchAll(/key:\s*["']([a-z0-9]+)["']/g)].map(m => m[1] as ViewKey);
+ok("NAV lists the six docks exactly once (VH-19 Generalist first)", keys.length === 6 && new Set(keys).size === 6 && EXPECTED_DOCKS.every(k => keys.includes(k)), keys.join(","));
 ok("App.tsx imports the shared navigation map", /from ["']\.\/app\/nav["']/.test(appSrc) || /from ["']\.\.\/app\/nav["']/.test(sidebarSrc), "no shared import found");
-ok("App's VIEWS map contains exactly the five docks", /Comp:\s*Harbor\b/.test(appSrc) && /Comp:\s*Ship\b/.test(appSrc) && /Comp:\s*Chart\b/.test(appSrc) && /Comp:\s*Register\b/.test(appSrc) && /Comp:\s*HarborMaster\b/.test(appSrc), "one of the five missing");
+ok("App's VIEWS map contains exactly the six docks", /Comp:\s*Vh19\b/.test(appSrc) && /Comp:\s*Harbor\b/.test(appSrc) && /Comp:\s*Ship\b/.test(appSrc) && /Comp:\s*Chart\b/.test(appSrc) && /Comp:\s*Register\b/.test(appSrc) && /Comp:\s*HarborMaster\b/.test(appSrc), "one of the six missing");
 ok("the sidebar surfaces each nav item's description", /n\.description/.test(sidebarSrc) || /nav-sub/.test(sidebarSrc), "no description line");
-ok("App opens on the Harbor dock (live work first)", /useState<ViewKey>\(['"]harbor['"]\)/.test(appSrc), "doesn't open on harbor");
+ok("App opens on the VH-19 dock (the Generalist is the front door)", /useState<ViewKey>\(['"]vh19['"]\)/.test(appSrc), "doesn't open on VH-19");
 ok("the Helm is the single command surface", /Make it so/.test(helmSrc) && /onSubmit/.test(helmSrc), "helm not wired");
 ok("the Helm drives the real vouch engine", /sendVouchMessage|actions\.sendMessage/.test(appSrc) || /actions\.sendMessage/.test(helmSrc), "helm not connected to sendMessage");
 

@@ -7,6 +7,7 @@ interface Props { onClose: () => void; onNavigate: (v: ViewKey) => void; }
 interface Item { label: string; hint?: string; kbd?: string; group: string; action: (n: (v: ViewKey) => void) => void; }
 
 const ITEMS: Item[] = [
+  { label: 'VH-19 — the Generalist', kbd: 'g v', group: 'Docks',  action: n => n('vh19') },
   { label: 'Harbor — the water',    kbd: 'g h', group: 'Docks',  action: n => n('harbor') },
   { label: 'Ship — vessel & crew',  kbd: 'g s', group: 'Docks',  action: n => n('ship') },
   { label: 'Chart — plot course',   kbd: 'g c', group: 'Docks',  action: n => n('chart') },

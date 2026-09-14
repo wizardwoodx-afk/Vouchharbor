@@ -44,6 +44,7 @@ function paletteScore(query, label, group) {
 
 // src/app/nav.ts
 var NAV = [
+  { key: "vh19", label: "VH-19", description: "The Generalist" },
   { key: "harbor", label: "Harbor", description: "Live voyages" },
   { key: "ship", label: "Ship", description: "Vessel & crew" },
   { key: "chart", label: "Chart", description: "Plot course" },
@@ -76,7 +77,7 @@ describe("palette \u2014 Signal Lamp launcher is label-first, fuzzy, complete", 
       "palette sorts desc by score"
     );
   });
-  it("palette lists all five Patina docks", () => {
+  it("palette lists all six docks (VH-19 first)", () => {
     const src = read("src/panels/CommandPalette.tsx");
     for (const n of NAV) {
       assert.ok(src.includes(n.label), `palette lists dock "${n.label}"`);

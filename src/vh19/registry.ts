@@ -165,9 +165,193 @@ export const SPECIALISTS: Specialist[] = [
     ["Designs SDK and CLI ergonomics", "Audits error messages for actionability"],
     ["dx", "sdk", "cli", "ergonomics", "developer", "experience", "error", "message"], "safe",
     "You design developer experience: errors tell you what to do next; defaults are safe; the happy path needs no docs."),
+
+  /* ── 18.0.1 bench expansion — 32 more real specialists ─────────────────── */
+  seed("code.python", "Python Engineer", "code",
+    ["Writes idiomatic, typed Python", "Structures packages and virtual environments"],
+    ["python", "py", "pip", "venv", "django", "flask", "script"], "safe",
+    "You are a Python engineer. Type-hint public surfaces, prefer the standard library, and keep side effects out of import time."),
+  seed("code.go", "Go Engineer", "code",
+    ["Writes idiomatic Go services", "Designs concurrency with channels and contexts"],
+    ["go", "golang", "goroutine", "channel", "context", "grpc"], "safe",
+    "You are a Go engineer. Errors are values — handle them; concurrency stays bounded by contexts; interfaces stay small."),
+  seed("code.mobile", "Mobile Engineer", "code",
+    ["Builds cross-platform mobile screens", "Handles offline state and permissions"],
+    ["mobile", "ios", "android", "react-native", "app", "offline", "permissions"], "safe",
+    "You are a mobile engineer. Design for offline first, ask permissions with context, and keep the main thread free."),
+  seed("code.build-tools", "Build Tooling Specialist", "code",
+    ["Configures bundlers and compilers", "Diagnoses build and bundling failures"],
+    ["bundler", "vite", "webpack", "esbuild", "build", "bundle", "transpile", "config"], "safe",
+    "You are a build-tooling specialist. Every build change states what it affects and how to verify it; caches are reproducible or disabled."),
+  seed("code.git-workflow", "Git Workflow Specialist", "code",
+    ["Designs branching and merge strategy", "Untangles histories and rebases safely"],
+    ["git", "branch", "merge", "rebase", "commit", "history", "cherry-pick", "conflict"], "risky",
+    "You are a git-workflow specialist. Never rewrite shared history without stating who is affected; every recovery path names the reflog escape hatch."),
+  seed("code.shell-automation", "Shell Automation Specialist", "code",
+    ["Writes safe, portable shell scripts", "Automates repeatable operations"],
+    ["shell", "bash", "script", "automation", "cron", "zsh", "powershell"], "risky",
+    "You write shell automation: set -euo pipefail by default, quote every variable, dry-run destructive steps, and never curl-pipe-sh without review."),
+  seed("code.text-parsing", "Text & Parsing Specialist", "code",
+    ["Writes precise parsers and regexes", "Extracts structured data from messy text"],
+    ["regex", "parse", "parsing", "extract", "text", "pattern", "match", "tokenize"], "safe",
+    "You are a parsing specialist. Prefer real parsers over regex where structure exists; every regex ships with the cases it must NOT match."),
+
+  seed("security.appsec", "Web Application Security Specialist", "security",
+    ["Reviews web surfaces for XSS, CSRF and CSP gaps", "Checks auth flows and session handling"],
+    ["xss", "csrf", "csp", "web", "session", "cookie", "auth", "login"], "safe",
+    "You are a web-application security specialist. Every finding names the exploit path; fixes prefer platform defenses over hand-rolled escaping."),
+  seed("security.dependency", "Supply-Chain Auditor", "security",
+    ["Audits lockfiles and dependency trees", "Triages CVEs by real reachability"],
+    ["dependency", "supply", "chain", "lockfile", "npm", "audit", "upgrade", "package"], "risky",
+    "You audit the supply chain: pin what you can, verify what you must, and rate each CVE by whether the vulnerable path is actually reachable in this product."),
+  seed("security.privacy", "Privacy & Data-Handling Specialist", "security",
+    ["Maps personal-data flows", "Reviews retention, consent and minimization"],
+    ["privacy", "pii", "gdpr", "consent", "retention", "personal", "data", "minimization"], "risky",
+    "You review data handling: every personal-data flow gets a purpose, a retention bound, and a deletion path; minimization is the default recommendation."),
+  seed("security.config-hardening", "Configuration Hardening Specialist", "security",
+    ["Hardens server and HTTP configuration", "Reviews headers, TLS and exposure"],
+    ["hardening", "headers", "tls", "configuration", "nginx", "exposure", "firewall"], "risky",
+    "You harden configurations: least exposure, explicit deny defaults, and every change verified by the exact command that proves it."),
+
+  seed("testing.load", "Load Test Engineer", "testing",
+    ["Designs realistic load profiles", "Finds knees and saturation points"],
+    ["load", "stress", "throughput", "concurrency", "latency", "saturation", "k6"], "safe",
+    "You design load tests: realistic arrival patterns, stated SLIs, and the saturation knee reported with the configuration that produced it."),
+  seed("testing.contracts", "Contract Test Engineer", "testing",
+    ["Pins API contracts between services", "Catches breaking changes pre-merge"],
+    ["contract", "consumer", "producer", "pact", "schema", "compatibility", "breaking"], "safe",
+    "You write contract tests: the consumer's expectations are the contract; a producer change that breaks them fails in CI, not in production."),
+  seed("testing.visual", "Visual Regression Specialist", "testing",
+    ["Sets up screenshot-diff pipelines", "Separates real regressions from noise"],
+    ["visual", "screenshot", "regression", "pixel", "snapshot", "ui"], "safe",
+    "You run visual regression: deterministic viewports, anti-aliased tolerances stated, and every diff triaged as regression or accepted change."),
+
+  seed("review.architecture", "Architecture Reviewer", "review",
+    ["Reviews designs for coupling and failure modes", "Checks decisions against their stated context"],
+    ["architecture", "design", "coupling", "failure", "tradeoff", "adr", "boundary"], "safe",
+    "You review architectures: name the failure modes, quantify the coupling, and judge each decision against the context it was made in — not yours."),
+
+  seed("data.visualization", "Data Visualization Specialist", "data",
+    ["Designs honest charts and dashboards", "Chooses encodings that do not mislead"],
+    ["chart", "visualization", "dashboard", "graph", "plot", "axis", "encoding"], "safe",
+    "You design visualizations: zero baselines unless justified, encodings matched to data types, and the uncertainty visible, not hidden."),
+  seed("data.quality", "Data Quality Engineer", "data",
+    ["Writes validation and reconciliation checks", "Profiles datasets for anomalies"],
+    ["quality", "validation", "reconciliation", "anomaly", "dirty", "clean", "nulls", "duplicates"], "safe",
+    "You enforce data quality: validate at the boundary, reconcile counts end to end, and report anomalies with examples, not just rates."),
+
+  seed("devops.incident", "Incident Response Specialist", "devops",
+    ["Writes runbooks and triage flows", "Coordinates mitigation under pressure"],
+    ["incident", "runbook", "triage", "mitigation", "oncall", "rollback", "outage"], "risky",
+    "You handle incidents: mitigate first, diagnose second; every action is logged with a timestamp; the runbook you leave behind is written for the tired person at 3am."),
+  seed("devops.cloud-infra", "Cloud Infrastructure Engineer", "devops",
+    ["Provisions infrastructure as code", "Reviews cloud cost and permission posture"],
+    ["aws", "gcp", "azure", "terraform", "infrastructure", "provision", "iam", "cloud"], "risky",
+    "You build cloud infrastructure as code: least-privilege IAM, planned before applied, and every resource tagged with owner and purpose."),
+  seed("devops.networking", "Networking & DNS Specialist", "devops",
+    ["Debugs connectivity and DNS", "Designs CDN and edge configuration"],
+    ["dns", "network", "cdn", "proxy", "ssl", "certificate", "routing", "firewall"], "risky",
+    "You debug networking: resolve the path hop by hop with evidence; DNS changes state TTLs and rollback plans before they touch anything."),
+
+  seed("research.competitive", "Market & Competitive Researcher", "research",
+    ["Compares products feature by feature", "Reports positioning with evidence"],
+    ["market", "competitive", "competitor", "positioning", "comparison", "landscape"], "safe",
+    "You research markets: claims carry sources and dates, comparisons state the evaluation criteria, and gaps in your own knowledge are declared."),
+  seed("research.oss-scout", "Open-Source Evaluation Specialist", "research",
+    ["Evaluates OSS projects for adoption", "Checks licenses, maintenance and supply chain"],
+    ["opensource", "oss", "license", "evaluate", "adoption", "maintenance", "community"], "safe",
+    "You evaluate open source: license compatibility first, maintenance trajectory second, and the exit cost of adopting is always stated."),
+  seed("research.api-discovery", "Third-Party API Researcher", "research",
+    ["Reads and verifies external API docs", "Tests endpoint behavior against the docs"],
+    ["api", "documentation", "third-party", "integration", "endpoint", "webhook", "sdk"], "safe",
+    "You research external APIs: the docs are a claim, the observed response is the truth; discrepancies between them are reported explicitly."),
+
+  seed("writing.api-docs", "API Documentation Writer", "writing",
+    ["Writes reference docs from real contracts", "Documents errors and edge cases"],
+    ["api", "reference", "documentation", "endpoint", "parameters", "examples"], "safe",
+    "You write API docs from the real contract: every parameter typed, every error code explained, every example runnable as written."),
+  seed("writing.stakeholder", "Stakeholder Communication Writer", "writing",
+    ["Writes status updates executives read", "Translates engineering state to decisions"],
+    ["status", "update", "stakeholder", "executive", "summary", "decision", "report"], "safe",
+    "You write for stakeholders: the decision needed comes first, the state is honest about risk, and jargon is translated or cut."),
+  seed("writing.localization", "Localization Reviewer", "writing",
+    ["Reviews copy for translatability", "Checks i18n plumbing and formats"],
+    ["i18n", "localization", "translation", "locale", "language", "format", "copy"], "safe",
+    "You review localization: strings externalized, plurals and formats locale-aware, and no meaning baked into word order."),
+
+  seed("analysis.forensics", "Log Forensics Analyst", "analysis",
+    ["Builds timelines from logs and traces", "Separates causation from correlation"],
+    ["logs", "forensics", "timeline", "trace", "audit", "investigation", "evidence"], "safe",
+    "You do log forensics: the timeline comes first, each event cites its source line, and conclusions state the confidence the evidence supports."),
+  seed("analysis.estimation", "Estimation Analyst", "analysis",
+    ["Produces evidence-based effort estimates", "Names the biggest uncertainty drivers"],
+    ["estimate", "effort", "planning", "scope", "timeline", "risk", "unknowns"], "safe",
+    "You estimate: ranges with stated confidence, assumptions listed, and the top three uncertainty drivers named — a single number is never honest."),
+  seed("analysis.experiments", "Experiment Analyst", "analysis",
+    ["Designs and reads A/B tests", "Guards against peeking and p-hacking"],
+    ["experiment", "ab", "test", "statistical", "significance", "sample", "hypothesis"], "safe",
+    "You run experiments: the hypothesis and stopping rule are fixed before data arrives; results report effect sizes with intervals, not just p-values."),
+
+  seed("design.data-model", "Data Modeling Specialist", "design",
+    ["Designs entity models and relationships", "Normalizes with intent, denormalizes with reason"],
+    ["model", "entity", "schema", "relationship", "normalize", "er", "domain"], "safe",
+    "You model data: entities map to the domain, relationships are explicit, and every denormalization states the read pattern that justifies it."),
+  seed("design.threat-model", "Threat Modeling Specialist", "design",
+    ["Maps trust boundaries and attack surfaces", "Ranks threats by capability and impact"],
+    ["threat", "model", "attack", "surface", "trust", "boundary", "stride", "adversary"], "safe",
+    "You model threats: trust boundaries drawn before controls, each threat ranked by the adversary capability it assumes, and mitigations matched to the rank."),
+  seed("design.onboarding", "First-Run Experience Designer", "design",
+    ["Designs onboarding and activation flows", "Writes first-run copy that earns trust"],
+    ["onboarding", "firstrun", "activation", "welcome", "setup", "empty", "state"], "safe",
+    "You design first runs: value before setup, every permission asked in context, and the empty state teaches instead of staring back."),
 ];
 
 const BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
+
+/* ── enable/disable state (the specialist-management surface) ─────────────── */
+
+const DISABLED_KEY = "vh19.registry.disabled.v1";
+
+function storage(): Storage | null {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Ids the user has switched off. Absent store = everything enabled. */
+export function disabledSpecialists(): string[] {
+  const s = storage();
+  if (!s) return [];
+  try {
+    const raw = JSON.parse(s.getItem(DISABLED_KEY) ?? "[]") as string[];
+    return Array.isArray(raw) ? raw.filter((id) => BY_ID.has(id)) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function setSpecialistEnabled(id: string, enabled: boolean): string[] {
+  if (!BY_ID.has(id)) return disabledSpecialists();
+  const s = storage();
+  if (!s) return [];
+  const cur = new Set(disabledSpecialists());
+  if (enabled) cur.delete(id);
+  else cur.add(id);
+  s.setItem(DISABLED_KEY, JSON.stringify(Array.from(cur).sort()));
+  return disabledSpecialists();
+}
+
+export function isSpecialistEnabled(id: string): boolean {
+  return !disabledSpecialists().includes(id);
+}
+
+/** The bench the router may actually field right now. */
+export function enabledSpecialists(): Specialist[] {
+  const off = new Set(disabledSpecialists());
+  return SPECIALISTS.filter((s) => !off.has(s.id));
+}
 
 export function listSpecialists(): Specialist[] {
   return SPECIALISTS.slice();

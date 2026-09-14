@@ -295,9 +295,333 @@ var SPECIALISTS = [
     ["dx", "sdk", "cli", "ergonomics", "developer", "experience", "error", "message"],
     "safe",
     "You design developer experience: errors tell you what to do next; defaults are safe; the happy path needs no docs."
+  ),
+  /* ── 18.0.1 bench expansion — 32 more real specialists ─────────────────── */
+  seed(
+    "code.python",
+    "Python Engineer",
+    "code",
+    ["Writes idiomatic, typed Python", "Structures packages and virtual environments"],
+    ["python", "py", "pip", "venv", "django", "flask", "script"],
+    "safe",
+    "You are a Python engineer. Type-hint public surfaces, prefer the standard library, and keep side effects out of import time."
+  ),
+  seed(
+    "code.go",
+    "Go Engineer",
+    "code",
+    ["Writes idiomatic Go services", "Designs concurrency with channels and contexts"],
+    ["go", "golang", "goroutine", "channel", "context", "grpc"],
+    "safe",
+    "You are a Go engineer. Errors are values \u2014 handle them; concurrency stays bounded by contexts; interfaces stay small."
+  ),
+  seed(
+    "code.mobile",
+    "Mobile Engineer",
+    "code",
+    ["Builds cross-platform mobile screens", "Handles offline state and permissions"],
+    ["mobile", "ios", "android", "react-native", "app", "offline", "permissions"],
+    "safe",
+    "You are a mobile engineer. Design for offline first, ask permissions with context, and keep the main thread free."
+  ),
+  seed(
+    "code.build-tools",
+    "Build Tooling Specialist",
+    "code",
+    ["Configures bundlers and compilers", "Diagnoses build and bundling failures"],
+    ["bundler", "vite", "webpack", "esbuild", "build", "bundle", "transpile", "config"],
+    "safe",
+    "You are a build-tooling specialist. Every build change states what it affects and how to verify it; caches are reproducible or disabled."
+  ),
+  seed(
+    "code.git-workflow",
+    "Git Workflow Specialist",
+    "code",
+    ["Designs branching and merge strategy", "Untangles histories and rebases safely"],
+    ["git", "branch", "merge", "rebase", "commit", "history", "cherry-pick", "conflict"],
+    "risky",
+    "You are a git-workflow specialist. Never rewrite shared history without stating who is affected; every recovery path names the reflog escape hatch."
+  ),
+  seed(
+    "code.shell-automation",
+    "Shell Automation Specialist",
+    "code",
+    ["Writes safe, portable shell scripts", "Automates repeatable operations"],
+    ["shell", "bash", "script", "automation", "cron", "zsh", "powershell"],
+    "risky",
+    "You write shell automation: set -euo pipefail by default, quote every variable, dry-run destructive steps, and never curl-pipe-sh without review."
+  ),
+  seed(
+    "code.text-parsing",
+    "Text & Parsing Specialist",
+    "code",
+    ["Writes precise parsers and regexes", "Extracts structured data from messy text"],
+    ["regex", "parse", "parsing", "extract", "text", "pattern", "match", "tokenize"],
+    "safe",
+    "You are a parsing specialist. Prefer real parsers over regex where structure exists; every regex ships with the cases it must NOT match."
+  ),
+  seed(
+    "security.appsec",
+    "Web Application Security Specialist",
+    "security",
+    ["Reviews web surfaces for XSS, CSRF and CSP gaps", "Checks auth flows and session handling"],
+    ["xss", "csrf", "csp", "web", "session", "cookie", "auth", "login"],
+    "safe",
+    "You are a web-application security specialist. Every finding names the exploit path; fixes prefer platform defenses over hand-rolled escaping."
+  ),
+  seed(
+    "security.dependency",
+    "Supply-Chain Auditor",
+    "security",
+    ["Audits lockfiles and dependency trees", "Triages CVEs by real reachability"],
+    ["dependency", "supply", "chain", "lockfile", "npm", "audit", "upgrade", "package"],
+    "risky",
+    "You audit the supply chain: pin what you can, verify what you must, and rate each CVE by whether the vulnerable path is actually reachable in this product."
+  ),
+  seed(
+    "security.privacy",
+    "Privacy & Data-Handling Specialist",
+    "security",
+    ["Maps personal-data flows", "Reviews retention, consent and minimization"],
+    ["privacy", "pii", "gdpr", "consent", "retention", "personal", "data", "minimization"],
+    "risky",
+    "You review data handling: every personal-data flow gets a purpose, a retention bound, and a deletion path; minimization is the default recommendation."
+  ),
+  seed(
+    "security.config-hardening",
+    "Configuration Hardening Specialist",
+    "security",
+    ["Hardens server and HTTP configuration", "Reviews headers, TLS and exposure"],
+    ["hardening", "headers", "tls", "configuration", "nginx", "exposure", "firewall"],
+    "risky",
+    "You harden configurations: least exposure, explicit deny defaults, and every change verified by the exact command that proves it."
+  ),
+  seed(
+    "testing.load",
+    "Load Test Engineer",
+    "testing",
+    ["Designs realistic load profiles", "Finds knees and saturation points"],
+    ["load", "stress", "throughput", "concurrency", "latency", "saturation", "k6"],
+    "safe",
+    "You design load tests: realistic arrival patterns, stated SLIs, and the saturation knee reported with the configuration that produced it."
+  ),
+  seed(
+    "testing.contracts",
+    "Contract Test Engineer",
+    "testing",
+    ["Pins API contracts between services", "Catches breaking changes pre-merge"],
+    ["contract", "consumer", "producer", "pact", "schema", "compatibility", "breaking"],
+    "safe",
+    "You write contract tests: the consumer's expectations are the contract; a producer change that breaks them fails in CI, not in production."
+  ),
+  seed(
+    "testing.visual",
+    "Visual Regression Specialist",
+    "testing",
+    ["Sets up screenshot-diff pipelines", "Separates real regressions from noise"],
+    ["visual", "screenshot", "regression", "pixel", "snapshot", "ui"],
+    "safe",
+    "You run visual regression: deterministic viewports, anti-aliased tolerances stated, and every diff triaged as regression or accepted change."
+  ),
+  seed(
+    "review.architecture",
+    "Architecture Reviewer",
+    "review",
+    ["Reviews designs for coupling and failure modes", "Checks decisions against their stated context"],
+    ["architecture", "design", "coupling", "failure", "tradeoff", "adr", "boundary"],
+    "safe",
+    "You review architectures: name the failure modes, quantify the coupling, and judge each decision against the context it was made in \u2014 not yours."
+  ),
+  seed(
+    "data.visualization",
+    "Data Visualization Specialist",
+    "data",
+    ["Designs honest charts and dashboards", "Chooses encodings that do not mislead"],
+    ["chart", "visualization", "dashboard", "graph", "plot", "axis", "encoding"],
+    "safe",
+    "You design visualizations: zero baselines unless justified, encodings matched to data types, and the uncertainty visible, not hidden."
+  ),
+  seed(
+    "data.quality",
+    "Data Quality Engineer",
+    "data",
+    ["Writes validation and reconciliation checks", "Profiles datasets for anomalies"],
+    ["quality", "validation", "reconciliation", "anomaly", "dirty", "clean", "nulls", "duplicates"],
+    "safe",
+    "You enforce data quality: validate at the boundary, reconcile counts end to end, and report anomalies with examples, not just rates."
+  ),
+  seed(
+    "devops.incident",
+    "Incident Response Specialist",
+    "devops",
+    ["Writes runbooks and triage flows", "Coordinates mitigation under pressure"],
+    ["incident", "runbook", "triage", "mitigation", "oncall", "rollback", "outage"],
+    "risky",
+    "You handle incidents: mitigate first, diagnose second; every action is logged with a timestamp; the runbook you leave behind is written for the tired person at 3am."
+  ),
+  seed(
+    "devops.cloud-infra",
+    "Cloud Infrastructure Engineer",
+    "devops",
+    ["Provisions infrastructure as code", "Reviews cloud cost and permission posture"],
+    ["aws", "gcp", "azure", "terraform", "infrastructure", "provision", "iam", "cloud"],
+    "risky",
+    "You build cloud infrastructure as code: least-privilege IAM, planned before applied, and every resource tagged with owner and purpose."
+  ),
+  seed(
+    "devops.networking",
+    "Networking & DNS Specialist",
+    "devops",
+    ["Debugs connectivity and DNS", "Designs CDN and edge configuration"],
+    ["dns", "network", "cdn", "proxy", "ssl", "certificate", "routing", "firewall"],
+    "risky",
+    "You debug networking: resolve the path hop by hop with evidence; DNS changes state TTLs and rollback plans before they touch anything."
+  ),
+  seed(
+    "research.competitive",
+    "Market & Competitive Researcher",
+    "research",
+    ["Compares products feature by feature", "Reports positioning with evidence"],
+    ["market", "competitive", "competitor", "positioning", "comparison", "landscape"],
+    "safe",
+    "You research markets: claims carry sources and dates, comparisons state the evaluation criteria, and gaps in your own knowledge are declared."
+  ),
+  seed(
+    "research.oss-scout",
+    "Open-Source Evaluation Specialist",
+    "research",
+    ["Evaluates OSS projects for adoption", "Checks licenses, maintenance and supply chain"],
+    ["opensource", "oss", "license", "evaluate", "adoption", "maintenance", "community"],
+    "safe",
+    "You evaluate open source: license compatibility first, maintenance trajectory second, and the exit cost of adopting is always stated."
+  ),
+  seed(
+    "research.api-discovery",
+    "Third-Party API Researcher",
+    "research",
+    ["Reads and verifies external API docs", "Tests endpoint behavior against the docs"],
+    ["api", "documentation", "third-party", "integration", "endpoint", "webhook", "sdk"],
+    "safe",
+    "You research external APIs: the docs are a claim, the observed response is the truth; discrepancies between them are reported explicitly."
+  ),
+  seed(
+    "writing.api-docs",
+    "API Documentation Writer",
+    "writing",
+    ["Writes reference docs from real contracts", "Documents errors and edge cases"],
+    ["api", "reference", "documentation", "endpoint", "parameters", "examples"],
+    "safe",
+    "You write API docs from the real contract: every parameter typed, every error code explained, every example runnable as written."
+  ),
+  seed(
+    "writing.stakeholder",
+    "Stakeholder Communication Writer",
+    "writing",
+    ["Writes status updates executives read", "Translates engineering state to decisions"],
+    ["status", "update", "stakeholder", "executive", "summary", "decision", "report"],
+    "safe",
+    "You write for stakeholders: the decision needed comes first, the state is honest about risk, and jargon is translated or cut."
+  ),
+  seed(
+    "writing.localization",
+    "Localization Reviewer",
+    "writing",
+    ["Reviews copy for translatability", "Checks i18n plumbing and formats"],
+    ["i18n", "localization", "translation", "locale", "language", "format", "copy"],
+    "safe",
+    "You review localization: strings externalized, plurals and formats locale-aware, and no meaning baked into word order."
+  ),
+  seed(
+    "analysis.forensics",
+    "Log Forensics Analyst",
+    "analysis",
+    ["Builds timelines from logs and traces", "Separates causation from correlation"],
+    ["logs", "forensics", "timeline", "trace", "audit", "investigation", "evidence"],
+    "safe",
+    "You do log forensics: the timeline comes first, each event cites its source line, and conclusions state the confidence the evidence supports."
+  ),
+  seed(
+    "analysis.estimation",
+    "Estimation Analyst",
+    "analysis",
+    ["Produces evidence-based effort estimates", "Names the biggest uncertainty drivers"],
+    ["estimate", "effort", "planning", "scope", "timeline", "risk", "unknowns"],
+    "safe",
+    "You estimate: ranges with stated confidence, assumptions listed, and the top three uncertainty drivers named \u2014 a single number is never honest."
+  ),
+  seed(
+    "analysis.experiments",
+    "Experiment Analyst",
+    "analysis",
+    ["Designs and reads A/B tests", "Guards against peeking and p-hacking"],
+    ["experiment", "ab", "test", "statistical", "significance", "sample", "hypothesis"],
+    "safe",
+    "You run experiments: the hypothesis and stopping rule are fixed before data arrives; results report effect sizes with intervals, not just p-values."
+  ),
+  seed(
+    "design.data-model",
+    "Data Modeling Specialist",
+    "design",
+    ["Designs entity models and relationships", "Normalizes with intent, denormalizes with reason"],
+    ["model", "entity", "schema", "relationship", "normalize", "er", "domain"],
+    "safe",
+    "You model data: entities map to the domain, relationships are explicit, and every denormalization states the read pattern that justifies it."
+  ),
+  seed(
+    "design.threat-model",
+    "Threat Modeling Specialist",
+    "design",
+    ["Maps trust boundaries and attack surfaces", "Ranks threats by capability and impact"],
+    ["threat", "model", "attack", "surface", "trust", "boundary", "stride", "adversary"],
+    "safe",
+    "You model threats: trust boundaries drawn before controls, each threat ranked by the adversary capability it assumes, and mitigations matched to the rank."
+  ),
+  seed(
+    "design.onboarding",
+    "First-Run Experience Designer",
+    "design",
+    ["Designs onboarding and activation flows", "Writes first-run copy that earns trust"],
+    ["onboarding", "firstrun", "activation", "welcome", "setup", "empty", "state"],
+    "safe",
+    "You design first runs: value before setup, every permission asked in context, and the empty state teaches instead of staring back."
   )
 ];
 var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
+var DISABLED_KEY = "vh19.registry.disabled.v1";
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function disabledSpecialists() {
+  const s = storage();
+  if (!s) return [];
+  try {
+    const raw = JSON.parse(s.getItem(DISABLED_KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((id) => BY_ID.has(id)) : [];
+  } catch {
+    return [];
+  }
+}
+function setSpecialistEnabled(id, enabled) {
+  if (!BY_ID.has(id)) return disabledSpecialists();
+  const s = storage();
+  if (!s) return [];
+  const cur = new Set(disabledSpecialists());
+  if (enabled) cur.delete(id);
+  else cur.add(id);
+  s.setItem(DISABLED_KEY, JSON.stringify(Array.from(cur).sort()));
+  return disabledSpecialists();
+}
+function isSpecialistEnabled(id) {
+  return !disabledSpecialists().includes(id);
+}
+function enabledSpecialists() {
+  const off = new Set(disabledSpecialists());
+  return SPECIALISTS.filter((s) => !off.has(s.id));
+}
 function listSpecialists() {
   return SPECIALISTS.slice();
 }
@@ -361,7 +685,7 @@ function scoreSpecialist(s, request, tokens) {
 function routeDeterministic(request, k = MAX_K) {
   const tokens = tokenize(request);
   const scored = [];
-  for (const s of listSpecialists()) {
+  for (const s of enabledSpecialists()) {
     const { score, reasons } = scoreSpecialist(s, request, tokens);
     if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
   }
@@ -373,7 +697,7 @@ function routeDeterministic(request, k = MAX_K) {
     strategy = selected[0].score - selected[1].score >= SINGLE_MARGIN ? "single" : "multi";
     if (strategy === "single") selected.length = 1;
   }
-  return { selected, considered: listSpecialists().length, strategy, routedBy: "deterministic" };
+  return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
 }
 async function routeWithModel(request, provider, complete2, k = MAX_K) {
   const base = routeDeterministic(request, Math.max(k * 2, MAX_K));
@@ -638,7 +962,7 @@ function nowIso() {
 var KEY = "vh19.memory.v1";
 var CLOUD_KEY = "vh19.cloudsync.v1";
 var MEMORY_CAP = 500;
-function storage() {
+function storage2() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -646,7 +970,7 @@ function storage() {
   }
 }
 function loadMemory(userId = "default") {
-  const s = storage();
+  const s = storage2();
   if (!s) return [];
   try {
     const raw = JSON.parse(s.getItem(KEY) ?? "[]");
@@ -656,21 +980,21 @@ function loadMemory(userId = "default") {
   }
 }
 function saveAll(records) {
-  const s = storage();
+  const s = storage2();
   if (!s) return;
   const capped = records.length > MEMORY_CAP ? records.slice(records.length - MEMORY_CAP) : records;
   s.setItem(KEY, JSON.stringify(capped));
 }
 function recordDecision(input) {
   const rec = { id: uid("dec"), ts: input.ts ?? nowIso(), ...input };
-  const s = storage();
+  const s = storage2();
   const all = s ? JSON.parse(s.getItem(KEY) ?? "[]") : [];
   all.push(rec);
   saveAll(all);
   return rec;
 }
 function clearMemory(userId = "default") {
-  const s = storage();
+  const s = storage2();
   if (!s) return;
   const all = JSON.parse(s.getItem(KEY) ?? "[]");
   saveAll(all.filter((r) => r.userId !== userId));
@@ -710,7 +1034,7 @@ function memoryBriefing(userId = "default", maxLines = 4) {
   return lines;
 }
 function cloudSyncStatus() {
-  const s = storage();
+  const s = storage2();
   let optedIn = false;
   let endpoint = null;
   if (s) {
@@ -729,7 +1053,7 @@ function cloudSyncStatus() {
   };
 }
 function setCloudOptIn(optedIn, endpoint = null) {
-  const s = storage();
+  const s = storage2();
   if (s) s.setItem(CLOUD_KEY, JSON.stringify({ optedIn, endpoint }));
   return cloudSyncStatus();
 }
@@ -745,7 +1069,7 @@ var PASS_THRESHOLD = 0.9;
 var AUTONOMY_KEY = "vh19.autonomy.v1";
 var SESSION_KEY = "vh19.exam.sessions.v1";
 var MAX_SESSIONS = 20;
-function storage2() {
+function storage3() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -796,7 +1120,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage2();
+  const s = storage3();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -821,7 +1145,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -864,7 +1188,7 @@ function grantKey(userId) {
   return `${AUTONOMY_KEY}:${userId}`;
 }
 function loadGrant(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
@@ -876,7 +1200,7 @@ function loadGrant(userId = "default") {
   }
 }
 function saveGrant(attempts, score, passed, userId, now) {
-  const s = storage2();
+  const s = storage3();
   if (!s) return;
   const prev = loadGrant(userId);
   const grant = {
@@ -892,13 +1216,13 @@ function autonomyStatus(userId = "default") {
   return loadGrant(userId);
 }
 function revokeAutonomy(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId).attempts };
   if (s) s.setItem(grantKey(userId), JSON.stringify(next));
   return next;
 }
 function resetExams(userId = "default") {
-  const s = storage2();
+  const s = storage3();
   if (!s) return;
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]").filter((x) => x.userId !== userId);
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
@@ -1084,7 +1408,7 @@ var testProvider = { kind: "openai-compatible", baseUrl: "https://api.openai.com
 test("vh19 \u2014 registry, router, providers, memory, exam, generalist", async () => {
   console.log("\n\u2500\u2500 1. the specialist bench \u2500\u2500");
   const stats = catalogStats();
-  check("the seed catalog is populated", stats.count >= 30, stats);
+  check("the catalog holds the expanded real bench (60+ specialists)", stats.count >= 60, stats);
   check("every specialist id is unique", new Set(SPECIALISTS.map((s) => s.id)).size === SPECIALISTS.length);
   check("every specialist has capabilities, keywords, a prompt and provenance", SPECIALISTS.every((s) => s.capabilities.length > 0 && s.keywords.length > 0 && s.systemPrompt.length > 20 && s.provenance.length > 0));
   check("risk tiers are only the product's own vocabulary", SPECIALISTS.every((s) => ["safe", "risky", "critical"].includes(s.riskTier)));
@@ -1117,6 +1441,18 @@ test("vh19 \u2014 registry, router, providers, memory, exam, generalist", async 
   check("a good LLM re-rank is applied and labeled", llmOk.routedBy === "llm-assisted" && llmOk.selected[0].id === "code.typescript");
   const llmOutside = await routeWithModel("refactor the typescript types", testProvider, async () => ({ ok: true, text: JSON.stringify(["made.up-id"]) }));
   check("LLM-invented ids outside the candidate set are refused", llmOutside.routedBy === "deterministic" && !!llmOutside.fallbackReason);
+  console.log("\n\u2500\u2500 2b. the management surface: disabled specialists are not fielded \u2500\u2500");
+  const before = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("baseline: the TypeScript specialist is fielded", before.selected[0]?.id === "code.typescript");
+  const disabledList = setSpecialistEnabled("code.typescript", false);
+  check("disabling is recorded", disabledList.includes("code.typescript") && isSpecialistEnabled("code.typescript") === false);
+  const after = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("a disabled specialist never appears in a routing decision", !after.selected.some((c) => c.id === "code.typescript"), after.selected.map((c) => c.id));
+  check("considered counts the ENABLED bench, not the catalog", after.considered === before.considered - 1, `${before.considered} \u2192 ${after.considered}`);
+  check("unknown ids cannot poison the disabled list", !setSpecialistEnabled("made.up-specialist", false).includes("made.up-specialist"));
+  setSpecialistEnabled("code.typescript", true);
+  const restored = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("re-enabling puts the specialist back on the bench", restored.selected[0]?.id === "code.typescript" && isSpecialistEnabled("code.typescript") === true);
   console.log("\n\u2500\u2500 3. the provider seam \u2500\u2500");
   const envCfg = providerFromEnv({ VH_OPENAI_API_KEY: " sk-env-key-123 ", VH_OPENAI_BASE_URL: "https://gateway.example.com/v1/" });
   check("env config is picked up, trimmed, slash-normalized", envCfg?.apiKey === "sk-env-key-123" && envCfg?.baseUrl === "https://gateway.example.com/v1");

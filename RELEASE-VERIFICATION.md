@@ -1,24 +1,32 @@
-# Vouch Harbor 18.0.0 "Generalist" — release verification record
+# Vouch Harbor 18.0.1 "Generalist" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it.
 
-## The 18.0.0 record (Generalist — the VH-19 front door)
+## The 18.0.1 record (the Generalist is the front door)
+
+18.0.1 closes the integration gap the 18.0.0 external reviews named: the VH-19
+engine is now the product's primary UI. The app opens on the VH-19 door
+(`src/views/Vh19.tsx`), which imports the real `askVH19`, shows every routing
+decision with its reasons, blocks risky work on a real gate modal, records
+accept/reject into the learning ledger, and runs the 90% exam end to end.
+The bench grew from 30 to 62 real specialists with a user-facing
+enable/disable surface the router honors. `probe/vh19Door` pins the wiring and
+the render; `probe/vh19` grew to 73 checks.
 
 | Gate | Command | Result |
 |---|---|---|
 | TypeScript | `tsc --noEmit` | 0 errors |
 | Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
 | Unit | `npm run unit` | 20/20 |
-| VH-19 layer | `node tools/run-one-probe.mjs vh19` | 67/67 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 73/73 |
+| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 18/18 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Live fleet | `npm test` | see the run record below |
 
-The 18.0.0 additions (VH-19 Generalist layer, provider seam, learning ledger,
-90% exam) are documented in `VH-18.0-UPGRADE.md`; the protocol is unchanged at
-v0.10.7, so the 17.10.7 record below remains the standing verification for the
-protocol and A2A surfaces.
+The protocol is unchanged at v0.10.7, so the 17.10.7 record below remains the
+standing verification for the protocol and A2A surfaces.
 
 ---
 

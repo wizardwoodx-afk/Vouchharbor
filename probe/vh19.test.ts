@@ -26,7 +26,7 @@ if (typeof globalThis.localStorage === "undefined") {
   } as Storage;
 }
 
-import { SPECIALISTS, catalogStats, catalogDigest, catalogCanonical, getSpecialist, listSpecialists, specialistsForCategory } from "../src/vh19/registry";
+import { SPECIALISTS, catalogStats, catalogDigest, catalogCanonical, getSpecialist, listSpecialists, specialistsForCategory, setSpecialistEnabled, isSpecialistEnabled } from "../src/vh19/registry";
 import { routeDeterministic, routeWithModel, scoreSpecialist, tokenize, MIN_SCORE } from "../src/vh19/router";
 import { complete, providerFromEnv, redactSecrets, PROVIDER_DEFAULTS } from "../src/vh19/providers";
 import { clearMemory, cloudSyncStatus, loadMemory, memoryBriefing, patternReport, recordDecision, requestCloudSync, setCloudOptIn } from "../src/vh19/memory";
@@ -65,7 +65,7 @@ const testProvider: ProviderConfig = { kind: "openai-compatible", baseUrl: "http
 test("vh19 — registry, router, providers, memory, exam, generalist", async () => {
   console.log("\n── 1. the specialist bench ──");
   const stats = catalogStats();
-  check("the seed catalog is populated", stats.count >= 30, stats);
+  check("the catalog holds the expanded real bench (60+ specialists)", stats.count >= 60, stats);
   check("every specialist id is unique", new Set(SPECIALISTS.map((s) => s.id)).size === SPECIALISTS.length);
   check("every specialist has capabilities, keywords, a prompt and provenance", SPECIALISTS.every((s) => s.capabilities.length > 0 && s.keywords.length > 0 && s.systemPrompt.length > 20 && s.provenance.length > 0));
   check("risk tiers are only the product's own vocabulary", SPECIALISTS.every((s) => ["safe", "risky", "critical"].includes(s.riskTier)));
@@ -99,6 +99,19 @@ test("vh19 — registry, router, providers, memory, exam, generalist", async () 
   check("a good LLM re-rank is applied and labeled", llmOk.routedBy === "llm-assisted" && llmOk.selected[0].id === "code.typescript");
   const llmOutside = await routeWithModel("refactor the typescript types", testProvider, async () => ({ ok: true, text: JSON.stringify(["made.up-id"]) }));
   check("LLM-invented ids outside the candidate set are refused", llmOutside.routedBy === "deterministic" && !!llmOutside.fallbackReason);
+
+  console.log("\n── 2b. the management surface: disabled specialists are not fielded ──");
+  const before = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("baseline: the TypeScript specialist is fielded", before.selected[0]?.id === "code.typescript");
+  const disabledList = setSpecialistEnabled("code.typescript", false);
+  check("disabling is recorded", disabledList.includes("code.typescript") && isSpecialistEnabled("code.typescript") === false);
+  const after = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("a disabled specialist never appears in a routing decision", !after.selected.some((c) => c.id === "code.typescript"), after.selected.map((c) => c.id));
+  check("considered counts the ENABLED bench, not the catalog", after.considered === before.considered - 1, `${before.considered} → ${after.considered}`);
+  check("unknown ids cannot poison the disabled list", !setSpecialistEnabled("made.up-specialist", false).includes("made.up-specialist"));
+  setSpecialistEnabled("code.typescript", true);
+  const restored = routeDeterministic("please refactor this TypeScript module and fix the types");
+  check("re-enabling puts the specialist back on the bench", restored.selected[0]?.id === "code.typescript" && isSpecialistEnabled("code.typescript") === true);
 
   console.log("\n── 3. the provider seam ──");
   const envCfg = providerFromEnv({ VH_OPENAI_API_KEY: " sk-env-key-123 ", VH_OPENAI_BASE_URL: "https://gateway.example.com/v1/" });

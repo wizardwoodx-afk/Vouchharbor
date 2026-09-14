@@ -108,7 +108,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.0.0";
+    VH_VERSION = "18.0.1";
     VH_SHORT = "18.0";
     VH_CODENAME = "Generalist";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;

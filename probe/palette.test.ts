@@ -4,7 +4,7 @@
  * Asserts the Patina command palette (Signal Lamp):
  *   1. Ranks by fuzzy subsequence match on the visible LABEL (label-first).
  *   2. Composes its ranking through fuzzyScore/paletteScore from src/app/fuzzy.ts.
- *   3. Lists all five Patina docks (Harbor/Ship/Chart/Register/Harbor Master).
+ *   3. Lists all six docks (VH-19 + the five Patina docks).
  *   4. A label hit ALWAYS outranks a group-only hit (Raycast/Linear convention).
  */
 import * as fs from "node:fs";
@@ -45,7 +45,7 @@ describe("palette — Signal Lamp launcher is label-first, fuzzy, complete", () 
       "palette sorts desc by score");
   });
 
-  it("palette lists all five Patina docks", () => {
+  it("palette lists all six docks (VH-19 first)", () => {
     const src = read("src/panels/CommandPalette.tsx");
     for (const n of NAV) {
       assert.ok(src.includes(n.label), `palette lists dock "${n.label}"`);

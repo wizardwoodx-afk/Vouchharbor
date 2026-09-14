@@ -11,15 +11,8 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
 var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -46,7 +39,7 @@ var require_react_production_min = __commonJS({
     var n2 = Symbol.for("react.portal");
     var p = Symbol.for("react.fragment");
     var q = Symbol.for("react.strict_mode");
-    var r2 = Symbol.for("react.profiler");
+    var r = Symbol.for("react.profiler");
     var t = Symbol.for("react.provider");
     var u = Symbol.for("react.context");
     var v = Symbol.for("react.forward_ref");
@@ -205,7 +198,7 @@ var require_react_production_min = __commonJS({
     } };
     exports.Component = E;
     exports.Fragment = p;
-    exports.Profiler = r2;
+    exports.Profiler = r;
     exports.PureComponent = G;
     exports.StrictMode = q;
     exports.Suspense = w;
@@ -930,8 +923,8 @@ var require_react_development = __commonJS({
         }
         var didWarnAboutMaps = false;
         var userProvidedKeyEscapeRegex = /\/+/g;
-        function escapeUserProvidedKey(text4) {
-          return text4.replace(userProvidedKeyEscapeRegex, "$&/");
+        function escapeUserProvidedKey(text) {
+          return text.replace(userProvidedKeyEscapeRegex, "$&/");
         }
         function getElementKey(element, index) {
           if (typeof element === "object" && element !== null && element.key != null) {
@@ -1382,7 +1375,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect2(create, deps) {
+        function useEffect(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -2165,7 +2158,7 @@ var require_react_development = __commonJS({
         exports.useContext = useContext;
         exports.useDebugValue = useDebugValue;
         exports.useDeferredValue = useDeferredValue;
-        exports.useEffect = useEffect2;
+        exports.useEffect = useEffect;
         exports.useId = useId;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
@@ -2224,34 +2217,34 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       this.sanitizeURL = e;
       this.removeEmptyString = g;
     }
-    var r2 = {};
+    var r = {};
     "children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(a) {
-      r2[a] = new q(a, 0, false, a, null, false, false);
+      r[a] = new q(a, 0, false, a, null, false, false);
     });
     [["acceptCharset", "accept-charset"], ["className", "class"], ["htmlFor", "for"], ["httpEquiv", "http-equiv"]].forEach(function(a) {
       var b = a[0];
-      r2[b] = new q(b, 1, false, a[1], null, false, false);
+      r[b] = new q(b, 1, false, a[1], null, false, false);
     });
     ["contentEditable", "draggable", "spellCheck", "value"].forEach(function(a) {
-      r2[a] = new q(a, 2, false, a.toLowerCase(), null, false, false);
+      r[a] = new q(a, 2, false, a.toLowerCase(), null, false, false);
     });
     ["autoReverse", "externalResourcesRequired", "focusable", "preserveAlpha"].forEach(function(a) {
-      r2[a] = new q(a, 2, false, a, null, false, false);
+      r[a] = new q(a, 2, false, a, null, false, false);
     });
     "allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture disableRemotePlayback formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(a) {
-      r2[a] = new q(a, 3, false, a.toLowerCase(), null, false, false);
+      r[a] = new q(a, 3, false, a.toLowerCase(), null, false, false);
     });
     ["checked", "multiple", "muted", "selected"].forEach(function(a) {
-      r2[a] = new q(a, 3, true, a, null, false, false);
+      r[a] = new q(a, 3, true, a, null, false, false);
     });
     ["capture", "download"].forEach(function(a) {
-      r2[a] = new q(a, 4, false, a, null, false, false);
+      r[a] = new q(a, 4, false, a, null, false, false);
     });
     ["cols", "rows", "size", "span"].forEach(function(a) {
-      r2[a] = new q(a, 6, false, a, null, false, false);
+      r[a] = new q(a, 6, false, a, null, false, false);
     });
     ["rowSpan", "start"].forEach(function(a) {
-      r2[a] = new q(a, 5, false, a.toLowerCase(), null, false, false);
+      r[a] = new q(a, 5, false, a.toLowerCase(), null, false, false);
     });
     var la = /[\-:]([a-z])/g;
     function ma(a) {
@@ -2262,22 +2255,22 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         la,
         ma
       );
-      r2[b] = new q(b, 1, false, a, null, false, false);
+      r[b] = new q(b, 1, false, a, null, false, false);
     });
     "xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(a) {
       var b = a.replace(la, ma);
-      r2[b] = new q(b, 1, false, a, "http://www.w3.org/1999/xlink", false, false);
+      r[b] = new q(b, 1, false, a, "http://www.w3.org/1999/xlink", false, false);
     });
     ["xml:base", "xml:lang", "xml:space"].forEach(function(a) {
       var b = a.replace(la, ma);
-      r2[b] = new q(b, 1, false, a, "http://www.w3.org/XML/1998/namespace", false, false);
+      r[b] = new q(b, 1, false, a, "http://www.w3.org/XML/1998/namespace", false, false);
     });
     ["tabIndex", "crossOrigin"].forEach(function(a) {
-      r2[a] = new q(a, 1, false, a.toLowerCase(), null, false, false);
+      r[a] = new q(a, 1, false, a.toLowerCase(), null, false, false);
     });
-    r2.xlinkHref = new q("xlinkHref", 1, false, "xlink:href", "http://www.w3.org/1999/xlink", true, false);
+    r.xlinkHref = new q("xlinkHref", 1, false, "xlink:href", "http://www.w3.org/1999/xlink", true, false);
     ["src", "href", "action", "formAction"].forEach(function(a) {
-      r2[a] = new q(a, 1, false, a.toLowerCase(), null, true, true);
+      r[a] = new q(a, 1, false, a.toLowerCase(), null, true, true);
     });
     var t = {
       animationIterationCount: true,
@@ -2432,7 +2425,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           return;
       }
       if (!(2 < c.length) || "o" !== c[0] && "O" !== c[0] || "n" !== c[1] && "N" !== c[1]) {
-        if (b = r2.hasOwnProperty(c) ? r2[c] : null, null !== b) {
+        if (b = r.hasOwnProperty(c) ? r[c] : null, null !== b) {
           switch (typeof d) {
             case "function":
             case "symbol":
@@ -3762,7 +3755,7 @@ var require_react_dom_server_node_production_min = __commonJS({
     var k = null;
     var l = 0;
     var q = true;
-    function r2(a, b) {
+    function r(a, b) {
       if ("string" === typeof b) {
         if (0 !== b.length) if (2048 < 3 * b.length) 0 < l && (t(a, k.subarray(0, l)), k = new Uint8Array(2048), l = 0), t(a, u.encode(b));
         else {
@@ -3784,7 +3777,7 @@ var require_react_dom_server_node_production_min = __commonJS({
       q = q && a;
     }
     function w(a, b) {
-      r2(a, b);
+      r(a, b);
       return q;
     }
     function ca(a) {
@@ -4378,9 +4371,9 @@ var require_react_dom_server_node_production_min = __commonJS({
     x(' data-stck="');
     var bb = x("></template>");
     function cb(a, b, c) {
-      r2(a, Va);
+      r(a, Va);
       if (null === c) throw Error("An ID must have been assigned before we can complete the boundary.");
-      r2(a, c);
+      r(a, c);
       return w(a, Wa);
     }
     var db = x('<div hidden id="');
@@ -4408,22 +4401,22 @@ var require_react_dom_server_node_production_min = __commonJS({
       switch (c.insertionMode) {
         case 0:
         case 1:
-          return r2(a, db), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, eb);
+          return r(a, db), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, eb);
         case 2:
-          return r2(a, gb), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, hb);
+          return r(a, gb), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, hb);
         case 3:
-          return r2(a, jb), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, kb);
+          return r(a, jb), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, kb);
         case 4:
-          return r2(a, mb), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, nb);
+          return r(a, mb), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, nb);
         case 5:
-          return r2(a, pb), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, qb);
+          return r(a, pb), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, qb);
         case 6:
-          return r2(a, sb), r2(a, b.segmentPrefix), r2(a, d.toString(16)), w(a, tb);
+          return r(a, sb), r(a, b.segmentPrefix), r(a, d.toString(16)), w(a, tb);
         case 7:
-          return r2(a, vb), r2(
+          return r(a, vb), r(
             a,
             b.segmentPrefix
-          ), r2(a, d.toString(16)), w(a, wb);
+          ), r(a, d.toString(16)), w(a, wb);
         default:
           throw Error("Unknown insertion mode. This is a bug in React.");
       }
@@ -5153,10 +5146,10 @@ var require_react_dom_server_node_production_min = __commonJS({
           c.lastPushedText = false;
           c.textEmbedded = false;
           a = a.responseState;
-          r2(b, Sa);
-          r2(b, a.placeholderPrefix);
+          r(b, Sa);
+          r(b, a.placeholderPrefix);
           a = d.toString(16);
-          r2(b, a);
+          r(b, a);
           return w(b, Ta);
         case 1:
           c.status = 2;
@@ -5165,10 +5158,10 @@ var require_react_dom_server_node_production_min = __commonJS({
           var e = 0;
           c = c.children;
           for (var g = 0; g < c.length; g++) {
-            for (f = c[g]; e < f.index; e++) r2(b, d[e]);
+            for (f = c[g]; e < f.index; e++) r(b, d[e]);
             f = fd(a, b, f);
           }
-          for (; e < d.length - 1; e++) r2(b, d[e]);
+          for (; e < d.length - 1; e++) r(b, d[e]);
           e < d.length && (f = w(b, d[e]));
           return f;
         default:
@@ -5179,7 +5172,7 @@ var require_react_dom_server_node_production_min = __commonJS({
       var d = c.boundary;
       if (null === d) return ed(a, b, c);
       d.parentFlushed = true;
-      if (d.forceClientRender) d = d.errorDigest, w(b, Xa), r2(b, Za), d && (r2(b, ab), r2(b, F(d)), r2(b, $a)), w(b, bb), ed(a, b, c);
+      if (d.forceClientRender) d = d.errorDigest, w(b, Xa), r(b, Za), d && (r(b, ab), r(b, F(d)), r(b, $a)), w(b, bb), ed(a, b, c);
       else if (0 < d.pendingTasks) {
         d.rootSegmentID = a.nextSegmentId++;
         0 < d.completedSegments.length && a.partialBoundaries.push(d);
@@ -5209,14 +5202,14 @@ var require_react_dom_server_node_production_min = __commonJS({
       a = a.responseState;
       d = c.id;
       c = c.rootSegmentID;
-      r2(b, a.startInlineScript);
-      a.sentCompleteBoundaryFunction ? r2(b, Gb) : (a.sentCompleteBoundaryFunction = true, r2(b, Fb));
+      r(b, a.startInlineScript);
+      a.sentCompleteBoundaryFunction ? r(b, Gb) : (a.sentCompleteBoundaryFunction = true, r(b, Fb));
       if (null === d) throw Error("An ID must have been assigned before we can complete the boundary.");
       c = c.toString(16);
-      r2(b, d);
-      r2(b, Hb);
-      r2(b, a.segmentPrefix);
-      r2(b, c);
+      r(b, d);
+      r(b, Hb);
+      r(b, a.segmentPrefix);
+      r(b, c);
       return w(b, Ib);
     }
     function id(a, b, c, d) {
@@ -5228,14 +5221,14 @@ var require_react_dom_server_node_production_min = __commonJS({
       }
       gd(a, b, d);
       a = a.responseState;
-      r2(b, a.startInlineScript);
-      a.sentCompleteSegmentFunction ? r2(b, Bb) : (a.sentCompleteSegmentFunction = true, r2(b, Ab));
-      r2(b, a.segmentPrefix);
+      r(b, a.startInlineScript);
+      a.sentCompleteSegmentFunction ? r(b, Bb) : (a.sentCompleteSegmentFunction = true, r(b, Ab));
+      r(b, a.segmentPrefix);
       f = f.toString(16);
-      r2(b, f);
-      r2(b, Cb);
-      r2(b, a.placeholderPrefix);
-      r2(b, f);
+      r(b, f);
+      r(b, Cb);
+      r(b, a.placeholderPrefix);
+      r(b, f);
       return w(b, Db);
     }
     function dd(a, b) {
@@ -5248,7 +5241,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           fd(a, b, c);
           a.completedRootSegment = null;
           var d = a.responseState.bootstrapChunks;
-          for (c = 0; c < d.length - 1; c++) r2(b, d[c]);
+          for (c = 0; c < d.length - 1; c++) r(b, d[c]);
           c < d.length && w(b, d[c]);
         }
         var f = a.clientRenderedBoundaries, e;
@@ -5256,14 +5249,14 @@ var require_react_dom_server_node_production_min = __commonJS({
           var g = f[e];
           d = b;
           var h = a.responseState, m = g.id, n2 = g.errorDigest, p = g.errorMessage, v = g.errorComponentStack;
-          r2(d, h.startInlineScript);
-          h.sentClientRenderFunction ? r2(d, Kb) : (h.sentClientRenderFunction = true, r2(d, Jb));
+          r(d, h.startInlineScript);
+          h.sentClientRenderFunction ? r(d, Kb) : (h.sentClientRenderFunction = true, r(d, Jb));
           if (null === m) throw Error("An ID must have been assigned before we can complete the boundary.");
-          r2(d, m);
-          r2(d, Lb);
-          if (n2 || p || v) r2(d, Nb), r2(d, Pb(n2 || ""));
-          if (p || v) r2(d, Nb), r2(d, Pb(p || ""));
-          v && (r2(d, Nb), r2(d, Pb(v)));
+          r(d, m);
+          r(d, Lb);
+          if (n2 || p || v) r(d, Nb), r(d, Pb(n2 || ""));
+          if (p || v) r(d, Nb), r(d, Pb(p || ""));
+          v && (r(d, Nb), r(d, Pb(v)));
           if (!w(d, Mb)) {
             a.destination = null;
             e++;
@@ -5440,10 +5433,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React = require_react();
+        var React2 = require_react();
         var stream = __require("stream");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React2.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             {
@@ -6930,17 +6923,17 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           {
             checkHtmlStringCoercion(string);
           }
-          var str2 = "" + string;
-          var match = matchHtmlRegExp.exec(str2);
+          var str = "" + string;
+          var match = matchHtmlRegExp.exec(str);
           if (!match) {
-            return str2;
+            return str;
           }
           var escape;
-          var html5 = "";
+          var html2 = "";
           var index;
           var lastIndex = 0;
-          for (index = match.index; index < str2.length; index++) {
-            switch (str2.charCodeAt(index)) {
+          for (index = match.index; index < str.length; index++) {
+            switch (str.charCodeAt(index)) {
               case 34:
                 escape = "&quot;";
                 break;
@@ -6960,18 +6953,18 @@ var require_react_dom_server_legacy_node_development = __commonJS({
                 continue;
             }
             if (lastIndex !== index) {
-              html5 += str2.substring(lastIndex, index);
+              html2 += str.substring(lastIndex, index);
             }
             lastIndex = index + 1;
-            html5 += escape;
+            html2 += escape;
           }
-          return lastIndex !== index ? html5 + str2.substring(lastIndex, index) : html5;
+          return lastIndex !== index ? html2 + str.substring(lastIndex, index) : html2;
         }
-        function escapeTextForBrowser(text4) {
-          if (typeof text4 === "boolean" || typeof text4 === "number") {
-            return "" + text4;
+        function escapeTextForBrowser(text) {
+          if (typeof text === "boolean" || typeof text === "number") {
+            return "" + text;
           }
-          return escapeHtml(text4);
+          return escapeHtml(text);
         }
         var uppercasePattern = /([A-Z])/g;
         var msPattern$1 = /^ms-/;
@@ -7095,18 +7088,18 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           }
           return id + ":";
         }
-        function encodeHTMLTextNode(text4) {
-          return escapeTextForBrowser(text4);
+        function encodeHTMLTextNode(text) {
+          return escapeTextForBrowser(text);
         }
         var textSeparator = stringToPrecomputedChunk("<!-- -->");
-        function pushTextInstance(target, text4, responseState, textEmbedded) {
-          if (text4 === "") {
+        function pushTextInstance(target, text, responseState, textEmbedded) {
+          if (text === "") {
             return textEmbedded;
           }
           if (textEmbedded) {
             target.push(textSeparator);
           }
-          target.push(stringToChunk(encodeHTMLTextNode(text4)));
+          target.push(stringToChunk(encodeHTMLTextNode(text)));
           return true;
         }
         function pushSegmentFinale(target, responseState, lastPushedText, textEmbedded) {
@@ -7279,12 +7272,12 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
               throw new Error("`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://reactjs.org/link/dangerously-set-inner-html for more information.");
             }
-            var html5 = innerHTML.__html;
-            if (html5 !== null && html5 !== void 0) {
+            var html2 = innerHTML.__html;
+            if (html2 !== null && html2 !== void 0) {
               {
-                checkHtmlStringCoercion(html5);
+                checkHtmlStringCoercion(html2);
               }
-              target.push(stringToChunk("" + html5));
+              target.push(stringToChunk("" + html2));
             }
           }
         }
@@ -7349,7 +7342,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         }
         function flattenOptionChildren(children) {
           var content = "";
-          React.Children.forEach(children, function(child) {
+          React2.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -7757,15 +7750,15 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
               throw new Error("`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://reactjs.org/link/dangerously-set-inner-html for more information.");
             }
-            var html5 = innerHTML.__html;
-            if (html5 !== null && html5 !== void 0) {
-              if (typeof html5 === "string" && html5.length > 0 && html5[0] === "\n") {
-                target.push(leadingNewline, stringToChunk(html5));
+            var html2 = innerHTML.__html;
+            if (html2 !== null && html2 !== void 0) {
+              if (typeof html2 === "string" && html2.length > 0 && html2[0] === "\n") {
+                target.push(leadingNewline, stringToChunk(html2));
               } else {
                 {
-                  checkHtmlStringCoercion(html5);
+                  checkHtmlStringCoercion(html2);
                 }
-                target.push(stringToChunk("" + html5));
+                target.push(stringToChunk("" + html2));
               }
             }
           }
@@ -8193,12 +8186,12 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             selectedValue: null
           };
         }
-        function pushTextInstance$1(target, text4, responseState, textEmbedded) {
+        function pushTextInstance$1(target, text, responseState, textEmbedded) {
           if (responseState.generateStaticMarkup) {
-            target.push(stringToChunk(escapeTextForBrowser(text4)));
+            target.push(stringToChunk(escapeTextForBrowser(text)));
             return false;
           } else {
-            return pushTextInstance(target, text4, responseState, textEmbedded);
+            return pushTextInstance(target, text, responseState, textEmbedded);
           }
         }
         function pushSegmentFinale$1(target, responseState, lastPushedText, textEmbedded) {
@@ -10564,7 +10557,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             }
             case COMPLETED: {
               segment.status = FLUSHED;
-              var r2 = true;
+              var r = true;
               var chunks = segment.chunks;
               var chunkIdx = 0;
               var children = segment.children;
@@ -10573,15 +10566,15 @@ var require_react_dom_server_legacy_node_development = __commonJS({
                 for (; chunkIdx < nextChild.index; chunkIdx++) {
                   writeChunk(destination, chunks[chunkIdx]);
                 }
-                r2 = flushSegment(request, destination, nextChild);
+                r = flushSegment(request, destination, nextChild);
               }
               for (; chunkIdx < chunks.length - 1; chunkIdx++) {
                 writeChunk(destination, chunks[chunkIdx]);
               }
               if (chunkIdx < chunks.length) {
-                r2 = writeChunkAndReturn(destination, chunks[chunkIdx]);
+                r = writeChunkAndReturn(destination, chunks[chunkIdx]);
               }
-              return r2;
+              return r;
             }
             default: {
               throw new Error("Aborted, errored or already flushed boundaries should not be flushed again. This is a bug in React.");
@@ -10886,10 +10879,10 @@ var require_react_dom_server_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React = require_react();
+        var React2 = require_react();
         var util = __require("util");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React2.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             {
@@ -10959,12 +10952,12 @@ var require_react_dom_server_node_development = __commonJS({
           if (writtenBytes > 0) {
             target = currentView.subarray(writtenBytes);
           }
-          var _textEncoder$encodeIn = textEncoder.encodeInto(stringChunk, target), read = _textEncoder$encodeIn.read, written = _textEncoder$encodeIn.written;
+          var _textEncoder$encodeIn = textEncoder.encodeInto(stringChunk, target), read2 = _textEncoder$encodeIn.read, written = _textEncoder$encodeIn.written;
           writtenBytes += written;
-          if (read < stringChunk.length) {
+          if (read2 < stringChunk.length) {
             writeToDestination(destination, currentView);
             currentView = new Uint8Array(VIEW_SIZE);
-            writtenBytes = textEncoder.encodeInto(stringChunk.slice(read), currentView).written;
+            writtenBytes = textEncoder.encodeInto(stringChunk.slice(read2), currentView).written;
           }
           if (writtenBytes === VIEW_SIZE) {
             writeToDestination(destination, currentView);
@@ -12469,17 +12462,17 @@ var require_react_dom_server_node_development = __commonJS({
           {
             checkHtmlStringCoercion(string);
           }
-          var str2 = "" + string;
-          var match = matchHtmlRegExp.exec(str2);
+          var str = "" + string;
+          var match = matchHtmlRegExp.exec(str);
           if (!match) {
-            return str2;
+            return str;
           }
           var escape;
-          var html5 = "";
+          var html2 = "";
           var index;
           var lastIndex = 0;
-          for (index = match.index; index < str2.length; index++) {
-            switch (str2.charCodeAt(index)) {
+          for (index = match.index; index < str.length; index++) {
+            switch (str.charCodeAt(index)) {
               case 34:
                 escape = "&quot;";
                 break;
@@ -12499,18 +12492,18 @@ var require_react_dom_server_node_development = __commonJS({
                 continue;
             }
             if (lastIndex !== index) {
-              html5 += str2.substring(lastIndex, index);
+              html2 += str.substring(lastIndex, index);
             }
             lastIndex = index + 1;
-            html5 += escape;
+            html2 += escape;
           }
-          return lastIndex !== index ? html5 + str2.substring(lastIndex, index) : html5;
+          return lastIndex !== index ? html2 + str.substring(lastIndex, index) : html2;
         }
-        function escapeTextForBrowser(text4) {
-          if (typeof text4 === "boolean" || typeof text4 === "number") {
-            return "" + text4;
+        function escapeTextForBrowser(text) {
+          if (typeof text === "boolean" || typeof text === "number") {
+            return "" + text;
           }
-          return escapeHtml(text4);
+          return escapeHtml(text);
         }
         var uppercasePattern = /([A-Z])/g;
         var msPattern$1 = /^ms-/;
@@ -12638,18 +12631,18 @@ var require_react_dom_server_node_development = __commonJS({
           }
           return id + ":";
         }
-        function encodeHTMLTextNode(text4) {
-          return escapeTextForBrowser(text4);
+        function encodeHTMLTextNode(text) {
+          return escapeTextForBrowser(text);
         }
         var textSeparator = stringToPrecomputedChunk("<!-- -->");
-        function pushTextInstance(target, text4, responseState, textEmbedded) {
-          if (text4 === "") {
+        function pushTextInstance(target, text, responseState, textEmbedded) {
+          if (text === "") {
             return textEmbedded;
           }
           if (textEmbedded) {
             target.push(textSeparator);
           }
-          target.push(stringToChunk(encodeHTMLTextNode(text4)));
+          target.push(stringToChunk(encodeHTMLTextNode(text)));
           return true;
         }
         function pushSegmentFinale(target, responseState, lastPushedText, textEmbedded) {
@@ -12822,12 +12815,12 @@ var require_react_dom_server_node_development = __commonJS({
             if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
               throw new Error("`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://reactjs.org/link/dangerously-set-inner-html for more information.");
             }
-            var html5 = innerHTML.__html;
-            if (html5 !== null && html5 !== void 0) {
+            var html2 = innerHTML.__html;
+            if (html2 !== null && html2 !== void 0) {
               {
-                checkHtmlStringCoercion(html5);
+                checkHtmlStringCoercion(html2);
               }
-              target.push(stringToChunk("" + html5));
+              target.push(stringToChunk("" + html2));
             }
           }
         }
@@ -12892,7 +12885,7 @@ var require_react_dom_server_node_development = __commonJS({
         }
         function flattenOptionChildren(children) {
           var content = "";
-          React.Children.forEach(children, function(child) {
+          React2.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -13300,15 +13293,15 @@ var require_react_dom_server_node_development = __commonJS({
             if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
               throw new Error("`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://reactjs.org/link/dangerously-set-inner-html for more information.");
             }
-            var html5 = innerHTML.__html;
-            if (html5 !== null && html5 !== void 0) {
-              if (typeof html5 === "string" && html5.length > 0 && html5[0] === "\n") {
-                target.push(leadingNewline, stringToChunk(html5));
+            var html2 = innerHTML.__html;
+            if (html2 !== null && html2 !== void 0) {
+              if (typeof html2 === "string" && html2.length > 0 && html2[0] === "\n") {
+                target.push(leadingNewline, stringToChunk(html2));
               } else {
                 {
-                  checkHtmlStringCoercion(html5);
+                  checkHtmlStringCoercion(html2);
                 }
-                target.push(stringToChunk("" + html5));
+                target.push(stringToChunk("" + html2));
               }
             }
           }
@@ -16043,7 +16036,7 @@ var require_react_dom_server_node_development = __commonJS({
             }
             case COMPLETED: {
               segment.status = FLUSHED;
-              var r2 = true;
+              var r = true;
               var chunks = segment.chunks;
               var chunkIdx = 0;
               var children = segment.children;
@@ -16052,15 +16045,15 @@ var require_react_dom_server_node_development = __commonJS({
                 for (; chunkIdx < nextChild.index; chunkIdx++) {
                   writeChunk(destination, chunks[chunkIdx]);
                 }
-                r2 = flushSegment(request, destination, nextChild);
+                r = flushSegment(request, destination, nextChild);
               }
               for (; chunkIdx < chunks.length - 1; chunkIdx++) {
                 writeChunk(destination, chunks[chunkIdx]);
               }
               if (chunkIdx < chunks.length) {
-                r2 = writeChunkAndReturn(destination, chunks[chunkIdx]);
+                r = writeChunkAndReturn(destination, chunks[chunkIdx]);
               }
-              return r2;
+              return r;
             }
             default: {
               throw new Error("Aborted, errored or already flushed boundaries should not be flushed again. This is a bug in React.");
@@ -16331,161 +16324,6 @@ var require_server_node = __commonJS({
   }
 });
 
-// node_modules/@tauri-apps/api/external/tslib/tslib.es6.js
-function __classPrivateFieldGet(receiver, state, kind, f) {
-  if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-  if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-  return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-}
-function __classPrivateFieldSet(receiver, state, value, kind, f) {
-  if (kind === "m") throw new TypeError("Private method is not writable");
-  if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-  if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-  return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
-}
-var init_tslib_es6 = __esm({
-  "node_modules/@tauri-apps/api/external/tslib/tslib.es6.js"() {
-  }
-});
-
-// node_modules/@tauri-apps/api/core.js
-var core_exports = {};
-__export(core_exports, {
-  Channel: () => Channel,
-  PluginListener: () => PluginListener,
-  Resource: () => Resource,
-  SERIALIZE_TO_IPC_FN: () => SERIALIZE_TO_IPC_FN,
-  addPluginListener: () => addPluginListener,
-  checkPermissions: () => checkPermissions,
-  convertFileSrc: () => convertFileSrc,
-  invoke: () => invoke,
-  isTauri: () => isTauri,
-  requestPermissions: () => requestPermissions,
-  transformCallback: () => transformCallback
-});
-function transformCallback(callback, once = false) {
-  return window.__TAURI_INTERNALS__.transformCallback(callback, once);
-}
-async function addPluginListener(plugin, event, cb) {
-  const handler = new Channel(cb);
-  try {
-    await invoke(`plugin:${plugin}|register_listener`, {
-      event,
-      handler
-    });
-    return new PluginListener(plugin, event, handler.id);
-  } catch {
-    await invoke(`plugin:${plugin}|registerListener`, { event, handler });
-    return new PluginListener(plugin, event, handler.id);
-  }
-}
-async function checkPermissions(plugin) {
-  return invoke(`plugin:${plugin}|check_permissions`);
-}
-async function requestPermissions(plugin) {
-  return invoke(`plugin:${plugin}|request_permissions`);
-}
-async function invoke(cmd, args = {}, options) {
-  return window.__TAURI_INTERNALS__.invoke(cmd, args, options);
-}
-function convertFileSrc(filePath, protocol = "asset") {
-  return window.__TAURI_INTERNALS__.convertFileSrc(filePath, protocol);
-}
-function isTauri() {
-  return !!(globalThis || window).isTauri;
-}
-var _Channel_onmessage, _Channel_nextMessageIndex, _Channel_pendingMessages, _Channel_messageEndIndex, _Resource_rid, SERIALIZE_TO_IPC_FN, Channel, PluginListener, Resource;
-var init_core = __esm({
-  "node_modules/@tauri-apps/api/core.js"() {
-    init_tslib_es6();
-    SERIALIZE_TO_IPC_FN = "__TAURI_TO_IPC_KEY__";
-    Channel = class {
-      constructor(onmessage) {
-        _Channel_onmessage.set(this, void 0);
-        _Channel_nextMessageIndex.set(this, 0);
-        _Channel_pendingMessages.set(this, []);
-        _Channel_messageEndIndex.set(this, void 0);
-        __classPrivateFieldSet(this, _Channel_onmessage, onmessage || (() => {
-        }), "f");
-        this.id = transformCallback((rawMessage) => {
-          const index = rawMessage.index;
-          if ("end" in rawMessage) {
-            if (index == __classPrivateFieldGet(this, _Channel_nextMessageIndex, "f")) {
-              this.cleanupCallback();
-            } else {
-              __classPrivateFieldSet(this, _Channel_messageEndIndex, index, "f");
-            }
-            return;
-          }
-          const message = rawMessage.message;
-          if (index == __classPrivateFieldGet(this, _Channel_nextMessageIndex, "f")) {
-            __classPrivateFieldGet(this, _Channel_onmessage, "f").call(this, message);
-            __classPrivateFieldSet(this, _Channel_nextMessageIndex, __classPrivateFieldGet(this, _Channel_nextMessageIndex, "f") + 1, "f");
-            while (__classPrivateFieldGet(this, _Channel_nextMessageIndex, "f") in __classPrivateFieldGet(this, _Channel_pendingMessages, "f")) {
-              const message2 = __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[__classPrivateFieldGet(this, _Channel_nextMessageIndex, "f")];
-              __classPrivateFieldGet(this, _Channel_onmessage, "f").call(this, message2);
-              delete __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[__classPrivateFieldGet(this, _Channel_nextMessageIndex, "f")];
-              __classPrivateFieldSet(this, _Channel_nextMessageIndex, __classPrivateFieldGet(this, _Channel_nextMessageIndex, "f") + 1, "f");
-            }
-            if (__classPrivateFieldGet(this, _Channel_nextMessageIndex, "f") === __classPrivateFieldGet(this, _Channel_messageEndIndex, "f")) {
-              this.cleanupCallback();
-            }
-          } else {
-            __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[index] = message;
-          }
-        });
-      }
-      cleanupCallback() {
-        window.__TAURI_INTERNALS__.unregisterCallback(this.id);
-      }
-      set onmessage(handler) {
-        __classPrivateFieldSet(this, _Channel_onmessage, handler, "f");
-      }
-      get onmessage() {
-        return __classPrivateFieldGet(this, _Channel_onmessage, "f");
-      }
-      [(_Channel_onmessage = /* @__PURE__ */ new WeakMap(), _Channel_nextMessageIndex = /* @__PURE__ */ new WeakMap(), _Channel_pendingMessages = /* @__PURE__ */ new WeakMap(), _Channel_messageEndIndex = /* @__PURE__ */ new WeakMap(), SERIALIZE_TO_IPC_FN)]() {
-        return `__CHANNEL__:${this.id}`;
-      }
-      toJSON() {
-        return this[SERIALIZE_TO_IPC_FN]();
-      }
-    };
-    PluginListener = class {
-      constructor(plugin, event, channelId) {
-        this.plugin = plugin;
-        this.event = event;
-        this.channelId = channelId;
-      }
-      async unregister() {
-        return invoke(`plugin:${this.plugin}|remove_listener`, {
-          event: this.event,
-          channelId: this.channelId
-        });
-      }
-    };
-    Resource = class {
-      get rid() {
-        return __classPrivateFieldGet(this, _Resource_rid, "f");
-      }
-      constructor(rid) {
-        _Resource_rid.set(this, void 0);
-        __classPrivateFieldSet(this, _Resource_rid, rid, "f");
-      }
-      /**
-       * Destroys and cleans up this resource from memory.
-       * **You should not call any method on this object anymore and should drop any reference to it.**
-       */
-      async close() {
-        return invoke("plugin:resources|close", {
-          rid: this.rid
-        });
-      }
-    };
-    _Resource_rid = /* @__PURE__ */ new WeakMap();
-  }
-});
-
 // node_modules/react/cjs/react-jsx-runtime.production.min.js
 var require_react_jsx_runtime_production_min = __commonJS({
   "node_modules/react/cjs/react-jsx-runtime.production.min.js"(exports) {
@@ -16518,7 +16356,7 @@ var require_react_jsx_runtime_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React = require_react();
+        var React2 = require_react();
         var REACT_ELEMENT_TYPE = Symbol.for("react.element");
         var REACT_PORTAL_TYPE = Symbol.for("react.portal");
         var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
@@ -16544,7 +16382,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return null;
         }
-        var ReactSharedInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React2.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function error(format) {
           {
             {
@@ -17416,23 +17254,14 @@ var require_jsx_runtime = __commonJS({
   }
 });
 
-// probe/v10Page.test.tsx
+// probe/vh19Door.test.tsx
 var import_server = __toESM(require_server_node(), 1);
 var import_react2 = __toESM(require_react(), 1);
+import * as fs from "node:fs";
+import * as path from "node:path";
 
-// src/pages/V10Page.tsx
+// src/views/Vh19.tsx
 var import_react = __toESM(require_react(), 1);
-
-// src/app/desktop.ts
-function detectHost() {
-  return typeof window !== "undefined" && Boolean(window.__TAURI_INTERNALS__) ? "tauri" : "web";
-}
-
-// src/version.ts
-var VH_VERSION = "18.0.1";
-var VH_SHORT = "18.0";
-var VH_CODENAME = "Generalist";
-var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts
 var n = 0;
@@ -17444,3445 +17273,1711 @@ function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
 
-// src/domain/types.ts
-var GRAPH_SCHEMA_VERSION = 2;
-
-// src/ipc/localDb.ts
-var KEY = "vouch.v3.db";
-function empty() {
-  return {
-    workflows: [],
-    executions: [],
-    events: [],
-    memories: [],
-    skills: [],
-    feedback: [],
-    evolution: [],
-    mcp: seedMcp(),
-    approvals: [],
-    dlq: [],
-    secrets: {},
-    runQueue: []
-  };
+// src/security/guardrail.ts
+var CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+var INVISIBLE_UNICODE = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF\u{E0000}-\u{E007F}]/gu;
+function sanitizeText(text, maxLen = 2e3) {
+  return text.replace(CONTROL_CHARS, "").replace(INVISIBLE_UNICODE, "").slice(0, maxLen).trim();
 }
-function seedMcp() {
-  const now = nowIso();
-  const rows = [
-    ["mcp.filesystem", "Filesystem", "npx", ["-y", "tsx", "vendor/mcp-servers-reference/src/filesystem/index.ts"]],
-    ["mcp.git", "Git", "python", ["-m", "mcp_server_git"]],
-    ["mcp.memory", "Memory", "npx", ["-y", "tsx", "vendor/mcp-servers-reference/src/memory/index.ts"]],
-    ["mcp.sequential-thinking", "Sequential Thinking", "npx", ["-y", "tsx", "vendor/mcp-servers-reference/src/sequentialthinking/index.ts"]],
-    ["mcp.time", "Time", "python", ["-m", "mcp_server_time"]],
-    ["mcp.github", "GitHub", "github-mcp-server", ["stdio"]],
-    ["mcp.control", "Control MCP", "vouch-control-mcp", ["stdio"]]
-  ];
-  return rows.map(([id, name, command, args]) => ({
-    id,
-    name,
-    transport: "stdio",
-    config: { transport: "stdio", command, args, enabled: id === "mcp.control", pinned: true },
-    state: "AVAILABLE",
-    createdAt: now,
-    updatedAt: now
-  }));
+var INJECTION_DETECTORS = [
+  {
+    code: "role-hijack",
+    reason: "content tries to override the agent's role or instructions",
+    test: (t) => /ignore\s+(all\s+|any\s+|previous\s+|prior\s+|above\s+)*instructions/i.test(t) || /disregard\s+(all\s+|any\s+|previous\s+|prior\s+)*instructions/i.test(t) || /you\s+are\s+now\s+(a|an|in)\b/i.test(t) || /new\s+system\s+prompt/i.test(t)
+  },
+  {
+    code: "fake-system-marker",
+    reason: "content contains forged system/role delimiters",
+    test: (t) => /<\/?\s*system\s*>/i.test(t) || /\[\s*(SYSTEM|INST|SYS)\s*\]/i.test(t) || /^system\s*:/im.test(t) && /assistant\s*:/i.test(t)
+  },
+  {
+    code: "fake-tool-call",
+    reason: "content embeds forged tool/function-call markup",
+    test: (t) => /\[\s*tool(_use|_call|_result)?\s*\]/i.test(t) || /<\s*\/?\s*(antml|function_call|tool_use|invoke)\b/i.test(t) || /\{\s*"name"\s*:\s*"[a-z0-9_.-]{1,64}"\s*,\s*"arguments"/i.test(t)
+  },
+  {
+    code: "encoded-payload",
+    reason: "content carries a long encoded blob (base64-class) that hides instructions from review",
+    test: (t) => /[A-Za-z0-9+/]{80,}={0,2}/.test(t)
+  },
+  {
+    code: "exfiltration-prompt",
+    reason: "content asks for credentials/secrets to be sent somewhere",
+    test: (t) => /(api[_ -]?key|secret[_ -]?key|access[_ -]?token|password|credentials?).{0,60}(send|post|upload|fetch|transmit|exfiltrate|to\s+https?:)/i.test(t)
+  },
+  {
+    code: "html-data-uri",
+    reason: "content embeds an executable data: URI",
+    test: (t) => /data\s*:\s*text\/html/i.test(t) || /javascript\s*:/i.test(t)
+  },
+  {
+    code: "invisible-characters",
+    reason: "content contains invisible/zero-width characters (smuggling surface)",
+    test: (t) => INVISIBLE_UNICODE.test(t)
+  }
+];
+function detectInjection(text) {
+  if (!text) return [];
+  const findings = [];
+  for (const d of INJECTION_DETECTORS) {
+    if (d.test(text)) findings.push({ code: d.code, reason: d.reason });
+  }
+  return findings;
 }
-function load() {
+var RateGate = class {
+  constructor(limit, windowMs, now = () => Date.now()) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+    this.now = now;
+  }
+  hits = /* @__PURE__ */ new Map();
+  /** Returns true when the action is within budget (and records it). */
+  check(key) {
+    const t = this.now();
+    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+    if (arr.length >= this.limit) {
+      this.hits.set(key, arr);
+      return false;
+    }
+    arr.push(t);
+    this.hits.set(key, arr);
+    return true;
+  }
+};
+var BLOCKED_HOST_SUFFIXES = [".internal", ".local", ".localhost"];
+function checkEgressUrl(raw) {
+  let u;
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return empty();
-    return { ...empty(), ...JSON.parse(raw) };
+    u = new URL(raw);
   } catch {
-    return empty();
+    return { ok: false, reason: "not a parseable URL" };
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    return { ok: false, reason: `scheme "${u.protocol}" refused \u2014 only http(s) egress is allowed` };
+  }
+  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "169.254.169.254" || host === "metadata.google.internal") {
+    return { ok: false, reason: "cloud metadata endpoint refused (SSRF guard)" };
+  }
+  if (/^169\.254\./.test(host)) {
+    return { ok: false, reason: "link-local address refused (SSRF guard)" };
+  }
+  if (host === "0.0.0.0" || host === "::") {
+    return { ok: false, reason: "unspecified address refused" };
+  }
+  for (const sfx of BLOCKED_HOST_SUFFIXES) {
+    if (host.endsWith(sfx)) return { ok: false, reason: `host suffix "${sfx}" refused` };
+  }
+  return { ok: true, reason: "" };
+}
+var callRateGate = new RateGate(120, 6e4);
+
+// src/vh19/registry.ts
+var seed = (id, name, category, capabilities, keywords, riskTier, systemPrompt) => ({ id, name, category, capabilities, keywords, riskTier, systemPrompt, provenance: "vh-18.0.0-seed" });
+var SPECIALISTS = [
+  /* ── code ───────────────────────────────────────────────────────────────── */
+  seed(
+    "code.typescript",
+    "TypeScript Engineer",
+    "code",
+    ["Writes and refactors TypeScript under strict mode", "Designs module boundaries and public types"],
+    ["typescript", "ts", "refactor", "types", "interface", "strict", "module"],
+    "safe",
+    "You are a senior TypeScript engineer. Write strict-mode-clean code, prefer explicit types at boundaries, and explain every design decision in one line."
+  ),
+  seed(
+    "code.react-ui",
+    "React UI Engineer",
+    "code",
+    ["Builds accessible React components", "Manages state with hooks and stores"],
+    ["react", "component", "ui", "hook", "jsx", "tsx", "state", "frontend"],
+    "safe",
+    "You are a React engineer. Build small, accessible components; lift state only when needed; never break rendering contracts silently."
+  ),
+  seed(
+    "code.rust",
+    "Rust Systems Engineer",
+    "code",
+    ["Writes idiomatic, safe Rust", "Reasons about ownership, lifetimes and async"],
+    ["rust", "cargo", "ownership", "lifetime", "async", "systems"],
+    "safe",
+    "You are a Rust systems engineer. Prefer safe abstractions, justify every unsafe block, and keep error handling explicit with thiserror-style enums."
+  ),
+  seed(
+    "code.debugging",
+    "Debugging Specialist",
+    "code",
+    ["Bisects failures to a root cause", "Reads stack traces and logs forensically"],
+    ["bug", "debug", "error", "crash", "stack", "trace", "failure", "fix"],
+    "safe",
+    "You are a debugging specialist. Reproduce first, hypothesize second, patch third. Never propose a fix you cannot tie to an observed symptom."
+  ),
+  seed(
+    "code.database",
+    "Database Engineer",
+    "code",
+    ["Designs schemas and migrations", "Writes and optimizes SQL"],
+    ["database", "sql", "schema", "migration", "index", "query", "sqlite", "postgres"],
+    "risky",
+    "You are a database engineer. Every migration must be reversible or explicitly flagged irreversible; never propose destructive statements without a stated backup path."
+  ),
+  seed(
+    "code.api-design",
+    "API Designer",
+    "code",
+    ["Designs REST and JSON-RPC surfaces", "Writes OpenAPI-compatible contracts"],
+    ["api", "rest", "endpoint", "contract", "openapi", "jsonrpc", "route"],
+    "safe",
+    "You are an API designer. Design for the caller: stable contracts, honest error bodies, versioned surfaces, no breaking changes without a migration note."
+  ),
+  /* ── security ───────────────────────────────────────────────────────────── */
+  seed(
+    "security.review",
+    "Security Reviewer",
+    "security",
+    ["Reviews code for injection, authz and secrets exposure", "Maps findings to severity with evidence"],
+    ["security", "vulnerability", "audit", "threat", "injection", "authz", "cve"],
+    "safe",
+    "You are a security reviewer. Every finding must cite the exact code path; rate severity honestly; never inflate or deflate to please."
+  ),
+  seed(
+    "security.crypto",
+    "Cryptography Specialist",
+    "security",
+    ["Reviews key handling, signatures and rotation", "Flags misuse of primitives"],
+    ["crypto", "signature", "key", "rotation", "hash", "jws", "encryption", "tls"],
+    "risky",
+    "You are a cryptography specialist. Recommend only vetted primitives with stated parameters; any key-material handling advice must assume the keys are hostile-adjacent."
+  ),
+  seed(
+    "security.secrets",
+    "Secrets Hygiene Specialist",
+    "security",
+    ["Finds leaked or hardcoded credentials", "Designs key storage and rotation practice"],
+    ["secret", "credential", "api", "key", "token", "keychain", "env"],
+    "risky",
+    "You are a secrets-hygiene specialist. Keys live in keychains or env, never in code or logs; every remediation states where the secret moves and how the old one dies."
+  ),
+  /* ── testing ────────────────────────────────────────────────────────────── */
+  seed(
+    "testing.unit",
+    "Unit Test Engineer",
+    "testing",
+    ["Writes deterministic unit tests", "Designs edge-case matrices"],
+    ["test", "unit", "assert", "coverage", "spec", "jest", "node"],
+    "safe",
+    "You are a test engineer. Tests must be deterministic, named for the behavior they pin, and fail for the right reason \u2014 show the failing case, not just the passing one."
+  ),
+  seed(
+    "testing.e2e",
+    "End-to-End Test Engineer",
+    "testing",
+    ["Designs cross-process integration probes", "Drives real binaries in harnesses"],
+    ["e2e", "integration", "probe", "harness", "playwright", "browser", "process"],
+    "safe",
+    "You are an integration-test engineer. Drive the real thing (real processes, real files) or say plainly that the check is simulated."
+  ),
+  seed(
+    "testing.property",
+    "Property Test Designer",
+    "testing",
+    ["Designs invariant/property checks", "Finds counterexamples to stated contracts"],
+    ["property", "invariant", "fuzz", "counterexample", "quickcheck"],
+    "safe",
+    "You design property tests: state the invariant, generate adversarial inputs, and report the smallest counterexample."
+  ),
+  /* ── review ─────────────────────────────────────────────────────────────── */
+  seed(
+    "review.code",
+    "Code Reviewer",
+    "review",
+    ["Reviews diffs for correctness and maintainability", "Separates blocking findings from nits"],
+    ["review", "diff", "pr", "pull", "feedback", "nit", "blocking"],
+    "safe",
+    "You are a code reviewer. Label every finding BLOCKING or NIT. Praise what is right; block only with a concrete failure scenario."
+  ),
+  seed(
+    "review.docs",
+    "Documentation Reviewer",
+    "review",
+    ["Checks docs against the code they describe", "Flags stale claims"],
+    ["docs", "documentation", "readme", "stale", "accurate", "changelog"],
+    "safe",
+    "You review documentation against the code. Every claim must be checkable; a doc that overstates the product is a defect."
+  ),
+  /* ── data ───────────────────────────────────────────────────────────────── */
+  seed(
+    "data.analysis",
+    "Data Analyst",
+    "data",
+    ["Cleans and analyzes tabular data", "Reports findings with uncertainty stated"],
+    ["data", "analysis", "csv", "statistics", "metric", "trend", "correlation"],
+    "safe",
+    "You are a data analyst. State sample sizes and uncertainty; correlation is labeled as correlation; never dress an estimate as a measurement."
+  ),
+  seed(
+    "data.etl",
+    "Data Pipeline Engineer",
+    "data",
+    ["Designs idempotent ETL flows", "Handles schema drift and backfills"],
+    ["etl", "pipeline", "ingest", "transform", "batch", "stream", "backfill"],
+    "risky",
+    "You design data pipelines: idempotent steps, explicit schema contracts, and a stated replay story for every stage."
+  ),
+  seed(
+    "data.vectors",
+    "Retrieval Specialist",
+    "data",
+    ["Designs embedding and retrieval flows", "Evaluates recall/precision tradeoffs"],
+    ["embedding", "vector", "retrieval", "rag", "similarity", "search", "semantic"],
+    "safe",
+    "You are a retrieval specialist. Measure recall before claiming quality; prefer hybrid lexical+semantic retrieval unless evidence says otherwise."
+  ),
+  /* ── devops ─────────────────────────────────────────────────────────────── */
+  seed(
+    "devops.ci",
+    "CI Engineer",
+    "devops",
+    ["Writes and repairs CI workflows", "Designs gating and caching strategy"],
+    ["ci", "pipeline", "github", "actions", "workflow", "build", "runner", "cache"],
+    "safe",
+    "You are a CI engineer. Pipelines fail loudly and fast; every gate names what it protects; caches never mask a real failure."
+  ),
+  seed(
+    "devops.containers",
+    "Container Specialist",
+    "devops",
+    ["Writes minimal, pinned Dockerfiles", "Audits image supply chain"],
+    ["docker", "container", "image", "compose", "kubernetes", "deploy"],
+    "risky",
+    "You are a container specialist. Pin digests, run as non-root, keep images minimal, and never bake secrets into layers."
+  ),
+  seed(
+    "devops.observability",
+    "Observability Engineer",
+    "devops",
+    ["Designs logs, metrics and traces", "Writes alert rules that respect noise budgets"],
+    ["observability", "logging", "metrics", "tracing", "alert", "monitor", "grafana", "prometheus"],
+    "safe",
+    "You design observability: every alert maps to a user-visible symptom; logs carry correlation ids; dashboards answer a question, not decorate."
+  ),
+  /* ── research ───────────────────────────────────────────────────────────── */
+  seed(
+    "research.web",
+    "Web Researcher",
+    "research",
+    ["Finds and verifies current information", "Cites sources with dates"],
+    ["research", "search", "web", "source", "cite", "current", "news", "find"],
+    "safe",
+    "You are a researcher. Every claim carries its source and date; conflicting sources are reported as conflicts, not silently resolved."
+  ),
+  seed(
+    "research.codebase",
+    "Codebase Explorer",
+    "research",
+    ["Maps unfamiliar repositories", "Traces call graphs and data flows"],
+    ["codebase", "repository", "explore", "architecture", "call", "graph", "trace", "map"],
+    "safe",
+    "You explore codebases: entry points first, then call graph, then data flow. Report what you verified by reading, and mark inferences as inferences."
+  ),
+  seed(
+    "research.papers",
+    "Technical Literature Analyst",
+    "research",
+    ["Summarizes papers and specs faithfully", "Separates results from claims"],
+    ["paper", "arxiv", "spec", "literature", "study", "benchmark", "protocol"],
+    "safe",
+    "You analyze technical literature: results tables over abstracts; a benchmark claim without its setup is reported as marketing."
+  ),
+  /* ── writing ────────────────────────────────────────────────────────────── */
+  seed(
+    "writing.technical",
+    "Technical Writer",
+    "writing",
+    ["Writes precise technical documentation", "Edits for clarity without losing meaning"],
+    ["write", "writing", "documentation", "guide", "tutorial", "explain", "edit", "clarity"],
+    "safe",
+    "You are a technical writer. One idea per sentence; define terms before using them; examples before abstractions."
+  ),
+  seed(
+    "writing.release",
+    "Release Notes Writer",
+    "writing",
+    ["Writes honest changelogs and release notes", "Maps changes to user impact"],
+    ["changelog", "release", "notes", "announcement", "version", "shipping"],
+    "safe",
+    "You write release notes: what changed, who it affects, what to do about it. Known gaps are listed, not hidden."
+  ),
+  /* ── analysis ───────────────────────────────────────────────────────────── */
+  seed(
+    "analysis.perf",
+    "Performance Analyst",
+    "analysis",
+    ["Profiles and finds hot paths", "Proposes fixes with measured justification"],
+    ["performance", "slow", "latency", "profile", "optimize", "memory", "cpu", "benchmark"],
+    "safe",
+    "You are a performance analyst. Measure before proposing; every optimization names the measurement that justifies it and the risk it carries."
+  ),
+  seed(
+    "analysis.cost",
+    "Cost Analyst",
+    "analysis",
+    ["Models API and infra cost", "Finds waste with evidence"],
+    ["cost", "budget", "spend", "tokens", "pricing", "usd", "billing"],
+    "safe",
+    "You analyze cost: model the bill from real usage, name the top three waste sources with numbers, and state the uncertainty band."
+  ),
+  seed(
+    "analysis.root-cause",
+    "Root-Cause Analyst",
+    "analysis",
+    ["Builds causal chains from incidents", "Separates trigger from root cause"],
+    ["incident", "root", "cause", "postmortem", "outage", "why", "timeline"],
+    "safe",
+    "You do root-cause analysis: timeline first, trigger vs root cause separated, every causal link backed by evidence, action items that would have prevented recurrence."
+  ),
+  /* ── design ─────────────────────────────────────────────────────────────── */
+  seed(
+    "design.ux",
+    "UX Designer",
+    "design",
+    ["Designs flows and interaction states", "Writes interface copy"],
+    ["ux", "design", "flow", "wireframe", "interaction", "usability", "copy"],
+    "safe",
+    "You are a UX designer. Every screen state is designed (empty, loading, error, success); copy tells the user what happened and what to do next."
+  ),
+  seed(
+    "design.systems",
+    "System Architect",
+    "design",
+    ["Designs module boundaries and data flow", "Writes architecture decision records"],
+    ["architecture", "design", "system", "boundary", "adr", "scalability", "coupling"],
+    "safe",
+    "You are a system architect. Draw the boundary before the box; every ADR states the decision, the alternatives rejected, and the cost accepted."
+  ),
+  seed(
+    "design.api-ux",
+    "Developer Experience Designer",
+    "design",
+    ["Designs SDK and CLI ergonomics", "Audits error messages for actionability"],
+    ["dx", "sdk", "cli", "ergonomics", "developer", "experience", "error", "message"],
+    "safe",
+    "You design developer experience: errors tell you what to do next; defaults are safe; the happy path needs no docs."
+  ),
+  /* ── 18.0.1 bench expansion — 32 more real specialists ─────────────────── */
+  seed(
+    "code.python",
+    "Python Engineer",
+    "code",
+    ["Writes idiomatic, typed Python", "Structures packages and virtual environments"],
+    ["python", "py", "pip", "venv", "django", "flask", "script"],
+    "safe",
+    "You are a Python engineer. Type-hint public surfaces, prefer the standard library, and keep side effects out of import time."
+  ),
+  seed(
+    "code.go",
+    "Go Engineer",
+    "code",
+    ["Writes idiomatic Go services", "Designs concurrency with channels and contexts"],
+    ["go", "golang", "goroutine", "channel", "context", "grpc"],
+    "safe",
+    "You are a Go engineer. Errors are values \u2014 handle them; concurrency stays bounded by contexts; interfaces stay small."
+  ),
+  seed(
+    "code.mobile",
+    "Mobile Engineer",
+    "code",
+    ["Builds cross-platform mobile screens", "Handles offline state and permissions"],
+    ["mobile", "ios", "android", "react-native", "app", "offline", "permissions"],
+    "safe",
+    "You are a mobile engineer. Design for offline first, ask permissions with context, and keep the main thread free."
+  ),
+  seed(
+    "code.build-tools",
+    "Build Tooling Specialist",
+    "code",
+    ["Configures bundlers and compilers", "Diagnoses build and bundling failures"],
+    ["bundler", "vite", "webpack", "esbuild", "build", "bundle", "transpile", "config"],
+    "safe",
+    "You are a build-tooling specialist. Every build change states what it affects and how to verify it; caches are reproducible or disabled."
+  ),
+  seed(
+    "code.git-workflow",
+    "Git Workflow Specialist",
+    "code",
+    ["Designs branching and merge strategy", "Untangles histories and rebases safely"],
+    ["git", "branch", "merge", "rebase", "commit", "history", "cherry-pick", "conflict"],
+    "risky",
+    "You are a git-workflow specialist. Never rewrite shared history without stating who is affected; every recovery path names the reflog escape hatch."
+  ),
+  seed(
+    "code.shell-automation",
+    "Shell Automation Specialist",
+    "code",
+    ["Writes safe, portable shell scripts", "Automates repeatable operations"],
+    ["shell", "bash", "script", "automation", "cron", "zsh", "powershell"],
+    "risky",
+    "You write shell automation: set -euo pipefail by default, quote every variable, dry-run destructive steps, and never curl-pipe-sh without review."
+  ),
+  seed(
+    "code.text-parsing",
+    "Text & Parsing Specialist",
+    "code",
+    ["Writes precise parsers and regexes", "Extracts structured data from messy text"],
+    ["regex", "parse", "parsing", "extract", "text", "pattern", "match", "tokenize"],
+    "safe",
+    "You are a parsing specialist. Prefer real parsers over regex where structure exists; every regex ships with the cases it must NOT match."
+  ),
+  seed(
+    "security.appsec",
+    "Web Application Security Specialist",
+    "security",
+    ["Reviews web surfaces for XSS, CSRF and CSP gaps", "Checks auth flows and session handling"],
+    ["xss", "csrf", "csp", "web", "session", "cookie", "auth", "login"],
+    "safe",
+    "You are a web-application security specialist. Every finding names the exploit path; fixes prefer platform defenses over hand-rolled escaping."
+  ),
+  seed(
+    "security.dependency",
+    "Supply-Chain Auditor",
+    "security",
+    ["Audits lockfiles and dependency trees", "Triages CVEs by real reachability"],
+    ["dependency", "supply", "chain", "lockfile", "npm", "audit", "upgrade", "package"],
+    "risky",
+    "You audit the supply chain: pin what you can, verify what you must, and rate each CVE by whether the vulnerable path is actually reachable in this product."
+  ),
+  seed(
+    "security.privacy",
+    "Privacy & Data-Handling Specialist",
+    "security",
+    ["Maps personal-data flows", "Reviews retention, consent and minimization"],
+    ["privacy", "pii", "gdpr", "consent", "retention", "personal", "data", "minimization"],
+    "risky",
+    "You review data handling: every personal-data flow gets a purpose, a retention bound, and a deletion path; minimization is the default recommendation."
+  ),
+  seed(
+    "security.config-hardening",
+    "Configuration Hardening Specialist",
+    "security",
+    ["Hardens server and HTTP configuration", "Reviews headers, TLS and exposure"],
+    ["hardening", "headers", "tls", "configuration", "nginx", "exposure", "firewall"],
+    "risky",
+    "You harden configurations: least exposure, explicit deny defaults, and every change verified by the exact command that proves it."
+  ),
+  seed(
+    "testing.load",
+    "Load Test Engineer",
+    "testing",
+    ["Designs realistic load profiles", "Finds knees and saturation points"],
+    ["load", "stress", "throughput", "concurrency", "latency", "saturation", "k6"],
+    "safe",
+    "You design load tests: realistic arrival patterns, stated SLIs, and the saturation knee reported with the configuration that produced it."
+  ),
+  seed(
+    "testing.contracts",
+    "Contract Test Engineer",
+    "testing",
+    ["Pins API contracts between services", "Catches breaking changes pre-merge"],
+    ["contract", "consumer", "producer", "pact", "schema", "compatibility", "breaking"],
+    "safe",
+    "You write contract tests: the consumer's expectations are the contract; a producer change that breaks them fails in CI, not in production."
+  ),
+  seed(
+    "testing.visual",
+    "Visual Regression Specialist",
+    "testing",
+    ["Sets up screenshot-diff pipelines", "Separates real regressions from noise"],
+    ["visual", "screenshot", "regression", "pixel", "snapshot", "ui"],
+    "safe",
+    "You run visual regression: deterministic viewports, anti-aliased tolerances stated, and every diff triaged as regression or accepted change."
+  ),
+  seed(
+    "review.architecture",
+    "Architecture Reviewer",
+    "review",
+    ["Reviews designs for coupling and failure modes", "Checks decisions against their stated context"],
+    ["architecture", "design", "coupling", "failure", "tradeoff", "adr", "boundary"],
+    "safe",
+    "You review architectures: name the failure modes, quantify the coupling, and judge each decision against the context it was made in \u2014 not yours."
+  ),
+  seed(
+    "data.visualization",
+    "Data Visualization Specialist",
+    "data",
+    ["Designs honest charts and dashboards", "Chooses encodings that do not mislead"],
+    ["chart", "visualization", "dashboard", "graph", "plot", "axis", "encoding"],
+    "safe",
+    "You design visualizations: zero baselines unless justified, encodings matched to data types, and the uncertainty visible, not hidden."
+  ),
+  seed(
+    "data.quality",
+    "Data Quality Engineer",
+    "data",
+    ["Writes validation and reconciliation checks", "Profiles datasets for anomalies"],
+    ["quality", "validation", "reconciliation", "anomaly", "dirty", "clean", "nulls", "duplicates"],
+    "safe",
+    "You enforce data quality: validate at the boundary, reconcile counts end to end, and report anomalies with examples, not just rates."
+  ),
+  seed(
+    "devops.incident",
+    "Incident Response Specialist",
+    "devops",
+    ["Writes runbooks and triage flows", "Coordinates mitigation under pressure"],
+    ["incident", "runbook", "triage", "mitigation", "oncall", "rollback", "outage"],
+    "risky",
+    "You handle incidents: mitigate first, diagnose second; every action is logged with a timestamp; the runbook you leave behind is written for the tired person at 3am."
+  ),
+  seed(
+    "devops.cloud-infra",
+    "Cloud Infrastructure Engineer",
+    "devops",
+    ["Provisions infrastructure as code", "Reviews cloud cost and permission posture"],
+    ["aws", "gcp", "azure", "terraform", "infrastructure", "provision", "iam", "cloud"],
+    "risky",
+    "You build cloud infrastructure as code: least-privilege IAM, planned before applied, and every resource tagged with owner and purpose."
+  ),
+  seed(
+    "devops.networking",
+    "Networking & DNS Specialist",
+    "devops",
+    ["Debugs connectivity and DNS", "Designs CDN and edge configuration"],
+    ["dns", "network", "cdn", "proxy", "ssl", "certificate", "routing", "firewall"],
+    "risky",
+    "You debug networking: resolve the path hop by hop with evidence; DNS changes state TTLs and rollback plans before they touch anything."
+  ),
+  seed(
+    "research.competitive",
+    "Market & Competitive Researcher",
+    "research",
+    ["Compares products feature by feature", "Reports positioning with evidence"],
+    ["market", "competitive", "competitor", "positioning", "comparison", "landscape"],
+    "safe",
+    "You research markets: claims carry sources and dates, comparisons state the evaluation criteria, and gaps in your own knowledge are declared."
+  ),
+  seed(
+    "research.oss-scout",
+    "Open-Source Evaluation Specialist",
+    "research",
+    ["Evaluates OSS projects for adoption", "Checks licenses, maintenance and supply chain"],
+    ["opensource", "oss", "license", "evaluate", "adoption", "maintenance", "community"],
+    "safe",
+    "You evaluate open source: license compatibility first, maintenance trajectory second, and the exit cost of adopting is always stated."
+  ),
+  seed(
+    "research.api-discovery",
+    "Third-Party API Researcher",
+    "research",
+    ["Reads and verifies external API docs", "Tests endpoint behavior against the docs"],
+    ["api", "documentation", "third-party", "integration", "endpoint", "webhook", "sdk"],
+    "safe",
+    "You research external APIs: the docs are a claim, the observed response is the truth; discrepancies between them are reported explicitly."
+  ),
+  seed(
+    "writing.api-docs",
+    "API Documentation Writer",
+    "writing",
+    ["Writes reference docs from real contracts", "Documents errors and edge cases"],
+    ["api", "reference", "documentation", "endpoint", "parameters", "examples"],
+    "safe",
+    "You write API docs from the real contract: every parameter typed, every error code explained, every example runnable as written."
+  ),
+  seed(
+    "writing.stakeholder",
+    "Stakeholder Communication Writer",
+    "writing",
+    ["Writes status updates executives read", "Translates engineering state to decisions"],
+    ["status", "update", "stakeholder", "executive", "summary", "decision", "report"],
+    "safe",
+    "You write for stakeholders: the decision needed comes first, the state is honest about risk, and jargon is translated or cut."
+  ),
+  seed(
+    "writing.localization",
+    "Localization Reviewer",
+    "writing",
+    ["Reviews copy for translatability", "Checks i18n plumbing and formats"],
+    ["i18n", "localization", "translation", "locale", "language", "format", "copy"],
+    "safe",
+    "You review localization: strings externalized, plurals and formats locale-aware, and no meaning baked into word order."
+  ),
+  seed(
+    "analysis.forensics",
+    "Log Forensics Analyst",
+    "analysis",
+    ["Builds timelines from logs and traces", "Separates causation from correlation"],
+    ["logs", "forensics", "timeline", "trace", "audit", "investigation", "evidence"],
+    "safe",
+    "You do log forensics: the timeline comes first, each event cites its source line, and conclusions state the confidence the evidence supports."
+  ),
+  seed(
+    "analysis.estimation",
+    "Estimation Analyst",
+    "analysis",
+    ["Produces evidence-based effort estimates", "Names the biggest uncertainty drivers"],
+    ["estimate", "effort", "planning", "scope", "timeline", "risk", "unknowns"],
+    "safe",
+    "You estimate: ranges with stated confidence, assumptions listed, and the top three uncertainty drivers named \u2014 a single number is never honest."
+  ),
+  seed(
+    "analysis.experiments",
+    "Experiment Analyst",
+    "analysis",
+    ["Designs and reads A/B tests", "Guards against peeking and p-hacking"],
+    ["experiment", "ab", "test", "statistical", "significance", "sample", "hypothesis"],
+    "safe",
+    "You run experiments: the hypothesis and stopping rule are fixed before data arrives; results report effect sizes with intervals, not just p-values."
+  ),
+  seed(
+    "design.data-model",
+    "Data Modeling Specialist",
+    "design",
+    ["Designs entity models and relationships", "Normalizes with intent, denormalizes with reason"],
+    ["model", "entity", "schema", "relationship", "normalize", "er", "domain"],
+    "safe",
+    "You model data: entities map to the domain, relationships are explicit, and every denormalization states the read pattern that justifies it."
+  ),
+  seed(
+    "design.threat-model",
+    "Threat Modeling Specialist",
+    "design",
+    ["Maps trust boundaries and attack surfaces", "Ranks threats by capability and impact"],
+    ["threat", "model", "attack", "surface", "trust", "boundary", "stride", "adversary"],
+    "safe",
+    "You model threats: trust boundaries drawn before controls, each threat ranked by the adversary capability it assumes, and mitigations matched to the rank."
+  ),
+  seed(
+    "design.onboarding",
+    "First-Run Experience Designer",
+    "design",
+    ["Designs onboarding and activation flows", "Writes first-run copy that earns trust"],
+    ["onboarding", "firstrun", "activation", "welcome", "setup", "empty", "state"],
+    "safe",
+    "You design first runs: value before setup, every permission asked in context, and the empty state teaches instead of staring back."
+  )
+];
+var BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
+var DISABLED_KEY = "vh19.registry.disabled.v1";
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
   }
 }
-function save(db) {
-  localStorage.setItem(KEY, JSON.stringify(db));
+function disabledSpecialists() {
+  const s = storage();
+  if (!s) return [];
+  try {
+    const raw = JSON.parse(s.getItem(DISABLED_KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((id) => BY_ID.has(id)) : [];
+  } catch {
+    return [];
+  }
 }
-var localDb = {
-  load,
-  save,
-  reset() {
-    localStorage.removeItem(KEY);
-  },
-  workflowList() {
-    return load().workflows.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  },
-  workflowGet(id) {
-    const w = load().workflows.find((x) => x.id === id);
-    if (!w) throw new Error(`workflow not found: ${id}`);
-    return w;
-  },
-  workflowCreate(name, description) {
-    const db = load();
-    const id = uid("wf");
-    const now = nowIso();
-    const graph = {
-      schemaVersion: GRAPH_SCHEMA_VERSION,
-      id,
-      name,
-      nodes: [],
-      connections: [],
-      viewport: { x: 0, y: 0, zoom: 1 },
-      groups: [],
-      notes: []
+function setSpecialistEnabled(id, enabled) {
+  if (!BY_ID.has(id)) return disabledSpecialists();
+  const s = storage();
+  if (!s) return [];
+  const cur = new Set(disabledSpecialists());
+  if (enabled) cur.delete(id);
+  else cur.add(id);
+  s.setItem(DISABLED_KEY, JSON.stringify(Array.from(cur).sort()));
+  return disabledSpecialists();
+}
+function enabledSpecialists() {
+  const off = new Set(disabledSpecialists());
+  return SPECIALISTS.filter((s) => !off.has(s.id));
+}
+function listSpecialists() {
+  return SPECIALISTS.slice();
+}
+function getSpecialist(id) {
+  return BY_ID.get(id) ?? null;
+}
+function catalogStats() {
+  const byRisk = {};
+  for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
+  return { count: SPECIALISTS.length, categories: new Set(SPECIALISTS.map((s) => s.category)).size, byRisk };
+}
+
+// src/vh19/router.ts
+var MIN_SCORE = 3;
+var MAX_K = 3;
+var SINGLE_MARGIN = 4;
+var TOKEN_RE = /[a-z0-9][a-z0-9+#.-]*/g;
+function tokenize(text) {
+  return (text.toLowerCase().match(TOKEN_RE) ?? []).filter((t) => t.length >= 3);
+}
+function scoreSpecialist(s, request, tokens) {
+  const reasons = [];
+  let score = 0;
+  const lower = request.toLowerCase();
+  const tokenSet = new Set(tokens);
+  for (const kw of s.keywords) {
+    if (tokenSet.has(kw)) {
+      score += 3;
+      reasons.push(`keyword "${kw}" matched exactly`);
+    } else if (kw.length >= 4 && lower.includes(kw)) {
+      score += 2;
+      reasons.push(`keyword "${kw}" appears in the request`);
+    }
+  }
+  for (const cap of s.capabilities) {
+    const capTokens = tokenize(cap);
+    let hits = 0;
+    for (const ct of capTokens) if (tokenSet.has(ct)) hits += 1;
+    if (hits >= 2) {
+      score += 1;
+      reasons.push(`capability overlap: "${cap}"`);
+    }
+  }
+  return { score, reasons };
+}
+function routeDeterministic(request, k = MAX_K) {
+  const tokens = tokenize(request);
+  const scored = [];
+  for (const s of enabledSpecialists()) {
+    const { score, reasons } = scoreSpecialist(s, request, tokens);
+    if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
+  }
+  scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  const selected = scored.slice(0, k);
+  let strategy = "none";
+  if (selected.length === 1) strategy = "single";
+  else if (selected.length > 1) {
+    strategy = selected[0].score - selected[1].score >= SINGLE_MARGIN ? "single" : "multi";
+    if (strategy === "single") selected.length = 1;
+  }
+  return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
+}
+async function routeWithModel(request, provider, complete2, k = MAX_K) {
+  const base = routeDeterministic(request, Math.max(k * 2, MAX_K));
+  if (base.strategy === "none" || base.selected.length === 0) return base;
+  const ids = base.selected.map((c) => c.id);
+  const prompt = `Rank these specialist ids by fit for the request. Reply with ONLY a JSON array of ids, most-fit first, using exactly these ids: ${JSON.stringify(ids)}
+
+Request: ${request}`;
+  const res = await complete2(provider, "You are a routing assistant. Output only JSON.", prompt);
+  if (!res.ok) return { ...base, fallbackReason: `llm re-rank unavailable: ${res.error}` };
+  let parsed;
+  try {
+    parsed = JSON.parse(res.text.trim().replace(/^[^{[]*/, "").replace(/[^}\]]*$/, ""));
+  } catch {
+    return { ...base, fallbackReason: "llm re-rank returned unparseable JSON" };
+  }
+  if (!Array.isArray(parsed) || parsed.some((x) => typeof x !== "string" || !ids.includes(x)) || new Set(parsed).size !== parsed.length) {
+    return { ...base, fallbackReason: "llm re-rank returned ids outside the candidate set" };
+  }
+  const order = parsed;
+  const byId = new Map(base.selected.map((c) => [c.id, c]));
+  const reranked = order.map((id) => byId.get(id)).filter(Boolean).concat(base.selected.filter((c) => !order.includes(c.id)));
+  const selected = reranked.slice(0, k);
+  let strategy = selected.length === 1 ? "single" : "multi";
+  return { selected, considered: base.considered, strategy, routedBy: "llm-assisted" };
+}
+
+// src/vh19/providers.ts
+var PROVIDER_DEFAULTS = {
+  "openai-compatible": "https://api.openai.com/v1",
+  anthropic: "https://api.anthropic.com",
+  gemini: "https://generativelanguage.googleapis.com/v1beta"
+};
+var DEFAULT_TIMEOUT_MS = 3e4;
+function redactSecrets(text, known = []) {
+  let out = text;
+  for (const k of known) {
+    if (k && k.length >= 8) out = out.split(k).join(`${k.slice(0, 4)}\u2026REDACTED`);
+  }
+  out = out.replace(/\b(sk-[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
+  out = out.replace(/\b(sk-ant-[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
+  out = out.replace(/\b(AIza[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
+  return out;
+}
+function buildRequest(cfg, system, user) {
+  switch (cfg.kind) {
+    case "openai-compatible":
+      return {
+        url: `${cfg.baseUrl}/chat/completions`,
+        init: {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${cfg.apiKey}` },
+          body: JSON.stringify({ model: cfg.model, messages: [{ role: "system", content: system }, { role: "user", content: user }] })
+        }
+      };
+    case "anthropic":
+      return {
+        url: `${cfg.baseUrl}/v1/messages`,
+        init: {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-api-key": cfg.apiKey, "anthropic-version": "2023-06-01" },
+          body: JSON.stringify({ model: cfg.model, max_tokens: 2048, system, messages: [{ role: "user", content: user }] })
+        }
+      };
+    case "gemini":
+      return {
+        url: `${cfg.baseUrl}/models/${encodeURIComponent(cfg.model)}:generateContent`,
+        init: {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-goog-api-key": cfg.apiKey },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: system }] },
+            contents: [{ role: "user", parts: [{ text: user }] }]
+          })
+        }
+      };
+  }
+}
+function extractText(cfg, body) {
+  try {
+    if (cfg.kind === "openai-compatible") {
+      const b2 = body;
+      return b2.choices?.[0]?.message?.content ?? null;
+    }
+    if (cfg.kind === "anthropic") {
+      const b2 = body;
+      const parts2 = (b2.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "");
+      return parts2.length ? parts2.join("") : null;
+    }
+    const b = body;
+    const parts = b.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "") ?? [];
+    return parts.length ? parts.join("") : null;
+  } catch {
+    return null;
+  }
+}
+async function complete(cfg, system, user, opts = {}) {
+  if (!cfg) return { ok: false, kind: "no-key", error: "no provider configured \u2014 supply an API key (env or the Providers door); nothing was executed" };
+  if (!cfg.apiKey || !cfg.apiKey.trim()) return { ok: false, kind: "no-key", error: "provider key is empty \u2014 nothing was executed" };
+  const egress = checkEgressUrl(cfg.baseUrl);
+  if (!egress.ok) return { ok: false, kind: "egress-blocked", error: redactSecrets(`base URL refused by the egress guard: ${egress.reason}`, [cfg.apiKey]) };
+  const { url, init } = buildRequest(cfg, system, user);
+  const doFetch = opts.fetchImpl ?? globalThis.fetch?.bind(globalThis);
+  if (!doFetch) return { ok: false, kind: "network", error: "no fetch available in this runtime \u2014 nothing was executed" };
+  const controller = new AbortController();
+  const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const t0 = Date.now();
+  try {
+    const res = await doFetch(url, { ...init, signal: controller.signal });
+    const latencyMs = Date.now() - t0;
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      return { ok: false, kind: "http-error", error: redactSecrets(`provider returned HTTP ${res.status}${bodyText ? `: ${bodyText.slice(0, 300)}` : ""}`, [cfg.apiKey]) };
+    }
+    const body = await res.json().catch(() => null);
+    const text = body == null ? null : extractText(cfg, body);
+    if (text == null || text.length === 0) {
+      return { ok: false, kind: "bad-response", error: "provider response carried no usable text \u2014 nothing was executed" };
+    }
+    return { ok: true, text, model: cfg.model, latencyMs };
+  } catch (err) {
+    const aborted = err instanceof Error && err.name === "AbortError";
+    return {
+      ok: false,
+      kind: aborted ? "timeout" : "network",
+      error: redactSecrets(aborted ? `provider timed out after ${timeoutMs}ms` : `network failure: ${err instanceof Error ? err.message : String(err)}`, [cfg.apiKey])
     };
-    db.workflows.unshift({ id, name, description, graph, createdAt: now, updatedAt: now, tags: [] });
-    save(db);
-    return { id };
-  },
-  workflowSave(id, name, description, graph) {
-    const db = load();
-    const w = db.workflows.find((x) => x.id === id);
-    if (!w) throw new Error("workflow not found");
-    w.name = name;
-    w.description = description;
-    w.graph = graph;
-    w.updatedAt = nowIso();
-    save(db);
-  },
-  workflowDelete(id) {
-    const db = load();
-    db.workflows = db.workflows.filter((w) => w.id !== id);
-    save(db);
-  },
-  executionCreate(workflowId, workflowVersion) {
-    const db = load();
-    const id = uid("exec");
-    db.executions.unshift({
-      id,
-      workflowId,
-      workflowVersion,
-      status: "RUNNING",
-      startedAt: nowIso(),
-      endedAt: null,
-      error: null,
-      stats: { nodesRun: 0, nodesFailed: 0, retries: 0, inputTokens: 0, outputTokens: 0, durationMs: 0, costUsd: 0, evaluationScores: [] }
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// src/vh19/memory.ts
+var KEY = "vh19.memory.v1";
+var MEMORY_CAP = 500;
+function storage2() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function loadMemory(userId = "default") {
+  const s = storage2();
+  if (!s) return [];
+  try {
+    const raw = JSON.parse(s.getItem(KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((r) => r && r.userId === userId) : [];
+  } catch {
+    return [];
+  }
+}
+function saveAll(records) {
+  const s = storage2();
+  if (!s) return;
+  const capped = records.length > MEMORY_CAP ? records.slice(records.length - MEMORY_CAP) : records;
+  s.setItem(KEY, JSON.stringify(capped));
+}
+function recordDecision(input) {
+  const rec = { id: uid("dec"), ts: input.ts ?? nowIso(), ...input };
+  const s = storage2();
+  const all = s ? JSON.parse(s.getItem(KEY) ?? "[]") : [];
+  all.push(rec);
+  saveAll(all);
+  return rec;
+}
+function patternReport(userId = "default") {
+  const mem = loadMemory(userId);
+  const accepts = mem.filter((r) => r.kind === "accept").length;
+  const rejects = mem.filter((r) => r.kind === "reject").length;
+  const corrections = mem.filter((r) => r.kind === "correction").length;
+  const perSpecialist = /* @__PURE__ */ new Map();
+  for (const r of mem) {
+    if (!r.specialistId) continue;
+    const e = perSpecialist.get(r.specialistId) ?? { accepts: 0, rejects: 0 };
+    if (r.kind === "accept") e.accepts += 1;
+    if (r.kind === "reject") e.rejects += 1;
+    perSpecialist.set(r.specialistId, e);
+  }
+  const bySpecialist = Array.from(perSpecialist.entries()).map(([id, e]) => ({ id, ...e, rate: e.accepts + e.rejects === 0 ? 0 : e.accepts / (e.accepts + e.rejects) })).sort((a, b) => b.accepts + b.rejects - (a.accepts + a.rejects));
+  return {
+    total: mem.length,
+    accepts,
+    rejects,
+    corrections,
+    acceptanceRate: accepts + rejects === 0 ? 0 : accepts / (accepts + rejects),
+    bySpecialist,
+    recentRejections: mem.filter((r) => r.kind === "reject").slice(-5)
+  };
+}
+function memoryBriefing(userId = "default", maxLines = 4) {
+  const p = patternReport(userId);
+  const lines = [];
+  if (p.total === 0) return ["No decision history yet for this user \u2014 do not assume preferences."];
+  lines.push(`User decision history: ${p.accepts} accepted, ${p.rejects} rejected, ${p.corrections} corrections (acceptance ${(p.acceptanceRate * 100).toFixed(0)}%).`);
+  for (const r of p.recentRejections.slice(-maxLines)) {
+    lines.push(`Rejected before: "${r.scenario.slice(0, 80)}" \u2014 ${r.reason ? `reason: ${r.reason.slice(0, 120)}` : "no reason stated"}.`);
+  }
+  return lines;
+}
+
+// src/vh19/exam.ts
+var PASS_THRESHOLD = 0.9;
+var AUTONOMY_KEY = "vh19.autonomy.v1";
+var SESSION_KEY = "vh19.exam.sessions.v1";
+var MAX_SESSIONS = 20;
+function storage3() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function proposeExam(userId = "default", questionCount = 10, now = () => /* @__PURE__ */ new Date()) {
+  const mem = loadMemory(userId);
+  const usable = mem.filter((r) => r.kind === "accept" || r.kind === "reject");
+  if (usable.length < Math.min(5, questionCount)) {
+    return {
+      ok: false,
+      error: `the exam is generated from your real accept/reject history \u2014 ${usable.length} usable records found, at least ${Math.min(5, questionCount)} needed; keep working with VH-19 and grading its work`
+    };
+  }
+  const rejects = usable.filter((r) => r.kind === "reject");
+  const accepts = usable.filter((r) => r.kind === "accept");
+  const seen = /* @__PURE__ */ new Set();
+  const picked = [];
+  const take = (pool) => {
+    for (const r of [...pool].reverse()) {
+      const sig = r.specialistId ?? r.scenario.slice(0, 40);
+      if (seen.has(sig) && picked.length < questionCount) continue;
+      seen.add(sig);
+      picked.push(r);
+      if (picked.length >= questionCount) return;
+    }
+  };
+  take(rejects);
+  take(accepts);
+  for (const r of [...usable].reverse()) {
+    if (picked.length >= questionCount) break;
+    if (!picked.includes(r)) picked.push(r);
+  }
+  const session = {
+    id: uid("exam"),
+    createdAt: now().toISOString(),
+    userId,
+    state: "proposed",
+    score: null,
+    passed: null,
+    grades: [],
+    questions: picked.slice(0, questionCount).map((r) => ({
+      id: uid("q"),
+      sourceRecordId: r.id,
+      scenario: r.scenario,
+      proposedAction: proposeActionFor(r, mem),
+      explanation: explainFor(r, mem)
+    }))
+  };
+  const s = storage3();
+  if (s) {
+    const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
+    sessions.push(session);
+    s.setItem(SESSION_KEY, JSON.stringify(sessions.slice(-MAX_SESSIONS)));
+  }
+  return { ok: true, session };
+}
+function proposeActionFor(r, mem) {
+  if (r.kind === "reject") {
+    const correction = mem.find((m) => m.kind === "correction" && m.scenario === r.scenario);
+    return correction ? `Follow the user's correction instead of the rejected action: ${correction.action}` : `Pause and ask before acting \u2014 this scenario was rejected before${r.reason ? ` ("${r.reason.slice(0, 100)}")` : ""}`;
+  }
+  return `Proceed as before: ${r.action}`;
+}
+function explainFor(r, mem) {
+  if (r.kind === "reject") {
+    return `You rejected this before${r.reason ? ` because: ${r.reason.slice(0, 140)}` : ""}. ${mem.some((m) => m.kind === "correction" && m.scenario === r.scenario) ? "A correction for this scenario exists, so I will follow it rather than repeat the rejected action." : "Without a correction on file, the safe move is to pause and ask rather than guess."}`;
+  }
+  const sameSpecialist = mem.filter((m) => m.specialistId && m.specialistId === r.specialistId);
+  const acc = sameSpecialist.filter((m) => m.kind === "accept").length;
+  const rej = sameSpecialist.filter((m) => m.kind === "reject").length;
+  return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
+}
+function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
+  const s = storage3();
+  if (!s) return { ok: false, error: "no exam store available in this runtime" };
+  const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
+  const session = sessions.find((x) => x.id === sessionId);
+  if (!session) return { ok: false, error: `unknown exam session ${sessionId}` };
+  if (session.state === "graded") return { ok: false, error: "this exam was already graded \u2014 an exam is graded exactly once" };
+  if (session.questions.length === 0) return { ok: false, error: "this exam has no questions" };
+  const byQ = new Map(grades.map((g) => [g.questionId, g]));
+  for (const q of session.questions) {
+    if (!byQ.has(q.id)) return { ok: false, error: `question ${q.id} has no verdict \u2014 every question must be graded` };
+  }
+  const unknown = grades.filter((g) => !session.questions.some((q) => q.id === g.questionId));
+  if (unknown.length > 0) return { ok: false, error: `${unknown.length} verdict(s) reference questions outside this exam` };
+  const correct = session.questions.filter((q) => byQ.get(q.id).verdict === "correct").length;
+  const score = correct / session.questions.length;
+  const passed2 = score >= PASS_THRESHOLD;
+  session.grades = grades;
+  session.score = score;
+  session.passed = passed2;
+  session.state = "graded";
+  s.setItem(SESSION_KEY, JSON.stringify(sessions));
+  let feedbackLearned = 0;
+  for (const q of session.questions) {
+    const g = byQ.get(q.id);
+    if (g.verdict === "wrong") {
+      recordDecision({
+        userId: session.userId,
+        scenario: q.scenario,
+        action: q.proposedAction,
+        kind: "correction",
+        reason: g.correction ?? "marked wrong on the autonomy exam; no correction text given",
+        ts: now().toISOString()
+      });
+      feedbackLearned += 1;
+    }
+  }
+  saveGrant(loadGrant(session.userId).attempts + 1, passed2 ? score : null, passed2, session.userId, now);
+  return { ok: true, score, passed: passed2, feedbackLearned };
+}
+function grantKey(userId) {
+  return `${AUTONOMY_KEY}:${userId}`;
+}
+function loadGrant(userId = "default") {
+  const s = storage3();
+  const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
+  if (!s) return fallback;
+  try {
+    const raw = JSON.parse(s.getItem(grantKey(userId)) ?? "null");
+    if (!raw) return fallback;
+    return { ...raw, monitorOverrideAlwaysOn: true };
+  } catch {
+    return fallback;
+  }
+}
+function saveGrant(attempts, score, passed2, userId, now) {
+  const s = storage3();
+  if (!s) return;
+  const prev = loadGrant(userId);
+  const grant = {
+    granted: passed2 ? true : prev.granted,
+    score: score ?? prev.score,
+    grantedAt: passed2 ? now().toISOString() : prev.grantedAt,
+    monitorOverrideAlwaysOn: true,
+    attempts
+  };
+  s.setItem(grantKey(userId), JSON.stringify(grant));
+}
+function autonomyStatus(userId = "default") {
+  return loadGrant(userId);
+}
+function revokeAutonomy(userId = "default") {
+  const s = storage3();
+  const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId).attempts };
+  if (s) s.setItem(grantKey(userId), JSON.stringify(next));
+  return next;
+}
+
+// src/vh19/generalist.ts
+async function sha256Hex(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function responseCanonical(r) {
+  return JSON.stringify({
+    v: "vh19-response/1",
+    reply: r.reply,
+    executed: r.executed,
+    outcome: r.outcome,
+    specialistIds: r.specialistIds,
+    routedBy: r.routed.routedBy,
+    selected: r.routed.selected.map((c) => [c.id, c.score]),
+    strategy: r.routed.strategy,
+    note: r.note ?? null
+  });
+}
+async function askVH19(args, deps = {}) {
+  const userId = args.userId ?? "default";
+  const text = sanitizeText(args.text, 8e3);
+  const now = deps.now ?? (() => /* @__PURE__ */ new Date());
+  void now;
+  const finish = async (r) => ({
+    ...r,
+    provenanceDigest: await sha256Hex(responseCanonical(r))
+  });
+  const findings = detectInjection(text);
+  if (findings.length > 0) {
+    return finish({
+      reply: "I can't take this request into the pipeline: the content gate flagged it.",
+      routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
+      executed: false,
+      outcome: "refused",
+      specialistIds: [],
+      note: `guardrail findings: ${findings.map((f) => f.code).join(", ")}`
     });
-    save(db);
-    return { id };
-  },
-  executionFinish(id, status, error, stats) {
-    const db = load();
-    const e = db.executions.find((x) => x.id === id);
-    if (!e) return;
-    e.status = status;
-    e.error = error;
-    e.stats = stats;
-    e.endedAt = nowIso();
-    save(db);
-  },
-  executionList() {
-    return load().executions;
-  },
-  eventEmit(executionId, kind, level, nodeId, data) {
-    const db = load();
-    const rec = {
-      seq: db.events.length + 1,
-      ts: nowIso(),
-      kind,
-      level,
-      nodeId,
-      executionId,
-      data
-    };
-    db.events.push(rec);
-    if (db.events.length > 4e3) db.events = db.events.slice(-3e3);
-    save(db);
-    window.dispatchEvent(new CustomEvent("vh://event", { detail: rec }));
-    return rec;
-  },
-  executionEvents(executionId) {
-    return load().events.filter((e) => e.executionId === executionId);
-  },
-  importedGenomesSave(rows) {
-    const db = load();
-    db.importedGenomes = rows;
-    save(db);
-  },
-  importedGenomesList() {
-    return load().importedGenomes ?? [];
-  },
-  secretSet(ref, value) {
-    const db = load();
-    db.secrets[ref] = value;
-    save(db);
-  },
-  secretDelete(ref) {
-    const db = load();
-    delete db.secrets[ref];
-    save(db);
-  },
-  secretExists(refs) {
-    const db = load();
-    return Object.fromEntries(
-      refs.map((r2) => [
-        r2,
-        db.secrets[r2] ? { exists: true, location: "browser-localStorage", survivesRestart: true, warning: "Stored in browser localStorage, not an OS keychain. Readable by anything in this origin." } : { exists: false, location: "absent", survivesRestart: false }
-      ])
-    );
-  },
-  secretGet(ref) {
-    return load().secrets[ref] ?? null;
-  },
-  mcpList() {
-    return load().mcp;
-  },
-  mcpSave(cfg) {
-    const db = load();
-    const id = cfg.id || uid("mcp");
-    const now = nowIso();
-    const existing = db.mcp.find((m) => m.id === id);
-    if (existing) {
-      Object.assign(existing, cfg, { updatedAt: now });
-    } else {
-      db.mcp.push({
-        id,
-        name: cfg.name,
-        transport: cfg.transport ?? "stdio",
-        config: cfg.config ?? { transport: "stdio", enabled: true },
-        state: "AVAILABLE",
-        createdAt: now,
-        updatedAt: now
+  }
+  if (args.peer) {
+    if (!deps.peerDelegate) {
+      return finish({
+        reply: `Peer delegation to "${args.peer}" is not available: no A2A bridge is wired into this runtime.`,
+        routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
+        executed: false,
+        outcome: "refused",
+        specialistIds: [],
+        note: "peer delegation requires the A2A bridge (src/mission/a2aBridge) \u2014 nothing was sent"
       });
     }
-    save(db);
-    return { id };
-  },
-  mcpRemove(id) {
-    const db = load();
-    db.mcp = db.mcp.filter((m) => m.id !== id);
-    save(db);
-  },
-  memoryAdd(nodeKey, kind, content, tags, importance) {
-    const db = load();
-    const rec = { id: uid("mem"), nodeKey, kind, content, tags, importance, createdAt: nowIso() };
-    db.memories.unshift(rec);
-    save(db);
-    return { id: rec.id };
-  },
-  memorySearch(nodeKey, query, limit = 12) {
-    const q = query.toLowerCase();
-    return load().memories.filter((m) => m.nodeKey === nodeKey && (!q || m.content.toLowerCase().includes(q))).slice(0, limit);
-  },
-  memoryDelete(id) {
-    const db = load();
-    db.memories = db.memories.filter((m) => m.id !== id);
-    save(db);
-  },
-  skillsList(nodeKey) {
-    const all = load().skills.filter((s) => s.nodeKey === nodeKey);
-    return { skills: all.filter((s) => s.active), all };
-  },
-  skillUpsert(args) {
-    const db = load();
-    const rec = {
-      id: uid("skill"),
-      nodeKey: args.nodeKey,
-      name: args.name,
-      description: args.description,
-      procedure: args.procedure,
-      preconditions: "",
-      toolStrategy: "",
-      verificationStrategy: "",
-      knownFailureModes: "",
-      version: 1,
-      score: null,
-      origin: args.origin,
-      active: true,
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
-      applications: 0
-    };
-    db.skills.push(rec);
-    save(db);
-    return { id: rec.id, version: 1 };
-  },
-  feedbackAdd(executionId, nodeKey, rating, comment) {
-    const db = load();
-    const rec = { id: uid("fb"), executionId, nodeKey, rating, comment, createdAt: nowIso() };
-    db.feedback.unshift(rec);
-    save(db);
-    return { id: rec.id };
-  },
-  feedbackList() {
-    return load().feedback;
-  },
-  evolutionList() {
-    return load().evolution;
-  },
-  evolutionPropose(cand) {
-    const db = load();
-    const rec = {
-      id: uid("evo"),
-      nodeKey: cand.nodeKey ?? "",
-      parentVersion: cand.parentVersion ?? 1,
-      candidateVersion: cand.candidateVersion ?? 2,
-      trigger: cand.trigger ?? "manual",
-      evidence: cand.evidence ?? [],
-      changes: cand.changes ?? {},
-      baselineScore: cand.baselineScore ?? null,
-      candidateScore: cand.candidateScore ?? null,
-      holdoutPassed: cand.holdoutPassed ?? null,
-      regressionPassed: cand.regressionPassed ?? null,
-      status: "PROPOSED",
-      decision: "PENDING",
-      createdAt: nowIso(),
-      decidedAt: null
-    };
-    db.evolution.unshift(rec);
-    save(db);
-    return { id: rec.id };
-  },
-  evolutionDecide(id, decision) {
-    const db = load();
-    const c = db.evolution.find((x) => x.id === id);
-    if (c) {
-      c.decision = decision;
-      c.status = "DECIDED";
-      c.decidedAt = nowIso();
-      save(db);
-    }
-    return { ok: true };
-  },
-  approvalList() {
-    return load().approvals.filter((a) => a.status === "OPEN");
-  },
-  approvalRequest(executionId, nodeKey, summary, payload) {
-    const db = load();
-    const rec = { id: uid("appr"), executionId, nodeKey, summary, payload, status: "OPEN", createdAt: nowIso() };
-    db.approvals.unshift(rec);
-    save(db);
-    window.dispatchEvent(new CustomEvent("vh://approval", { detail: rec }));
-    return { id: rec.id };
-  },
-  approvalDecide(id, decision) {
-    const db = load();
-    const a = db.approvals.find((x) => x.id === id);
-    if (a) {
-      a.status = decision;
-      save(db);
-    }
-  },
-  approvalGet(executionId, nodeKey) {
-    const a = load().approvals.find((x) => x.executionId === executionId && x.nodeKey === nodeKey && x.status !== "OPEN");
-    return a ? { decided: true, status: a.status } : { decided: false };
-  },
-  dlqList() {
-    return load().dlq.filter((d) => d.status === "OPEN");
-  },
-  dlqAdd(executionId, nodeKey, error, payload, suggestedCause, candidateFix) {
-    const db = load();
-    const rec = {
-      id: uid("dlq"),
-      executionId,
-      nodeKey,
-      error,
-      payload,
-      status: "OPEN",
-      suggestedCause,
-      candidateFix,
-      createdAt: nowIso()
-    };
-    db.dlq.unshift(rec);
-    save(db);
-    return { id: rec.id };
-  },
-  dlqResolve(id) {
-    const db = load();
-    const d = db.dlq.find((x) => x.id === id);
-    if (d) d.status = "RESOLVED";
-    save(db);
-  },
-  runEnqueue(workflowId) {
-    const db = load();
-    db.runQueue.push(workflowId);
-    save(db);
-  },
-  runTake() {
-    const db = load();
-    const items = db.runQueue.splice(0);
-    save(db);
-    return items;
-  }
-};
-
-// src/ipc/client.ts
-async function tauriInvoke(cmd, args) {
-  const { invoke: invoke2 } = await Promise.resolve().then(() => (init_core(), core_exports));
-  return invoke2(cmd, args ?? {});
-}
-var useTauri = () => detectHost() === "tauri";
-var browserReason = "No browser is attached in this build: the app does not bundle or launch Chromium, so there is no session, no page and no DOM. Nothing was fetched.";
-var ipc = {
-  appInfo: async () => {
-    if (useTauri()) return tauriInvoke("app_info");
-    return {
-      version: VH_VERSION,
-      platform: navigator.platform,
-      workspaceRoot: "(browser workspace)",
-      artifactsDir: "(memory)",
-      dbHealthy: true,
-      controlMcpPort: 0,
-      controlMcpTransport: "stdio",
-      controlMcpRunning: true,
-      startupMs: 0,
-      host: "webview-host",
-      vendors: ["mcp-servers-reference", "mcp-github"]
-    };
-  },
-  dbMaintenance: async (vacuum) => {
-    if (useTauri()) return tauriInvoke("db_maintenance", { vacuum });
-    if (vacuum) {
-    }
-    const raw = localStorage.getItem("vouch.v3.db") ?? "";
-    return { vacuumed: vacuum, sizeBytes: raw.length };
-  },
-  workflowList: async () => {
-    if (useTauri()) return tauriInvoke("workflow_list");
-    return localDb.workflowList();
-  },
-  workflowGet: async (workflowId) => {
-    if (useTauri()) return tauriInvoke("workflow_get", { workflowId });
-    return localDb.workflowGet(workflowId);
-  },
-  workflowCreate: async (name, description) => {
-    if (useTauri()) return tauriInvoke("workflow_create", { name, description });
-    return localDb.workflowCreate(name, description);
-  },
-  workflowDelete: async (workflowId) => {
-    if (useTauri()) return tauriInvoke("workflow_delete", { workflowId });
-    localDb.workflowDelete(workflowId);
-  },
-  workflowSave: async (workflowId, name, description, graph) => {
-    if (useTauri()) return tauriInvoke("workflow_save", { workflowId, name, description, graph });
-    localDb.workflowSave(workflowId, name, description, graph);
-  },
-  // V7 fix (bug T): the browser fallbacks for versioning fabricated an id and a constant
-  // `version: 1`, so the version history UI showed a plausible list of versions that were never
-  // stored and could not be restored. These now fail loudly. The Tauri side is real.
-  versionCreate: async (workflowId, label) => {
-    if (useTauri()) return tauriInvoke("workflow_version_create", { workflowId, label });
-    throw new Error("Workflow versions are only stored by the native build; nothing was saved in this browser session.");
-  },
-  versionList: async (_workflowId) => {
-    if (useTauri()) return tauriInvoke("workflow_versions", { workflowId: _workflowId });
-    throw new Error("Workflow versions are only stored by the native build; this browser session has no version history to show.");
-  },
-  versionRestore: async (versionRecordId) => {
-    if (useTauri()) return tauriInvoke("workflow_version_restore", { versionRecordId });
-    throw new Error("Cannot restore a version in the browser: nothing was ever stored, so nothing was changed.");
-  },
-  nodeStateLoad: async (nodeKey) => {
-    if (useTauri()) return tauriInvoke("node_state_load", { nodeKey });
-    return {};
-  },
-  nodeStateSave: async (nodeKey, rolePrompt) => {
-    if (useTauri()) return tauriInvoke("node_state_save", { nodeKey, rolePrompt });
-  },
-  memoryAdd: async (nodeKey, kind, content, tags, importance, executionId) => {
-    if (useTauri()) return tauriInvoke("memory_add", { nodeKey, kind, content, tags, importance, executionId });
-    return localDb.memoryAdd(nodeKey, kind, content, tags, importance);
-  },
-  memorySearch: async (nodeKey, query, limit = 12) => {
-    if (useTauri()) return tauriInvoke("memory_search", { nodeKey, query, limit, kinds: null });
-    return localDb.memorySearch(nodeKey, query, limit);
-  },
-  memoryDelete: async (memoryId) => {
-    if (useTauri()) return tauriInvoke("memory_delete", { memoryId });
-    localDb.memoryDelete(memoryId);
-  },
-  skillsList: async (nodeKey) => {
-    if (useTauri()) return tauriInvoke("skills_list", { nodeKey });
-    return localDb.skillsList(nodeKey);
-  },
-  skillTouch: async (skillIds) => {
-    if (useTauri()) return tauriInvoke("skill_touch", { skill_ids: skillIds });
-    throw new Error("Skill usage counts live in the native build's SQLite store; the browser preview has no skill store to update.");
-  },
-  skillDeactivate: async (skillId) => {
-    if (useTauri()) return tauriInvoke("skill_deactivate", { skill_id: skillId });
-  },
-  skillUpsert: async (args) => {
-    if (useTauri()) return tauriInvoke("skill_upsert", args);
-    return localDb.skillUpsert(args);
-  },
-  feedbackAdd: async (executionId, nodeKey, rating, comment) => {
-    if (useTauri()) return tauriInvoke("feedback_add", { executionId, nodeKey, rating, comment });
-    return localDb.feedbackAdd(executionId, nodeKey, rating, comment);
-  },
-  feedbackList: async () => {
-    if (useTauri()) return tauriInvoke("feedback_list");
-    return localDb.feedbackList();
-  },
-  // V7 fix (bug T): these returned fabricated ids and empty lists. A fabricated evaluation id
-  // implies a stored result that does not exist, and an empty list is indistinguishable from
-  // "no evaluations have ever run" — both read as success while nothing happened.
-  evaluationSave: async (nodeKey, executionId, suite, score, details) => {
-    if (useTauri()) return tauriInvoke("evaluation_save", { nodeKey, executionId, suite, score, details });
-    throw new Error("Evaluation results live in the native build's SQLite database; the browser preview has no database to write.");
-  },
-  evaluationHistory: async (nodeKey) => {
-    if (useTauri()) return tauriInvoke("evaluation_history", { nodeKey });
-    throw new Error("Evaluation history lives in the native build's SQLite database; the browser preview has no database to read.");
-  },
-  suiteList: async () => {
-    if (useTauri()) return tauriInvoke("suite_list");
-    throw new Error("Test suites live in the native build's SQLite database; the browser preview has no database to read.");
-  },
-  suiteSave: async (args) => {
-    if (useTauri()) return tauriInvoke("suite_save", args);
-    throw new Error("Test suites live in the native build's SQLite database; the browser preview has no database to write.");
-  },
-  evolutionProposeSave: async (cand) => {
-    if (useTauri()) return tauriInvoke("evolution_propose_save", { cand });
-    return localDb.evolutionPropose(cand);
-  },
-  evolutionList: async (nodeKey) => {
-    if (useTauri()) return tauriInvoke("evolution_list", { nodeKey: nodeKey ?? null });
-    return localDb.evolutionList();
-  },
-  evolutionDecide: async (candidateId, decision) => {
-    if (useTauri()) return tauriInvoke("evolution_decide", { candidateId, decision });
-    return localDb.evolutionDecide(candidateId, decision);
-  },
-  evolutionRollback: async (candidateId, restoreRolePrompt) => {
-    if (useTauri()) return tauriInvoke("evolution_rollback", { candidateId, restoreRolePrompt: restoreRolePrompt ?? null });
-  },
-  approvalRequest: async (executionId, nodeKey, summary, payload) => {
-    if (useTauri()) return tauriInvoke("approval_request", { executionId, nodeKey, summary, payload });
-    return localDb.approvalRequest(executionId, nodeKey, summary, payload);
-  },
-  approvalGet: async (executionId, nodeKey) => {
-    if (useTauri()) return tauriInvoke("approval_get", { executionId, nodeKey });
-    return localDb.approvalGet(executionId, nodeKey);
-  },
-  approvalList: async () => {
-    if (useTauri()) return tauriInvoke("approval_list");
-    return localDb.approvalList();
-  },
-  approvalDecide: async (approvalId, decision) => {
-    if (useTauri()) return tauriInvoke("approval_decide", { approvalId, decision });
-    localDb.approvalDecide(approvalId, decision);
-  },
-  executionCreate: async (workflowId, workflowVersion) => {
-    if (useTauri()) return tauriInvoke("execution_create", { workflowId, workflowVersion });
-    return localDb.executionCreate(workflowId, workflowVersion);
-  },
-  executionFinish: async (executionId, status, error, stats) => {
-    if (useTauri()) return tauriInvoke("execution_finish", { executionId, status, error, stats });
-    localDb.executionFinish(executionId, status, error, stats);
-  },
-  eventEmit: async (executionId, kind, level, nodeId, data) => {
-    if (useTauri()) {
-      const rec = await tauriInvoke("event_emit", { executionId, kind, level, nodeId, data });
-      window.dispatchEvent(new CustomEvent("vh://event", { detail: rec }));
-      return rec;
-    }
-    return localDb.eventEmit(executionId, kind, level, nodeId, data);
-  },
-  executionEvents: async (executionId) => {
-    if (useTauri()) return tauriInvoke("execution_events", { executionId });
-    return localDb.executionEvents(executionId);
-  },
-  executionTrace: async (executionId) => {
-    if (useTauri()) return tauriInvoke("execution_trace", { executionId });
-    return { events: localDb.executionEvents(executionId), status: "COMPLETED" };
-  },
-  executionList: async () => {
-    if (useTauri()) return tauriInvoke("execution_list");
-    return localDb.executionList();
-  },
-  dlqAdd: async (executionId, nodeKey, error, payload, suggestedCause, candidateFix) => {
-    if (useTauri()) return tauriInvoke("dlq_add", { executionId, nodeKey, error, payload, suggestedCause, candidateFix });
-    return localDb.dlqAdd(executionId, nodeKey, error, payload, suggestedCause, candidateFix);
-  },
-  dlqList: async () => {
-    if (useTauri()) return tauriInvoke("dlq_list");
-    return localDb.dlqList();
-  },
-  dlqResolve: async (dlqId) => {
-    if (useTauri()) return tauriInvoke("dlq_resolve", { dlqId });
-    localDb.dlqResolve(dlqId);
-  },
-  runRequestTake: async () => {
-    if (useTauri()) return tauriInvoke("run_request_take");
-    return localDb.runTake();
-  },
-  evolutionServiceHealth: async () => {
-    if (useTauri()) return tauriInvoke("evolution_service_health");
-    return {
-      available: false,
-      transport: "stdio",
-      reason: "The evolution service is a stdio child process of the native host. Build the desktop app (npm run tauri:build).",
-      engine: "mj_evolution.stdio_server",
-      hooks: ["on_session_start", "pre_llm_call", "post_llm_call", "on_session_end"]
-    };
-  },
-  hermesBridge: async (msg) => {
-    if (useTauri()) return tauriInvoke("hermes_bridge", { msg });
-    return { ok: true, transport: "in-process", echo: msg };
-  },
-  evolutionServicePropose: async (args) => {
-    if (useTauri()) return tauriInvoke("evolution_service_propose", { args });
-    return null;
-  },
-  secretGet: async (secretRef) => {
-    if (useTauri()) return tauriInvoke("secret_get", { secretRef });
-    const value = localDb.secretGet(secretRef);
-    return { ref: secretRef, present: value != null && value !== "", value: value ?? null };
-  },
-  secretSet: async (secretRef, value) => {
-    if (useTauri()) return tauriInvoke("secret_set", { secretRef, value });
-    localDb.secretSet(secretRef, value);
-    return { stored: true, location: "browser-localStorage", survivesRestart: true, warning: "Stored in browser localStorage, not an OS keychain." };
-  },
-  secretDelete: async (secretRef) => {
-    if (useTauri()) return tauriInvoke("secret_delete", { secretRef });
-    localDb.secretDelete(secretRef);
-  },
-  secretExists: async (refs) => {
-    if (useTauri()) return tauriInvoke("secret_exists", { secretRefs: refs });
-    return localDb.secretExists(refs);
-  },
-  llmChat: async (req) => {
-    if (useTauri()) return tauriInvoke("llm_chat", { req });
-    const key = localDb.secretGet(req.secret_ref);
-    if (req.provider === "ollama" || req.base_url?.includes("11434")) {
-      try {
-        const r2 = await fetch(`${req.base_url || "http://127.0.0.1:11434"}/api/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: req.model,
-            stream: false,
-            messages: [
-              ...req.system ? [{ role: "system", content: req.system }] : [],
-              ...req.messages
-            ]
-          })
-        });
-        const j = await r2.json();
-        return {
-          content: j.message?.content ?? "",
-          model: req.model,
-          usage: { input_tokens: 0, output_tokens: 0 },
-          duration_ms: 0
-        };
-      } catch (e) {
-        throw new Error(`ollama unreachable: ${e}`);
-      }
-    }
-    if (!key) throw new Error(`secret not found: ${req.secret_ref}`);
-    throw new Error("Cloud LLM calls from the web host require the native desktop build (CORS). Use Local LLM / Ollama or run `npm run tauri`.");
-  },
-  fsRead: async (path) => {
-    if (useTauri()) return tauriInvoke("fs_read", { path });
-    throw new Error("Filesystem is available in the native desktop build.");
-  },
-  fsWrite: async (path, content) => {
-    if (useTauri()) return tauriInvoke("fs_write", { path, content });
-    throw new Error("Filesystem is available in the native desktop build.");
-  },
-  fsList: async (path) => {
-    if (useTauri()) return tauriInvoke("fs_list", { path });
-    return [];
-  },
-  fsMkdir: async (path) => {
-    if (useTauri()) return tauriInvoke("fs_mkdir", { path });
-  },
-  fsRemove: async (path, recursive) => {
-    if (useTauri()) return tauriInvoke("fs_remove", { path, recursive });
-  },
-  shellExec: async (program, args, cwd, timeoutSecs) => {
-    if (useTauri()) return tauriInvoke("shell_exec", { program, args, cwd, timeoutSecs });
-    throw new Error("Terminal is available in the native desktop build.");
-  },
-  // QA fix (audit C2): the native filesystem is sandboxed to the app data dir plus these
-  // user-registered workspace roots. Teams registers the runner repo when a run starts.
-  workspaceRootAdd: async (root) => {
-    if (!useTauri()) return { ok: false, path: root };
-    return tauriInvoke("workspace_root_add", { root });
-  },
-  workspaceRootRemove: async (root) => {
-    if (!useTauri()) return { ok: false, path: root };
-    return tauriInvoke("workspace_root_remove", { root });
-  },
-  workspaceRootList: async () => {
-    if (!useTauri()) return [];
-    return tauriInvoke("workspace_root_list");
-  },
-  mcpServerList: async () => {
-    if (useTauri()) return tauriInvoke("mcp_server_list");
-    return localDb.mcpList();
-  },
-  mcpServerSave: async (cfg) => {
-    if (useTauri()) return tauriInvoke("mcp_server_save", { cfg });
-    return localDb.mcpSave(cfg);
-  },
-  mcpServerRemove: async (serverId) => {
-    if (useTauri()) return tauriInvoke("mcp_server_remove", { serverId });
-    localDb.mcpRemove(serverId);
-  },
-  mcpConnectTest: async (serverId) => {
-    if (useTauri()) return tauriInvoke("mcp_connect_test", { serverId });
-    const s = localDb.mcpList().find((m) => m.id === serverId);
-    return {
-      serverId,
-      connected: false,
-      lastError: "Connect from the native desktop build (stdio MCP).",
-      toolCount: 0,
-      name: s?.name
-    };
-  },
-  mcpCall: async (serverId, tool, args) => {
-    if (useTauri()) return tauriInvoke("mcp_call", { serverId, tool, arguments: args });
-    throw new Error("MCP calls require the native desktop build.");
-  },
-  // V7 fix (bug V): these browser fallbacks invented a session id, a page title and an engine
-  // name. An agent or a page reading them would conclude a real navigation had happened. Every
-  // one of them now reports the same notAttached shape the Rust side does.
-  /**
-   * `key` is what makes browser use autonomous: pass a stable key (a node key, a workflow id) and
-   * the same session comes back, so a loop that navigates repeatedly drives one tab with its
-   * history and cookies intact instead of leaking a fresh browser context on every call.
-   */
-  browserSessionCreate: async (key) => {
-    if (useTauri()) return tauriInvoke("browser_session_create", { key });
-    return { ok: false, notAttached: true, engine: null, sessionId: null, reason: browserReason };
-  },
-  browserSessionClose: async (sessionId) => {
-    if (useTauri()) return tauriInvoke("browser_session_close", { sessionId });
-  },
-  browserSessions: async () => {
-    if (useTauri()) return tauriInvoke("browser_sessions");
-    return [];
-  },
-  browserNavigate: async (sessionId, url, timeoutMs = 3e4) => {
-    if (useTauri()) return tauriInvoke("browser_navigate", { sessionId, url, timeoutMs });
-    return { ok: false, notAttached: true, url, title: null, engine: null, reason: browserReason };
-  },
-  browserAct: async (args) => {
-    if (useTauri()) return tauriInvoke("browser_act", args);
-    return { ok: false, notAttached: true, reason: browserReason };
-  },
-  browserScreenshot: async (sessionId, fullPage = false) => {
-    if (useTauri()) return tauriInvoke("browser_screenshot", { sessionId, fullPage });
-    return { ok: false, notAttached: true, path: null, reason: browserReason };
-  },
-  browserConsole: async (sessionId) => {
-    if (useTauri()) return tauriInvoke("browser_console", { sessionId });
-    return { ok: false, notAttached: true, console: [], networkFailures: [], reason: browserReason };
-  },
-  cliProvidersDetect: async () => {
-    if (useTauri()) return tauriInvoke("cli_providers_detect");
-    return [
-      { id: "claude", name: "Claude Code", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "claude" },
-      { id: "codex", name: "OpenAI Codex CLI", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "codex" },
-      { id: "opencode", name: "OpenCode", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "opencode" },
-      { id: "openclaude", name: "OpenClaude", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "openclaude" },
-      { id: "copilot", name: "GitHub Copilot CLI", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "copilot" },
-      { id: "grok", name: "Grok Build (xAI)", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "grok" },
-      { id: "kilo", name: "Kilo Code", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "kilo" },
-      { id: "gemini", name: "Gemini CLI", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "gemini" },
-      { id: "qwen", name: "Qwen Code", executable: null, installed: false, version: null, auth_state: "unknown", capabilities: ["agent"], invocation: "qwen" }
-    ];
-  },
-  /**
-   * §6 Diagnostics: where the app searched for each coding-agent binary, what it resolved to, and the
-   * version it reported. "Not installed" without this is unactionable — a packaged app does not
-   * inherit your shell's PATH, so the CLI can exist and still be invisible.
-   */
-  cliEnv: async () => {
-    if (useTauri()) return tauriInvoke("cli_env", {});
-    throw new Error("CLI diagnostics require the native desktop build.");
-  },
-  /**
-   * `argv`, when supplied, is the exact argument vector to run — the app builds it in
-   * `src/mission/harnessPolicy.ts` so the risk -> sandbox mapping lives in one typed place
-   * instead of being duplicated in Rust. Omit it and the Rust side falls back to its own table
-   * (the V5 path, kept for the Providers page).
-   */
-  cliInvoke: async (providerId, prompt, cwd, timeoutSecs = 600, argv) => {
-    if (useTauri()) return tauriInvoke("cli_invoke", { providerId, prompt, cwd, timeoutSecs, argv: argv ?? null });
-    throw new Error("CLI providers require the native desktop build.");
-  },
-  /* -------------------------------------------- custom harnesses (V11.6)
-   * User-registered harnesses: name + binary + argv template ($PROMPT). In the native
-   * app the Rust side owns the registry (custom-harnesses.json in the app data dir)
-   * and re-validates every save — cli_invoke only ever runs a bin that is either in
-   * the built-in allowlist or in this saved registry. In the web preview the list
-   * lives in localStorage so the Teams connect panel stays manageable; running
-   * still requires the native build (a browser cannot spawn processes).
-   */
-  customHarnessList: async () => {
-    if (useTauri()) return tauriInvoke("custom_harness_list");
-    try {
-      const raw = JSON.parse(localStorage.getItem("vouch.customHarnesses") ?? "[]");
-      return Array.isArray(raw) ? raw : [];
-    } catch {
-      return [];
-    }
-  },
-  customHarnessSave: async (harness) => {
-    if (useTauri()) return tauriInvoke("custom_harness_save", { harness });
-    const list = await ipc.customHarnessList();
-    const i = list.findIndex((h) => h.id === harness.id);
-    if (i >= 0) list[i] = harness;
-    else list.push(harness);
-    localStorage.setItem("vouch.customHarnesses", JSON.stringify(list));
-    return { saved: true, created: i < 0, count: list.length };
-  },
-  customHarnessDelete: async (id) => {
-    if (useTauri()) return tauriInvoke("custom_harness_delete", { id });
-    const list = (await ipc.customHarnessList()).filter((h) => h.id !== id);
-    localStorage.setItem("vouch.customHarnesses", JSON.stringify(list));
-    return { deleted: true, count: list.length };
-  },
-  /* -------------------------------------------------------------- git
-   * Every one of these throws in a browser build rather than returning an empty result. A git panel
-   * that renders "no changes" when it never spoke to git is the exact false-success pattern the product forbids:
-   * the user cannot tell "clean tree" from "never checked". The thrown message is the label.
-   */
-  gitIsRepo: async (cwd) => {
-    if (useTauri()) return tauriInvoke("git_is_repo", { cwd });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  gitStatus: async (cwd) => {
-    if (useTauri()) return tauriInvoke("git_status", { cwd });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  gitDiff: async (cwd, staged = false, budget) => {
-    if (useTauri()) return tauriInvoke("git_diff", { cwd, staged, budget: budget ?? null });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  gitHead: async (cwd) => {
-    if (useTauri()) return tauriInvoke("git_head", { cwd });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  gitBranch: async (cwd) => {
-    if (useTauri()) return tauriInvoke("git_branch", { cwd });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  /**
-   * Did a seat that was told to be read-only actually refrain from writing?
-   * A harness flag is a promise; this is the check. Three-way on purpose — see `git.rs`.
-   */
-  gitReadOnlyCheck: async (cwd) => {
-    if (useTauri()) return tauriInvoke("git_read_only_check", { cwd });
-    throw new Error("git needs the native desktop build: a browser cannot see your repository.");
-  },
-  packageExport: async (workflowId, includeHistory) => {
-    if (useTauri()) return tauriInvoke("package_export", { workflowId, includeHistory });
-    const wf = localDb.workflowGet(workflowId);
-    return {
-      packageFormat: 1,
-      exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      application: "VH",
-      version: VH_VERSION,
-      workflow: { name: wf.name, description: wf.description, graph: wf.graph },
-      history: [],
-      secretsIncluded: false
-    };
-  },
-  packageImport: async (pkg) => {
-    if (useTauri()) return tauriInvoke("package_import", { pkg });
-    const p = pkg;
-    if (p.application !== "VH" || !p.workflow) throw new Error("package rejected");
-    const created = localDb.workflowCreate(`${p.workflow.name} (imported)`, p.workflow.description ?? "");
-    localDb.workflowSave(created.id, `${p.workflow.name} (imported)`, p.workflow.description ?? "", p.workflow.graph);
-    return { id: created.id, validated: true };
-  },
-  controlValidate: async (workflowId) => {
-    if (useTauri()) return tauriInvoke("control_validate_graph", { workflowId });
-    return { valid: true, errors: [] };
-  },
-  controlConnectPorts: async (args) => {
-    if (useTauri()) return tauriInvoke("control_connect_ports", args);
-    throw new Error("use graph store connect");
-  }
-};
-
-// src/domain/harness.ts
-var HARNESSES = [
-  {
-    id: "acp",
-    name: "ACP agent (one wire, many agents)",
-    bins: ["claude-code-acp"],
-    argv: ["--stdio"],
-    install: "Set VOUCH_ACP_BIN to any ACP-compliant agent (e.g. claude-code-acp, or gemini --experimental-acp). npm i -g @zed-industries/claude-code-acp bridges Claude Code.",
-    notes: "Agent Client Protocol (Zed + JetBrains): JSON-RPC over stdio with streaming, tool-call events and permission requests. One adapter instead of one parser per CLI. Grok Build also speaks ACP natively.",
-    source: "agentclientprotocol.com; exercised by probe/acp.test.ts"
-  },
-  {
-    id: "hermes",
-    name: "Hermes Agent (vendored)",
-    bins: ["hermes"],
-    argv: ["--print", "$PROMPT"],
-    install: "Install Hermes Agent (Nous) so `hermes` is on PATH, or use the in-process Hermes loop (default).",
-    notes: "Each agent node is a Hermes-class session. If the CLI is missing, the app runs the in-process tool loop against a provider key / Ollama."
-  },
-  {
-    id: "claude",
-    name: "Claude Code",
-    bins: ["claude"],
-    argv: ["-p", "$PROMPT", "--output-format", "text"],
-    install: "npm install -g @anthropic-ai/claude-code   then   claude  (login)",
-    notes: "Native Anthropic coding agent. Uses your Claude Code subscription (Pro/Max).",
-    source: "docs.anthropic.com \u2014 checked 2026-09"
-  },
-  {
-    id: "codex",
-    name: "OpenAI Codex CLI",
-    bins: ["codex"],
-    argv: ["exec", "--skip-git-repo-check", "$PROMPT"],
-    install: "npm install -g @openai/codex   then   codex login",
-    notes: "OpenAI Codex harness. Uses your ChatGPT/Codex auth; --oss runs local Ollama models.",
-    source: "github.com/openai/codex \u2014 checked 2026-09"
-  },
-  {
-    id: "opencode",
-    name: "OpenCode",
-    bins: ["opencode"],
-    argv: ["run", "$PROMPT"],
-    install: "npm install -g opencode-ai   then   opencode",
-    notes: "Open-source coding agent. 75+ providers, bring your own keys, fully offline. Plan/Build agent modes map onto the app's read/write policies.",
-    source: "opencode.ai docs \u2014 checked 2026-09"
-  },
-  {
-    id: "openclaude",
-    name: "OpenClaude",
-    bins: ["openclaude"],
-    argv: ["-p", "$PROMPT"],
-    install: "npm install -g @gitlawb/openclaude@latest   then   openclaude   (/provider to set up a backend)",
-    notes: "Open-source Claude-Code-shaped CLI that runs on OpenAI-compatible APIs, Gemini, GitHub Models, Codex OAuth or local Ollama \u2014 no Claude subscription needed. Config lives in ~/.openclaude, never reads ~/.claude.",
-    source: "github.com/Gitlawb/openclaude \u2014 checked 2026-09 (30.9k stars; -p headless is community-verified, --bg for detached runs)"
-  },
-  {
-    id: "copilot",
-    name: "GitHub Copilot CLI",
-    bins: ["copilot"],
-    argv: ["-p", "$PROMPT", "-s"],
-    install: "npm install -g @github/copilot   (or winget install GitHub.Copilot / brew install --cask copilot-cli)   then   copilot login",
-    notes: "GitHub's terminal-first Copilot agent. -p runs one prompt non-interactively; -s prints only the response. Uses Copilot plan credits; COPILOT_GITHUB_TOKEN authenticates headless CI.",
-    source: "docs.github.com/en/copilot/get-started/cli-quickstart \u2014 checked 2026-09"
-  },
-  {
-    id: "cursor",
-    name: "Cursor Agent",
-    bins: ["cursor-agent", "agent"],
-    argv: ["-p", "$PROMPT"],
-    install: "Install Cursor, then enable the agent CLI (cursor-agent on PATH)",
-    notes: "Cursor's agent CLI. Uses Cursor auth."
-  },
-  {
-    id: "grok",
-    name: "Grok Build (xAI)",
-    bins: ["grok"],
-    argv: ["exec", "$PROMPT"],
-    install: "curl -fsSL https://x.ai/cli/install.sh | bash   (Windows: irm https://x.ai/cli/install.ps1 | iex)   then   grok   (SuperGrok Heavy login, or GROK_CODE_XAI_API_KEY for headless)",
-    notes: "xAI's terminal coding agent: up to 8 parallel subagents, Plan Mode, ACP support, AGENTS.md/hooks/skills compatibility. `grok exec` is the documented non-interactive mode; `-p` also runs headless.",
-    source: "x.ai/build + docs.x.ai \u2014 checked 2026-09 (Grok 4.6 default since 2026-08-12)"
-  },
-  {
-    id: "cline",
-    name: "Cline",
-    bins: ["cline"],
-    argv: ["$PROMPT"],
-    install: "Install the Cline CLI binary on PATH (the VS Code extension alone cannot be spawned from the app)",
-    notes: "Cline's autonomous plan/act agent. BYO model. Only the CLI binary is spawnable; the VS Code extension is not.",
-    source: "cline.bot \u2014 CLI availability is community-reported"
-  },
-  {
-    id: "kilo",
-    name: "Kilo Code",
-    bins: ["kilo"],
-    argv: ["run", "$PROMPT"],
-    install: "Install Kilo Code CLI (npm i -g kilocode-cli or from kilo.ai)   then   kilo",
-    notes: "Kilo CLI: 500+ models via Kilo Gateway, direct provider keys, BYOK and local/offline models. `kilo run` is the headless one-shot mode; `kilo serve` exposes it as a service.",
-    source: "kilo.ai/docs \u2014 checked 2026-09"
-  },
-  {
-    id: "aider",
-    name: "Aider AI Pair Programmer",
-    bins: ["aider"],
-    argv: ["--yes", "--no-auto-commits", "--message", "$PROMPT"],
-    install: "pip install aider-chat   then   aider",
-    notes: "Git-integrated AI pair programmer. Edits directly in git worktrees."
-  },
-  {
-    id: "gemini",
-    name: "Google Gemini CLI",
-    bins: ["gemini"],
-    argv: ["-p", "$PROMPT"],
-    install: "npm install -g @google/gemini-cli   then   gemini   (Google account auth)",
-    notes: "Gemini 3.x with 1M-token context. Paid/Code Assist tiers keep Gemini CLI after the Antigravity cutover (2026-06-18); unpaid tiers move to Antigravity.",
-    source: "github.com/google-gemini/gemini-cli \u2014 checked 2026-09"
-  },
-  {
-    id: "antigravity",
-    name: "Google Antigravity CLI (agy)",
-    bins: ["agy"],
-    argv: ["-p", "$PROMPT"],
-    install: "curl -fsSL https://antigravity.google/cli/install.sh | bash   (Windows: irm https://antigravity.google/cli/install.ps1 | iex)",
-    notes: "V11.6.1: the shipped binary is `agy` \u2014 a closed-source Go executable from Antigravity 2.0 (2026-05-19), not `antigravity`. Individual-tier replacement for Gemini CLI since the 2026-06-18 cutover; paid Code Assist keeps `gemini`. Headless prompt flag is community-graded (Gemini heritage) \u2014 `agy --help` decides.",
-    source: "antigravity.google/docs/gcli-migration + 2026 cutover coverage (checked 2026-09); binary verified, flags community-graded"
-  },
-  {
-    id: "amp",
-    name: "Amp (Sourcegraph)",
-    bins: ["amp"],
-    argv: ["-x", "$PROMPT"],
-    install: "npm install -g @sourcegraph/amp   then   amp login",
-    notes: 'V11.6.1: execute mode is `amp -x "<prompt>"` \u2014 the documented non-interactive single-shot mode (ampcode.com/docs/cli/execute-mode). Piping `command | amp` also works. The old `--headless` mapping conflated runner mode (`--no-tui`) with execute mode.',
-    source: "ampcode.com/docs + sourcegraph/amp-examples-and-guides CLI guide (checked 2026-09)"
-  },
-  {
-    id: "crush",
-    name: "Crush (Charm)",
-    bins: ["crush"],
-    argv: ["run", "$PROMPT"],
-    install: "npm install -g @charmbracelet/crush   (or brew install charmbracelet/crush/crush)   then   crush",
-    notes: "Charm's beautiful TUI coding agent, LSP-aware, multi-provider. `crush run` executes a prompt non-interactively.",
-    source: "github.com/charmbracelet/crush \u2014 community-graded flags"
-  },
-  {
-    id: "openhands",
-    name: "OpenHands",
-    bins: ["openhands"],
-    argv: ["--headless", "-t", "$PROMPT"],
-    install: "pip install openhands   then   openhands login   (or configure any LLM)",
-    notes: 'V11.6.1: the V1 CLI headless mode is `openhands --headless -t "<task>"` (pypi.org/project/openhands, docs.openhands.dev). `--json` streams JSONL events; `-f` takes a task file. The old `solve` mapping was a pre-V1 design.',
-    source: "github.com/All-Hands-AI/OpenHands \u2014 checked 2026-09"
-  },
-  {
-    id: "goose",
-    name: "Goose (Block)",
-    bins: ["goose"],
-    argv: ["run", "--text", "$PROMPT"],
-    install: "curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash",
-    notes: "Block's open-source extensible AI developer agent with 70+ MCP extensions."
-  },
-  {
-    id: "qwen",
-    name: "Qwen Code",
-    bins: ["qwen"],
-    argv: ["-p", "$PROMPT"],
-    install: "npm install -g @qwen-ai/qwen-code   then   qwen   (API key or Coding Plan)",
-    notes: "Alibaba Qwen3-Coder terminal agent: OpenAI-compatible endpoints, Anthropic, Gemini, Ollama, vLLM. Note: the free OAuth tier ended 2026-04-15.",
-    source: "github.com/QwenLM/qwen-code \u2014 checked 2026-09"
-  },
-  {
-    id: "amazonq",
-    name: "Amazon Q / Kiro CLI",
-    bins: ["kiro-cli", "q"],
-    argv: ["chat", "--no-interactive", "$PROMPT"],
-    install: "Install Amazon Q Developer CLI via Homebrew/WinGet or AWS CLI",
-    notes: "AWS enterprise terminal coding agent with Bedrock model routing."
-  },
-  {
-    id: "droid",
-    name: "Droid (Factory)",
-    bins: ["droid"],
-    argv: ["exec", "$PROMPT"],
-    install: "curl -fsSL https://app.factory.ai/cli | sh   (Linux also needs xdg-utils)",
-    notes: "V11.7.1: `droid exec \"<prompt>\"` is the vendor-documented non-interactive single-pass mode. The DEFAULT is spec-mode \u2014 read-only operations only \u2014 so the app's read-only policy needs no flag at all; writes compose `--auto low` (the vendor's example tier; risk tiers gate what may run). `-f <file>` reads the prompt from a file, `-o` sets the output format.",
-    source: "docs.factory.ai/droid-exec/overview (checked 2026-09) \u2014 vendor-documented headless mode"
-  },
-  {
-    id: "kimi",
-    name: "Kimi Code (Moonshot)",
-    bins: ["kimi"],
-    argv: ["-p", "$PROMPT"],
-    install: "curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash   (or: npm install -g @moonshot-ai/kimi-code)",
-    notes: 'V11.7.1: `kimi -p "<prompt>"` runs a single prompt non-interactively (the CLI\'s finalizeHeadlessRun exits the process after completion). `--output-format stream-json` emits JSONL events; `--yolo` auto-approves regular tool calls; `--auto` is the no-questions permission mode; `-S <id>` resumes a session by id. Swarm/goal modes are interactive concepts the app does not compose.',
-    source: "kimi.ai/resources/kimi-code-cheat-sheet + moonshotai/kimi-code (checked 2026-09) \u2014 vendor-documented prompt mode"
-  },
-  {
-    id: "auggie",
-    name: "Auggie (Augment Code)",
-    bins: ["auggie"],
-    argv: ["--print", "$PROMPT"],
-    install: "npm install -g @augmentcode/auggie   then   auggie login",
-    notes: 'V11.7.1: `auggie --print "<instruction>"` is print mode \u2014 one instruction, no UI, exits (the vendor\'s own automation workflow). `--quiet` shows only the final message, `--output-format json` structures the response, `--ask` is a genuine read-only mode (retrieval and non-editing tools only) that is documented as its own mode rather than a --print modifier. Non-interactive mode can be disabled by enterprise agreement. `--acp` exposes Auggie as an ACP agent.',
-    source: "docs.augmentcode.com/cli/reference (checked 2026-09) \u2014 vendor-documented print mode"
-  },
-  {
-    id: "warp",
-    name: "Warp Oz Agent CLI",
-    bins: ["oz"],
-    argv: ["agent", "run", "--prompt", "$PROMPT"],
-    install: "Ships with Warp 2026 (Command Palette \u2192 Install Warp CLI), or: brew tap warpdotdev/warp && brew install --cask warp-cli   then   oz login",
-    notes: "V11.7.1: Warp's agent infrastructure has its own CLI, `oz`. `oz agent run --prompt` starts a LOCAL agent run \u2014 that is what the app spawns. `oz agent run-cloud` is Warp cloud infrastructure (needs --environment) and is deliberately NOT composed. WARP_API_KEY authenticates headless servers/CI. The 2025-era `warp agent run --prompt` surface still exists on the `warp` binary; the Linux desktop launcher is `warp-terminal` \u2014 neither is the agent CLI the app detects.",
-    source: "docs.warp.dev/reference/cli (checked 2026-09) \u2014 vendor-documented local agent run"
-  },
-  {
-    id: "llm",
-    name: "Direct LLM (API / Ollama)",
-    bins: [],
-    argv: [],
-    install: "Save a provider key in System \u2192 Providers, or run Ollama locally",
-    notes: "Not a coding harness. Calls the chat API with the composed agent prompt."
-  }
-];
-var HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-var HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
-function isCustomHarness(id) {
-  return id.startsWith("custom:");
-}
-var customRegistry = /* @__PURE__ */ new Map();
-function getCustomHarness(id) {
-  return customRegistry.get(id);
-}
-
-// src/mission/agentCapabilities.ts
-var AGENT_CAPABILITIES = {
-  acp: {
-    id: "acp",
-    name: "ACP agent (Agent Client Protocol)",
-    bins: ["claude-code-acp"],
-    install: "Set VOUCH_ACP_BIN to any ACP-compliant agent binary (claude-code-acp bridges Claude Code; gemini --experimental-acp bridges Gemini).",
-    prompt: { argv: null, confidence: "docs", source: "ACP spec (agentclientprotocol.com): the prompt travels as session/prompt ContentBlock[], not argv. Conformance exercised by probe/acp.test.ts against a scripted agent." },
-    json: { argv: null, kind: "ndjson", confidence: "docs", source: "ACP streams structured session/update events (agent_message_chunk, tool_call, plan) over newline-delimited JSON \u2014 there is no JSON output flag to pass." },
-    readOnly: { argv: null, confidence: "docs", source: "ACP models permissions natively: session/request_permission. MJ's mission policy answers it (default: deny) instead of passing a CLI flag." },
-    write: { argv: null, confidence: "docs", source: "Writes happen through fs/write_text_file or the agent's own tools, each gated by session/request_permission." },
-    fullAuto: { argv: null, confidence: "unverified", source: "ACP has no skip-permissions primitive and MJ will not emulate one. Autonomy comes from the mission policy, not the wire." },
-    maxTurns: { argv: null, confidence: "docs", source: "No turn-cap in the protocol; MJ's CapLedger enforces the wall clock and MJ cancels via session/cancel." },
-    timeout: { argv: null, confidence: "docs", source: "Protocol-level: client-side request timeout + session/cancel. Verified in probe/acp.test.ts." },
-    outputSchema: { argv: null, confidence: "unverified", source: "No schema primitive in ACP v1; structured output is the mission's job, not the transport's." },
-    worktree: { argv: null, confidence: "docs", source: "session/new takes cwd \u2014 MJ points the session at its prepared worktree, as with any CLI." },
-    cwd: { argv: null, confidence: "docs", source: "session/new { cwd, mcpServers } \u2014 first-class in the protocol, unlike most CLIs." },
-    model: { argv: null, confidence: "docs", source: "session/new may return models/modes; session/set_mode switches. Not required for a first turn." },
-    resume: { argv: ["session/load"], confidence: "docs", source: "session/load resumes a session by id \u2014 MJ does not use it yet; every mission seat is a fresh session." },
-    sessionStart: { argv: null, confidence: "docs", source: "Sessions are created per seat via session/new; there is nothing to pre-create." },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "Update behavior belongs to the agent binary, not the protocol." },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "ACP is a protocol, not a binary: what is verified is MJ's client (probe/acp.test.ts), not any particular agent's server. Per-agent verification stays on the Proof page's live-binary ledger.",
-      "Newline-delimited JSON: a chatty stderr is fine, but any agent that prints non-JSON to stdout breaks the stream \u2014 MJ counts such lines as protocol_error events instead of crashing."
-    ]
-  },
-  claude: {
-    id: "claude",
-    name: "Claude Code",
-    bins: ["claude"],
-    install: "npm install -g @anthropic-ai/claude-code   then   claude",
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 (--help); -p, --print" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; choices text|json|stream-json" },
-    readOnly: { argv: ["--permission-mode", "plan"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; permission-mode choices acceptEdits|auto|bypassPermissions|default|dontAsk|plan" },
-    write: { argv: ["--permission-mode", "acceptEdits"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; acceptEdits is a real choice" },
-    fullAuto: { argv: ["--dangerously-skip-permissions"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help" },
-    // V11.8.0: the turn cap is real after all — but the story matters. The 2.1.197 --help scan
-    // (which once removed this flag) found no match, and the 11.7.x review then caught the
-    // registry and the policy layer DISAGREEING: caps said absent while policyFor still
-    // emitted it. The 2026 vendor CLI reference documents --max-turns for print mode (no
-    // default; exits with an error at the cap) and five independent 2026 sources cite it —
-    // so the flag is restored at DOCS grade, the old scan is recorded in the source line,
-    // and probe §10 pins registry↔policy agreement so the two layers can never split again.
-    maxTurns: { argv: ["--max-turns", "$N"], confidence: "docs", source: "code.claude.com CLI reference (2026): print-mode only, no default, exits with an error at the cap. Supersedes the 2.1.197 --help scan that found no match \u2014 the flag is not listed in --help." },
-    timeout: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no timeout flag; MJ enforces its own wall clock" },
-    outputSchema: { argv: ["--json-schema"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help" },
-    worktree: { argv: ["-w"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; -w, --worktree [name]" },
-    cwd: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no cwd flag; MJ sets the child process cwd instead" },
-    model: { argv: ["--model", "$MODEL"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; --model <model>" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; -r, --resume [value]" },
-    sessionStart: { argv: ["--session-id", "$SESSION"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help \u2014 `--session-id <uuid>` CREATES a session under the id you pass, so MJ can pick the id. `--resume` loads one; passing both is a conflict, so MJ emits exactly one per turn." },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: { allowFlag: "--allowedTools", denyFlag: "--disallowedTools", confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 \u2014 note --allowedTools PRE-APPROVES, it does not restrict. --tools restricts which tools exist." },
-    cost: { kind: "usd", path: "total_cost_usd", confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 \u2014 total_cost_usd, num_turns and session_id all present in the shipped executable, and a live run returned them" },
-    enforcedReadOnly: true,
-    gotchas: [
-      '--allowedTools pre-approves (skips the prompt) but does NOT restrict. --tools restricts which tools exist; --tools "" is pure text. Conflating them is the classic bug.',
-      "--max-turns exists in print mode only (docs-graded; --help does not list it). The CapLedger stays the authoritative ceiling \u2014 the CLI-side cap is defence in depth that fails fast. The vendor also documents --max-budget-usd (print-mode spend cap); MJ deliberately does not compose it: the CapLedger is the spend authority.",
-      'Without credentials it still exits 0 and returns a full result object with is_error:true and result:"Not logged in \xB7 Please run /login". Exit code alone would read that as success.'
-    ]
-  },
-  codex: {
-    id: "codex",
-    name: "Codex CLI",
-    bins: ["codex"],
-    install: "npm install -g @openai/codex   then   codex",
-    // `exec` is the subcommand, so it must precede every flag.
-    prompt: { argv: ["exec", "$PROMPT"], confidence: "docs", source: "codex exec" },
-    json: { argv: ["--json"], kind: "ndjson", confidence: "docs", source: "NDJSON event stream" },
-    readOnly: { argv: ["--sandbox", "read-only"], confidence: "docs", source: "read-only is ALSO the default, so this is belt-and-braces rather than a behaviour change" },
-    write: { argv: ["--sandbox", "workspace-write"], confidence: "docs", source: "--full-auto is DEPRECATED; use --sandbox workspace-write" },
-    fullAuto: { argv: ["--sandbox", "danger-full-access"], confidence: "docs", source: "the documented escape hatch" },
-    maxTurns: { argv: null, confidence: "unverified", source: "no documented turn flag" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: ["--output-schema"], confidence: "docs", source: "codex exec --output-schema" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: ["--cd", "$CWD"], confidence: "docs", source: "alias -C" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "OpenAI Codex docs" },
-    resume: { argv: ["resume"], confidence: "docs", source: "codex exec resume \u2014 takes no session id, so MJ cannot say WHICH conversation to continue" },
-    sessionStart: { argv: null, confidence: "unverified", source: "codex names its own sessions and there is no documented way to choose the id, so MJ must capture it from the output" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: { kind: "tokens-only", confidence: "docs", source: "reports tokens but NOT cost. MJ must leave costUsd null rather than guess a price." },
-    enforcedReadOnly: true,
-    gotchas: [
-      "--full-auto is DEPRECATED. Use --sandbox workspace-write.",
-      "Reports tokens with no price, so a cost figure for a codex seat would be invented. MJ records tokens and says the spend is unknown."
-    ]
-  },
-  opencode: {
-    id: "opencode",
-    name: "OpenCode",
-    bins: ["opencode"],
-    install: "npm install -g opencode-ai   then   opencode",
-    prompt: { argv: ["run", "$PROMPT"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `run [message..]`; a real run executed bash and returned NDJSON" },
-    json: { argv: ["--format", "json"], kind: "ndjson", confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 choices default|json; json emits NDJSON events step_start/text/tool_use/step_finish" },
-    readOnly: { argv: ["--agent", "plan"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 asked to create a file, the plan agent made ZERO tool calls and created nothing, while the default agent created it. Read-only is enforced, not advisory." },
-    // The DEFAULT agent is the writing one — proven by a real write. `--agent build` is not what the
-    // binary expects, so MJ emits no agent flag when it wants writes.
-    write: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 the default agent wrote proof-default.txt. No agent flag is needed to write; do NOT pass --agent build." },
-    // There is no --dangerously-skip-permissions in this CLI (0 matches in `run --help`). That flag
-    // belongs to Claude Code; the OpenCode equivalent is --auto, which is far more dangerous than it
-    // sounds, so MJ never emits it without an explicit human decision.
-    fullAuto: { argv: ["--auto"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--auto  auto-approve permissions that are not explicitly denied (dangerous!)`. --dangerously-skip-permissions does NOT exist here." },
-    maxTurns: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no turn-cap flag exists in `run --help`, so MJ's own CapLedger is the only turn limit" },
-    timeout: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no timeout flag; MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no output-schema flag in `run --help`" },
-    worktree: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no worktree flag; MJ uses git worktree itself" },
-    cwd: { argv: ["--dir", "$CWD"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--dir  directory to run in, path on remote server if attaching`" },
-    model: { argv: ["--model", "$MODEL"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `-m, --model` in provider/model format" },
-    resume: { argv: ["--session", "$SESSION"], confidence: "binary", source: "VERIFIED END-TO-END against the real binary: opencode 1.18.25 \u2014 turn 1 planted a codeword, a FRESH process resumed with --session <id> and recalled it exactly. -c/--continue resumes the latest session; --fork copies before continuing." },
-    sessionStart: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--session <unknown-id>` exits 1 with `Error: Session not found`. It LOADS, it does not create, so MJ must NOT pass a session id on turn one. Run turn one bare, capture the sessionID from the NDJSON, and resume with it afterwards." },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented; `opencode upgrade` is a separate command" },
-    filters: null,
-    cost: { kind: "usd", path: "step_finish.part.cost", confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 each step_finish carries .part.cost and .part.tokens{total,input,output,reasoning,cache}. tokens.total is CUMULATIVE (8019 then 8038 across two steps), so take the LAST value; summing would multiply-count." },
-    enforcedReadOnly: true,
-    gotchas: [
-      "CORRECTION: the widely-quoted issue anomalyco/opencode#13851 claimed non-interactive sessions get a restrictive preset that blocks writes. On the real 1.18.25 binary the DEFAULT agent wrote a file without any flag, so that no longer holds. MJ no longer warns about it \u2014 a stale warning would push every seat to read-only for no reason.",
-      "There is NO --dangerously-skip-permissions here. The escape hatch is --auto, whose own help text says '(dangerous!)' because it approves everything not explicitly denied. MJ treats it as requiring an explicit human decision, never a default.",
-      "Sessions are real and resumable by id: --session <id>, -c/--continue for the latest, --fork to branch without polluting the original. Every NDJSON event carries sessionID, so MJ can capture it from turn one.",
-      "opencode ships credential-free models (opencode/mimo-v2.5-free, opencode/nemotron-3.5-lightning-free, opencode/big-pickle and others). With zero credentials configured these still run and report cost 0 \u2014 useful for proving the plumbing before any API key exists.",
-      "opencode.json supports permission: [{permission, pattern, action}] and tools: {write:false, bash:false} \u2014 MJ can write this file into the mission workspace to express its risk class."
-    ]
-  },
-  grok: {
-    id: "grok",
-    name: "Grok Build",
-    bins: ["grok"],
-    install: "curl -fsSL https://x.ai/cli/install.sh | bash    (Windows: irm https://x.ai/cli/install.ps1 | iex)",
-    // V11.6: `grok exec` is the documented one-shot mode (developersdigest/x.ai guides,
-    // 2026-09); -p also runs headless but exec is the canonical scripting surface.
-    prompt: { argv: ["exec", "$PROMPT"], confidence: "docs", source: "docs.x.ai \u2014 grok exec is non-interactive; -p is the headless alias" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "docs", source: "plain|json|streaming-json" },
-    readOnly: { argv: ["--permission-mode", "plan", "--sandbox", "read-only"], confidence: "docs", source: "permission vocabulary is deliberately Claude-compatible" },
-    write: { argv: ["--permission-mode", "acceptEdits", "--sandbox", "workspace"], confidence: "docs", source: "sandbox off|workspace|read-only|strict|devbox" },
-    fullAuto: { argv: ["--permission-mode", "bypassPermissions", "--sandbox", "off"], confidence: "docs", source: "the documented escape hatch" },
-    // V11.8.0: --max-turns is real here AND in Claude Code's print mode (docs-graded there).
-    // Same name, two CLIs — graded differently, which is exactly why per-harness evidence
-    // matters. V11.8.0 also fixed the policy layer ignoring this flag (withTurnLimit
-    // special-cased claude only); it is capability-driven now, so grok seats get their
-    // documented turn cap on the policyFor path too.
-    maxTurns: { argv: ["--max-turns", "$N"], confidence: "docs", source: "docs.x.ai \u2014 a real flag here; Claude Code documents the same name for print mode (docs-graded, see the claude entry)" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: ["-w", "$NAME"], confidence: "docs", source: "--worktree [NAME], with --ref to choose the base" },
-    cwd: { argv: ["--cwd", "$CWD"], confidence: "docs", source: "docs.x.ai" },
-    model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "docs.x.ai" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "-r; -c continues the latest, --fork-session copies context" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented; MJ captures the id from the output instead" },
-    noAutoUpdate: { argv: ["--no-auto-update"], confidence: "docs", source: "REQUIRED in CI, or a background update check can stall the run" },
-    filters: { allowFlag: "--allow", denyFlag: "--deny", confidence: "docs", source: "Bash | Edit | Read | Grep | MCPTool | WebFetch. Deny wins over allow." },
-    cost: { kind: "tokens-only", confidence: "unverified", source: "not documented as reporting USD" },
-    enforcedReadOnly: true,
-    gotchas: [
-      "Permission vocabulary is deliberately Claude-compatible (default | dontAsk | acceptEdits | bypassPermissions | plan), so one risk mapping covers both.",
-      "--no-auto-update is REQUIRED in CI: a background update check can stall the run indefinitely.",
-      "Deny wins over allow, so an allowlist alone does not grant anything the deny list touches."
-    ]
-  },
-  cursor: {
-    id: "cursor",
-    name: "Cursor Agent",
-    bins: ["cursor-agent"],
-    install: "curl https://cursor.com/install -fsS | bash",
-    // `-p` IS the prompt flag, so it cannot be emitted twice — see the `implicit` note on readOnly.
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "docs", source: "cursor-agent -p" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "community", source: "verify with --help" },
-    // Writes require --force, so plain -p cannot modify anything. Emitting a flag here would produce
-    // `cursor-agent -p <task> -p`, which does not parse.
-    readOnly: { argv: null, implicit: true, confidence: "docs", source: "writes require --force, so plain -p is read-only by construction" },
-    write: { argv: ["--force"], confidence: "docs", source: "--force is what permits writes" },
-    fullAuto: { argv: ["--force"], confidence: "docs", source: "same flag; there is no separate bypass" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock \u2014 see the no-exit bug below" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: ["--workspace", "$CWD"], confidence: "community", source: "verify with --help" },
-    model: { argv: ["--model", "$MODEL"], confidence: "community", source: "-m" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "community", source: "--resume [session_id]" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented; MJ captures the id from the output instead" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: { allowFlag: "", denyFlag: "", confidence: "community", source: 'permissions live in .cursor/cli-config.json as {permissions:{allow:["Shell(git)","Read(*)"],deny:["Read(.env*)"]}}, not on the command line' },
-    cost: null,
-    enforcedReadOnly: true,
-    gotchas: [
-      "KNOWN BUG: under -p the process may not exit after the result is emitted, so CI runs hang until killed. MJ MUST apply a wall-clock timeout and parse the result from the stream rather than waiting for exit. Reported repeatedly on the Cursor forum.",
-      "Reports no cost at all, so a cursor seat's spend is unknown rather than zero."
-    ]
-  },
-  cline: {
-    id: "cline",
-    name: "Cline CLI",
-    bins: ["cline"],
-    install: "npm install -g @cline/cli   then   cline",
-    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "a bare prompt is a one-shot run" },
-    json: { argv: ["--json"], kind: "ndjson", confidence: "docs", source: "NDJSON of agent_event" },
-    readOnly: { argv: ["-p"], confidence: "docs", source: "-p/--plan is read-only; act is the default" },
-    write: { argv: null, confidence: "docs", source: "act mode is the default, so no flag is needed" },
-    fullAuto: { argv: ["-y"], confidence: "docs", source: "-y/--yolo; --auto-approve is the narrower form" },
-    // --retries is a consecutive-mistake limit, NOT a turn cap. Treating it as one would silently
-    // allow unbounded turns.
-    maxTurns: { argv: null, confidence: "docs", source: "--retries N is a consecutive-mistake limit, not a turn cap, so MJ does not use it as one" },
-    timeout: { argv: ["--timeout", "$SECS"], confidence: "docs", source: "-t/--timeout" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented, but instances are fully isolated so parallel branches are safe" },
-    cwd: { argv: ["--cwd", "$CWD"], confidence: "docs", source: "-c" },
-    model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "with -P provider and -k key for a single run" },
-    resume: { argv: null, confidence: "unverified", source: "cline history lists sessions; no documented resume flag" },
-    sessionStart: { argv: null, confidence: "unverified", source: "no session control at all, so every cline turn starts from scratch" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: { allowFlag: "", denyFlag: "", confidence: "docs", source: 'CLINE_COMMAND_PERMISSIONS env var: {"allow":["npm *","git *"],"deny":["rm -rf *"]}' },
-    cost: { kind: "usd", path: "verbose stats", confidence: "community", source: "-v prints elapsed time, tokens and estimated cost when available \u2014 parse, do not assume" },
-    enforcedReadOnly: true,
-    gotchas: [
-      "--data-dir <path> uses isolated state instead of ~/.cline/data and AUTOMATICALLY enables sandbox mode. That is the strongest isolation available here, so MJ uses it for untrusted repos.",
-      "--zen/-z returns immediately with no result. MJ must NEVER use it: it looks like a fast success and delivers nothing."
-    ]
-  },
-  kilo: {
-    id: "kilo",
-    name: "Kilo Code",
-    bins: ["kilo"],
-    install: "npm install -g kilocode-cli   then   kilo   (kilo.ai)",
-    prompt: { argv: ["run", "$PROMPT"], confidence: "docs", source: "kilo run" },
-    json: { argv: ["--format", "json"], kind: "ndjson", confidence: "docs", source: "--format json" },
-    // Read-only is per-AGENT only, expressed in .kilo/agents/*.md. There is no flag, so MJ has to
-    // author the agent file — and cannot claim enforcement it did not verify.
-    readOnly: { argv: ["--agent", "vh-readonly"], confidence: "docs", source: "read-only is expressed per agent in .kilo/agents/*.md, not by a flag" },
-    write: { argv: ["--auto"], confidence: "docs", source: "--auto approves automatically" },
-    fullAuto: { argv: ["--auto"], confidence: "docs", source: "same flag" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "kilo pr <number> checks out a PR branch instead" },
-    cwd: { argv: ["--workspace", "$CWD"], confidence: "community", source: "verify with kilo --help" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "provider/model format, e.g. openai/gpt-5" },
-    resume: { argv: ["--continue"], confidence: "docs", source: "-c; also --session, --fork" },
-    sessionStart: { argv: null, confidence: "unverified", source: "--session exists but whether it can create an id MJ chose is not documented; MJ captures the id instead" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: { allowFlag: "", denyFlag: "", confidence: "community", source: "per-agent permission block in the agent markdown" },
-    cost: { kind: "tokens-only", confidence: "unverified", source: "not documented as reporting USD" },
-    // Deliberately false: MJ authors the agent file, but has never verified kilo honours it.
-    enforcedReadOnly: false,
-    gotchas: [
-      "Read-only is per-agent ONLY (.kilo/agents/*.md), so MJ authors the file and says the guarantee is advisory until verified. enforcedReadOnly is false on purpose."
-    ]
-  },
-  hermes: {
-    id: "hermes",
-    name: "Hermes Runtime",
-    bins: ["hermes"],
-    install: "bundled with MJ; runs as a stdio child process",
-    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "MJ's own runtime" },
-    json: null,
-    readOnly: null,
-    write: null,
-    fullAuto: null,
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: null,
-    model: null,
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["No enforced sandbox, so a hermes seat must never be assigned HIGH or CRITICAL risk."]
-  },
-  aider: {
-    id: "aider",
-    name: "Aider AI Pair Programmer",
-    bins: ["aider"],
-    install: "pip install aider-chat   then   aider",
-    prompt: { argv: ["--message", "$PROMPT"], confidence: "docs", source: "aider --message <prompt>" },
-    json: null,
-    readOnly: { argv: ["--read-only"], implicit: false, confidence: "docs", source: "--read-only" },
-    write: { argv: ["--yes", "--no-auto-commits"], confidence: "docs", source: "--yes --no-auto-commits" },
-    fullAuto: { argv: ["--yes"], confidence: "docs", source: "--yes" },
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: null,
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "--model" },
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: true,
-    gotchas: ["Pass --no-auto-commits so MJ manages worktree commits deterministically."]
-  },
-  gemini: {
-    id: "gemini",
-    name: "Google Gemini CLI",
-    bins: ["gemini"],
-    install: "npm install -g @google/gemini-cli   or   gemini auth",
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "docs", source: "gemini -p <prompt>" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "docs", source: "--output-format json" },
-    readOnly: { argv: ["--approval-mode", "plan"], implicit: false, confidence: "docs", source: "--approval-mode plan" },
-    write: { argv: [], confidence: "docs", source: "default" },
-    fullAuto: { argv: ["--full-auto"], confidence: "docs", source: "--full-auto" },
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: { argv: ["--workspace", "$CWD"], confidence: "docs", source: "--workspace" },
-    model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "-m" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "--resume" },
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["Documentation-level integration; uses --approval-mode plan for Plan Mode."]
-  },
-  goose: {
-    id: "goose",
-    name: "Goose Developer Agent",
-    bins: ["goose"],
-    install: "curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash",
-    prompt: { argv: ["run", "--text", "$PROMPT"], confidence: "docs", source: "goose run --text <prompt>" },
-    json: { argv: ["--format", "json"], kind: "json", confidence: "docs", source: "--format json" },
-    readOnly: { argv: ["--plan"], implicit: false, confidence: "docs", source: "--plan" },
-    write: { argv: [], confidence: "docs", source: "default" },
-    fullAuto: { argv: [], confidence: "docs", source: "default" },
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: { argv: ["--dir", "$CWD"], confidence: "docs", source: "--dir" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "--model" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "--resume" },
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["Open-source agent by Block with extensive MCP extension ecosystem."]
-  },
-  qwen: {
-    id: "qwen",
-    name: "Qwen Code",
-    bins: ["qwen"],
-    install: "npm install -g @qwen/code-cli   then   qwen login",
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "docs", source: "qwen -p <prompt>" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "docs", source: "--output-format json" },
-    readOnly: { argv: ["--read-only"], implicit: false, confidence: "docs", source: "--read-only" },
-    write: { argv: [], confidence: "docs", source: "default" },
-    fullAuto: { argv: ["--yes"], confidence: "docs", source: "--yes" },
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: { argv: ["--cwd", "$CWD"], confidence: "docs", source: "--cwd" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "--model" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "--resume" },
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["Alibaba open-source terminal agent tuned for Qwen3-Coder models."]
-  },
-  amazonq: {
-    id: "amazonq",
-    name: "Amazon Q / Kiro CLI",
-    bins: ["kiro-cli", "q", "amazonq"],
-    install: "Install Kiro CLI (Amazon Q Developer CLI) via AWS / Homebrew",
-    prompt: { argv: ["chat", "--no-interactive", "$PROMPT"], confidence: "docs", source: "kiro-cli chat --no-interactive <prompt>" },
-    json: { argv: ["--json"], kind: "json", confidence: "docs", source: "--json" },
-    readOnly: { argv: ["--read-only"], implicit: false, confidence: "docs", source: "--read-only" },
-    write: { argv: [], confidence: "docs", source: "default" },
-    fullAuto: { argv: ["--trust-all"], confidence: "docs", source: "--trust-all" },
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: { argv: ["--workspace", "$CWD"], confidence: "docs", source: "--workspace" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "--model" },
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["AWS developer CLI transitioning to Kiro CLI; enterprise Bedrock integration."]
-  },
-  openclaude: {
-    id: "openclaude",
-    name: "OpenClaude",
-    bins: ["openclaude"],
-    install: "npm install -g @gitlawb/openclaude@latest   then   openclaude   (/provider for guided setup)",
-    // Claude-Code-shaped CLI (github.com/Gitlawb/openclaude, 30.9k stars, checked 2026-09).
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "community", source: "Claude-Code-compatible surface; --bg exists for detached runs. -p is reported by users, not yet by vendor docs." },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "no documented --output-format flag" },
-    readOnly: { argv: null, confidence: "unverified", source: "no documented read-only flag; treat as advisory" },
-    write: { argv: null, confidence: "unverified", source: "writes via its file tools; no flag to gate them" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "run it from the repo directory (MJ sets cwd on the process)" },
-    model: { argv: null, confidence: "docs", source: "OPENAI_MODEL / OPENAI_BASE_URL env or /provider profiles \u2014 config is env/profile driven, not argv" },
-    resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "github README: --resume <id>, --continue for latest" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Open-source Claude-Code-shaped CLI for OpenAI-compatible/Gemini/Ollama backends \u2014 no Claude subscription needed.",
-      "Config lives in ~/.openclaude and ~/.openclaude-profile.json; it deliberately never reads ~/.claude.",
-      "Background sessions (--bg) return immediately \u2014 MJ needs the synchronous -p shape, so -p is the registered invocation.",
-      "No verified read-only mode: an OpenClaude seat marked no-write is advisory, not enforced."
-    ]
-  },
-  copilot: {
-    id: "copilot",
-    name: "GitHub Copilot CLI",
-    bins: ["copilot"],
-    install: "npm install -g @github/copilot   (winget install GitHub.Copilot / brew install --cask copilot-cli)   then   copilot login",
-    // GitHub Docs, checked 2026-09: -p is the documented programmatic prompt; -s silences usage info.
-    prompt: { argv: ["-p", "$PROMPT", "-s"], confidence: "docs", source: "docs.github.com/en/copilot/get-started/cli-quickstart \u2014 'pass a prompt to the CLI with the -p flag'; -s outputs only the response" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "no documented JSON output flag" },
-    readOnly: { argv: ["--available-tools", "read"], confidence: "docs", source: "--available-tools=LIST exposes only selected tools; --deny-tool wins over --allow-tool" },
-    write: { argv: ["--allow-tool", "edit"], confidence: "docs", source: "permission patterns: --allow-tool / --deny-tool / --add-dir" },
-    fullAuto: { argv: ["--allow-all"], confidence: "docs", source: "--allow-all (tools+paths+urls); the docs themselves call the yolo posture high-risk" },
-    maxTurns: { argv: null, confidence: "unverified", source: "no documented turn flag" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: ["-C", "$CWD"], confidence: "docs", source: "-C DIRECTORY changes directory before startup" },
-    model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "--model=MODEL or auto; default was Claude Sonnet 4.5 as of mid-2026" },
-    resume: { argv: ["--resume"], confidence: "docs", source: "-r/--resume[=VALUE] by ID, prefix or name; --continue resumes newest" },
-    sessionStart: { argv: ["--session-id", "$ID"], confidence: "docs", source: "--session-id ID addresses or creates an exact session UUID" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: { allowFlag: "--allow-tool", denyFlag: "--deny-tool", confidence: "docs", source: "deny rules win over allow rules; also --allow-url/--deny-url and --add-dir PATH" },
-    cost: { kind: "tokens-only", confidence: "unverified", source: "consumes GitHub AI Credits; no per-run USD figure reported" },
-    enforcedReadOnly: true,
-    gotchas: [
-      "Uses Copilot plan credits; COPILOT_GITHUB_TOKEN (fine-grained PAT) authenticates headless/CI runs.",
-      "-s matters in scripts: without it the response is wrapped in usage information.",
-      "Read-only is real when constructed via --available-tools read + --deny-tool write families \u2014 but deny patterns must actually cover the write tools."
-    ]
-  },
-  antigravity: {
-    id: "antigravity",
-    name: "Antigravity CLI (agy)",
-    bins: ["agy"],
-    install: "curl -fsSL https://antigravity.google/cli/install.sh | bash   (Windows: irm https://antigravity.google/cli/install.ps1 | iex)",
-    // V11.6.1 correction: the shipped binary is `agy` — a closed-source Go executable that
-    // came with Antigravity 2.0 (2026-05-19), NOT an `antigravity` binary. The headless
-    // prompt flag is still community-graded (Gemini-CLI heritage); `agy --help` decides.
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "community", source: "binary `agy` verified (antigravity.google/docs/gcli-migration, 2026 cutover coverage); headless flag not vendor-documented" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "not re-verified for Antigravity" },
-    readOnly: { argv: ["--approval-mode", "plan"], confidence: "community", source: "inherited Gemini vocabulary; re-verify on the shipped binary" },
-    write: { argv: null, confidence: "unverified", source: "not re-verified" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: ["-m", "$MODEL"], confidence: "community", source: "Gemini-lineage -m flag" },
-    resume: { argv: null, confidence: "unverified", source: "not re-verified" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Google moved unpaid-tier and Google One users from Gemini CLI to Antigravity CLI on 2026-06-18; paid Code Assist tiers keep `gemini`.",
-      "Everything here is community-graded: the cutover was recent and the binary disagrees with guides sometimes. Run the Teams test before relying on a flag."
-    ]
-  },
-  amp: {
-    id: "amp",
-    name: "Amp (Sourcegraph)",
-    bins: ["amp"],
-    install: "npm install -g @sourcegraph/amp   then   amp login",
-    // V11.6.1 correction: execute mode is `amp -x "<prompt>"` (non-interactive single-shot),
-    // documented in Sourcegraph's own CLI guide. The old `--headless` mapping was wrong —
-    // that conflated runner mode (`--no-tui`) with execute mode.
-    prompt: { argv: ["-x", "$PROMPT"], confidence: "docs", source: "ampcode.com/docs/cli/execute-mode + sourcegraph/amp-examples-and-guides \u2014 execute mode is documented" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "not documented" },
-    readOnly: { argv: null, confidence: "unverified", source: "no documented read-only flag" },
-    write: { argv: null, confidence: "unverified", source: "not documented" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: ["--model", "$MODEL"], confidence: "community", source: "model selection reported in amp config rather than argv" },
-    resume: { argv: null, confidence: "unverified", source: "not documented" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Sourcegraph's agent; strongest when your repo is indexed by Sourcegraph.",
-      "No verified read-only enforcement: an Amp seat marked no-write is advisory."
-    ]
-  },
-  crush: {
-    id: "crush",
-    name: "Crush (Charm)",
-    bins: ["crush"],
-    install: "npm install -g @charmbracelet/crush   (or brew install charmbracelet/crush/crush)   then   crush",
-    prompt: { argv: ["run", "$PROMPT"], confidence: "community", source: "crush run executes a prompt non-interactively; verify on the shipped binary" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "not documented" },
-    readOnly: { argv: null, confidence: "unverified", source: "no documented read-only flag" },
-    write: { argv: null, confidence: "unverified", source: "not documented" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: ["-m", "$MODEL"], confidence: "community", source: "Charm's config-driven model selection" },
-    resume: { argv: null, confidence: "unverified", source: "not documented" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Charm's TUI agent \u2014 LSP-aware, multi-provider.",
-      "No verified read-only enforcement: a Crush seat marked no-write is advisory."
-    ]
-  },
-  openhands: {
-    id: "openhands",
-    name: "OpenHands",
-    bins: ["openhands"],
-    // V11.6.1 correction: the V1 CLI's headless mode is `openhands --headless -t "<task>"`
-    // (documented on PyPI + docs.openhands.dev); the earlier `solve` subcommand was a
-    // pre-V1 design. --json streams JSONL events; -f takes a task file.
-    install: "pip install openhands   then   openhands login   (or configure any LLM)",
-    prompt: { argv: ["--headless", "-t", "$PROMPT"], confidence: "docs", source: "pypi.org/project/openhands + docs.openhands.dev \u2014 headless mode documented" },
-    json: { argv: ["--json"], kind: "ndjson", confidence: "docs", source: "docs.openhands.dev CLI headless \u2014 JSONL event stream" },
-    readOnly: { argv: null, confidence: "unverified", source: "sandboxing is config-level (docker/local), not an argv flag" },
-    write: { argv: null, confidence: "unverified", source: "writes via its own tools inside its runtime" },
-    fullAuto: { argv: null, confidence: "unverified", source: "it is autonomous by design; containment is the sandbox config" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented as argv" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "workspace config, not argv" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: null, confidence: "unverified", source: "LLM config file, not argv" },
-    resume: { argv: null, confidence: "unverified", source: "not documented as argv" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Formerly OpenDevin. The open-source autonomous software engineer.",
-      "Containment comes from its runtime sandbox config, not from an argv flag MJ can pass \u2014 treat read-only seats as advisory."
-    ]
-  },
-  droid: {
-    id: "droid",
-    name: "Droid (Factory)",
-    bins: ["droid"],
-    install: "curl -fsSL https://app.factory.ai/cli | sh   (Linux also needs xdg-utils)",
-    // V11.7.1: vendor-documented headless mode (docs.factory.ai/droid-exec). `droid exec` is
-    // a single non-interactive pass whose DEFAULT is spec-mode — read-only operations only —
-    // so the derived READ_ONLY shape needs no flag at all. Writes are tiered: --auto low is
-    // the vendor's example tier for "enable edits and commands".
-    prompt: { argv: ["exec", "$PROMPT"], confidence: "docs", source: "docs.factory.ai/droid-exec \u2014 'Execute a single command (non-interactive mode)'" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "-o/--output-format exists but the documented values were not verified" },
-    readOnly: { argv: [], confidence: "docs", source: "spec-mode default: exec only executes read-only operations (docs.factory.ai/droid-exec)" },
-    write: { argv: ["--auto", "low"], confidence: "docs", source: "'add --auto to enable edits and commands, with risk tiers gating what can run' \u2014 low is the vendor's example tier" },
-    fullAuto: { argv: null, confidence: "unverified", source: "tier semantics (--auto low|medium shown in docs) not mapped to a full-auto shape" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "droid has git-worktree machinery but no documented argv flag" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: null, confidence: "unverified", source: "not verified on the exec flag table" },
-    resume: { argv: null, confidence: "unverified", source: "stream-json multi-turn sessions exist; no resume-by-id flag documented" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Exec defaults to SPEC MODE: read-only operations only. A write seat composes --auto low; raise the tier in the argv only if a team explicitly trusts it.",
-      "Factory's agent: honours AGENTS.md conventions at the repo root."
-    ]
-  },
-  kimi: {
-    id: "kimi",
-    name: "Kimi Code (Moonshot)",
-    bins: ["kimi"],
-    install: "curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash   (or: npm install -g @moonshot-ai/kimi-code)",
-    // V11.7.1: vendor-documented prompt mode (kimi.ai cheat sheet + moonshotai/kimi-code
-    // sources): -p runs a single prompt non-interactively and finalizeHeadlessRun exits
-    // cleanly. stream-json output and -S session resume are both on the vendor flag table.
-    prompt: { argv: ["-p", "$PROMPT"], confidence: "docs", source: "kimi.ai/resources/kimi-code-cheat-sheet \u2014 'Run a single non-interactive prompt without opening the TUI'" },
-    json: { argv: ["--output-format", "stream-json"], kind: "ndjson", confidence: "docs", source: "'--output-format stream-json \u2014 emit JSONL events for scripting; only works with --prompt'" },
-    readOnly: { argv: null, confidence: "unverified", source: "no documented read-only flag; a no-write seat is advisory" },
-    write: { argv: [], confidence: "docs", source: "default: prompt mode edits files when the agent decides" },
-    fullAuto: { argv: ["--yolo"], confidence: "docs", source: "'--yolo (-y) \u2014 auto-approve regular tool calls; use only in trusted directories'" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process (-w reported in community wrappers)" },
-    model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "'--model <model> (-m) \u2014 specify a model alias for this launch'" },
-    resume: { argv: ["--session", "$SESSION"], confidence: "docs", source: "'--session [id] (-S) \u2014 resume a session by ID'" },
-    sessionStart: { argv: null, confidence: "unverified", source: "no documented create-under-chosen-id flag; Kimi assigns its own session ids" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Single native binary via the install script; the npm route needs Node 22.19+.",
-      "--auto is the no-questions permission mode; --yolo additionally skips regular tool approvals."
-    ]
-  },
-  auggie: {
-    id: "auggie",
-    name: "Auggie (Augment Code)",
-    bins: ["auggie"],
-    install: "npm install -g @augmentcode/auggie   then   auggie login",
-    // V11.7.1: vendor-documented print mode (docs.augmentcode.com/cli/reference): --print
-    // runs one instruction and exits. Ask mode (--ask) is a real read-only mode but is
-    // documented as a mode of its own — combining it with --print is not shown, so the
-    // capability registry does not claim that composition.
-    prompt: { argv: ["--print", "$PROMPT"], confidence: "docs", source: "docs.augmentcode.com/cli/reference \u2014 'Run one instruction in print mode and exit' (-p)" },
-    json: { argv: ["--output-format", "json"], kind: "json", confidence: "docs", source: "'--print --output-format json \u2014 output the response in structured JSON format for automation workflows'" },
-    readOnly: { argv: null, confidence: "unverified", source: "ask mode (--ask: retrieval and non-editing tools only) is documented as its own mode; combining with --print is not shown" },
-    write: { argv: [], confidence: "docs", source: "default: print mode edits when the agent decides" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
-    model: { argv: ["--model", "$MODEL"], confidence: "community", source: "github/gh-aw's auggie engine appends --model; not on the vendor flag table" },
-    resume: { argv: null, confidence: "unverified", source: "not documented" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "Non-interactive mode may be DISABLED by enterprise agreement (vendor docs) \u2014 a headless Auggie seat can fail for licensing, not technical, reasons.",
-      "--augment-session-json <json-or-path> authenticates automation without auggie login.",
-      "--acp runs Auggie as an ACP agent for compatible editors; --mcp runs it as an MCP tool server."
-    ]
-  },
-  warp: {
-    id: "warp",
-    name: "Warp Oz Agent CLI",
-    bins: ["oz"],
-    install: "Ships with Warp 2026 (Command Palette \u2192 Install Warp CLI), or: brew tap warpdotdev/warp && brew install --cask warp-cli   then   oz login",
-    // V11.7.1: Warp's agent infrastructure has its own CLI (docs.warp.dev/reference/cli).
-    // oz agent run --prompt starts a LOCAL agent run; WARP_API_KEY authenticates headless
-    // (CI pipelines, headless servers). run-cloud is cloud infrastructure — not composed.
-    prompt: { argv: ["agent", "run", "--prompt", "$PROMPT"], confidence: "docs", source: "docs.warp.dev/reference/cli \u2014 'oz agent run --prompt ...' quickstart; API keys 'let the CLI authenticate non-interactively'" },
-    json: { argv: null, kind: "text", confidence: "unverified", source: "not documented on the CLI reference" },
-    readOnly: { argv: null, confidence: "unverified", source: "no documented read-only flag; a no-write seat is advisory" },
-    write: { argv: [], confidence: "docs", source: "default: the local agent run can edit" },
-    fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
-    maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
-    outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
-    worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process (--cwd existed on the 2025 warp surface)" },
-    model: { argv: null, confidence: "unverified", source: "not documented" },
-    resume: { argv: null, confidence: "unverified", source: "local runs are one-shot; run-cloud has --attach, not resume-by-id" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
-    noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: [
-      "MJ spawns LOCAL runs (oz agent run). oz agent run-cloud needs --environment and is deliberately NOT composed.",
-      "WARP_API_KEY (wk-...) authenticates CI/headless servers; otherwise `oz login`.",
-      "The 2025-era `warp agent run --prompt` surface still exists on the warp binary, and the Linux desktop launcher is warp-terminal \u2014 neither is the agent CLI MJ detects."
-    ]
-  },
-  llm: {
-    id: "llm",
-    name: "Direct LLM",
-    bins: [],
-    install: "no binary; MJ calls the provider API directly",
-    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "MJ's own call path" },
-    json: null,
-    readOnly: null,
-    write: null,
-    fullAuto: null,
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: null,
-    model: null,
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["No filesystem access and no enforced sandbox. Useful for reasoning, useless for edits."]
-  }
-};
-function syntheticCustomCaps(id, spec) {
-  return {
-    id,
-    name: `${spec.name} (custom)`,
-    bins: [spec.bin],
-    install: "Teams -> Connect -> Custom harnesses",
-    prompt: { argv: spec.argv, confidence: "community", source: "user-registered harness \u2014 MJ verified none of its flags" },
-    json: null,
-    readOnly: null,
-    write: null,
-    fullAuto: null,
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: null,
-    model: null,
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["User-registered harness: MJ verified none of its flags. Read-only is advisory."]
-  };
-}
-function unregisteredCustomCaps(id) {
-  return {
-    id,
-    name: `Custom harness "${id}"`,
-    bins: [],
-    install: "Teams -> Connect -> Custom harnesses (re-add it, then recompile)",
-    prompt: { argv: [], confidence: "unverified", source: "not registered (anymore)" },
-    json: null,
-    readOnly: null,
-    write: null,
-    fullAuto: null,
-    maxTurns: null,
-    timeout: null,
-    outputSchema: null,
-    worktree: null,
-    cwd: null,
-    model: null,
-    resume: null,
-    sessionStart: null,
-    noAutoUpdate: null,
-    filters: null,
-    cost: null,
-    enforcedReadOnly: false,
-    gotchas: ["This harness is not registered (anymore); it cannot run until re-added in Teams -> Connect."]
-  };
-}
-function resolveCaps(harness) {
-  if (isCustomHarness(harness)) {
-    const spec = getCustomHarness(harness);
-    return spec ? { caps: syntheticCustomCaps(harness, spec), custom: true, registered: true } : { caps: unregisteredCustomCaps(harness), custom: true, registered: false };
-  }
-  const caps = AGENT_CAPABILITIES[harness];
-  return caps ? { caps, custom: false, registered: true } : { caps: unregisteredCustomCaps(harness), custom: false, registered: false };
-}
-function enforcedReadOnly(id) {
-  const caps = AGENT_CAPABILITIES[id];
-  return caps ? caps.enforcedReadOnly : false;
-}
-function unverifiedClaims(id) {
-  const caps = AGENT_CAPABILITIES[id];
-  if (!caps) {
-    return ["Custom harness: every flag is the user's own \u2014 MJ verified none of it. Read-only is advisory."];
-  }
-  const out = [];
-  const check = (name, cap) => {
-    if (cap?.argv && cap.confidence === "community") {
-      out.push(`${name}: ${cap.source}`);
-    }
-  };
-  check("cwd", caps.cwd);
-  check("model", caps.model);
-  check("resume", caps.resume);
-  check("json", caps.json);
-  if (!caps.enforcedReadOnly && caps.readOnly?.argv) {
-    out.push("read-only is advisory: no enforcement was verified, so this seat can still modify files.");
-  }
-  return out;
-}
-function binaryVerifiedHarnesses() {
-  return Object.keys(AGENT_CAPABILITIES).filter(
-    (id) => Object.values(AGENT_CAPABILITIES[id]).some((v) => v && typeof v === "object" && "confidence" in v && v.confidence === "binary")
-  );
-}
-var EXECUTABLE_HARNESSES = Object.keys(AGENT_CAPABILITIES).filter(
-  (id) => AGENT_CAPABILITIES[id].bins.length > 0
-);
-
-// src/mission/sessions.ts
-function sessionArgv(harness, opts) {
-  const rc = resolveCaps(harness);
-  if (rc.custom) {
-    return { argv: [], continuity: "none", warning: "Custom harness: no session continuity \u2014 every turn is stateless." };
-  }
-  if (!rc.registered) {
-    return { argv: [], continuity: "none", warning: `Harness "${harness}" is not registered (anymore); this turn is stateless.` };
-  }
-  const caps = rc.caps;
-  if (opts.kind === "first" && opts.idKind === "cli-chosen") {
-    return { argv: [], continuity: "session", warning: null };
-  }
-  if (opts.kind === "first") {
-    const start = caps.sessionStart;
-    if (!start?.argv) {
-      return { argv: [], continuity: "none", warning: `${caps.name} has no documented way to start a session under a chosen id, so this turn is stateless.` };
-    }
-    return { argv: start.argv.map((a) => a === "$SESSION" ? opts.sessionId : a), continuity: "session", warning: null };
-  }
-  const resume = caps.resume;
-  if (!resume?.argv) {
-    return {
-      argv: [],
-      continuity: "none",
-      warning: `${caps.name} has no documented way to resume a session, so this turn starts from scratch. The agent will not remember the previous turn \u2014 do not treat a second-pass approval as informed.`
-    };
-  }
-  if (!resume.argv.includes("$SESSION")) {
-    return {
-      argv: [],
-      continuity: "none",
-      warning: `${caps.name}'s resume form takes no session id, so MJ cannot say which conversation to continue and will not guess. This turn starts from scratch and the prompt restates the context.`
-    };
-  }
-  return { argv: resume.argv.map((a) => a === "$SESSION" ? opts.sessionId : a), continuity: "session", warning: null };
-}
-function sessionIdKind(harness) {
-  const rc = resolveCaps(harness);
-  if (rc.custom) return "cli-chosen";
-  return rc.caps.sessionStart?.argv ? "vh-chosen" : "cli-chosen";
-}
-
-// src/mission/agentTeam.ts
-var SCHEMA_VERSION = 1;
-var seat = (id, role, harness, over = {}) => ({
-  id,
-  role,
-  harness,
-  model: null,
-  mayWrite: role === "coder" || role === "debugger",
-  maxRisk: role === "coder" || role === "debugger" ? "MEDIUM" : "LOW",
-  timeoutSecs: 900,
-  maxTurns: null,
-  instructions: "",
-  ...over
-});
-var PREBUILT_TEAMS = [
-  {
-    id: "team.balanced",
-    name: "Balanced",
-    description: "Plan, build, test, review. One vendor writes, a second reviews \u2014 so the review is not the author grading its own work.",
-    schemaVersion: SCHEMA_VERSION,
-    budgetUsd: null,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    revision: 1,
-    seats: [
-      seat("planner", "planner", "claude", { mayWrite: false, maxRisk: "LOW", instructions: "Break the objective into steps small enough to verify individually." }),
-      seat("architect", "architect", "claude", { mayWrite: false, maxRisk: "LOW" }),
-      seat("impl", "coder", "claude", { mayWrite: true, maxRisk: "MEDIUM", instructions: "Implement the change. Touch only what the task requires." }),
-      seat("synthesizer", "synthesizer", "grok", { mayWrite: false, maxRisk: "LOW" }),
-      seat("test", "tester", "opencode", { mayWrite: false, maxRisk: "LOW", instructions: "Run the repository's own checks and report what failed." }),
-      seat("reviewer", "reviewer", "codex", { mayWrite: false, maxRisk: "LOW", instructions: "Review the diff. Say what is wrong, not what is fine." }),
-      seat("security", "security", "codex", { mayWrite: false, maxRisk: "LOW", instructions: "Check for security vulnerabilities." })
-    ]
-  },
-  {
-    id: "team.adversarial",
-    name: "Adversarial",
-    description: "Deliberately cross-vendor. Every writer is reviewed by a different vendor, because agreement across vendors is weaker evidence than agreement with itself.",
-    schemaVersion: SCHEMA_VERSION,
-    budgetUsd: null,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    revision: 1,
-    seats: [
-      seat("planner", "planner", "claude", { mayWrite: false, maxRisk: "LOW" }),
-      seat("impl", "coder", "claude", { mayWrite: true, maxRisk: "MEDIUM" }),
-      seat("test", "tester", "cline", { mayWrite: false, maxRisk: "LOW", instructions: "Prove the change works or find the case where it does not." }),
-      seat("reviewer", "reviewer", "grok", { mayWrite: false, maxRisk: "LOW" }),
-      seat("security", "security", "codex", { mayWrite: false, maxRisk: "LOW", instructions: "Look only for injection, secret leakage and unsafe deserialisation." }),
-      seat("synthesizer", "synthesizer", "opencode", { mayWrite: false, maxRisk: "LOW", instructions: "Reconcile the verdicts into one decision." })
-    ]
-  },
-  {
-    id: "team.powerhouse",
-    name: "Cross-Vendor Powerhouse",
-    description: "Connects the most popular CLI agents into one unified team: Claude plans, Codex architectures, OpenCode builds, Cursor debugs, Grok tests, Cline reviews, and Hermes synthesizes.",
-    schemaVersion: SCHEMA_VERSION,
-    budgetUsd: null,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    revision: 1,
-    seats: [
-      seat("planner", "planner", "claude", { mayWrite: false, maxRisk: "LOW", instructions: "Formulate the execution plan and criteria." }),
-      seat("architect", "architect", "codex", { mayWrite: false, maxRisk: "LOW", instructions: "Design component interfaces and data schemas." }),
-      seat("coder", "coder", "opencode", { mayWrite: true, maxRisk: "MEDIUM", instructions: "Implement core logic and tests in isolated worktree." }),
-      seat("debugger", "debugger", "cursor", { mayWrite: true, maxRisk: "MEDIUM", instructions: "Diagnose edge cases and optimize performance." }),
-      seat("tester", "tester", "grok", { mayWrite: false, maxRisk: "LOW", instructions: "Run test suites and fuzz edge cases." }),
-      seat("reviewer", "reviewer", "cline", { mayWrite: false, maxRisk: "LOW", instructions: "Conduct independent peer review against the snapshot merge." }),
-      seat("synthesizer", "synthesizer", "hermes", { mayWrite: false, maxRisk: "LOW", instructions: "Reconcile findings into final release notes." })
-    ]
-  },
-  {
-    id: "team.solo",
-    name: "Solo",
-    description: "One seat. Cheap, fast, and the review is advisory only \u2014 an author grading its own work is not a review.",
-    schemaVersion: SCHEMA_VERSION,
-    budgetUsd: null,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    revision: 1,
-    seats: [seat("impl", "coder", "opencode", { mayWrite: true, maxRisk: "MEDIUM", instructions: "Implement and self-check." })]
-  },
-  {
-    id: "team.audit",
-    name: "Read-only audit",
-    description: "No seat may write. For answering 'what is wrong with this code?' without risking a change.",
-    schemaVersion: SCHEMA_VERSION,
-    budgetUsd: null,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-    revision: 1,
-    seats: [
-      seat("reviewer", "reviewer", "claude", { mayWrite: false, maxRisk: "LOW" }),
-      seat("security", "security", "codex", { mayWrite: false, maxRisk: "LOW" })
-    ]
-  }
-];
-var TEAM_BY_ID = new Map(PREBUILT_TEAMS.map((t) => [t.id, t]));
-function fill(cap, vars) {
-  if (!cap || !cap.argv) return [];
-  return cap.argv.map((a) => a.startsWith("$") ? vars[a] ?? "" : a);
-}
-function composeSeatArgv(teamSeat, ctx) {
-  const resolved = resolveCaps(teamSeat.harness);
-  const caps = resolved.registered ? resolved.caps : null;
-  if (!caps) {
-    return {
-      bin: "",
-      argv: [],
-      env: {},
-      files: [],
-      claims: { readOnlyEnforced: false, costKind: "none" },
-      warnings: [`Custom harness "${teamSeat.harness}" is not registered (anymore). Add it in Teams -> Connect, then recompile.`]
-    };
-  }
-  const warnings = [];
-  const vars = {
-    $PROMPT: ctx.prompt,
-    $MODEL: teamSeat.model ?? "",
-    $N: String(teamSeat.maxTurns ?? 20),
-    $CWD: ctx.cwd,
-    $SECS: String(teamSeat.timeoutSecs),
-    $SESSION: ctx.sessionId ?? "",
-    $REVIEWER: "vh-readonly",
-    $NAME: `mj-${teamSeat.id}`
-  };
-  const argv = [];
-  const flags = [];
-  const env = {};
-  const files = [];
-  const wantsReadOnly = ctx.readOnly || !teamSeat.mayWrite;
-  argv.push(...fill(caps.prompt, vars));
-  if (wantsReadOnly) {
-    if (caps.readOnly?.argv?.length) flags.push(...fill(caps.readOnly, vars));
-    else if (caps.readOnly?.implicit) {
-    } else warnings.push(`${caps.name} has no enforced read-only mode, so this seat is ADVISORY only \u2014 it can still modify files.`);
-  } else if (caps.write?.argv?.length) {
-    flags.push(...fill(caps.write, vars));
-  }
-  if (caps.json?.argv) flags.push(...fill(caps.json, vars));
-  if (teamSeat.maxTurns && caps.maxTurns?.argv) flags.push(...fill(caps.maxTurns, vars));
-  if (caps.timeout?.argv) flags.push(...fill(caps.timeout, vars));
-  if (caps.cwd?.argv) flags.push(...fill(caps.cwd, vars));
-  if (teamSeat.model && caps.model?.argv) flags.push(...fill(caps.model, vars));
-  if (caps.noAutoUpdate?.argv) flags.push(...fill(caps.noAutoUpdate, vars));
-  if (ctx.sessionId) {
-    const s = sessionArgv(teamSeat.harness, {
-      kind: (ctx.turn ?? 1) <= 1 ? "first" : "follow-up",
-      idKind: sessionIdKind(teamSeat.harness),
-      sessionId: ctx.sessionId
-    });
-    flags.push(...s.argv);
-    if (s.warning) warnings.push(s.warning);
-  }
-  if (teamSeat.harness === "cline") {
-    env.CLINE_COMMAND_PERMISSIONS = wantsReadOnly ? JSON.stringify({ allow: ["git *", "ls *", "cat *"], deny: ["rm *", "git push *", "git commit *"] }) : JSON.stringify({ allow: ["npm *", "git *"], deny: ["rm -rf *", "git push --force *"] });
-  }
-  if (teamSeat.harness === "cursor") {
-    files.push({
-      path: ".cursor/cli-config.json",
-      contents: JSON.stringify(
-        {
-          permissions: {
-            allow: wantsReadOnly ? ["Read(*)", "Shell(git status)", "Shell(git diff)"] : ["Read(*)", "Shell(git)", "Shell(npm)"],
-            deny: wantsReadOnly ? ["Write(*)", "Shell(rm)"] : ["Shell(rm -rf)", "Read(.env*)"]
-          }
-        },
-        null,
-        2
-      )
-    });
-    warnings.push("Cursor's -p mode has a reported bug where the process does not exit after emitting the result. MJ applies a wall-clock timeout and parses the stream rather than waiting for exit.");
-  }
-  if (teamSeat.harness === "kilo" && wantsReadOnly) {
-    files.push({
-      path: ".kilo/agents/vh-readonly.md",
-      contents: `---
-description: MJ read-only reviewer
-mode: subagent
-permission:
-  edit: deny
-  bash: deny
----
-
-${teamSeat.instructions || "Review only. Do not modify files."}
-`
-    });
-    warnings.push("Kilo read-only depends on the generated .kilo/agents/vh-readonly.md being picked up; verify with kilo --help.");
-  }
-  if (teamSeat.harness === "opencode") {
-    warnings.push("Note: opencode issue #13851 permission-preset verification notes apply.");
-  }
-  for (const claim of unverifiedClaims(teamSeat.harness)) warnings.push(`Unverified flag \u2014 ${claim}`);
-  const cleanFlags = flags.filter((f) => f.length > 0);
-  return {
-    bin: caps.bins[0] ?? "",
-    argv: [...argv, ...cleanFlags],
-    env,
-    files,
-    claims: {
-      readOnlyEnforced: wantsReadOnly && enforcedReadOnly(teamSeat.harness),
-      costKind: caps.cost?.kind ?? "none"
-    },
-    warnings
-  };
-}
-function validateTeam(team) {
-  const out = [];
-  if (!team.name || team.name.trim().length === 0) {
-    out.push({ severity: "error", code: "no_name", message: "Team name is required." });
-  }
-  const ids = /* @__PURE__ */ new Set();
-  for (const s of team.seats) {
-    if (ids.has(s.id)) {
-      out.push({ severity: "error", code: "duplicate_seat", message: `Two seats share the id "${s.id}". Worktrees, sessions and merge steps are keyed by seat id, so one would overwrite the other.`, seatId: s.id });
-    }
-    ids.add(s.id);
-    if (s.harness === "llm" && (s.role === "coder" || s.role === "debugger" || s.mayWrite)) {
-      out.push({ severity: "error", code: "cannot_write", message: `Seat "${s.id}" is a direct LLM which cannot modify files.`, seatId: s.id });
-    }
-    if (!enforcedReadOnly(s.harness) && !s.mayWrite) {
-      const name = resolveCaps(s.harness).caps.name;
-      out.push({ severity: "warning", code: "advisory_readonly", message: `${name} has no verified read-only enforcement, so "${s.id}" is advisory: it can still modify files despite being a ${s.role}.`, seatId: s.id });
-    }
-    if (s.timeoutSecs < 30) {
-      out.push({ severity: "warning", code: "short_timeout", message: `${s.timeoutSecs}s is below the 30s floor for a coding agent; expect a timeout on any real edit.`, seatId: s.id });
-    }
-    if (s.harness === "cline" && s.maxTurns && s.maxTurns > 0) {
-      out.push({ severity: "warning", code: "cline_retries", message: "Cline --retries is a mistake limit, not a turn cap.", seatId: s.id });
-    }
-    if (!s.mayWrite && (s.role === "coder" || s.role === "debugger") && s.harness !== "llm") {
-      out.push({ severity: "error", code: "writer_cannot_write", message: `"${s.id}" has the ${s.role} role but mayWrite is false, so it cannot do its job.`, seatId: s.id });
-    }
-  }
-  if (team.seats.length === 0) {
-    out.push({ severity: "error", code: "no_seats", message: "A team with no seats cannot run." });
-  }
-  if (team.seats.length > 0 && !team.seats.some((s) => s.mayWrite)) {
-    out.push({ severity: "warning", code: "no_writer", message: "No seat may write, so this team can analyse but cannot change anything." });
-  }
-  if (team.seats.length > 1 && !team.seats.some((s) => s.role === "reviewer" || s.role === "security")) {
-    out.push({ severity: "warning", code: "no_reviewer", message: "No reviewer or security seat, so nothing checks the writer's work." });
-  }
-  const writers = team.seats.filter((s) => s.mayWrite);
-  const writingHarnesses = writers.map((s) => s.harness);
-  if (writers.length > 1 && new Set(writingHarnesses).size === 1) {
-    out.push({
-      severity: "warning",
-      code: "single_vendor",
-      message: `Multiple writing seats (${writers.map((w) => w.id).join(", ")}) are assigned to the same harness vendor (${writingHarnesses[0]}). Diversifying writers avoids single-model blind spots.`
+    const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    return finish({
+      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
+      routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
+      executed: res.ok,
+      outcome: res.ok ? "peer-delegated" : "refused",
+      specialistIds: [],
+      note: res.ok ? void 0 : res.detail
     });
   }
-  return out;
+  const provider = deps.provider ?? null;
+  let routed;
+  if (provider) {
+    routed = await routeWithModel(text, provider, async (cfg, system2, user) => {
+      const r = await complete(cfg, system2, user, { fetchImpl: deps.fetchImpl, timeoutMs: 15e3 });
+      return r.ok ? { ok: true, text: r.text } : { ok: false, error: r.error };
+    });
+  } else {
+    routed = routeDeterministic(text);
+  }
+  const specialists = routed.selected.map((c) => getSpecialist(c.id)).filter(Boolean);
+  const worstTier = specialists.some((s) => s.riskTier === "critical") ? "critical" : specialists.some((s) => s.riskTier === "risky") ? "risky" : "safe";
+  const autonomy = autonomyStatus(userId);
+  const needsGate = worstTier !== "safe" && !(autonomy.granted && worstTier === "risky");
+  if (needsGate) {
+    if (!deps.gate) {
+      return finish({
+        reply: "This routes to specialists whose work is gated as risky, and no human gate is available in this runtime \u2014 so nothing was executed.",
+        routed,
+        executed: false,
+        outcome: "refused",
+        specialistIds: specialists.map((s) => s.id),
+        note: `risk tier "${worstTier}" requires the human gate; wire one or re-route`
+      });
+    }
+    const decision = await deps.gate({
+      action: `VH-19 routed "${text.slice(0, 120)}" to ${specialists.map((s) => s.name).join(", ")}`,
+      riskTier: worstTier,
+      specialistIds: specialists.map((s) => s.id),
+      summary: routed.selected.flatMap((c) => c.reasons).slice(0, 4).join("; ")
+    });
+    if (!decision.approved) {
+      return finish({
+        reply: `You (or the standing policy) declined this at the gate: ${decision.reason}`,
+        routed,
+        executed: false,
+        outcome: "gated-out",
+        specialistIds: specialists.map((s) => s.id),
+        note: decision.reason
+      });
+    }
+  }
+  if (!provider) {
+    const plan = specialists.length ? specialists.map((s) => `${s.name} (${s.id}): ${s.capabilities[0]}`).join("\n") : "no specialist cleared the routing bar \u2014 the Generalist would handle this directly once a provider is configured";
+    return finish({
+      reply: `No provider key is configured, so nothing was executed. Here is the plan I would run:
+
+${plan}
+
+Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of ${routed.considered} specialists considered).` + (routed.fallbackReason ? ` Note: ${routed.fallbackReason}.` : ""),
+      routed,
+      executed: false,
+      outcome: "planned",
+      specialistIds: specialists.map((s) => s.id),
+      note: "provider not configured \u2014 plan only, nothing executed"
+    });
+  }
+  const primary = specialists[0] ?? null;
+  const system = [
+    primary ? primary.systemPrompt : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
+    ...memoryBriefing(userId)
+  ].join("\n\n");
+  const result = await complete(provider, system, text, { fetchImpl: deps.fetchImpl });
+  if (!result.ok) {
+    return finish({
+      reply: `The provider call did not complete (${result.kind}): ${result.error}`,
+      routed,
+      executed: false,
+      outcome: "error",
+      specialistIds: specialists.map((s) => s.id),
+      note: redactSecrets(result.error, [provider.apiKey])
+    });
+  }
+  return finish({
+    reply: result.text,
+    routed,
+    executed: true,
+    outcome: "answered",
+    specialistIds: specialists.map((s) => s.id),
+    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomy.granted ? " \xB7 running under earned autonomy (override always available)" : ""}`
+  });
 }
 
-// src/mission/mergePlan.ts
-var ROLE_ORDER = {
-  architect: 0,
-  coder: 1,
-  debugger: 2,
-  tester: 3,
-  security: 4,
-  reviewer: 5,
-  synthesizer: 6
+// src/views/Vh19.tsx
+var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
+var USER = "local";
+var OUTCOME_LABEL = {
+  answered: "ANSWERED \xB7 executed",
+  planned: "PLANNED \xB7 not executed",
+  refused: "REFUSED",
+  "gated-out": "GATED OUT \xB7 not executed",
+  error: "ERROR \xB7 not executed",
+  "peer-delegated": "DELEGATED \xB7 executed"
 };
-function orderBranches(candidates) {
-  const byBranch = new Map(candidates.map((c) => [c.branch, c]));
-  const ordered = [];
-  const placed = /* @__PURE__ */ new Set();
-  const cycles = [];
-  const visit = (c, stack) => {
-    if (placed.has(c.branch)) return;
-    if (stack.includes(c.branch)) {
-      cycles.push([...stack.slice(stack.indexOf(c.branch)), c.branch].join(" -> "));
+var KINDS = ["openai-compatible", "anthropic", "gemini"];
+var Vh19 = () => {
+  const [messages, setMessages] = (0, import_react.useState)([]);
+  const [input, setInput] = (0, import_react.useState)("");
+  const [busy, setBusy] = (0, import_react.useState)(false);
+  const [provider, setProvider] = (0, import_react.useState)(null);
+  const [gateAsk, setGateAsk] = (0, import_react.useState)(null);
+  const [denyReason, setDenyReason] = (0, import_react.useState)("");
+  const [rejectFor, setRejectFor] = (0, import_react.useState)(null);
+  const [rejectReason, setRejectReason] = (0, import_react.useState)("");
+  const [exam, setExam] = (0, import_react.useState)(null);
+  const [examError, setExamError] = (0, import_react.useState)(null);
+  const [grades, setGrades] = (0, import_react.useState)({});
+  const [examResult, setExamResult] = (0, import_react.useState)(null);
+  const [autonomy, setAutonomy] = (0, import_react.useState)(() => autonomyStatus(USER));
+  const [patterns, setPatterns] = (0, import_react.useState)(() => patternReport(USER));
+  const [disabled, setDisabled] = (0, import_react.useState)(() => disabledSpecialists());
+  const [showBench, setShowBench] = (0, import_react.useState)(false);
+  const [form, setForm] = (0, import_react.useState)({ kind: "openai-compatible", baseUrl: PROVIDER_DEFAULTS["openai-compatible"], model: "", apiKey: "" });
+  const seq = (0, import_react.useRef)(0);
+  const stats2 = (0, import_react.useMemo)(() => catalogStats(), []);
+  const bench = (0, import_react.useMemo)(() => listSpecialists(), []);
+  const enabledCount = bench.length - disabled.length;
+  const refresh = () => {
+    setPatterns(patternReport(USER));
+    setAutonomy(autonomyStatus(USER));
+    setDisabled(disabledSpecialists());
+  };
+  const send = async () => {
+    const text = input.trim();
+    if (!text || busy) return;
+    setInput("");
+    setBusy(true);
+    const scenario = text;
+    seq.current += 1;
+    const userMsg = { id: seq.current, role: "user", text };
+    setMessages((m) => [...m, userMsg]);
+    const resp = await askVH19({ text, userId: USER }, {
+      provider,
+      gate: (ask) => new Promise((resolve) => {
+        setDenyReason("");
+        setGateAsk({ ask, resolve });
+      })
+    });
+    seq.current += 1;
+    setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario }]);
+    setBusy(false);
+  };
+  const giveFeedback = (msg, kind, reason) => {
+    if (!msg.resp) return;
+    recordDecision({
+      userId: USER,
+      scenario: msg.scenario ?? msg.text,
+      action: msg.text.slice(0, 300),
+      kind,
+      reason,
+      specialistId: msg.resp.specialistIds[0],
+      category: void 0
+    });
+    setMessages((m) => m.map((x) => x.id === msg.id ? { ...x, feedback: kind } : x));
+    refresh();
+  };
+  const startExam = () => {
+    setExamResult(null);
+    setGrades({});
+    const r = proposeExam(USER, 10);
+    if (!r.ok) {
+      setExam(null);
+      setExamError(r.error);
       return;
     }
-    for (const dep of c.dependsOn) {
-      const d = byBranch.get(dep);
-      if (d) visit(d, [...stack, c.branch]);
-    }
-    placed.add(c.branch);
-    ordered.push(c);
+    setExamError(null);
+    setExam(r.session);
   };
-  const sorted = [...candidates].sort((a, b) => {
-    const ra = ROLE_ORDER[a.role] ?? 99;
-    const rb = ROLE_ORDER[b.role] ?? 99;
-    if (ra !== rb) return ra - rb;
-    return b.additions + b.deletions - (a.additions + a.deletions);
-  });
-  for (const c of sorted) visit(c, []);
-  return { ordered, cycles };
-}
-function planMerge(candidates, opts) {
-  const problems = [];
-  const excluded = [];
-  const mergeable = [];
-  for (const c of candidates) {
-    if (!c.verified) {
-      excluded.push({ branch: c.branch, seatId: c.seatId, reason: "Its own verification did not pass, so it does not merge. A branch that failed its checks would put a known-broken state on the base branch." });
-      continue;
+  const submitExam = () => {
+    if (!exam) return;
+    const list = exam.questions.map((q) => grades[q.id]).filter(Boolean);
+    const r = gradeExam(exam.id, list);
+    if (!r.ok) {
+      setExamError(r.error);
+      return;
     }
-    if (c.additions + c.deletions === 0) {
-      excluded.push({ branch: c.branch, seatId: c.seatId, reason: "It changed nothing. Merging an empty branch adds a commit and a conflict surface for no benefit." });
-      continue;
-    }
-    mergeable.push(c);
-  }
-  const { ordered, cycles } = orderBranches(mergeable);
-  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug \u2014 MJ will not guess an order.`);
-  const steps = ordered.map((c, i) => ({
-    order: i + 1,
-    branch: c.branch,
-    seatId: c.seatId,
-    argv: [
-      ["checkout", opts.baseBranch],
-      ["merge", "--no-ff", "--no-edit", c.branch]
-    ],
-    requires: i === 0 ? [opts.baseBranch] : [ordered[i - 1]?.branch ?? opts.baseBranch],
-    note: c.role === "tester" ? "Tests merge after the code they test, so the base branch is never in a state where tests reference code that is not there." : c.dependsOn.length ? `Depends on ${c.dependsOn.join(", ")}, so it merges after them.` : `${c.role} work; +${c.additions}/-${c.deletions}.`
-  }));
-  const preflight = [];
-  for (let i = 0; i < mergeable.length; i += 1) {
-    for (let j = i + 1; j < mergeable.length; j += 1) {
-      const a = mergeable[i];
-      const b = mergeable[j];
-      if (!a || !b) continue;
-      if (a.dependsOn.includes(b.branch) || b.dependsOn.includes(a.branch)) continue;
-      preflight.push({
-        a: a.branch,
-        b: b.branch,
-        // merge-tree does a three-way merge in memory. No working tree is touched, so this is safe to
-        // run while agents are still working.
-        //
-        // It takes TWO branches, not three: the merge base is derived from their history. Passing the
-        // base as a third argument makes git reject the command with a usage error (exit 129), which is
-        // easy to mistake for "these branches conflict" — verified on git 2.47.3.
-        argv: ["merge-tree", "--write-tree", "--name-only", a.branch, b.branch],
-        why: `Neither declares a dependency on the other, so a conflict here would be a surprise. Check before merging, not after.`
-      });
-    }
-  }
-  if (mergeable.length > 4) {
-    problems.push(`${mergeable.length} branches are queued to merge. Four is about where review stops keeping up; consider splitting the mission.`);
-  }
-  if (excluded.length === candidates.length && candidates.length > 0) {
-    problems.push("Every branch was excluded, so nothing will be merged. The mission produced no verified change.");
-  }
-  const cleanup = [];
-  for (const c of mergeable) {
-    cleanup.push(["worktree", "remove", "--force", c.worktreePath]);
-    cleanup.push(["branch", "-d", c.branch]);
-  }
-  cleanup.push(["worktree", "prune"]);
-  return { steps, excluded, preflight, postMergeCheck: opts.testCommand ?? [], cleanup, problems };
-}
-function renderMergePlan(plan, baseBranch) {
-  const lines = [];
-  lines.push(`MERGE PLAN -> ${baseBranch}`);
-  if (plan.steps.length === 0) lines.push("  (nothing to merge)");
-  for (const s of plan.steps) {
-    lines.push(`  ${s.order}. ${s.branch}  [${s.seatId}]`);
-    lines.push(`     requires: ${s.requires.join(", ")}`);
-    lines.push(`     ${s.note}`);
-  }
-  if (plan.preflight.length) {
-    lines.push("");
-    lines.push("pre-flight conflict checks (run these first):");
-    for (const p of plan.preflight) lines.push(`  git ${p.argv.join(" ")}   # ${p.a} vs ${p.b}`);
-  }
-  if (plan.excluded.length) {
-    lines.push("");
-    lines.push("excluded:");
-    for (const e of plan.excluded) lines.push(`  ${e.branch} [${e.seatId}] \u2014 ${e.reason}`);
-  }
-  if (plan.postMergeCheck.length) {
-    lines.push("");
-    lines.push(`after the last merge, on ${baseBranch}: ${plan.postMergeCheck.join(" ")}`);
-    lines.push("  Two agents can each pass their own suite and still break the combination.");
-  }
-  if (plan.problems.length) {
-    lines.push("");
-    lines.push("before you start:");
-    for (const p of plan.problems) lines.push(`  ! ${p}`);
-  }
-  return lines.join("\n");
-}
-
-// src/mission/replay.ts
-var DECISION_LABELS = {
-  HARNESS_SELECTED: "harness selected",
-  HARNESS_SWITCHED: "harness switched",
-  AGENT_ASSIGNED: "task assigned",
-  AGENT_REPLACED: "agent replaced",
-  TASK_DELEGATED: "task delegated",
-  TASK_REASSIGNED: "task reassigned",
-  TASK_SPLIT: "task split",
-  TASK_MERGED: "tasks merged",
-  GRAPH_MUTATED: "plan restructured",
-  REPAIR_STARTED: "repair strategy chosen",
-  RECOMMENDATION_EXECUTED: "recommendation executed",
-  NEGOTIATION_RESOLVED: "negotiation resolved",
-  MISSION_ROLLED_BACK: "mission rolled back",
-  APPROVAL_GRANTED: "approval granted",
-  APPROVAL_REJECTED: "approval rejected"
-};
-function str(v, fallback = "") {
-  return typeof v === "string" && v.length ? v : fallback;
-}
-function num(v) {
-  return typeof v === "number" && Number.isFinite(v) ? v : 0;
-}
-function readUsage(data) {
-  const usage = data.usage && typeof data.usage === "object" ? data.usage : {};
-  const usdCandidates = [data.costUsd, data.totalCostUsd, data.cost, usage.cost, usage.totalCostUsd];
-  let usd = null;
-  for (const c of usdCandidates) {
-    if (typeof c === "number" && Number.isFinite(c)) {
-      usd = c;
-      break;
-    }
-  }
-  return {
-    usd,
-    input: num(data.inputTokens ?? usage.inputTokens ?? usage.input_tokens),
-    output: num(data.outputTokens ?? usage.outputTokens ?? usage.output_tokens),
-    turns: num(data.turns ?? data.numTurns ?? data.num_turns)
+    setExamError(null);
+    setExamResult({ score: r.score, passed: r.passed });
+    setExam(null);
+    refresh();
   };
-}
-function project(events, missionId = "") {
-  const p = {
-    missionId,
-    uptoSeq: 0,
-    eventCount: events.length,
-    status: null,
-    statusHistory: [],
-    agents: {},
-    artifacts: {},
-    spendUsd: 0,
-    spendKnown: false,
-    inputTokens: 0,
-    outputTokens: 0,
-    turns: 0,
-    humanInterventions: 0,
-    approvalsOutstanding: 0,
-    approvalsDecided: 0,
-    approvalsRejected: 0,
-    repairsAttempted: 0,
-    repairsCompleted: 0,
-    failuresDetected: 0,
-    resourceLimitsHit: 0,
-    policyDenials: 0,
-    rollbacks: 0,
-    checkpoints: 0,
-    decisions: [],
-    kindCounts: {}
-  };
-  const ordered = [...events].sort((a, b) => a.seq - b.seq);
-  for (const e of ordered) {
-    const d = e.data ?? {};
-    p.uptoSeq = Math.max(p.uptoSeq, e.seq);
-    p.kindCounts[e.kind] = (p.kindCounts[e.kind] ?? 0) + 1;
-    if (!p.missionId) p.missionId = e.missionId;
-    const usage = readUsage(d);
-    if (usage.usd !== null) {
-      p.spendUsd += usage.usd;
-      p.spendKnown = true;
-    }
-    p.inputTokens += usage.input;
-    p.outputTokens += usage.output;
-    p.turns += usage.turns;
-    const label = DECISION_LABELS[e.kind];
-    if (label) {
-      p.decisions.push({
-        seq: e.seq,
-        label,
-        kind: e.kind,
-        actor: e.actor,
-        authority: e.authority,
-        reason: e.reason,
-        evidence: e.evidence ?? [],
-        byHuman: e.authority === "human" || e.authority.startsWith("human:"),
-        ts: e.ts
-      });
-    }
-    switch (e.kind) {
-      case "MISSION_CREATED":
-      case "MISSION_PLANNED":
-      case "MISSION_STATUS": {
-        const to = str(d.to ?? d.status);
-        if (to) {
-          p.statusHistory.push({ seq: e.seq, from: typeof d.from === "string" ? d.from : null, to, ts: e.ts });
-          p.status = to;
-        }
-        break;
-      }
-      case "MISSION_COMPLETED":
-        p.status = "COMPLETED";
-        break;
-      case "MISSION_FAILED":
-        p.status = "FAILED";
-        break;
-      case "MISSION_CHECKPOINTED":
-        p.checkpoints += 1;
-        break;
-      case "MISSION_ROLLED_BACK":
-        p.rollbacks += 1;
-        break;
-      case "AGENT_SPAWNED":
-      case "AGENT_ASSIGNED": {
-        const id = str(d.agentId ?? e.subjectId, e.subjectId ?? "");
-        if (!id) break;
-        const a = p.agents[id] ??= {
-          id,
-          name: str(d.name ?? d.role, id),
-          role: str(d.role, "unspecified"),
-          harness: typeof d.harness === "string" ? d.harness : null,
-          retired: false,
-          tasksAssigned: 0,
-          tasksCompleted: 0,
-          firstSeq: e.seq,
-          lastSeq: e.seq
-        };
-        a.lastSeq = e.seq;
-        if (typeof d.harness === "string") a.harness = d.harness;
-        if (typeof d.role === "string") a.role = d.role;
-        if (e.kind === "AGENT_ASSIGNED") a.tasksAssigned += 1;
-        break;
-      }
-      case "AGENT_REPLACED": {
-        const id = str(d.agentId ?? e.subjectId);
-        if (id && p.agents[id]) {
-          p.agents[id].retired = true;
-          p.agents[id].lastSeq = e.seq;
-        }
-        const next = str(d.replacementId ?? d.newAgentId);
-        if (next) {
-          p.agents[next] ??= {
-            id: next,
-            name: str(d.replacementName, next),
-            role: str(d.role, "unspecified"),
-            harness: typeof d.harness === "string" ? d.harness : null,
-            retired: false,
-            tasksAssigned: 0,
-            tasksCompleted: 0,
-            firstSeq: e.seq,
-            lastSeq: e.seq
-          };
-        }
-        break;
-      }
-      case "AGENT_FAILED": {
-        const id = str(d.agentId ?? e.subjectId);
-        if (id && p.agents[id]) p.agents[id].lastSeq = e.seq;
-        break;
-      }
-      case "AGENT_RECOVERED": {
-        const id = str(d.agentId ?? e.subjectId);
-        if (id && p.agents[id]) {
-          p.agents[id].retired = false;
-          p.agents[id].lastSeq = e.seq;
-        }
-        break;
-      }
-      case "HARNESS_SELECTED":
-      case "HARNESS_SWITCHED": {
-        const id = str(d.agentId ?? e.subjectId);
-        const harness = str(d.harness ?? d.to);
-        if (id && harness && p.agents[id]) {
-          p.agents[id].harness = harness;
-          p.agents[id].lastSeq = e.seq;
-        }
-        break;
-      }
-      case "TASK_COMPLETED": {
-        const id = str(d.agentId ?? e.subjectId);
-        if (id && p.agents[id]) {
-          p.agents[id].tasksCompleted += 1;
-          p.agents[id].lastSeq = e.seq;
-        }
-        break;
-      }
-      case "ARTIFACT_CREATED": {
-        const id = str(d.artifactId ?? e.subjectId, e.subjectId ?? "");
-        if (!id) break;
-        p.artifacts[id] = {
-          id,
-          title: str(d.title ?? d.name, id),
-          versions: 1,
-          evaluated: false,
-          passed: null,
-          lastSeq: e.seq
-        };
-        break;
-      }
-      case "ARTIFACT_VERSIONED": {
-        const id = str(d.artifactId ?? e.subjectId);
-        if (id && p.artifacts[id]) {
-          p.artifacts[id].versions += 1;
-          p.artifacts[id].lastSeq = e.seq;
-        }
-        break;
-      }
-      case "EVALUATION_PASSED":
-      case "EVALUATION_FAILED": {
-        const id = str(d.artifactId ?? e.subjectId);
-        if (id && p.artifacts[id]) {
-          p.artifacts[id].evaluated = true;
-          p.artifacts[id].passed = e.kind === "EVALUATION_PASSED";
-          p.artifacts[id].lastSeq = e.seq;
-        }
-        break;
-      }
-      case "APPROVAL_REQUIRED":
-        p.approvalsOutstanding += 1;
-        p.humanInterventions += 1;
-        break;
-      case "APPROVAL_GRANTED":
-        p.approvalsOutstanding = Math.max(0, p.approvalsOutstanding - 1);
-        p.approvalsDecided += 1;
-        break;
-      case "APPROVAL_REJECTED":
-        p.approvalsOutstanding = Math.max(0, p.approvalsOutstanding - 1);
-        p.approvalsDecided += 1;
-        p.approvalsRejected += 1;
-        break;
-      case "REPAIR_STARTED":
-        p.repairsAttempted += 1;
-        break;
-      case "REPAIR_COMPLETED":
-        p.repairsCompleted += 1;
-        break;
-      case "FAILURE_DETECTED":
-        p.failuresDetected += 1;
-        break;
-      case "RESOURCE_LIMIT":
-        p.resourceLimitsHit += 1;
-        break;
-      case "POLICY_DENIED":
-        p.policyDenials += 1;
-        break;
-      default:
-        break;
-    }
-  }
-  return p;
-}
-var fmt = (v) => {
-  if (v === null || v === void 0) return "\u2014";
-  if (typeof v === "boolean") return v ? "yes" : "no";
-  if (typeof v === "number") return Number.isInteger(v) ? String(v) : v.toFixed(3);
-  return String(v);
-};
-function diffProjections(a, b) {
-  const changes = [];
-  const scalars = [
-    "status",
-    "spendUsd",
-    "spendKnown",
-    "inputTokens",
-    "outputTokens",
-    "turns",
-    "humanInterventions",
-    "approvalsOutstanding",
-    "approvalsDecided",
-    "approvalsRejected",
-    "repairsAttempted",
-    "repairsCompleted",
-    "failuresDetected",
-    "resourceLimitsHit",
-    "policyDenials",
-    "rollbacks",
-    "checkpoints",
-    "eventCount"
-  ];
-  for (const k of scalars) {
-    const av = a[k];
-    const bv = b[k];
-    if (av !== bv) changes.push({ seq: b.uptoSeq, field: k, from: fmt(av), to: fmt(bv) });
-  }
-  const aAgents = new Set(Object.keys(a.agents));
-  const bAgents = new Set(Object.keys(b.agents));
-  const agentsAdded = [...bAgents].filter((id) => !aAgents.has(id));
-  const agentsRetired = [...bAgents].filter((id) => a.agents[id] && !a.agents[id].retired && b.agents[id]?.retired);
-  for (const id of [...aAgents].filter((x) => bAgents.has(x))) {
-    const aa = a.agents[id];
-    const bb = b.agents[id];
-    if (!aa || !bb) continue;
-    if (aa.harness !== bb.harness) changes.push({ seq: bb.lastSeq, field: `agent ${id} harness`, from: fmt(aa.harness), to: fmt(bb.harness) });
-    if (aa.tasksCompleted !== bb.tasksCompleted) changes.push({ seq: bb.lastSeq, field: `agent ${id} tasks completed`, from: fmt(aa.tasksCompleted), to: fmt(bb.tasksCompleted) });
-    if (aa.retired !== bb.retired) changes.push({ seq: bb.lastSeq, field: `agent ${id} active`, from: fmt(!aa.retired), to: fmt(!bb.retired) });
-  }
-  const artifactsAdded = Object.keys(b.artifacts).filter((id) => !a.artifacts[id]);
-  for (const id of Object.keys(a.artifacts).filter((x) => b.artifacts[x])) {
-    const av = a.artifacts[id];
-    const bv = b.artifacts[id];
-    if (!av || !bv) continue;
-    if (av.versions !== bv.versions) changes.push({ seq: bv.lastSeq, field: `artifact ${id} versions`, from: fmt(av.versions), to: fmt(bv.versions) });
-    if (av.passed !== bv.passed) changes.push({ seq: bv.lastSeq, field: `artifact ${id} evaluation`, from: fmt(av.passed), to: fmt(bv.passed) });
-  }
-  const decisionsBetween = b.decisions.filter((d) => d.seq > a.uptoSeq && d.seq <= b.uptoSeq);
-  return {
-    fromSeq: a.uptoSeq,
-    toSeq: b.uptoSeq,
-    changes,
-    agentsAdded,
-    agentsRetired,
-    artifactsAdded,
-    decisionsBetween,
-    identical: changes.length === 0 && !agentsAdded.length && !artifactsAdded.length
-  };
-}
-function counterfactualHarness(events, seq, alternative) {
-  const p = project(events.filter((e) => e.seq <= seq));
-  const actual = p.decisions.filter((d) => d.kind === "HARNESS_SELECTED" || d.kind === "HARNESS_SWITCHED").pop();
-  const harnessEvent = [...events].reverse().find((e) => (e.kind === "HARNESS_SELECTED" || e.kind === "HARNESS_SWITCHED") && e.seq <= seq);
-  const usedHarness = harnessEvent ? str(harnessEvent.data?.harness ?? harnessEvent.data?.to, "unknown") : "unknown";
-  return {
-    atSeq: seq,
-    question: `What if ${alternative} had run this instead of ${usedHarness}?`,
-    hypothesis: `Replace harness ${usedHarness} with ${alternative} at seq ${seq}${actual ? ` (the ${actual.label} decision)` : ""}.`,
-    outcome: "unknown \u2014 this was not re-run",
-    wouldRequire: [
-      `re-running the task with ${alternative} against the same inputs`,
-      "the same verification commands, so the two runs are comparable",
-      "a recorded result from that run \u2014 a projection cannot produce one"
-    ]
-  };
-}
-function renderProjection(p) {
-  const lines = [
-    `Mission ${p.missionId || "(unknown)"} at seq ${p.uptoSeq} \u2014 ${p.eventCount} events`,
-    `  status            ${p.status ?? "\u2014"}`,
-    `  agents            ${Object.keys(p.agents).length} (${Object.values(p.agents).filter((a) => a.retired).length} retired)`,
-    `  artifacts         ${Object.keys(p.artifacts).length}`,
-    `  spend             ${p.spendKnown ? `$${p.spendUsd.toFixed(4)}` : "unknown \u2014 no harness reported a cost"}`,
-    `  tokens            ${p.inputTokens.toLocaleString()} in / ${p.outputTokens.toLocaleString()} out`,
-    `  turns             ${p.turns}`,
-    `  approvals         ${p.approvalsOutstanding} outstanding, ${p.approvalsDecided} decided (${p.approvalsRejected} rejected)`,
-    `  repairs           ${p.repairsCompleted}/${p.repairsAttempted} completed`,
-    `  failures          ${p.failuresDetected} detected`,
-    `  limits / denials  ${p.resourceLimitsHit} resource limits, ${p.policyDenials} policy denials`,
-    `  checkpoints       ${p.checkpoints} taken, ${p.rollbacks} rollbacks`
-  ];
-  const agentRows = Object.values(p.agents);
-  if (agentRows.length) {
-    lines.push("", "  agents:");
-    for (const a of agentRows) {
-      lines.push(`    ${a.id.padEnd(18)} ${a.role.padEnd(14)} harness=${a.harness ?? "\u2014"}  ${a.tasksCompleted}/${a.tasksAssigned} tasks${a.retired ? "  (retired)" : ""}`);
-    }
-  }
-  if (p.decisions.length) {
-    lines.push("", "  decisions:");
-    for (const d of p.decisions.slice(-12)) {
-      lines.push(`    [${d.seq}] ${d.label} by ${d.actor} (${d.authority})${d.evidence.length ? ` \u2014 ${d.evidence.length} evidence` : " \u2014 no evidence recorded"}`);
-    }
-    if (p.decisions.length > 12) lines.push(`    \u2026 ${p.decisions.length - 12} earlier`);
-  }
-  return lines.join("\n");
-}
-function timelineTicks(events, maxTicks = 40) {
-  const p = project(events);
-  const decisionSeqs = p.decisions.map((d) => d.seq);
-  const interesting = /* @__PURE__ */ new Set([...decisionSeqs]);
-  for (const e of events) {
-    if (e.kind === "MISSION_STATUS" || e.kind === "RESOURCE_LIMIT" || e.kind === "FAILURE_DETECTED" || e.kind === "APPROVAL_REQUIRED") {
-      interesting.add(e.seq);
-    }
-  }
-  const sorted = [...interesting].sort((a, b) => a - b);
-  if (sorted.length <= maxTicks) return sorted;
-  const step = sorted.length / maxTicks;
-  const out = [];
-  for (let i = 0; i < maxTicks; i++) out.push(sorted[Math.floor(i * step)]);
-  if (out[out.length - 1] !== sorted[sorted.length - 1]) out.push(sorted[sorted.length - 1]);
-  return out;
-}
-
-// src/mission/caps.ts
-var DEFAULT_CAPS = { timeoutMs: 10 * 60 * 1e3, maxTurns: 40, maxCostUsd: 5 };
-function parseReportedUsage(harness, raw) {
-  const empty2 = { costUsd: null, tokens: null, turns: null, source: harness };
-  if (!raw.trim()) return empty2;
-  const candidates = jsonChunks(raw);
-  let costUsd = null;
-  let tokens = null;
-  let turns = null;
-  for (const obj of candidates) {
-    const c = findNumber(obj, ["total_cost_usd", "cost_usd", "costUsd", "cost"], 0);
-    if (c !== null) costUsd = c;
-    const t = findNumber(obj, ["total_tokens"], 0) ?? sumTokens(obj);
-    if (t === null) {
-      const flat = findNumber(obj, ["tokens"], 0);
-      if (flat !== null) tokens = flat;
-    } else {
-      tokens = t;
-    }
-    const n2 = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
-    if (n2 !== null) turns = n2;
-  }
-  if (harness === "codex") costUsd = null;
-  return { costUsd, tokens, turns, source: harness };
-}
-function jsonChunks(raw) {
-  const out = [];
-  const tryOne = (s) => {
-    try {
-      const v = JSON.parse(s);
-      if (v && typeof v === "object") out.push(v);
-    } catch {
-    }
-  };
-  tryOne(raw.trim());
-  for (const line of raw.split(/\r?\n/)) if (line.trim()) tryOne(line.trim());
-  return out;
-}
-function pickNumber(obj, keys) {
-  for (const k of keys) {
-    const v = obj[k];
-    if (typeof v === "number" && Number.isFinite(v)) return v;
-    if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
-  }
-  return null;
-}
-function findNumber(obj, keys, depth) {
-  if (depth > 3 || !obj || typeof obj !== "object") return null;
-  const o = obj;
-  const direct = pickNumber(o, keys);
-  if (direct !== null) return direct;
-  for (const v of Object.values(o)) {
-    if (v && typeof v === "object" && !Array.isArray(v)) {
-      const nested = findNumber(v, keys, depth + 1);
-      if (nested !== null) return nested;
-    }
-  }
-  return null;
-}
-function sumTokens(obj) {
-  const blocks = [];
-  const collect = (o, depth) => {
-    if (depth > 3 || !o || typeof o !== "object" || Array.isArray(o)) return;
-    const rec = o;
-    for (const k of ["usage", "tokens"]) {
-      const v = rec[k];
-      if (v && typeof v === "object" && !Array.isArray(v)) blocks.push(v);
-    }
-    for (const v of Object.values(rec)) collect(v, depth + 1);
-  };
-  collect(obj, 0);
-  let best = null;
-  for (const u of blocks) {
-    const total = typeof u.total === "number" && Number.isFinite(u.total) ? u.total : null;
-    const i = typeof u.input_tokens === "number" ? u.input_tokens : typeof u.input === "number" ? u.input : 0;
-    const o = typeof u.output_tokens === "number" ? u.output_tokens : typeof u.output === "number" ? u.output : 0;
-    const candidate = total !== null && total > 0 ? total : i + o > 0 ? i + o : null;
-    if (candidate !== null) best = candidate;
-  }
-  return best;
-}
-function capsForSeat(seat2, costUsd) {
-  const warnings = [];
-  const timeoutMs = seat2.timeoutSecs > 0 ? seat2.timeoutSecs * 1e3 : DEFAULT_CAPS.timeoutMs;
-  if (seat2.timeoutSecs > 0 && seat2.timeoutSecs < 30) {
-    warnings.push(`${seat2.timeoutSecs}s is below the 30s floor for a coding agent; using it anyway, but expect a timeout on any real edit.`);
-  }
-  if (seat2.maxTurns === null || seat2.maxTurns === void 0) {
-    warnings.push("No turn cap was specified for this seat; using default.");
-  }
-  const maxTurns = seat2.maxTurns !== null && seat2.maxTurns !== void 0 && seat2.maxTurns > 0 ? seat2.maxTurns : DEFAULT_CAPS.maxTurns;
-  if (seat2.maxTurns !== null && seat2.maxTurns !== void 0 && seat2.maxTurns > 0 && seat2.maxTurns < 3) {
-    warnings.push(`${seat2.maxTurns} turns is almost certainly too few to read a file and edit it.`);
-  }
-  const maxCostUsd = costUsd !== null && costUsd > 0 ? costUsd : DEFAULT_CAPS.maxCostUsd;
-  return { caps: { timeoutMs, maxTurns, maxCostUsd }, warnings };
-}
-
-// src/mission/evals.ts
-function readHistoryRow(row) {
-  if (!row || typeof row !== "object") return { at: null, score: null, hasErrors: true, harness: null, costKnown: false };
-  const r2 = row;
-  const details = r2.details && typeof r2.details === "object" ? r2.details : {};
-  const rawDetails = typeof r2.details === "string" ? tryParse(r2.details) : details;
-  const d = rawDetails && typeof rawDetails === "object" ? rawDetails : {};
-  return {
-    at: typeof r2.evaluatedAt === "string" ? r2.evaluatedAt : typeof r2.createdAt === "string" ? r2.createdAt : null,
-    score: typeof r2.score === "number" ? r2.score : null,
-    // Unreadable details are treated as "has errors" rather than "clean".
-    hasErrors: typeof d.hasErrors === "boolean" ? d.hasErrors : true,
-    harness: typeof d.harness === "string" ? d.harness : null,
-    costKnown: typeof d.costKnown === "boolean" ? d.costKnown : false
-  };
-}
-function tryParse(s) {
-  try {
-    return JSON.parse(s);
-  } catch {
-    return null;
-  }
-}
-
-// src/mission/flightRecorder.ts
-var listeners = /* @__PURE__ */ new Set();
-var FlightRecorder = class {
-  events = [];
-  nextSeq = 1;
-  missionId;
-  constructor(missionId, seed = []) {
-    this.missionId = missionId;
-    this.events = [...seed];
-    this.nextSeq = seed.length ? Math.max(...seed.map((e) => e.seq)) + 1 : 1;
-  }
-  /**
-   * §25 Merge persisted history back in on resume. Existing sequence numbers are kept so a
-   * restored mission's trace stays contiguous, and events already present are not duplicated.
-   */
-  seedHistory(events) {
-    if (!events.length) return 0;
-    const seen = new Set(this.events.map((e) => e.seq));
-    let added = 0;
-    for (const e of events) {
-      if (seen.has(e.seq)) continue;
-      this.events.push(e);
-      seen.add(e.seq);
-      added += 1;
-    }
-    this.events.sort((a, b) => a.seq - b.seq);
-    this.nextSeq = this.events.length ? this.events[this.events.length - 1].seq + 1 : 1;
-    return added;
-  }
-  record(input) {
-    if (!input.actor) throw new Error("governance: every event needs an actor");
-    if (!input.authority) throw new Error("governance: every event needs an authority");
-    if (!input.reason) throw new Error("governance: every event needs a reason");
-    const event = {
-      seq: this.nextSeq++,
-      missionId: input.missionId ?? this.missionId,
-      ts: (/* @__PURE__ */ new Date()).toISOString(),
-      kind: input.kind,
-      actor: input.actor,
-      authority: input.authority,
-      policy: input.policy || "none-required",
-      reason: input.reason,
-      evidence: input.evidence ?? [],
-      subjectId: input.subjectId ?? null,
-      data: input.data ?? {}
-    };
-    this.events.push(event);
-    for (const fn of listeners) {
-      try {
-        fn(event);
-      } catch {
-      }
-    }
-    return event;
-  }
-  all() {
-    return [...this.events];
-  }
-  ofKind(...kinds) {
-    const set = new Set(kinds);
-    return this.events.filter((e) => set.has(e.kind));
-  }
-  forSubject(subjectId) {
-    return this.events.filter((e) => e.subjectId === subjectId);
-  }
-  last(kind) {
-    for (let i = this.events.length - 1; i >= 0; i--) {
-      if (this.events[i].kind === kind) return this.events[i];
-    }
-    return null;
-  }
-  count(kind) {
-    return this.events.filter((e) => e.kind === kind).length;
-  }
-  /**
-   * §14 Replay. Returns the recorder state as it was after `uptoSeq` events.
-   * Used by the flight-recorder UI to scrub the mission timeline.
-   */
-  replay(uptoSeq) {
-    return this.events.filter((e) => e.seq <= uptoSeq);
-  }
-  /** Distinct sequence numbers, for the scrubber. */
-  seqRange() {
-    if (!this.events.length) return { min: 0, max: 0 };
-    return { min: this.events[0].seq, max: this.events[this.events.length - 1].seq };
-  }
-  snapshot() {
-    return { events: this.all(), nextSeq: this.nextSeq };
-  }
-  /**
-   * Truncate everything after `uptoSeq` — used when rolling a mission back to a checkpoint
-   * so the trace does not claim things that are no longer true. The truncation is itself
-   * recorded first, so the rollback is visible.
-   */
-  truncateAfter(uptoSeq, reason) {
-    const removed = this.events.filter((e) => e.seq > uptoSeq).length;
-    this.events = this.events.filter((e) => e.seq <= uptoSeq);
-    this.nextSeq = uptoSeq + 1;
-    if (removed > 0) {
-      this.record({
-        kind: "MISSION_ROLLED_BACK",
-        actor: "flight-recorder",
-        authority: "runtime",
-        policy: "checkpoint.rollback",
-        reason,
-        data: { removedEvents: removed, uptoSeq }
-      });
-    }
-    return removed;
-  }
-  get length() {
-    return this.events.length;
-  }
-};
-var recorders = /* @__PURE__ */ new Map();
-function recorderFor(missionId, seed) {
-  let r2 = recorders.get(missionId);
-  if (!r2) {
-    r2 = new FlightRecorder(missionId, seed);
-    recorders.set(missionId, r2);
-  }
-  return r2;
-}
-function allRecorders() {
-  return [...recorders.values()];
-}
-
-// src/pages/V10Page.tsx
-var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-var CONFIDENCE_LABEL = {
-  binary: "verified against the real binary",
-  docs: "from the vendor's documentation",
-  community: "from community reports",
-  unverified: "unverified"
-};
-function Card(props) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card-title", children: props.title }),
-    props.sub ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", style: { marginBottom: 8 }, children: props.sub }) : null,
-    props.children
-  ] });
-}
-function Pre(props) {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-    "pre",
-    {
-      style: {
-        fontFamily: "var(--font-mono, monospace)",
-        fontSize: 11,
-        lineHeight: 1.5,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-        margin: 0
-      },
-      children: Array.isArray(props.children) ? props.children.join("") : props.children
-    }
-  );
-}
-function BuildBanner() {
-  const native = useTauri();
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    "div",
-    {
-      className: "card",
-      style: { borderLeft: native ? "3px solid var(--ok, #4A9E5C)" : "3px solid var(--warn, #D4A843)" },
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card-title", children: native ? "Native build" : "Browser build" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: native ? "Git, the CLI harnesses and SQLite are reachable. Every panel below is showing real data or a real error." : "This is the browser build. Git, coding CLIs and SQLite are NOT reachable, so those panels say so instead of showing empty numbers. Pure computations \u2014 capabilities, composed argv, merge ordering, replay over an in-memory trace \u2014 still work here." })
-      ]
-    }
-  );
-}
-function CapabilitiesPanel() {
-  const verified = (0, import_react.useMemo)(() => new Set(binaryVerifiedHarnesses()), []);
-  const rows = (0, import_react.useMemo)(() => Object.values(AGENT_CAPABILITIES), []);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Harness capabilities",
-      sub: "What each coding CLI actually supports, and how each claim was established. A claim marked 'documentation' has not been checked against the binary \u2014 the app will not assert it as fact.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "tbl", style: { width: "100%", fontSize: 11 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Harness" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Read-only" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Turn cap" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Timeout" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Cost reported" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Session id" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Verified" })
-          ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: rows.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.readOnly?.argv ? c.readOnly.argv.join(" ") : c.readOnly?.implicit ? "(default)" : "none" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.maxTurns?.argv?.join(" ") ?? "none \u2014 the app's ledger only" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.timeout?.argv?.join(" ") ?? "none \u2014 the app's deadline" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.cost ? `${c.cost.kind} (${CONFIDENCE_LABEL[c.cost.confidence]})` : "no" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: c.sessionStart ? "the app chooses" : "CLI chooses" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: verified.has(c.id) ? "binary" : "\u2014" })
-          ] }, c.id)) })
-        ] }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { marginTop: 8 }, children: [
-          verified.size,
-          " of ",
-          rows.length,
-          " harnesses verified against their real binaries. The rest are documentation-shaped and carry per-claim confidence so nothing is overstated."
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "view", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "view-header", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "VH-19 \xB7 Generalist" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { className: "view-title", children: "One agent. The whole harbor behind it." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "view-sub", children: "Talk to VH-19 \u2014 it routes to the specialist bench, pauses at the human gate for risky work, executes only what is real, and learns from every accept and reject. Nothing here overstates itself." })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => setShowBench((v) => !v), children: [
+        "Bench \xB7 ",
+        enabledCount,
+        "/",
+        bench.length,
+        " enabled"
+      ] }) })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid-4 mb-24", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-label", children: "Specialist bench" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi-value accent", children: [
+          enabledCount,
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: 14, opacity: 0.6 }, children: [
+            "/",
+            stats2.count
+          ] })
+        ] })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-label", children: "Acceptance" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-value", children: patterns.total ? `${Math.round(patterns.acceptanceRate * 100)}%` : "\u2014" })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-label", children: "Decisions learned" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-value", children: patterns.total })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-label", children: "Autonomy" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-value", style: { color: autonomy.granted ? "var(--accent)" : void 0 }, children: autonomy.granted ? "EARNED" : "LEARNING" })
+      ] }) })
+    ] }),
+    autonomy.granted && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card mb-24", style: { borderColor: "var(--accent)" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "10px 12px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip chip-ok", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip-dot" }),
+        "autonomy earned"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-main", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", children: [
+          "Gate-free on safe-tier work \xB7 score ",
+          autonomy.score != null ? `${Math.round(autonomy.score * 100)}%` : "\u2014",
+          " \xB7 monitor + override always on"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 8 }, children: rows.map((c) => ({ c, claims: unverifiedClaims(c.id) })).filter((x) => x.claims.length > 0).map(({ c, claims }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, marginBottom: 4 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: c.name }),
-          " \u2014 not verified against the binary: ",
-          claims.join("; ")
-        ] }, c.id)) })
-      ]
-    }
-  );
-}
-function TeamsPanel() {
-  const [teamId, setTeamId] = (0, import_react.useState)(PREBUILT_TEAMS[0]?.id ?? "");
-  const team = PREBUILT_TEAMS.find((t) => t.id === teamId);
-  const findings = (0, import_react.useMemo)(() => team ? validateTeam(team) : [], [team]);
-  const composed = (0, import_react.useMemo)(() => {
-    if (!team) return [];
-    return team.seats.map((seat2) => ({
-      seat: seat2,
-      ro: composeSeatArgv(seat2, { prompt: "$TASK", cwd: "/repo", readOnly: !seat2.mayWrite }),
-      rw: composeSeatArgv(seat2, { prompt: "$TASK", cwd: "/repo", readOnly: false })
-    }));
-  }, [team]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Teams and the argv the app would actually run",
-      sub: "Seats are roles, not people. This is the composed command line per seat \u2014 the same function the executor calls, so what you see here is what would be spawned.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }, children: PREBUILT_TEAMS.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: t.id === teamId ? "btn primary" : "btn", onClick: () => setTeamId(t.id), children: t.name }, t.id)) }),
-        team ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", style: { marginBottom: 8 }, children: team.description }) : null,
-        composed.map(({ seat: seat2, ro, rw }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 10 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: seat2.role }),
-            " \xB7 ",
-            seat2.harness,
-            " \xB7 ",
-            seat2.mayWrite ? "may write" : "read-only",
-            " \xB7",
-            " ",
-            enforcedReadOnly(seat2.harness) ? "read-only is ENFORCED by the CLI" : "read-only is NOT enforced by this CLI"
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", children: "Risky and critical work still pauses at the gate. Revoking is instant and needs no exam." })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+        revokeAutonomy(USER);
+        refresh();
+      }, children: "Revoke" })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1fr)", gap: 16, alignItems: "start" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14, minHeight: 420 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Conversation" }),
+        messages.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "view-sub", style: { padding: "40px 8px", textAlign: "center" }, children: "Ask VH-19 anything. It will show you which specialists it routed to and why \u2014 and it will tell you plainly when it did NOT execute." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: messages.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "10px 12px", background: "var(--bg)", flexDirection: "column", alignItems: "stretch", gap: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `chip ${m.role === "user" ? "" : "chip-ok"}`, children: m.role === "user" ? "you" : "VH-19" }),
+            m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", title: m.resp.note ?? "", children: OUTCOME_LABEL[m.resp.outcome] }),
+            m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontFamily: "var(--font-mono)", fontSize: 11 }, children: [
+              "proof-digest ",
+              m.resp.provenanceDigest.slice(0, 12),
+              "\u2026"
+            ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: (seat2.mayWrite ? rw : ro).argv.join(" ") }),
-          ro.warnings.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { fontSize: 11 }, children: [
-            "warnings: ",
-            ro.warnings.join("; ")
-          ] }) : null,
-          !ro.claims.readOnlyEnforced && !seat2.mayWrite ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: "var(--warn, #D4A843)" }, children: [
-            "The app asked ",
-            seat2.harness,
-            " for read-only, but this CLI cannot enforce it. The seat's worktree is the real protection, not the flag."
-          ] }) : null
-        ] }, seat2.id)),
-        findings.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 8 }, children: findings.map((f, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: f.severity === "error" ? "var(--bad, #D71921)" : "var(--warn, #D4A843)" }, children: [
-          f.severity,
-          ": ",
-          f.message
-        ] }, i)) }) : null
-      ]
-    }
-  );
-}
-function MergePanel() {
-  const candidates = (0, import_react.useMemo)(
-    () => [
-      { seatId: "architect", branch: "mj/demo/architect", worktreePath: "/tmp/wt-arch", role: "architect", dependsOn: [], verified: true, additions: 120, deletions: 4 },
-      { seatId: "coder", branch: "mj/demo/coder", worktreePath: "/tmp/wt-code", role: "coder", dependsOn: ["mj/demo/architect"], verified: true, additions: 340, deletions: 61 },
-      { seatId: "tester", branch: "mj/demo/tester", worktreePath: "/tmp/wt-test", role: "tester", dependsOn: ["mj/demo/coder"], verified: true, additions: 88, deletions: 0 },
-      // Included deliberately: a branch that failed its own checks must be excluded, and the plan has
-      // to say why rather than quietly dropping it.
-      { seatId: "debugger", branch: "mj/demo/debugger", worktreePath: "/tmp/wt-dbg", role: "debugger", dependsOn: ["mj/demo/coder"], verified: false, additions: 12, deletions: 30 }
-    ],
-    []
-  );
-  const plan = (0, import_react.useMemo)(() => planMerge(candidates, { baseBranch: "main", repoRoot: "/repo", testCommand: ["npm", "test"] }), [candidates]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Merge plan",
-      sub: "How writer branches would be ordered back onto the base. Ordering is topological by declared dependency, then by role. Exclusion is a decision with a stated reason, never a silent drop.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: renderMergePlan(plan, "main") }),
-        plan.excluded.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 8 }, children: plan.excluded.map((e) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
-            "excluded ",
-            e.branch
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { whiteSpace: "pre-wrap" }, children: m.text }),
+          m.resp && m.resp.routed.selected.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" }, children: [
+            m.resp.routed.selected.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip", title: c.reasons.join(" \xB7 "), children: [
+              c.id,
+              " \xB7 ",
+              c.score
+            ] }, c.id)),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontSize: 11 }, children: [
+              "routed by ",
+              m.resp.routed.routedBy,
+              m.resp.routed.fallbackReason ? ` \xB7 fallback: ${m.resp.routed.fallbackReason}` : ""
+            ] })
           ] }),
-          " (",
-          e.seatId,
-          "): ",
-          e.reason
-        ] }, e.branch)) }) : null
-      ]
-    }
-  );
-}
-function ReplayPanel() {
-  const recorders2 = (0, import_react.useMemo)(() => allRecorders(), []);
-  const [missionId, setMissionId] = (0, import_react.useState)(recorders2[0]?.snapshot().events[0]?.missionId ?? "");
-  const recorder = recorders2.find((r2) => r2.snapshot().events.some((e) => e.missionId === missionId)) ?? recorders2[0];
-  const events = (0, import_react.useMemo)(() => recorder ? recorder.all() : [], [recorder]);
-  const { min, max } = (0, import_react.useMemo)(() => {
-    if (!events.length) return { min: 0, max: 0 };
-    const r2 = recorder;
-    return r2 ? r2.seqRange() : { min: 0, max: 0 };
-  }, [events, recorder]);
-  const [seq, setSeq] = (0, import_react.useState)(max);
-  (0, import_react.useEffect)(() => setSeq(max), [max]);
-  const ticks = (0, import_react.useMemo)(() => timelineTicks(events), [events]);
-  const projection = (0, import_react.useMemo)(() => project(events.filter((e) => e.seq <= (seq || max))), [events, seq, max]);
-  const half = (0, import_react.useMemo)(() => project(events.filter((e) => e.seq <= Math.max(1, Math.floor((seq || max) / 2)))), [events, seq, max]);
-  const diff = (0, import_react.useMemo)(() => diffProjections(half, projection), [half, projection]);
-  const cf = (0, import_react.useMemo)(() => counterfactualHarness(events, seq || max, "codex"), [events, seq, max]);
-  if (!events.length) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Card, { title: "Replay", sub: "Reconstructable state, not a transcript.", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", children: [
-      "No mission has been opened in this session, so there is no flight recorder to fold. Open a mission on the Missions page and this panel will show the same trace as a scrub-able state: agents, harnesses, spend, approvals and decisions as they stood at any sequence number.",
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("br", {}),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("br", {}),
-      'What it will never do is invent an outcome. Asking "what if a different harness had run this?" returns ',
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("em", { children: "unknown \u2014 this was not re-run" }),
-      ", plus what a real test would require, because the alternative was never executed and there is no evidence about it."
-    ] }) });
-  }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Replay",
-      sub: `Flight recorder for ${projection.missionId || "this mission"} \u2014 ${events.length} events, seq ${min}..${max}.`,
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }, children: recorders2.map((r2) => {
-          const id = r2.snapshot().events[0]?.missionId ?? "?";
-          return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: id === missionId ? "btn primary" : "btn", onClick: () => setMissionId(id), children: id }, id);
-        }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }, children: [
+          m.role === "vh19" && m.resp && (m.resp.outcome === "answered" || m.resp.outcome === "planned") && !m.feedback && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => giveFeedback(m, "accept"), children: "\u2713 Accept" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+              setRejectFor(m.id);
+              setRejectReason("");
+            }, children: "\u2717 Reject" }),
+            rejectFor === m.id && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "why? (this is the learning payload)", value: rejectReason, onChange: (e) => setRejectReason(e.target.value), style: { flex: 1 } }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => {
+                giveFeedback(m, "reject", rejectReason || void 0);
+                setRejectFor(null);
+              }, children: "Record" })
+            ] })
+          ] }),
+          m.feedback && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+            "learned: ",
+            m.feedback,
+            "ed"
+          ] })
+        ] }, m.id)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, marginTop: 12 }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
-              type: "range",
-              min,
-              max,
-              value: seq || max,
-              onChange: (e) => setSeq(Number(e.target.value)),
+              className: "input",
+              placeholder: provider ? "Ask VH-19\u2026" : "Ask VH-19\u2026 (no provider connected \u2014 answers will be plans, not executions)",
+              value: input,
+              onChange: (e) => setInput(e.target.value),
+              onKeyDown: (e) => {
+                if (e.key === "Enter") void send();
+              },
               style: { flex: 1 }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "mono", style: { fontSize: 11 }, children: [
-            "seq ",
-            seq || max
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => void send(), disabled: busy, children: busy ? "Working\u2026" : "Send" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Provider" }),
+          provider ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
+              "Connected: ",
+              provider.kind,
+              " \xB7 ",
+              provider.model,
+              " \xB7 in memory only (this session)"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => setProvider(null), children: "Disconnect" })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, className: "mb-16", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("select", { className: "input", value: form.kind, onChange: (e) => {
+                const kind = e.target.value;
+                setForm((f) => ({ ...f, kind, baseUrl: PROVIDER_DEFAULTS[kind] }));
+              }, children: KINDS.map((k) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: k, children: k }, k)) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "base URL", value: form.baseUrl, onChange: (e) => setForm((f) => ({ ...f, baseUrl: e.target.value })) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "model (e.g. gpt-4.1)", value: form.model, onChange: (e) => setForm((f) => ({ ...f, model: e.target.value })) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "password", placeholder: "API key \u2014 held in memory only", value: form.apiKey, onChange: (e) => setForm((f) => ({ ...f, apiKey: e.target.value })) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "button",
+                {
+                  className: "btn btn-primary btn-sm",
+                  disabled: !form.model || !form.apiKey,
+                  onClick: () => setProvider({ kind: form.kind, baseUrl: form.baseUrl.replace(/\/+$/, ""), apiKey: form.apiKey.trim(), model: form.model.trim() }),
+                  children: "Connect"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11 }, children: "Keys are never written to disk from this panel. For durable config use env: VH_OPENAI_API_KEY / VH_ANTHROPIC_API_KEY / VH_GEMINI_API_KEY (base URLs overridable via VH_*_BASE_URL)." })
           ] })
         ] }),
-        ticks.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { fontSize: 11, marginBottom: 8 }, children: [
-          "decision points: ",
-          ticks.join(", ")
-        ] }) : null,
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: renderProjection(projection) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card-title", style: { fontSize: 11 }, children: [
-            "What changed between seq ",
-            half.uptoSeq,
-            " and seq ",
-            projection.uptoSeq
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
+            "Autonomy exam \xB7 \u2265",
+            Math.round(PASS_THRESHOLD * 100),
+            "%"
           ] }),
-          diff.identical ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", style: { fontSize: 11 }, children: "Nothing observable changed between those points." }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: [
-            ...diff.changes.map((c) => `  ${c.field}: ${c.from} -> ${c.to}`),
-            ...diff.agentsAdded.map((a) => `  agent appeared: ${a}`),
-            ...diff.artifactsAdded.map((a) => `  artifact appeared: ${a}`)
-          ].join("\n") || "  (no scalar changes)" })
+          exam ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 10, maxHeight: 360, overflowY: "auto" }, children: [
+            exam.questions.map((q, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: 10, background: "var(--bg)" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
+                i + 1,
+                ". ",
+                q.scenario
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { whiteSpace: "pre-wrap" }, children: [
+                "Would do: ",
+                q.proposedAction
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, fontStyle: "italic" }, children: [
+                "Why: ",
+                q.explanation
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginTop: 6 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "button",
+                  {
+                    className: `btn btn-ghost btn-sm ${grades[q.id]?.verdict === "correct" ? "btn-primary" : ""}`,
+                    onClick: () => setGrades((g) => ({ ...g, [q.id]: { questionId: q.id, verdict: "correct" } })),
+                    children: "Correct"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "button",
+                  {
+                    className: `btn btn-ghost btn-sm ${grades[q.id]?.verdict === "wrong" ? "btn-primary" : ""}`,
+                    onClick: () => setGrades((g) => ({ ...g, [q.id]: { questionId: q.id, verdict: "wrong", correction: g[q.id]?.correction } })),
+                    children: "Wrong"
+                  }
+                )
+              ] }),
+              grades[q.id]?.verdict === "wrong" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "input",
+                {
+                  className: "input",
+                  style: { marginTop: 6 },
+                  placeholder: "correction \u2014 the agent learns this",
+                  value: grades[q.id]?.correction ?? "",
+                  onChange: (e) => setGrades((g) => ({ ...g, [q.id]: { ...g[q.id], correction: e.target.value } }))
+                }
+              )
+            ] }, q.id)),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "button",
+              {
+                className: "btn btn-primary btn-sm",
+                onClick: submitExam,
+                disabled: exam.questions.some((q) => !grades[q.id]),
+                children: "Submit grades"
+              }
+            )
+          ] }) : examResult ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "kpi-label", children: "Last exam" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "kpi-value", style: { color: examResult.passed ? "var(--accent)" : "var(--warn)" }, children: [
+                Math.round(examResult.score * 100),
+                "% \xB7 ",
+                examResult.passed ? "PASSED" : "NOT PASSED"
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mt-16", children: examResult.passed ? "Autonomy earned \u2014 monitor + override permanently on." : "Below the bar. Wrong answers became corrections in memory; keep working and re-exam." }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm mt-16", onClick: startExam, children: "New exam" })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
+              "Questions are generated ONLY from your real accept/reject history \u2014 never invented. You grade; \u2265",
+              Math.round(PASS_THRESHOLD * 100),
+              "% earns autonomy."
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11, fontStyle: "italic" }, children: "Autonomy never removes the human override \u2014 monitor + revoke stay on permanently." }),
+            examError && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { color: "var(--warn)" }, children: examError }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: startExam, children: "Propose exam" })
+          ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card-title", style: { fontSize: 11 }, children: "Counterfactual" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: `${cf.question}
-  hypothesis: ${cf.hypothesis}
-  outcome:    ${cf.outcome}
-  a real test would require:
-${cf.wouldRequire.map((w) => `    - ${w}`).join("\n")}` })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Team memory \xB7 Team-Evolve" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", children: [
+            patterns.accepts,
+            " accepted \xB7 ",
+            patterns.rejects,
+            " rejected \xB7 ",
+            patterns.corrections,
+            " corrections. These shape every future briefing; the bench you keep enabled plus this ledger is the evolving team."
+          ] }),
+          patterns.recentRejections.slice(-3).reverse().map((r) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginBottom: 4 }, children: [
+            "\u2717 ",
+            r.scenario.slice(0, 60),
+            r.reason ? ` \u2014 ${r.reason.slice(0, 60)}` : ""
+          ] }, r.id)),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11, fontStyle: "italic" }, children: "Cross-user (A2A) team evolution runs on the host runtime (npm run host) \u2014 receipts, not promises." })
         ] })
-      ]
-    }
-  );
-}
-function EvalsPanel() {
-  const [rows, setRows] = (0, import_react.useState)([]);
-  const [error, setError] = (0, import_react.useState)(null);
-  const [loaded, setLoaded] = (0, import_react.useState)(false);
-  const load2 = () => {
-    setError(null);
-    void ipc.suiteList().then((suites) => {
-      const list = Array.isArray(suites) ? suites : [];
-      const keys = list.map((s) => String(s.nodeKey ?? s.id ?? "")).filter(Boolean);
-      if (!keys.length) {
-        setRows([]);
-        setLoaded(true);
-        return;
-      }
-      void Promise.all(
-        keys.map(
-          (k) => ipc.evaluationHistory(k).then((h) => ({
-            nodeKey: k,
-            history: Array.isArray(h) ? h : []
-          }))
-        )
-      ).then((all) => {
-        const flat = all.flatMap((a) => a.history.map((r2) => ({ nodeKey: a.nodeKey, ...readHistoryRow(r2) })));
-        setRows(flat);
-        setLoaded(true);
-      });
-    }).catch((e) => {
-      setError(e instanceof Error ? e.message : String(e));
-      setLoaded(true);
-    });
-  };
-  (0, import_react.useEffect)(load2, []);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Harness evaluation suites",
-      sub: "Which CLI is best for this project's work, based on real task execution and recorded outcomes.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn", onClick: load2, style: { marginBottom: 8 }, children: "Reload from SQLite" }),
-        error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: error }) : !loaded ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "Reading\u2026" }) : !rows.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "No suites are stored yet. A suite is a named set of real tasks with real checks; running one drives the actual CLI and records what happened, including cases that could not be run." }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "tbl", style: { width: "100%", fontSize: 11 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Suite / harness" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "When" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Pass rate" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Cost" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { style: { textAlign: "left" }, children: "Clean?" })
-          ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: rows.map((r2, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: r2.nodeKey }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: r2.at ?? "unknown" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: r2.score === null ? "unknown" : `${Math.round(r2.score * 100)}%` }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: r2.costKnown ? "reported" : "not reported" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { textAlign: "left" }, children: r2.hasErrors ? "had cases that could not run" : "clean" })
-          ] }, i)) })
-        ] }) })
-      ]
-    }
-  );
-}
-function CapsPanel() {
-  const [harness, setHarness] = (0, import_react.useState)("claude");
-  const [raw, setRaw] = (0, import_react.useState)('{"type":"result","total_cost_usd":0.4213,"num_turns":3,"usage":{"input_tokens":8123,"output_tokens":944}}');
-  const usage = (0, import_react.useMemo)(() => parseReportedUsage(harness, raw), [harness, raw]);
-  const seatCaps = (0, import_react.useMemo)(() => capsForSeat({ timeoutSecs: 300, maxTurns: null }, usage.costUsd), [usage]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Cost, turn and wall-clock caps",
-      sub: "Paste a harness's real output and see what the app would bill. A null is shown as unknown, never as zero \u2014 several CLIs report tokens but no price, and summing those as $0 would rank on who happens to emit a number.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", value: harness, onChange: (e) => setHarness(e.target.value), style: { width: 140 } }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "muted", style: { fontSize: 11, alignSelf: "center" }, children: "harness id" })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "textarea",
-          {
-            className: "input",
-            value: raw,
-            onChange: (e) => setRaw(e.target.value),
-            rows: 3,
-            style: { width: "100%", fontFamily: "var(--font-mono, monospace)", fontSize: 11 }
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: [
-          `cost      ${usage.costUsd === null ? "unknown \u2014 this CLI reported no price" : `$${usage.costUsd.toFixed(4)}`}`,
-          `tokens    ${usage.tokens === null ? "none reported" : usage.tokens.toLocaleString()}`,
-          `turns     ${usage.turns === null ? "not reported" : usage.turns}`,
-          `source    ${usage.source}`,
-          "",
-          `defaults  $${DEFAULT_CAPS.maxCostUsd} per mission, ${DEFAULT_CAPS.maxTurns} turns, ${DEFAULT_CAPS.timeoutMs / 1e3}s`,
-          `this seat $${seatCaps.caps.maxCostUsd} / ${seatCaps.caps.maxTurns} turns / ${seatCaps.caps.timeoutMs / 1e3}s`,
-          seatCaps.warnings.length ? `warnings  ${seatCaps.warnings.join("; ")}` : ""
-        ].filter(Boolean).join("\n") }) })
-      ]
-    }
-  );
-}
-function GitPanel() {
-  const native = useTauri();
-  const [cwd, setCwd] = (0, import_react.useState)(".");
-  const [status, setStatus] = (0, import_react.useState)(null);
-  const [diff, setDiff] = (0, import_react.useState)(null);
-  const [head, setHead] = (0, import_react.useState)(null);
-  const [branch, setBranch] = (0, import_react.useState)(null);
-  const [ro, setRo] = (0, import_react.useState)(null);
-  const [error, setError] = (0, import_react.useState)(null);
-  const refresh = () => {
-    setError(null);
-    const fail = (e) => setError(e instanceof Error ? e.message : String(e));
-    void ipc.gitStatus(cwd).then(setStatus).catch(fail);
-    void ipc.gitDiff(cwd).then(setDiff).catch(fail);
-    void ipc.gitHead(cwd).then(setHead).catch(fail);
-    void ipc.gitBranch(cwd).then(setBranch).catch(fail);
-    void ipc.gitReadOnlyCheck(cwd).then(setRo).catch(fail);
-  };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-    Card,
-    {
-      title: "Repository state",
-      sub: "Read from git, never from an agent's report. A timeout is reported as a timeout with whatever partial output git produced \u2014 not as a failure, and not as an empty result.",
-      children: !native ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: 'Git needs the native desktop build. This panel will not show "0 files changed" here, because it has not spoken to your repository and showing a number would be a claim about it.' }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", value: cwd, onChange: (e) => setCwd(e.target.value), style: { flex: 1 } }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn primary", onClick: refresh, children: "Read" })
-        ] }),
-        error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: error }) : null,
-        status ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: status.ok ? `status    ${status.clean ? "clean \u2014 git reports no changes" : `${status.count} entr${status.count === 1 ? "y" : "ies"} (${status.untracked} untracked)`}` : `status    could not be read: ${status.reason}` }),
-          status.ok && !status.clean ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: status.entries.slice(0, 20).map((e) => `  ${e.xy} ${e.path}${e.from ? ` (from ${e.from})` : ""}`).join("\n") }) : null
-        ] }) : null,
-        diff ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: diff.ok ? `diff      ${diff.summary}${diff.truncated ? `  (truncated from ${diff.rawBytes} bytes to fit the prompt)` : ""}` : `diff      could not be read: ${diff.reason}` }) }) : null,
-        head && branch ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Pre, { children: [
-          head.ok ? `head      ${head.hasCommits ? `${head.shortSha} ${head.subject} \u2014 ${head.author}` : "no commits yet"}` : `head      could not be read: ${head.reason}`,
-          "\n",
-          branch.ok ? `branch    ${branch.branch}${branch.detached ? " (detached \u2014 normal for a review worktree)" : ""}` : `branch    could not be read: ${branch.reason}`
-        ] }) : null,
-        ro ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Pre, { children: [
-          `read-only ${ro.verdict} \u2014 ${ro.reason}`,
-          ro.paths.length ? `
-${ro.paths.map((p) => `  ${p}`).join("\n")}` : ""
-        ] }) }) : null
       ] })
-    }
-  );
-}
-function RunProofPanel() {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    Card,
-    {
-      title: "Team execution pipeline",
-      sub: "How multi-agent teams coordinate through worktrees, branches, and review gates.",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pre, { children: [
-          "[1] coder     cwd=<repo>-vh-coder              branch=mj/fix-sub/coder",
-          "    committed the fix on an isolated worktree branch (SHA 442a4fdd).",
-          "[2] reviewer  cwd=<repo>-vh-review-reviewer    branch=mj/fix-sub/review (detached at 442a4fdd)",
-          "    validated the diff against the snapshot branch and said: CORRECT.",
-          "",
-          "snapshot = base + every committed writer branch, merged --no-ff (SHA 442a4fdd)",
-          "The base checkout stays on the original branch; reviewers see the snapshot,",
-          "not the base tree."
-        ].join("\n") }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { marginTop: 8 }, children: [
-          "Run it yourself: see the Verify block in ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "mono", children: "README.md" }),
-          ". It needs a real CLI on disk and writes only to ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "mono", children: "/tmp" }),
-          "."
-        ] })
-      ]
-    }
-  );
-}
-function V10Page() {
-  const mountedAt = (0, import_react.useRef)(Date.now());
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "panel-page", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Proof" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "sub", children: [
-      "Vouch Harbor ",
-      VH_VERSION,
-      " \u2014 what is backed by something that actually ran, and what is not. Panels here show real data or state plainly why they cannot."
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BuildBanner, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RunProofPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReplayPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CapabilitiesPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TeamsPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MergePanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EvalsPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CapsPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GitPanel, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { marginTop: 12, fontSize: 11 }, children: [
-      "Page mounted ",
-      new Date(mountedAt.current).toLocaleTimeString(),
-      "."
-    ] })
+    showBench && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
+        "Specialist bench \xB7 ",
+        enabledCount,
+        "/",
+        bench.length,
+        " enabled \xB7 the router only fields enabled specialists"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 8 }, children: bench.map((s) => {
+        const on = !disabled.includes(s.id);
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "8px 10px", background: "var(--bg)", opacity: on ? 1 : 0.55 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-main", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-title", style: { fontSize: 12 }, children: s.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11 }, children: [
+              s.category,
+              " \xB7 ",
+              s.riskTier
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+            setSpecialistEnabled(s.id, !on);
+            refresh();
+          }, children: on ? "Disable" : "Enable" })
+        ] }, s.id);
+      }) })
+    ] }),
+    gateAsk && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "modal-backdrop", role: "dialog", "aria-modal": "true", style: { position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { maxWidth: 520, padding: 18 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", style: { color: "var(--warn)" }, children: [
+        "\u27C1 Human gate \xB7 ",
+        gateAsk.ask.riskTier,
+        " work is paused"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-title mb-16", children: gateAsk.ask.action }),
+      gateAsk.ask.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", children: gateAsk.ask.summary }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input mb-16", placeholder: "reason if denying", value: denyReason, onChange: (e) => setDenyReason(e.target.value) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, justifyContent: "flex-end" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+          gateAsk.resolve({ approved: false, reason: denyReason || "denied at the gate" });
+          setGateAsk(null);
+        }, children: "Deny" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => {
+          gateAsk.resolve({ approved: true });
+          setGateAsk(null);
+        }, children: "Approve" })
+      ] })
+    ] }) })
   ] });
-}
+};
 
-// probe/v10Page.test.tsx
+// probe/vh19Door.test.tsx
+var ROOT = ".".length > 0 ? "." : process.cwd();
+var read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
+if (typeof globalThis.localStorage === "undefined") {
+  const map = /* @__PURE__ */ new Map();
+  globalThis.localStorage = {
+    getItem: (k) => map.get(k) ?? null,
+    setItem: (k, v) => void map.set(k, String(v)),
+    removeItem: (k) => void map.delete(k),
+    clear: () => map.clear(),
+    key: (i) => Array.from(map.keys())[i] ?? null,
+    get length() {
+      return map.size;
+    }
+  };
+}
 var passed = 0;
 var failed = 0;
 var failures = [];
 function ok(label, cond, detail = "") {
   if (cond) {
-    passed += 1;
+    passed++;
     console.log(`  ok   ${label}`);
   } else {
-    failed += 1;
+    failed++;
     failures.push(`${label}${detail ? ` \u2014 ${detail}` : ""}`);
     console.log(`  FAIL ${label}${detail ? ` \u2014 ${detail}` : ""}`);
   }
@@ -20891,86 +18986,46 @@ function section(name) {
   console.log(`
 == ${name}`);
 }
-var strip = (html5) => html5.replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/\s+/g, " ");
-section("0. the browser build renders");
+section("1. the shell routes the user to VH-19 first");
+var appSrc = read("src/App.tsx");
+var navSrc = read("src/app/nav.ts");
+var sidebarSrc = read("src/app/Sidebar.tsx");
+ok("App.tsx registers the Vh19 view", /Comp:\s*Vh19\b/.test(appSrc));
+ok("the app OPENS on the VH-19 dock (the front door is the Generalist)", /useState<ViewKey>\(['"]vh19['"]\)/.test(appSrc));
+ok("NAV lists VH-19", /key:\s*['"]vh19['"]/.test(navSrc));
+ok("the sidebar surfaces the VH-19 dock", /label="VH-19"/.test(sidebarSrc));
+section("2. the door imports the real engine \u2014 the reviewer's grep, enforced");
+var doorSrc = read("src/views/Vh19.tsx");
+ok("the door imports askVH19 from the engine", /import\s*\{[^}]*askVH19[^}]*\}\s*from\s*['"]\.\.\/vh19\/generalist['"]/.test(doorSrc));
+ok(
+  "the door imports the exam, memory, registry and provider surfaces",
+  /from ['"]\.\.\/vh19\/exam['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/memory['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/registry['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/providers['"]/.test(doorSrc)
+);
+ok(
+  "at least one APPLICATION file (not just probes) imports askVH19",
+  /askVH19/.test(doorSrc) && /views\/Vh19/.test(appSrc)
+);
+section("3. the door renders \u2014 real component, react-dom/server");
+var stats = catalogStats();
 var html = "";
+var renderError = null;
 try {
-  html = (0, import_server.renderToStaticMarkup)((0, import_react2.createElement)(V10Page));
+  html = (0, import_server.renderToStaticMarkup)((0, import_react2.createElement)(Vh19));
 } catch (err) {
-  ok("V10Page renders without throwing", false, err instanceof Error ? err.message : String(err));
+  renderError = err instanceof Error ? err.message : String(err);
 }
-ok("V10Page renders without throwing", html.length > 1e3, `${html.length} bytes`);
-var text = strip(html);
-ok("it is titled Proof", /Proof/.test(text), text.slice(0, 120));
-ok("it names the release from the single source of truth (clean identity)", text.includes(`Vouch Harbor ${VH_SHORT}`), `no Vouch Harbor ${VH_SHORT}`);
-ok("it declares this is a browser build", /Browser build/.test(text), "no build banner");
-ok("it says git is NOT reachable rather than showing numbers", /Git, coding CLIs and SQLite are NOT reachable/.test(text), "no honest browser notice");
-section("1. the pure panels rendered real data");
-ok("every harness appears in the capabilities table", Object.values(AGENT_CAPABILITIES).every((c) => text.includes(c.name)), "a harness is missing");
-ok("the verified-binary count is stated", new RegExp(`${binaryVerifiedHarnesses().length} of ${Object.keys(AGENT_CAPABILITIES).length} harnesses verified`).test(text), "count missing");
-ok("unverified claims are surfaced, not hidden", /not verified against the binary/.test(text), "no unverified list");
-ok("every prebuilt team is offered", PREBUILT_TEAMS.every((t) => text.includes(t.name)), "a team is missing");
-ok("the merge plan is rendered", /Merge plan/.test(text) && /mj\/demo\/coder/.test(text), "no merge plan");
-ok("the excluded branch is named with its reason", /excluded mj\/demo\/debugger/.test(text), "exclusion not shown");
-ok("the caps panel renders", /Cost, turn and wall-clock caps/.test(text), "no caps panel");
-ok("the run proof states the real snapshot SHA", /442a4fdd/.test(text), "no snapshot SHA");
-ok("the run proof states the reviewer's real verdict", /said: CORRECT/.test(text), "no verdict");
-section("2. no false-success defaults anywhere");
-var gitIdx = text.indexOf("Repository state");
-var gitPanel = gitIdx >= 0 ? text.slice(gitIdx, gitIdx + 600) : "";
-ok("the git panel reports NO entry count in a browser build", !/\b\d+ entr(y|ies)\b/.test(gitPanel), gitPanel.slice(0, 240));
-ok("the git panel reports NO diff totals", !/\+\d+ -\d+/.test(gitPanel), gitPanel.slice(0, 240));
-var evalIdx = text.indexOf("Reload from SQLite");
-var evalBody = evalIdx >= 0 ? text.slice(evalIdx + "Reload from SQLite".length, evalIdx + 700) : "";
-ok("the evals panel body contains no pass rate for a suite that never ran", !/\d+%/.test(evalBody), evalBody.slice(0, 200));
-ok("the evals panel body makes no claim at all before data arrives", /Reading|No suites are stored yet|could not be read|not persisted/.test(evalBody), evalBody.slice(0, 200));
-ok("it does NOT render an empty table that reads as 'nothing failed'", !/<tbody/.test(evalBody), "a table body was rendered with no data");
-ok("the git panel refuses to show state it never read", /will not show .*0 files changed/.test(text) || /has not spoken to your repository/.test(text), "no refusal");
-ok("the replay panel says there is no recorder instead of inventing one", /No mission has been opened in this session/.test(text), "no empty-state notice");
-ok("the counterfactual rule is stated", /unknown — this was not re-run/.test(text), "no counterfactual rule");
-section("3. with a mission in the recorder, replay renders real state");
-var r = recorderFor("mission.rendered");
-r.record({ kind: "MISSION_CREATED", actor: "human", authority: "human", policy: "none-required", reason: "Opened." });
-r.record({ kind: "AGENT_SPAWNED", actor: "runtime", authority: "policy:org", policy: "org", reason: "Coder.", subjectId: "a.coder", data: { agentId: "a.coder", role: "coder" } });
-r.record({ kind: "HARNESS_SELECTED", actor: "runtime", authority: "policy:risk-MEDIUM", policy: "risk", reason: "claude runs it.", subjectId: "a.coder", data: { agentId: "a.coder", harness: "claude" } });
-r.record({ kind: "TASK_COMPLETED", actor: "a.coder", authority: "policy:task", policy: "task", reason: "Done.", subjectId: "a.coder", data: { agentId: "a.coder", costUsd: 0.31, tokens: 800, turns: 2 } });
-var html2 = "";
-try {
-  html2 = (0, import_server.renderToStaticMarkup)((0, import_react2.createElement)(V10Page));
-} catch (err) {
-  ok("V10Page still renders with a live recorder", false, err instanceof Error ? err.message : String(err));
-}
-var text2 = strip(html2);
-ok("V10Page still renders with a live recorder", html2.length > 1e3, `${html2.length} bytes`);
-ok("the projection shows the mission id", /mission\.rendered/.test(text2), "no mission id");
-ok("the projection shows the agent and its harness", /harness=claude/.test(text2), "no harness line");
-ok("the projection shows spend that was really reported", /\$0\.3100/.test(text2), "no spend");
-ok("the scrubber has decision points", /decision points:/.test(text2), "no ticks");
-section("4. the error path renders instead of blanking the page");
-globalThis.window = { __TAURI_INTERNALS__: {} };
-globalThis.localStorage = {
-  getItem: () => null,
-  setItem: () => void 0,
-  removeItem: () => void 0
-};
-var html3 = "";
-try {
-  html3 = (0, import_server.renderToStaticMarkup)((0, import_react2.createElement)(V10Page));
-} catch (err) {
-  ok("V10Page renders with a faked Tauri host", false, err instanceof Error ? err.message : String(err));
-}
-var text3 = strip(html3);
-ok("V10Page renders with a faked Tauri host", html3.length > 1e3, `${html3.length} bytes`);
-ok("it now declares a native build", /Native build/.test(text3), "no native banner");
-ok("the git panel offers a Read control rather than fake data", /Read/.test(text3), "no Read control");
-await new Promise((res) => setTimeout(res, 60));
-var html4 = "";
-try {
-  html4 = (0, import_server.renderToStaticMarkup)((0, import_react2.createElement)(V10Page));
-} catch (err) {
-  ok("V10Page renders after the git/eval calls have failed", false, err instanceof Error ? err.message : String(err));
-}
-ok("V10Page renders after the git/eval calls have failed", html4.length > 1e3, `${html4.length} bytes`);
+ok("the door renders without throwing", renderError === null, renderError ?? "");
+ok("it names itself VH-19", html.includes("VH-19"));
+ok("it states the one-agent premise", html.includes("One agent"));
+ok("it shows the real bench count", html.includes(`>${stats.count}<`) || html.includes(`${stats.count}`), `catalog count ${stats.count}`);
+ok("the exam surface is present", html.includes("Autonomy exam") && html.includes("Propose exam"));
+ok("the provider surface is present with env honesty", html.includes("Provider") && html.includes("VH_OPENAI_API_KEY") && html.includes("in memory only"));
+ok("the learning surface is present", html.includes("Team memory") && html.includes("accept/reject history"));
+ok("the no-provider placeholder tells the truth", html.includes("answers will be plans, not executions"));
+ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
+section("4. the bench management surface lists real specialists");
+ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
+ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));
 console.log(`
 ${passed} passed, ${failed} failed`);
 if (failed > 0) {

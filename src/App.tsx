@@ -14,12 +14,14 @@ import { Ship } from './views/Ship';
 import { Chart } from './views/Chart';
 import { Register } from './views/Register';
 import { HarborMaster } from './views/HarborMaster';
+import { Vh19 } from './views/Vh19';
 import { HarborProvider, useHarbor } from './app/harbor';
 import { NAV } from './app/nav';
 
-export type ViewKey = 'harbor' | 'ship' | 'chart' | 'register' | 'master';
+export type ViewKey = 'vh19' | 'harbor' | 'ship' | 'chart' | 'register' | 'master';
 
 const VIEWS: Record<ViewKey, { label: string; Comp: React.ComponentType }> = {
+  vh19:     { label: NAV.find(n => n.key === 'vh19')!.label,     Comp: Vh19 },
   harbor:   { label: NAV.find(n => n.key === 'harbor')!.label,   Comp: Harbor },
   ship:     { label: NAV.find(n => n.key === 'ship')!.label,     Comp: Ship },
   chart:    { label: NAV.find(n => n.key === 'chart')!.label,    Comp: Chart },
@@ -28,7 +30,7 @@ const VIEWS: Record<ViewKey, { label: string; Comp: React.ComponentType }> = {
 };
 
 const VouchShell: React.FC = () => {
-  const [view, setView] = useState<ViewKey>('harbor');
+  const [view, setView] = useState<ViewKey>('vh19');
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [booted, setBooted] = useState(false);
   const { state, actions } = useHarbor();

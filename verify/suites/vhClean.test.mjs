@@ -309,7 +309,7 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "18.0.0";
+var VH_VERSION = "18.0.1";
 var VH_SHORT = "18.0";
 var VH_CODENAME = "Generalist";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;

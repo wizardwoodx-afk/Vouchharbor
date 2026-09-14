@@ -1,13 +1,13 @@
-Vouch Harbor 18.0.0 Generalist
-built: 18.0.0 Generalist
-ts:   2026-09-14T12:00:00Z
+Vouch Harbor 18.0.1 Generalist
+built: 18.0.1 Generalist
+ts:   2026-09-14T14:00:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-107 self-contained bundles in verify/suites (every probe suite except the pack's
+108 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 108 probe
-suites; the offline pack reproduces 107 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 109 probe
+suites; the offline pack reproduces 108 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-108 passed, 0 failed across 108 probe suites (node verify/run.mjs → 107 passed,
+109 passed, 0 failed across 109 probe suites (node verify/run.mjs → 108 passed,
 0 failed for the offline-only subset).

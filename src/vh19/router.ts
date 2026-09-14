@@ -15,8 +15,12 @@
  *
  * `strategy: "none"` is a real answer: no specialist cleared the bar, and the
  * Generalist must then answer directly or refuse — never pretend a match.
+ *
+ * Specialists the user disabled in the management surface are not fielded:
+ * routing reads the enabled bench, so a switched-off expert never appears in
+ * a decision — and `considered` counts the enabled bench, not the catalog.
  */
-import { listSpecialists } from "./registry";
+import { enabledSpecialists } from "./registry";
 import type { ProviderConfig, RouteCandidate, RouteDecision, Specialist } from "./types";
 
 /** Below this score a specialist is not a match — honest no-match beats a forced one. */
@@ -73,7 +77,7 @@ export function scoreSpecialist(s: Specialist, request: string, tokens: string[]
 export function routeDeterministic(request: string, k = MAX_K): RouteDecision {
   const tokens = tokenize(request);
   const scored: RouteCandidate[] = [];
-  for (const s of listSpecialists()) {
+  for (const s of enabledSpecialists()) {
     const { score, reasons } = scoreSpecialist(s, request, tokens);
     if (score >= MIN_SCORE) scored.push({ id: s.id, score, reasons });
   }
@@ -86,7 +90,7 @@ export function routeDeterministic(request: string, k = MAX_K): RouteDecision {
     strategy = selected[0].score - selected[1].score >= SINGLE_MARGIN ? "single" : "multi";
     if (strategy === "single") selected.length = 1;
   }
-  return { selected, considered: listSpecialists().length, strategy, routedBy: "deterministic" };
+  return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
 }
 
 /**

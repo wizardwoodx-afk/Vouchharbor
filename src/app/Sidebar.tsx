@@ -5,6 +5,7 @@ import { useHarbor } from './harbor';
 const NavIcon: React.FC<{ kind: string }> = ({ kind }) => {
   const common = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   switch (kind) {
+    case 'vh19':   return (<svg {...common}><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="6" r="1.6"/><circle cx="5" cy="18" r="1.6"/><circle cx="19" cy="18" r="1.6"/><path d="M9.6 10.4L6.3 7.2M14.4 10.4l3.3-3.2M9.6 13.6l-3.3 3.2M14.4 13.6l3.3 3.2"/></svg>);
     case 'harbor': return (<svg {...common}><path d="M3 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M12 3v12"/><path d="M8 8h8"/><circle cx="12" cy="3" r="1.2" fill="currentColor"/></svg>);
     case 'ship':   return (<svg {...common}><path d="M3 18h18l-2-6H5l-2 6z"/><path d="M12 12V5"/><path d="M8 8h8"/><path d="M12 3l3 3H9l3-3z"/></svg>);
     case 'chart':  return (<svg {...common}><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><path d="M7 6h10M6 8l5 3M18 8l-5 3M7 18h10M6 16l5-3M18 16l-5-3"/></svg>);
@@ -56,6 +57,7 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
       </div>
 
       <nav className="nav">
+        <NavItem icon="vh19"   label="VH-19"   sub="The Generalist" active={view==='vh19'} onClick={() => onChange('vh19')}/>
         <NavItem icon="harbor" label="Harbor" sub="Live voyages" active={view==='harbor'} onClick={() => onChange('harbor')}/>
         <NavItem icon="ship"   label="Ship"    sub={`${state.totals.handsOnDeck} hands · crew ${state.totals.configuredCrews > 0 ? 'set' : 'mustered'}`} active={view==='ship'} onClick={() => onChange('ship')}/>
         <NavItem icon="chart"  label="Chart"   sub="Mission topology" active={view==='chart'} onClick={() => onChange('chart')}/>
