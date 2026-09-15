@@ -1,4 +1,4 @@
-# Vouch Harbor 18.5.0 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 18.6.0 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -33,7 +33,7 @@ it *learns*: a successful, verified mission distills into a test-gated skill,
 and the next matching mission fast-paths on it, still paused at the human
 gate.
 
-## The VH-19 Generalist — the one front door (18.5.0)
+## The VH-19 Generalist — the one front door (18.6.0)
 
 The app opens on the VH-19 door: the user talks to ONE agent. Behind it: a
 Mixture-of-Experts-style **specialist bench** (147 real specialists across 10
@@ -52,7 +52,7 @@ words and `executed: false`; no gate ⇒ risky work refused; no A2A bridge ⇒
 nothing sent; the door itself is probe-pinned (`probe/vh19Door`) to render and
 to import the real engine.
 
-**18.5.0 adds the differentiator: cross-user Team-Evolve.** Two users' VH
+**18.6.0 adds the differentiator: cross-user Team-Evolve.** Two users' VH
 instances share a team; every joint run lands in the team ledger with its real
 outcome; with real verified history VH proposes an evolved team composition —
 and adoption requires EVERY member's explicit approval (partial, duplicated
@@ -61,7 +61,7 @@ config leans on future routing VISIBLY ("team-evolved preference"), and
 revocation is one click. Autonomy is now category-scoped: an exam can cover
 one category, and a grant covers only that category — the gate consults the
 scoped grant. Pinned by `probe/teamEvolve` (31 checks). Full notes:
-[VH-18.5-UPGRADE.md](VH-18.5-UPGRADE.md) · [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md).
+[VH-18.6-UPGRADE.md](VH-18.6-UPGRADE.md) · [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md).
 
 ## What it is
 
@@ -403,7 +403,7 @@ RULE 5 (a capability claim is not a licence) and RULE 6 (rotation possession +
 revocation authority). The v0.10.2 "Fix1" history is preserved further down
 that file.
 
-- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 18.5.0: [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 18.6.0: [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
 - Problem map (what each feature exists to solve): [docs/PROBLEM-FOCUS.md](docs/PROBLEM-FOCUS.md)
 - Information architecture (one product, one spine): [docs/INFORMATION-ARCHITECTURE.md](docs/INFORMATION-ARCHITECTURE.md)
 

@@ -1,7 +1,7 @@
 /**
  * probe/goals.test.ts — Assignments (goal mode) + session Auto-Review rules (18.5.0).
  *
- * Pins the Grok-Bot-shaped mechanics on VH's floor: goals decompose with the
+ * Pins governed goal mode on VH's floor: goals decompose with the
  * product's OWN router, steps settle only by reported outcomes (never fiat),
  * gated steps pause and resume only by explicit human act, progress
  * checkpoints in the local store; session rules answer ONLY risky asks,

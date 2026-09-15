@@ -3751,9 +3751,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "18.5.0";
-var VH_SHORT = "18.5";
-var VH_CODENAME = "Apex";
+var VH_VERSION = "18.6.0";
+var VH_SHORT = "18.6";
+var VH_CODENAME = "Polaris";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts

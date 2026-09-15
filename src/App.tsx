@@ -98,7 +98,11 @@ const VouchShell: React.FC = () => {
   return (
     <div className="app">
       <Sidebar view={view} onChange={setView} onOpenPalette={() => setPaletteOpen(true)} />
-      <div className="viewport"><div key={view} className="view-enter"><Suspense fallback={<div className="streaming-shimmer" style={{ height: '100%', borderRadius: 14 }} />}><ViewComp /></Suspense></div></div>
+      <div className="viewport" style={{ position: 'relative' }}>
+        <svg key={`arc-${view}`} className="horizon-arc" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden>
+          <path d="M0 44 Q600 -14 1200 44" fill="none" stroke="var(--patina)" strokeWidth="1.2" />
+        </svg>
+        <div key={view} className="view-enter"><Suspense fallback={<div className="streaming-shimmer" style={{ height: '100%', borderRadius: 14 }} />}><ViewComp /></Suspense></div></div>
       <Helm
         mode={helmMode}
         onModeChange={setHelmMode}

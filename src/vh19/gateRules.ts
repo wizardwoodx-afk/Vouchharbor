@@ -1,9 +1,9 @@
 /**
  * VH-19 — session Auto-Review rules for the human gate (18.5.0).
  *
- * The Grok-Bot-shaped capability, made VH-honest: a human can teach the gate
- * a standing rule — "allow this category for THIS session" — the way Grok Bot
- * offers Auto Review rules. The differences are the product's floor:
+ * Standing approval rules at the human gate, VH-honest: a human can teach the
+ * gate a rule — "allow this category for THIS session". The differences are
+ * the product's floor:
  *
  *   • rules live in MODULE MEMORY ONLY — a restart forgets everything;
  *     permanent autonomy is still earned via the 90% exam and nothing here

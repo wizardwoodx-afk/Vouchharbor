@@ -1,8 +1,8 @@
 /**
  * VH-19 — Assignments: goal mode with checkpoints (18.5.0).
  *
- * The Grok-Bot-shaped "hand it a goal and come back later" mechanic, rebuilt
- * on VH's floor: a goal is decomposed into specialist steps by the SAME
+ * "Hand it a goal and come back later" — rebuilt on VH's floor: a goal is
+ * decomposed into specialist steps by the SAME
  * router that fields every message (no second brain), steps settle ONLY
  * through outcomes the door reports from the real pipeline (executed /
  * planned / gated / refused — never "completed" by fiat), progress is

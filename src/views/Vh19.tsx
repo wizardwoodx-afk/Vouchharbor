@@ -33,6 +33,7 @@ import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse,
 const USER = 'local';
 
 interface ChatMsg {
+  ts?: string;
   id: number;
   role: 'user' | 'vh19';
   text: string;
@@ -128,7 +129,7 @@ export const Vh19: React.FC = () => {
     setBusy(true);
     const scenario = text;
     seq.current += 1;
-    const userMsg: ChatMsg = { id: seq.current, role: 'user', text };
+    const userMsg: ChatMsg = { id: seq.current, role: 'user', text, ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
     setMessages((m) => [...m, userMsg]);
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
@@ -139,7 +140,7 @@ export const Vh19: React.FC = () => {
       },
     });
     seq.current += 1;
-    setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario }]);
+    setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
     refreshTeam();
     setBusy(false);
   };
@@ -183,8 +184,9 @@ export const Vh19: React.FC = () => {
     <div className="view">
       <div className="view-header">
         <div>
-          <div className="eyebrow mb-16">VH-19 · Generalist</div>
-          <h1 className="view-title">One agent. The whole harbor behind it.</h1>
+          <div className="eyebrow mb-16">VH-19 · Generalist · the receipt log</div>
+          <h1 className="display-title">One agent. The whole harbor behind it.</h1>
+          <div className={`tide-bar mb-16 ${gateAsk ? 'gated' : busy ? 'busy' : ''}`} />
           <p className="view-sub">
             Talk to VH-19 — it routes to the specialist bench, pauses at the human gate for risky work,
             executes only what is real, and learns from every accept and reject. Nothing here overstates itself.
@@ -220,19 +222,21 @@ export const Vh19: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, alignItems: 'start' }}>
         {/* ── the conversation ── */}
         <div className="card" style={{ padding: 14, minHeight: 420 }}>
-          <div className="eyebrow mb-16">Conversation</div>
+          <div className="eyebrow mb-16">The log — every entry a receipt</div>
           {messages.length === 0 && (
             <div className="view-sub" style={{ padding: '40px 8px', textAlign: 'center' }}>
               Ask VH-19 anything. It will show you which specialists it routed to and why —
               and it will tell you plainly when it did NOT execute.
             </div>
           )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {messages.map((m) => (
-              <div key={m.id} className="msg-enter row" style={{ padding: '10px 12px', background: 'var(--bg)', flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+          <div>
+            {messages.map((m, i) => (
+              <div key={m.id} className={`log-entry ${m.role === 'user' ? 'user-entry' : ''}`} style={{ animationDelay: `${Math.min(i * 40, 240)}ms`, flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+                <div className="entry-no">Nº {String(i + 1).padStart(3, '0')}</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span className={`entry-time`}>{m.ts ?? ''}</span>
                   <span className={`chip ${m.role === 'user' ? '' : 'chip-ok'}`}>{m.role === 'user' ? 'you' : 'VH-19'}</span>
-                  {m.resp && <span className="chip" title={m.resp.note ?? ''}>{OUTCOME_LABEL[m.resp.outcome]}</span>}
+                  {m.resp && <span className="stamp" title={m.resp.note ?? ''} style={{ color: m.resp.outcome === 'answered' || m.resp.outcome === 'peer-delegated' ? 'var(--success)' : m.resp.outcome === 'planned' ? 'var(--aged)' : 'var(--warn)' }}>{OUTCOME_LABEL[m.resp.outcome]}</span>}
                   {m.resp && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>proof-digest {m.resp.provenanceDigest.slice(0, 12)}…</span>}
                 </div>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>

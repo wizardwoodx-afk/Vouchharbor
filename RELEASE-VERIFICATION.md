@@ -1,4 +1,4 @@
-# Vouch Harbor 18.5.0 "Apex" — release verification record
+# Vouch Harbor 18.6.0 "Polaris" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,11 +6,12 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the 111-suite
 offline pack. The protocol selftest needs `cd protocol && npm install`.)
 
-## The 18.5.0 record (goal mode + session Auto-Review + Gemini v1)
+## The 18.6.0 record (ledger identity + motion grammar + clean tree)
 
-18.5.0 absorbs the Grok-Bot/gawkbot mechanics on VH's floor: governed goal
-mode with checkpointed resumable steps, session-scoped gate rules that never
-touch critical work, and the Gemini stable-line default.
+18.6.0 is the identity release: the door becomes a numbered receipt log
+(entries, timestamps, outcome stamps), a new reduced-motion-safe motion
+grammar (horizon-arc draw, tide bar, staged entries), matured chrome, and a
+cleaner tree. Semantics unchanged; protocol v0.10.7; suites unchanged.
 
 | Gate | Command | Result |
 |---|---|---|
@@ -29,6 +30,16 @@ touch critical work, and the Gemini stable-line default.
 | Offline pack | `node verify/run.mjs` | 112 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
 | Live fleet | `npm test` | 113/113 suites green |
+
+---
+
+# 18.5.0 "Apex" — release verification record (standing depth record)
+
+Goal mode (Assignments) + session Auto-Review gate rules + Gemini stable-v1
+default. All 18.5.0 gates were green at ship time: tsc 0 · protocol 171 ·
+unit 20 · theme 10 · collabInvite 29 · goals 19 · selfEvolve 18 ·
+selfEvolveMission 52 · teamEvolve 35 · vh19 79 · vh19Door 28 · offline 112 ·
+live 113 · VERIFY.sh green. See VH-18.5-UPGRADE.md for the full record.
 
 ---
 

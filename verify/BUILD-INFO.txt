@@ -1,5 +1,5 @@
-Vouch Harbor 18.5.0 Apex
-built: 18.5.0 Apex
+Vouch Harbor 18.6.0 Polaris
+built: 18.6.0 Polaris
 ts:   2026-09-14T19:40:00Z
 git:  local
 protocol: vh-proof-receipt/2

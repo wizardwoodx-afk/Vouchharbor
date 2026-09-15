@@ -20213,7 +20213,7 @@ var Vh19 = () => {
     setBusy(true);
     const scenario = text;
     seq.current += 1;
-    const userMsg = { id: seq.current, role: "user", text };
+    const userMsg = { id: seq.current, role: "user", text, ts: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
     setMessages((m) => [...m, userMsg]);
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
@@ -20227,7 +20227,7 @@ var Vh19 = () => {
       }
     });
     seq.current += 1;
-    setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario }]);
+    setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
     refreshTeam();
     setBusy(false);
   };
@@ -20273,8 +20273,9 @@ var Vh19 = () => {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "view", children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "view-header", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "VH-19 \xB7 Generalist" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { className: "view-title", children: "One agent. The whole harbor behind it." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "VH-19 \xB7 Generalist \xB7 the receipt log" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { className: "display-title", children: "One agent. The whole harbor behind it." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: `tide-bar mb-16 ${gateAsk ? "gated" : busy ? "busy" : ""}` }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "view-sub", children: "Talk to VH-19 \u2014 it routes to the specialist bench, pauses at the human gate for risky work, executes only what is real, and learns from every accept and reject. Nothing here overstates itself." })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => setShowBench((v) => !v), children: [
@@ -20329,12 +20330,17 @@ var Vh19 = () => {
     ] }) }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1fr)", gap: 16, alignItems: "start" }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14, minHeight: 420 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Conversation" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "The log \u2014 every entry a receipt" }),
         messages.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "view-sub", style: { padding: "40px 8px", textAlign: "center" }, children: "Ask VH-19 anything. It will show you which specialists it routed to and why \u2014 and it will tell you plainly when it did NOT execute." }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: messages.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "msg-enter row", style: { padding: "10px 12px", background: "var(--bg)", flexDirection: "column", alignItems: "stretch", gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: messages.map((m, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `log-entry ${m.role === "user" ? "user-entry" : ""}`, style: { animationDelay: `${Math.min(i * 40, 240)}ms`, flexDirection: "column", alignItems: "stretch", gap: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "entry-no", children: [
+            "N\xBA ",
+            String(i + 1).padStart(3, "0")
+          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `entry-time`, children: m.ts ?? "" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `chip ${m.role === "user" ? "" : "chip-ok"}`, children: m.role === "user" ? "you" : "VH-19" }),
-            m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", title: m.resp.note ?? "", children: OUTCOME_LABEL[m.resp.outcome] }),
+            m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", title: m.resp.note ?? "", style: { color: m.resp.outcome === "answered" || m.resp.outcome === "peer-delegated" ? "var(--success)" : m.resp.outcome === "planned" ? "var(--aged)" : "var(--warn)" }, children: OUTCOME_LABEL[m.resp.outcome] }),
             m.resp && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontFamily: "var(--font-mono)", fontSize: 11 }, children: [
               "proof-digest ",
               m.resp.provenanceDigest.slice(0, 12),
