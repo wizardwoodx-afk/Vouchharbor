@@ -40,15 +40,33 @@ function load() {
 function boundIdentityFor(memberId) {
   return load().peers.find((p) => p.memberId === memberId) ?? null;
 }
+var A2A_PEERS_KEY = "vh19.collab.a2a.v1";
+function structuralIdentityFor(memberId) {
+  const raw = storage()?.getItem(A2A_PEERS_KEY) ?? null;
+  if (!raw) return null;
+  try {
+    const r = JSON.parse(raw);
+    return (Array.isArray(r.peers) ? r.peers : []).find((p) => p.memberId === memberId) ?? null;
+  } catch {
+    return null;
+  }
+}
 function requireBoundKey(memberId, presentedJwk) {
   const bound = boundIdentityFor(memberId);
-  if (!bound) {
-    return { ok: false, error: `"${memberId}" has no bound identity here \u2014 bind it (invite acceptance or manual verify) before approvals can be trusted` };
+  if (bound) {
+    if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+      return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+    }
+    return { ok: true, bound };
   }
-  if (!jwkEqual(bound.publicJwk, presentedJwk)) {
-    return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+  const structural = structuralIdentityFor(memberId);
+  if (structural) {
+    if (!jwkEqual(structural.publicJwk, presentedJwk)) {
+      return { ok: false, error: `presented key does not match the A2A-card-verified identity for "${memberId}" \u2014 refusing` };
+    }
+    return { ok: true, bound: { memberId, publicJwk: structural.publicJwk, boundAt: structural.verifiedAt, source: "invite-acceptance" } };
   }
-  return { ok: true, bound };
+  return { ok: false, error: `"${memberId}" has no bound or A2A-verified identity here \u2014 bind it (invite acceptance, manual verify, or connect over A2A) before approvals can be trusted` };
 }
 
 // src/vh19/collabInvite.ts

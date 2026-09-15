@@ -144,6 +144,13 @@ export async function ensureIdentity(memberId: string, passphrase: string): Prom
       fromB64(record.cipherB64) as unknown as BufferSource,
     );
     const privateJwk = JSON.parse(dec.decode(plain)) as JsonWebKey;
+    // 18.4.0 — prove the record is coherent BEFORE trusting it: the public
+    // components carried inside the decrypted private key must equal the
+    // stored public JWK. A tampered metadata row refuses even with the
+    // right passphrase.
+    if (privateJwk.x !== record.publicJwk.x || privateJwk.y !== record.publicJwk.y) {
+      return { ok: false, error: "stored public key does not match the decrypted private key — identity record tampered, refusing" };
+    }
     const key = await globalThis.crypto.subtle.importKey("jwk", privateJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
     unlocked.set(memberId, key);
     return { ok: true, created: false, publicJwk: record.publicJwk, purgedLegacy: false };

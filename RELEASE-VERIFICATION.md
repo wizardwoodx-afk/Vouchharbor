@@ -1,8 +1,38 @@
-# Vouch Harbor 18.3.0 "Meridian" — release verification record
+# Vouch Harbor 18.4.0 "Zenith" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
-for it.
+for it. On a machine WITHOUT node_modules and without network,
+`sh VERIFY.sh` runs the one truly zero-dependency gate: the 111-suite
+offline pack. The protocol selftest needs `cd protocol && npm install`.)
+
+## The 18.4.0 record (identity self-proof + structural A2A binding + bench depth)
+
+18.4.0 closes the review's last two cryptographic nits (identity record
+self-proof, structural card-verified binding), makes verification
+reproducible on a bare machine (`sh VERIFY.sh`), and deepens the bench to
+147 real specialists.
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `tsc --noEmit` | 0 errors |
+| Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
+| Unit | `npm run unit` | 20/20 |
+| Theme (Horizon) | `node tools/run-one-probe.mjs theme` | 10/10 |
+| Collab identity (self-proof + structural) | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
+| Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
+| Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
+| VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
+| Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
+| Offline pack | `node verify/run.mjs` | 111 passed, 0 failed |
+| Bare-machine verify | `sh VERIFY.sh` | green |
+| Live fleet | `npm test` | 112/112 suites green |
+
+---
+
+# 18.3.0 "Meridian" — release verification record (standing hardening record)
 
 ## The 18.3.0 record (hardening + motion + new mark + split bundle)
 

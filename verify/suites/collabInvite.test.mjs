@@ -90,6 +90,9 @@ async function ensureIdentity(memberId, passphrase) {
       fromB64(record.cipherB64)
     );
     const privateJwk = JSON.parse(dec.decode(plain));
+    if (privateJwk.x !== record.publicJwk.x || privateJwk.y !== record.publicJwk.y) {
+      return { ok: false, error: "stored public key does not match the decrypted private key \u2014 identity record tampered, refusing" };
+    }
     const key = await globalThis.crypto.subtle.importKey("jwk", privateJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
     unlocked.set(memberId, key);
     return { ok: true, created: false, publicJwk: record.publicJwk, purgedLegacy: false };
@@ -168,15 +171,33 @@ function unbindPeer(memberId) {
 function clearRegistry() {
   storage2()?.removeItem(PEERS_KEY);
 }
+var A2A_PEERS_KEY = "vh19.collab.a2a.v1";
+function structuralIdentityFor(memberId) {
+  const raw = storage2()?.getItem(A2A_PEERS_KEY) ?? null;
+  if (!raw) return null;
+  try {
+    const r = JSON.parse(raw);
+    return (Array.isArray(r.peers) ? r.peers : []).find((p) => p.memberId === memberId) ?? null;
+  } catch {
+    return null;
+  }
+}
 function requireBoundKey(memberId, presentedJwk) {
   const bound = boundIdentityFor(memberId);
-  if (!bound) {
-    return { ok: false, error: `"${memberId}" has no bound identity here \u2014 bind it (invite acceptance or manual verify) before approvals can be trusted` };
+  if (bound) {
+    if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+      return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+    }
+    return { ok: true, bound };
   }
-  if (!jwkEqual(bound.publicJwk, presentedJwk)) {
-    return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
+  const structural = structuralIdentityFor(memberId);
+  if (structural) {
+    if (!jwkEqual(structural.publicJwk, presentedJwk)) {
+      return { ok: false, error: `presented key does not match the A2A-card-verified identity for "${memberId}" \u2014 refusing` };
+    }
+    return { ok: true, bound: { memberId, publicJwk: structural.publicJwk, boundAt: structural.verifiedAt, source: "invite-acceptance" } };
   }
-  return { ok: true, bound };
+  return { ok: false, error: `"${memberId}" has no bound or A2A-verified identity here \u2014 bind it (invite acceptance, manual verify, or connect over A2A) before approvals can be trusted` };
 }
 
 // src/vh19/collabInvite.ts
@@ -283,6 +304,39 @@ async function verifyApproval(a, expectedApprover) {
   }
 }
 
+// src/mission/a2aIdentityBridge.ts
+var A2A_PEERS_KEY2 = "vh19.collab.a2a.v1";
+function storage3() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function listA2AVerifiedPeers() {
+  const raw = storage3()?.getItem(A2A_PEERS_KEY2) ?? null;
+  if (!raw) return [];
+  try {
+    const r = JSON.parse(raw);
+    return Array.isArray(r.peers) ? r.peers : [];
+  } catch {
+    return [];
+  }
+}
+async function fpForJwk(jwk) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(jwk)));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+async function recordA2AVerifiedPeer(memberId, publicJwk, cardUrl, now = () => /* @__PURE__ */ new Date()) {
+  const entry = { memberId, publicJwk, fp: await fpForJwk(publicJwk), verifiedAt: now().toISOString(), cardUrl };
+  const peers = [...listA2AVerifiedPeers().filter((p) => p.memberId !== memberId), entry];
+  storage3()?.setItem(A2A_PEERS_KEY2, JSON.stringify({ peers }));
+  return entry;
+}
+function clearA2AVerifiedPeers() {
+  storage3()?.removeItem(A2A_PEERS_KEY2);
+}
+
 // src/app/id.ts
 var n = 0;
 function uid(prefix) {
@@ -295,7 +349,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage3() {
+function storage4() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -312,7 +366,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage3();
+  const s = storage4();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -321,7 +375,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -375,12 +429,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex2(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage3();
+  const s = storage4();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -421,7 +475,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     adoptedAt: now().toISOString(),
     digest: await sha256Hex2(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage3();
+  const s = storage4();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -429,7 +483,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -503,7 +557,7 @@ test("collabInvite \u2014 identity is sealed, binding is enforced", async () => 
   check("the approver's unlocked session key signs", appr !== null && !("ok" in appr));
   assert.ok(!("ok" in appr));
   const unbound = await verifyApproval(appr, "qwen");
-  check("an UNBOUND member's approval refuses \u2014 no binding, no verification", unbound.ok === false && !unbound.ok && unbound.error.includes("no bound identity"));
+  check("an UNBOUND member's approval refuses \u2014 no binding, no verification", unbound.ok === false && !unbound.ok && unbound.error.includes("has no bound"));
   const atk = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
   const atkJwk = await globalThis.crypto.subtle.exportKey("jwk", atk.publicKey);
   const atkPrivJwk = await globalThis.crypto.subtle.exportKey("jwk", atk.privateKey);
@@ -566,6 +620,46 @@ test("collabInvite \u2014 identity is sealed, binding is enforced", async () => 
     [signedH, signedQ]
   );
   check("signatures over an old proposal digest refuse", stale.ok === false);
+  console.log("\n\u2500\u2500 7. the stored public key must match the decrypted private key (18.4.0) \u2500\u2500");
+  {
+    const rawKey = "vh19.collab.key.v2:harshen";
+    const before = localStorage.getItem(rawKey);
+    const rec = JSON.parse(before);
+    const other = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    rec.publicJwk = await globalThis.crypto.subtle.exportKey("jwk", other.publicKey);
+    localStorage.setItem(rawKey, JSON.stringify(rec));
+    forgetIdentity("harshen");
+    const tampered2 = await ensureIdentity("harshen", PASS);
+    check("a tampered metadata row refuses even with the right passphrase", tampered2.ok === false && !tampered2.ok && tampered2.error.includes("tampered"));
+    check("the refused identity stays locked", identityUnlocked("harshen") === false);
+    localStorage.setItem(rawKey, before);
+    const healed = await ensureIdentity("harshen", PASS);
+    check("restoring the coherent record re-unlocks", healed.ok === true);
+  }
+  console.log("\n\u2500\u2500 8. A2A-card-verified peers bind structurally (18.4.0) \u2500\u2500");
+  {
+    clearRegistry();
+    clearA2AVerifiedPeers();
+    const qPub = storedPublicJwk("qwen");
+    const appr2 = await signApproval(parsed.invite.digest, "qwen", true);
+    assert.ok(!("ok" in appr2));
+    check("with neither binding nor A2A record, qwen's approval refuses", (await verifyApproval(appr2, "qwen")).ok === false);
+    await recordA2AVerifiedPeer("qwen", qPub, "https://peer.vh/.well-known/agent-card.json");
+    const structural = await verifyApproval(appr2, "qwen");
+    check("a card-verified A2A peer binds WITHOUT trust-on-first-use", structural.ok === true);
+    const atk2 = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    const atkJwk2 = await globalThis.crypto.subtle.exportKey("jwk", atk2.publicKey);
+    const atkPriv2 = await globalThis.crypto.subtle.exportKey("jwk", atk2.privateKey);
+    const atkKey2 = await globalThis.crypto.subtle.importKey("jwk", atkPriv2, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+    const body2 = { inviteDigest: parsed.invite.digest, approver: "qwen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() };
+    const canon2 = JSON.stringify(body2, Object.keys(body2).sort());
+    const sig2 = await globalThis.crypto.subtle.sign({ name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" }, atkKey2, new TextEncoder().encode(canon2));
+    const b642 = btoa(String.fromCharCode(...new Uint8Array(sig2))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    check("an attacker key against an A2A-bound member still refuses", (await verifyApproval({ ...body2, publicJwk: atkJwk2, signatureB64: b642 }, "qwen")).ok === false);
+    clearA2AVerifiedPeers();
+    bindPeerIdentity("qwen", qPub, "manual");
+    bindPeerIdentity("harshen", storedPublicJwk("harshen"), "manual");
+  }
   console.log(`
 ${fail === 0 ? "\u2705" : "\u274C"} collabInvite probe: ${pass} passed, ${fail} failed
 `);

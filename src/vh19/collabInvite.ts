@@ -203,4 +203,4 @@ export async function verifyApproval(a: SignedApproval, expectedApprover: string
 }
 
 export { ensureIdentity, forgetIdentity, identityUnlocked, storedPublicJwk, jwkFingerprint } from "./secureKeys";
-export { bindPeerIdentity, boundIdentityFor, listBoundPeers, unbindPeer, clearRegistry } from "./collabRegistry";
+export { allKnownIdentities, bindPeerIdentity, boundIdentityFor, listBoundPeers, structuralIdentityFor, unbindPeer, clearRegistry, type KnownIdentityRow } from "./collabRegistry";

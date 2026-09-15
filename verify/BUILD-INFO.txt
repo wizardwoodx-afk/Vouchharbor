@@ -1,5 +1,5 @@
-Vouch Harbor 18.3.0 Meridian
-built: 18.3.0 Meridian
+Vouch Harbor 18.4.0 Zenith
+built: 18.4.0 Zenith
 ts:   2026-09-14T19:40:00Z
 git:  local
 protocol: vh-proof-receipt/2

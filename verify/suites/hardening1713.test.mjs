@@ -20920,9 +20920,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.3.0";
-    VH_SHORT = "18.3";
-    VH_CODENAME = "Meridian";
+    VH_VERSION = "18.4.0";
+    VH_SHORT = "18.4";
+    VH_CODENAME = "Zenith";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

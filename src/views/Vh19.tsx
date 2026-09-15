@@ -17,8 +17,8 @@ import { catalogStats, listSpecialists, setSpecialistEnabled, disabledSpecialist
 import { patternReport, recordDecision } from '../vh19/memory';
 import { autonomyStatus, gradeExam, proposeExam, revokeAutonomy, PASS_THRESHOLD } from '../vh19/exam';
 import { approveTeamEvolution, autoProposeIfReady, evolvedConfig, pendingProposal, proposeTeamEvolution, revokeEvolvedConfig, teamIdFor, teamMemoryReport } from '../vh19/teamEvolve';
-import { acceptInvitation, createInvitation, ensureIdentity, jwkFingerprint, listBoundPeers, parseInvitation, serializeInvitation, signApproval, unbindPeer } from '../vh19/collabInvite';
-import type { BoundPeer } from '../vh19/collabRegistry';
+import { acceptInvitation, allKnownIdentities, createInvitation, ensureIdentity, jwkFingerprint, parseInvitation, serializeInvitation, signApproval, unbindPeer } from '../vh19/collabInvite';
+import type { KnownIdentityRow } from '../vh19/collabRegistry';
 import type { SignedInvitation } from '../vh19/collabInvite';
 import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChange, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
 import type { SelfProposal } from '../vh19/selfEvolve';
@@ -82,7 +82,7 @@ export const Vh19: React.FC = () => {
   const [passphrase, setPassphrase] = useState('');
   const [idMsg, setIdMsg] = useState<string | null>(null);
   const [unlockedNow, setUnlockedNow] = useState(false);
-  const [peers, setPeers] = useState<BoundPeer[]>([]);
+  const [peers, setPeers] = useState<KnownIdentityRow[]>([]);
   const [received, setReceived] = useState('');
   const [parsed, setParsed] = useState<SignedInvitation | null>(null);
   const [parseErr, setParseErr] = useState<string | null>(null);
@@ -377,7 +377,7 @@ export const Vh19: React.FC = () => {
 
       {/* ── collaboration invitations — hardened (18.3.0) ── */}
       <div className="card mt-16" style={{ padding: 14 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => { setShowCollab((v) => !v); setPeers(listBoundPeers()); }}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed &amp; identity-bound</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setShowCollab((v) => !v); setPeers(allKnownIdentities()); }}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed &amp; identity-bound</button>
         {showCollab && (
           <div style={{ marginTop: 12 }}>
             <div className="row-sub mb-16" style={{ fontSize: 11 }}>
@@ -387,7 +387,7 @@ export const Vh19: React.FC = () => {
               <input className="input" type="password" placeholder="identity passphrase (min 8 chars)" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} style={{ maxWidth: 260 }} />
               <button className="btn btn-primary btn-sm" onClick={async () => {
                 const r = await ensureIdentity(localMember, passphrase);
-                if (r.ok) { setUnlockedNow(true); setIdMsg(null); setPeers(listBoundPeers()); }
+                if (r.ok) { setUnlockedNow(true); setIdMsg(null); setPeers(allKnownIdentities()); }
                 else { setUnlockedNow(false); setIdMsg(r.error); }
               }}>{unlockedNow ? 'Re-unlock' : 'Create / unlock identity'}</button>
               {unlockedNow && <span className="chip">unlocked · session-only</span>}
@@ -419,7 +419,7 @@ export const Vh19: React.FC = () => {
                   {peers.map((p) => (
                     <div key={p.memberId} className="row" style={{ padding: '6px 10px', marginBottom: 4 }}>
                       <div className="row-sub" style={{ fontSize: 11 }}><b>{p.memberId}</b> · {jwkFingerprint(p.publicJwk)} · via {p.source}</div>
-                      <button className="btn btn-ghost btn-sm" onClick={() => { unbindPeer(p.memberId); setPeers(listBoundPeers()); }}>Unbind</button>
+                      {p.source !== 'a2a-card' && <button className="btn btn-ghost btn-sm" onClick={() => { unbindPeer(p.memberId); setPeers(allKnownIdentities()); }}>Unbind</button>}
                     </div>
                   ))}
                 </div>)}
@@ -436,7 +436,7 @@ export const Vh19: React.FC = () => {
                   {parsed && (<>
                     <button className="btn btn-primary btn-sm" onClick={async () => {
                       const r = await acceptInvitation(parsed, localMember, true);
-                      if ('approval' in r) { setApprovalOut(JSON.stringify(r.approval)); setPeers(listBoundPeers()); setIdMsg(null); }
+                      if ('approval' in r) { setApprovalOut(JSON.stringify(r.approval)); setPeers(allKnownIdentities()); setIdMsg(null); }
                       else setIdMsg(r.error);
                     }}>Approve + bind issuer (sign)</button>
                     <button className="btn btn-ghost btn-sm" onClick={async () => {

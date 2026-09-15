@@ -44,6 +44,7 @@ import {
   unbindPeer,
   verifyApproval,
 } from "../src/vh19/collabInvite";
+import { clearA2AVerifiedPeers, recordA2AVerifiedPeer } from "../src/mission/a2aIdentityBridge";
 import { approveTeamEvolution, proposeTeamEvolution, recordTeamRun, teamIdFor } from "../src/vh19/teamEvolve";
 
 let pass = 0;
@@ -102,7 +103,7 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
   check("the approver's unlocked session key signs", appr !== null && !("ok" in appr));
   assert.ok(!("ok" in appr));
   const unbound = await verifyApproval(appr, "qwen");
-  check("an UNBOUND member's approval refuses — no binding, no verification", unbound.ok === false && !unbound.ok && unbound.error.includes("no bound identity"));
+  check("an UNBOUND member's approval refuses — no binding, no verification", unbound.ok === false && !unbound.ok && unbound.error.includes("has no bound"));
   // attacker: fresh keypair, wearing qwen's name, honestly signed with their own key
   const atk = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
   const atkJwk = await globalThis.crypto.subtle.exportKey("jwk", atk.publicKey);
@@ -168,6 +169,48 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
     [signedH, signedQ],
   );
   check("signatures over an old proposal digest refuse", stale.ok === false);
+
+  console.log("\n── 7. the stored public key must match the decrypted private key (18.4.0) ──");
+  {
+    const rawKey = "vh19.collab.key.v2:harshen";
+    const before = localStorage.getItem(rawKey)!;
+    const rec = JSON.parse(before);
+    const other = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    rec.publicJwk = await globalThis.crypto.subtle.exportKey("jwk", other.publicKey);
+    localStorage.setItem(rawKey, JSON.stringify(rec));
+    forgetIdentity("harshen");
+    const tampered = await ensureIdentity("harshen", PASS);
+    check("a tampered metadata row refuses even with the right passphrase", tampered.ok === false && !tampered.ok && tampered.error.includes("tampered"));
+    check("the refused identity stays locked", identityUnlocked("harshen") === false);
+    localStorage.setItem(rawKey, before);
+    const healed = await ensureIdentity("harshen", PASS);
+    check("restoring the coherent record re-unlocks", healed.ok === true);
+  }
+
+  console.log("\n── 8. A2A-card-verified peers bind structurally (18.4.0) ──");
+  {
+    clearRegistry();
+    clearA2AVerifiedPeers();
+    const qPub = storedPublicJwk("qwen")!;
+    const appr2 = await signApproval(parsed.invite.digest, "qwen", true);
+    assert.ok(!("ok" in appr2));
+    check("with neither binding nor A2A record, qwen's approval refuses", (await verifyApproval(appr2, "qwen")).ok === false);
+    await recordA2AVerifiedPeer("qwen", qPub, "https://peer.vh/.well-known/agent-card.json");
+    const structural = await verifyApproval(appr2, "qwen");
+    check("a card-verified A2A peer binds WITHOUT trust-on-first-use", structural.ok === true);
+    const atk2 = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    const atkJwk2 = await globalThis.crypto.subtle.exportKey("jwk", atk2.publicKey);
+    const atkPriv2 = await globalThis.crypto.subtle.exportKey("jwk", atk2.privateKey);
+    const atkKey2 = await globalThis.crypto.subtle.importKey("jwk", atkPriv2, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+    const body2 = { inviteDigest: parsed.invite.digest, approver: "qwen", approved: true, at: new Date().toISOString() };
+    const canon2 = JSON.stringify(body2, Object.keys(body2).sort());
+    const sig2 = await globalThis.crypto.subtle.sign({ name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" }, atkKey2, new TextEncoder().encode(canon2));
+    const b642 = btoa(String.fromCharCode(...new Uint8Array(sig2))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    check("an attacker key against an A2A-bound member still refuses", (await verifyApproval({ ...body2, publicJwk: atkJwk2, signatureB64: b642 }, "qwen")).ok === false);
+    clearA2AVerifiedPeers();
+    bindPeerIdentity("qwen", qPub, "manual");
+    bindPeerIdentity("harshen", storedPublicJwk("harshen")!, "manual");
+  }
 
   console.log(`\n${fail === 0 ? "✅" : "❌"} collabInvite probe: ${pass} passed, ${fail} failed\n`);
   assert.equal(fail, 0, `${fail} collabInvite checks failed`);

@@ -18,6 +18,7 @@
  *   • JSON-RPC errors surface as typed A2AClientError (code + message),
  *     never as silent undefined.
  */
+import { recordA2AVerifiedPeer } from "./a2aIdentityBridge";
 import { checkEgressUrl } from "../security/guardrail";
 import {
   validateAgentCardV10,
@@ -94,6 +95,10 @@ export async function discoverAgentCard(root: string, opts?: { publicJwk?: JsonW
   if (opts?.publicJwk) {
     const sig = await verifyAgentCardV10Signatures(card, opts.publicJwk);
     if (!sig.ok) throw new A2AClientError(-32000, "agent-card refused — no signature verified against the publisher key");
+    // 18.4.0 — the verified card key becomes a STRUCTURAL collaboration
+    // identity (bridge store), so approvals from a connected peer bind
+    // without trust-on-first-use.
+    await recordA2AVerifiedPeer(card.name, opts.publicJwk, root);
     return { card, signatureVerified: true };
   }
   return { card, signatureVerified: false };

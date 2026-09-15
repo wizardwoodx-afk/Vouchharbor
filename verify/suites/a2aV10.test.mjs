@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.3.0";
-    VH_SHORT = "18.3";
-    VH_CODENAME = "Meridian";
+    VH_VERSION = "18.4.0";
+    VH_SHORT = "18.4";
+    VH_CODENAME = "Zenith";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1740,6 +1740,36 @@ function createA2AServer(opts) {
   };
 }
 
+// src/mission/a2aIdentityBridge.ts
+var A2A_PEERS_KEY = "vh19.collab.a2a.v1";
+function storage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function listA2AVerifiedPeers() {
+  const raw = storage()?.getItem(A2A_PEERS_KEY) ?? null;
+  if (!raw) return [];
+  try {
+    const r = JSON.parse(raw);
+    return Array.isArray(r.peers) ? r.peers : [];
+  } catch {
+    return [];
+  }
+}
+async function fpForJwk(jwk) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(jwk)));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+async function recordA2AVerifiedPeer(memberId, publicJwk, cardUrl, now = () => /* @__PURE__ */ new Date()) {
+  const entry = { memberId, publicJwk, fp: await fpForJwk(publicJwk), verifiedAt: now().toISOString(), cardUrl };
+  const peers = [...listA2AVerifiedPeers().filter((p) => p.memberId !== memberId), entry];
+  storage()?.setItem(A2A_PEERS_KEY, JSON.stringify({ peers }));
+  return entry;
+}
+
 // src/mission/a2aClient.ts
 var TIMEOUT_MS = 1e4;
 var A2AClientError = class extends Error {
@@ -1800,6 +1830,7 @@ async function discoverAgentCard(root, opts) {
   if (opts?.publicJwk) {
     const sig = await verifyAgentCardV10Signatures(card, opts.publicJwk);
     if (!sig.ok) throw new A2AClientError(-32e3, "agent-card refused \u2014 no signature verified against the publisher key");
+    await recordA2AVerifiedPeer(card.name, opts.publicJwk, root);
     return { card, signatureVerified: true };
   }
   return { card, signatureVerified: false };
