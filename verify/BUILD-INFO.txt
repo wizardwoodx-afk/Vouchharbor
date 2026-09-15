@@ -1,5 +1,5 @@
-Vouch Harbor 18.7.0 Keystone
-built: 18.7.0 Keystone
+Vouch Harbor 18.8.0 Atlas
+built: 18.8.0 Atlas
 ts:   2026-09-14T19:40:00Z
 git:  local
 protocol: vh-proof-receipt/2

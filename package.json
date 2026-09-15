@@ -1,7 +1,7 @@
 {
   "name": "vouchharbor",
   "private": true,
-  "version": "18.7.0",
+  "version": "18.8.0",
   "description": "Vouch Harbor \u2014 one mission, one vouched chain: govern \u00b7 execute \u00b7 verify \u00b7 learn.",
   "type": "module",
   "scripts": {
@@ -16,7 +16,8 @@
     "mcp:build": "node tools/build-mcp.mjs",
     "unit": "node tools/run-unit.mjs",
     "host": "node tools/vh-host.mjs",
-    "host:build": "node tools/build-host.mjs"
+    "host:build": "node tools/build-host.mjs",
+    "web:build": "vite build && rm -rf web-build && cp -r dist web-build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.9.0",

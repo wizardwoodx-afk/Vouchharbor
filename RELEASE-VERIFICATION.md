@@ -1,4 +1,4 @@
-# Vouch Harbor 18.7.0 "Keystone" — release verification record
+# Vouch Harbor 18.8.0 "Atlas" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,12 +6,12 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the 111-suite
 offline pack. The protocol selftest needs `cd protocol && npm install`.)
 
-## The 18.7.0 record (goal truthfulness + A2A handoff ledger + release-contract fixes)
+## The 18.8.0 record (252-specialist catalog + regenerated web build)
 
-18.7.0 fixes both 18.6.0 review findings (stale VERIFY.sh header; goal
-"done" for plan-only goals), makes every A2A delegation attempt — including
-refusals — a receipted ledger entry, and parallelizes the offline verifier
-(~2×) with deterministic attribution. Protocol v0.10.7; suites 113/112.
+18.8.0 grows the bench 147 → 252 individually specified real specialists
+across the ten domains (honest risk tiers; critical work stays gate-always)
+and regenerates the packaged web build from the gated tree. Protocol
+v0.10.7; suites 113/112.
 
 | Gate | Command | Result |
 |---|---|---|
@@ -30,6 +30,17 @@ refusals — a receipted ledger entry, and parallelizes the offline verifier
 | Offline pack | `node verify/run.mjs` | 112 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
 | Live fleet | `npm test` | 113/113 suites green |
+
+---
+
+# 18.7.0 "Keystone" — release verification record (standing depth record)
+
+Goal truthfulness (DONE/PARTIAL/PLANNED/BLOCKED) + A2A handoff ledger +
+release-contract fixes + parallel offline verifier. All 18.7.0 gates were
+green at ship time: tsc 0 · protocol 171 · unit 20 · theme 10 · collabInvite
+29 · goals 26 · selfEvolve 18 · selfEvolveMission 52 · teamEvolve 35 ·
+vh19 81 · vh19Door 28 · versionDrift 41 · offline 112 · live 113 ·
+VERIFY.sh green. See VH-18.7-UPGRADE.md for the full record.
 
 ---
 
