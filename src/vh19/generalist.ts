@@ -20,6 +20,8 @@ import { uid } from "../app/id";
 import { detectInjection, sanitizeText } from "../security/guardrail";
 import { getSpecialist } from "./registry";
 import { buildSpecialistPrompt } from "./skills";
+import { buildLeadReport, leadForRoute } from "./agentLead";
+import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
@@ -44,6 +46,8 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     selected: r.routed.selected.map((c) => [c.id, c.score]),
     strategy: r.routed.strategy,
     note: r.note ?? null,
+    lead: r.lead ?? null,
+    failure: r.failure ?? null,
   });
 }
 
@@ -62,10 +66,20 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   const now = deps.now ?? (() => new Date());
   void now; // reserved for receipt timestamps in the UI wiring phase
 
-  const finish = async (r: Omit<GeneralistResponse, "provenanceDigest">): Promise<GeneralistResponse> => ({
-    ...r,
-    provenanceDigest: await sha256Hex(responseCanonical(r)),
-  });
+  /* 19.0.0 — the advisory layer is attached centrally so EVERY exit path
+     carries it: the domain lead reports on the routed work, and every
+     non-execution is classified with recovery advice. Both are computed
+     from the response's own real fields and are inside the digest. */
+  const finish = async (r: Omit<GeneralistResponse, "provenanceDigest">): Promise<GeneralistResponse> => {
+    const lead = r.lead ?? (r.specialistIds.length > 0
+      ? buildLeadReport(leadForRoute(r.specialistIds)?.id ?? "", [{ specialistId: r.specialistIds[0], outcome: r.outcome, note: r.note }]) ?? undefined
+      : undefined);
+    const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated"
+      ? undefined
+      : classifyFailure(r.outcome as "planned" | "refused" | "gated-out" | "error", r.note));
+    const full = { ...r, lead, failure };
+    return { ...full, provenanceDigest: await sha256Hex(responseCanonical(full)) };
+  };
 
   /* 0 — content gate: the GuardRail scans before anything else exists. */
   const findings = detectInjection(text);

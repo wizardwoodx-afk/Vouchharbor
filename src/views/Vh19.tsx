@@ -243,6 +243,17 @@ export const Vh19: React.FC = () => {
                   {m.resp && <span className="stamp" title={m.resp.note ?? ''} style={{ color: m.resp.outcome === 'answered' || m.resp.outcome === 'peer-delegated' ? 'var(--success)' : m.resp.outcome === 'planned' ? 'var(--aged)' : 'var(--warn)' }}>{OUTCOME_LABEL[m.resp.outcome]}</span>}
                   {m.resp && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>proof-digest {m.resp.provenanceDigest.slice(0, 12)}…</span>}
                 </div>
+                {m.resp?.lead && (
+                  <div className="row-sub" style={{ fontSize: 11, marginTop: 2 }}>
+                    <span className="stamp" style={{ color: m.resp.lead.status === 'completed' ? 'var(--success)' : m.resp.lead.status === 'blocked' ? 'var(--err)' : 'var(--warn)' }}>{m.resp.lead.status}</span>{' '}
+                    <strong>{m.resp.lead.leadName}</strong> → Generalist: {m.resp.lead.summary} <span style={{ opacity: 0.75 }}>(next: {m.resp.lead.nextStep})</span>
+                  </div>
+                )}
+                {m.resp?.failure && (
+                  <div className="row-sub" style={{ fontSize: 11, marginTop: 2, color: m.resp.failure.severity === 'error' ? 'var(--err)' : undefined }}>
+                    ⚠ {m.resp.failure.klass} — {m.resp.failure.meaning} <em>{m.resp.failure.advice}</em>
+                  </div>
+                )}
                 <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
                 {m.resp && m.resp.routed.selected.length > 0 && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>

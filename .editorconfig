@@ -1,4 +1,4 @@
-# MJ 11.12.5 — the formatting contract for every editor that touches this tree.
+# VH 11.12.5 — the formatting contract for every editor that touches this tree.
 # Style follows the code as shipped: 2-space indents, double quotes, semicolons,
 # trailing commas. Probes grep source text, so keep lines explicit rather than
 # auto-rewrapped.

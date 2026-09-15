@@ -49,7 +49,7 @@ try {
     cwd: root,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
-    timeout: Number(process.env.MJ_PROBE_TIMEOUT_MS) || 300_000,
+    timeout: Number(process.env.VH_PROBE_TIMEOUT_MS) || 300_000,
   });
   process.stdout.write(stdout);
 } catch (err) {

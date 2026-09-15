@@ -17429,9 +17429,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "18.9.0";
-var VH_SHORT = "18.9";
-var VH_CODENAME = "Aurora";
+var VH_VERSION = "19.0.0";
+var VH_SHORT = "19.0";
+var VH_CODENAME = "Bastion";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts

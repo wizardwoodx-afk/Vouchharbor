@@ -21,7 +21,7 @@ pub fn connect_test(command: &str, args: &[String], cwd: &Path) -> Value {
             "tools": control_mcp::IMPLEMENTED_TOOLS,
             "advertisedToolCount": control_mcp::ADVERTISED_TOOLS.len(),
             "notImplementedTools": control_mcp::ADVERTISED_TOOLS.iter().filter(|t| !control_mcp::IMPLEMENTED_TOOLS.contains(t)).collect::<Vec<_>>(),
-            "authoredByMj": true,
+            "authoredByVh": true,
             "mutationProtocol": "Plan→Apply→Verify",
         });
     }
@@ -50,7 +50,7 @@ pub fn connect_test(command: &str, args: &[String], cwd: &Path) -> Value {
         "params": {
             "protocolVersion": "2024-11-05",
             "capabilities": {},
-            "clientInfo": {"name": "mj", "version": "5.0.0"}
+            "clientInfo": {"name": "vh", "version": "5.0.0"}
         }
     });
     let result = (|| -> Result<Value, String> {
@@ -118,7 +118,7 @@ pub fn call_tool(command: &str, args: &[String], cwd: &Path, tool: &str, argumen
     };
     let result = (|| -> Result<Value, String> {
         let stdin = child.stdin.as_mut().ok_or("stdin")?;
-        let init = json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"mj","version":"5.0.0"}}});
+        let init = json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"vh","version":"5.0.0"}}});
         writeln!(stdin, "{init}").map_err(|e| e.to_string())?;
         let _ = writeln!(stdin, "{}", json!({"jsonrpc":"2.0","method":"notifications/initialized"}));
         let call = json!({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name": tool, "arguments": arguments}});

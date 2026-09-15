@@ -1,13 +1,13 @@
-Vouch Harbor 18.9.0 Aurora
-built: 18.9.0 Aurora
+Vouch Harbor 19.0.0 Bastion
+built: 19.0.0 Bastion
 ts:   2026-09-15T08:30:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-113 self-contained bundles in verify/suites (every probe suite except the pack's
+115 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 114 probe
-suites; the offline pack reproduces 113 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 116 probe
+suites; the offline pack reproduces 115 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-114 passed, 0 failed across 114 probe suites (node verify/run.mjs → 113 passed,
+116 passed, 0 failed across 116 probe suites (node verify/run.mjs → 115 passed,
 0 failed for the offline-only subset).

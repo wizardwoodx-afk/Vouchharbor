@@ -1,7 +1,7 @@
 /*
- * git.rs — MJ's git integration: the real repository state behind a mission.
+ * git.rs — VH's git integration: the real repository state behind a mission.
  *
- * MJ assigns coding agents to work in isolated worktrees and then has to answer three questions the
+ * VH assigns coding agents to work in isolated worktrees and then has to answer three questions the
  * agents themselves cannot be trusted to answer: *what actually changed*, *is this repository clean*,
  * and *did a seat that claimed to be read-only actually refrain from writing*. All three come from git,
  * not from an agent's report.
@@ -50,7 +50,7 @@ impl GitOutcome {
 /// Run git and drain both pipes concurrently.
 ///
 /// Reading stdout only after the child exits is a classic deadlock: the OS pipe buffer fills, the child
-/// blocks on write, and MJ waits for a child that is waiting for MJ. `git diff` on a large repository
+/// blocks on write, and VH waits for a child that is waiting for VH. `git diff` on a large repository
 /// produces far more than 64 KiB, so this is not theoretical.
 fn run_git(args: &[&str], cwd: Option<&str>, timeout_secs: u64) -> Result<GitOutcome, String> {
     use std::io::Read;
@@ -139,7 +139,7 @@ fn outcome_json(r: &GitOutcome, extra: impl FnOnce() -> Value) -> Value {
     } else {
         let reason = if r.timed_out {
             format!(
-                "git timed out after {}ms. The output below is partial: whatever git printed before MJ killed it.",
+                "git timed out after {}ms. The output below is partial: whatever git printed before VH killed it.",
                 r.elapsed_ms
             )
         } else if r.code.is_none() {
@@ -299,7 +299,7 @@ pub fn git_branch(cwd: String) -> Result<Value, String> {
             let name = r.stdout.trim().to_string();
             json!({
                 "branch": name,
-                // A detached worktree reports "HEAD". MJ creates detached review worktrees on purpose,
+                // A detached worktree reports "HEAD". VH creates detached review worktrees on purpose,
                 // so this is a normal state and the caller needs to be able to see it.
                 "detached": name == "HEAD",
             })
@@ -311,7 +311,7 @@ pub fn git_branch(cwd: String) -> Result<Value, String> {
 ///
 /// Did a seat that was told to be read-only actually refrain from writing?
 ///
-/// A harness flag is a promise, not a guarantee: of MJ's nine harnesses only two have a read-only mode
+/// A harness flag is a promise, not a guarantee: of VH's nine harnesses only two have a read-only mode
 /// that has been verified against the real binary. So the claim is checked against what git reports.
 ///
 /// The three-way answer matters. `clean` means git saw no changes. `violated` lists what changed. And

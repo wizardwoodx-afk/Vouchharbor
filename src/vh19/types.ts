@@ -179,6 +179,27 @@ export interface GeneralistDeps {
   now?: () => Date;
 }
 
+/** The AgentLead's report to the Generalist (19.0.0) — computed from real member results. */
+export interface LeadReport {
+  leadId: string;
+  leadName: string;
+  domain: string;
+  status: "completed" | "partial" | "planned" | "blocked";
+  summary: string;
+  members: { specialistId: string; name: string; outcome: string }[];
+  failures: string[];
+  nextStep: string;
+}
+
+/** Classified failure with recovery advice (19.0.0). */
+export interface FailureInfo {
+  klass: string;
+  severity: "error" | "info";
+  meaning: string;
+  advice: string;
+  retryable: boolean;
+}
+
 export interface GeneralistResponse {
   reply: string;
   routed: RouteDecision;
@@ -190,4 +211,8 @@ export interface GeneralistResponse {
   provenanceDigest: string;
   /** Refusals and non-execution carry their reason in words. */
   note?: string;
+  /** The domain lead's report on the routed work (19.0.0) — present whenever the bench was routed. */
+  lead?: LeadReport;
+  /** Classified failure + recovery advice whenever the outcome is not an execution (19.0.0). */
+  failure?: FailureInfo;
 }

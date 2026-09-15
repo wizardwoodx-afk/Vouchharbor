@@ -33,10 +33,10 @@ import { listProbeSuites } from "./probe-list.mjs";
 // Per-suite watchdog. Some probes drive real `git` child processes; without a timeout one
 // environmental hang would previously kill the whole run silently (see the audit C1 note below).
 function suiteTimeoutMs() {
-  const n = Number(process.env.MJ_PROBE_TIMEOUT_MS);
+  const n = Number(process.env.VH_PROBE_TIMEOUT_MS);
   // 300s default (was 120s): offlinePack rebuilds all bundles and then runs the whole
   // offline pack inside one suite; on a loaded machine 120s tripped the watchdog on a
-  // suite that was simply slow, not stuck. MJ_PROBE_TIMEOUT_MS still overrides.
+  // suite that was simply slow, not stuck. VH_PROBE_TIMEOUT_MS still overrides.
   return Number.isFinite(n) && n > 0 ? n : 300_000;
 }
 

@@ -11,7 +11,7 @@ runner the suite's TOTAL time can exceed the 120s per-suite watchdog (reproduced
 locally under load; the suite itself passes when not loaded, so it reads as a flake).
 
 - `.github/workflows/ci.yml`
-  - `MJ_PROBE_TIMEOUT_MS: "300000"` on the Probes step (per-suite watchdog headroom).
+  - `VH_PROBE_TIMEOUT_MS: "300000"` on the Probes step (per-suite watchdog headroom).
   - `set -o pipefail` + `npm test 2>&1 | tee probe-run.log`, and an always-on artifact
     upload of `probe-run.log` so a red run is debuggable forever.
   - A `git config --global user.name/email` step before probes (belt-and-braces for the
@@ -19,7 +19,7 @@ locally under load; the suite itself passes when not loaded, so it reads as a fl
 - `.github/workflows/release.yml` — same timeout env + git identity before the
   verify gate. (`npm test` string kept — versionDrift asserts it.)
 - `tools/run-all-probes.mjs` — default watchdog raised 120s → 300s
-  (`MJ_PROBE_TIMEOUT_MS` still overrides).
+  (`VH_PROBE_TIMEOUT_MS` still overrides).
 
 Decision: Linux/macOS jobs were NOT removed. Multi-OS verification is a diligence
 asset; the fix addresses the cause instead.

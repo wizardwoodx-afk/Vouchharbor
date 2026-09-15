@@ -337,8 +337,8 @@ pub fn hermes_bridge(state: State<Arc<AppState>>, msg: Value) -> Result<Value, S
 
 #[tauri::command]
 pub fn secret_get(state: State<Arc<AppState>>, secret_ref: String) -> Result<Value, String> {
-    // Read path for MJ-stored secrets (provider keys, the receipt-issuer key). The value
-    // only ever returns to MJ's own webview — keychain first, degraded in-memory second.
+    // Read path for VH-stored secrets (provider keys, the receipt-issuer key). The value
+    // only ever returns to VH's own webview — keychain first, degraded in-memory second.
     match state.secrets.get(&secret_ref) {
         Some(value) => Ok(json!({ "ref": secret_ref, "present": true, "value": value })),
         None => Ok(json!({ "ref": secret_ref, "present": false, "value": null })),
@@ -355,7 +355,7 @@ pub fn secret_set(state: State<Arc<AppState>>, secret_ref: String, value: String
             "stored": true,
             "location": "memory-only",
             "survivesRestart": false,
-            "warning": "The OS keychain was unavailable, so this secret is held in process memory only and will be lost when MJ exits. It is NOT saved to disk.",
+            "warning": "The OS keychain was unavailable, so this secret is held in process memory only and will be lost when VH exits. It is NOT saved to disk.",
         })),
     }
 }
@@ -407,7 +407,7 @@ pub async fn llm_chat(state: State<'_, Arc<AppState>>, req: Value) -> Result<Val
             "options": { "temperature": req["temperature"].as_f64().unwrap_or(0.2) },
             "messages": msgs
         });
-        // Ollama is the user's local model, not an MJ sidecar.
+        // Ollama is the user's local model, not a VH sidecar.
         let client = reqwest::Client::new();
         let r = client.post(format!("{base}/api/chat")).json(&body).send().await;
         return match r {
@@ -474,7 +474,7 @@ pub async fn llm_chat(state: State<'_, Arc<AppState>>, req: Value) -> Result<Val
 // ANY absolute path from the webview, which made every XSS in the frontend a
 // full-disk read/write/delete + arbitrary-execution primitive. Every path now
 // must resolve inside an allowed root:
-//   • the app data dir (always, it is MJ's own store), or
+//   • the app data dir (always, it is VH's own store), or
 //   • a user-registered workspace root (persisted in SQLite, managed by the
 //     workspace_root_* commands below — Teams registers the repo when a run starts).
 // Agents can be prompt-injected; the user-registered-root gate is what keeps an
@@ -652,7 +652,7 @@ pub fn shell_exec(state: State<Arc<AppState>>, program: String, args: Vec<String
             "shell capability boundary: '{program}' is not an allowlisted CLI, a registered custom harness, or an executable inside a registered workspace root — register a custom harness or run it from a registered root. Refused in words; nothing ran."
         ));
     }
-    // The working directory must be a registered root. No cwd given -> MJ's own data dir,
+    // The working directory must be a registered root. No cwd given -> VH's own data dir,
     // which is always allowed (previously it silently inherited the install dir).
     let cwd = match cwd {
         Some(c) => ensure_allowed(&state, &c)?,
@@ -708,8 +708,8 @@ pub fn mcp_call(state: State<Arc<AppState>>, server_id: String, tool: String, ar
 
 /* ------------------------------------------------------------------ browser
  *
- * MJ still does not bundle or launch Chromium, and none of that changed. What changed is that the
- * browser now exists — as a separate local service (the mj-browser directory, see MJ_BROWSER_DIR) that owns the Chromium process. These
+ * VH still does not bundle or launch Chromium, and none of that changed. What changed is that the
+ * browser now exists — as a separate local service (the mj-browser directory, see VH_BROWSER_DIR) that owns the Chromium process. These
  * commands only forward to that service over loopback HTTP; no browser logic lives in this crate.
  *
  * The V7 (bug V) fail-closed contract is preserved exactly. If the service is not running, every
@@ -720,14 +720,14 @@ pub fn mcp_call(state: State<Arc<AppState>>, server_id: String, tool: String, ar
 
 /// Where the browser service listens. Loopback only; the service accepts no other connections.
 fn browser_base() -> String {
-    std::env::var("MJ_BROWSER_URL").unwrap_or_else(|_| "http://127.0.0.1:9223".to_string())
+    std::env::var("VH_BROWSER_URL").or_else(|_| std::env::var("MJ_BROWSER_URL")).unwrap_or_else(|_| "http://127.0.0.1:9223".to_string())
 }
 
 fn browser_down_reason(e: &str) -> String {
     format!(
-        "No browser is attached: the MJ browser service is not answering on {}. Nothing was \
-         fetched. Start it with `node <MJ_BROWSER_DIR>\\cli.mjs start` (defaults under your \
-         app-data directory; set MJ_BROWSER_DIR if you keep it elsewhere). ({e})",
+        "No browser is attached: the VH browser service is not answering on {}. Nothing was \
+         fetched. Start it with `node <VH_BROWSER_DIR>\\cli.mjs start` (defaults under your \
+         app-data directory; set VH_BROWSER_DIR if you keep it elsewhere). ({e})",
         browser_base()
     )
 }
@@ -784,8 +784,8 @@ fn served(r: &Value) -> bool {
 
 /* --------------------------------------------------------- autonomous start
  *
- * MJ decides it needs a browser; the operator should not also have to remember to start one. If the
- * service is not answering, MJ starts it, waits for it to come up, then carries on. If it cannot be
+ * VH decides it needs a browser; the operator should not also have to remember to start one. If the
+ * service is not answering, VH starts it, waits for it to come up, then carries on. If it cannot be
  * started, the caller still fails closed with a reason — autonomy must never become a lie.
  */
 
@@ -795,7 +795,7 @@ const BROWSER_BOOT_COOLDOWN: std::time::Duration = std::time::Duration::from_sec
 const BROWSER_BOOT_WAIT: std::time::Duration = std::time::Duration::from_secs(25);
 
 fn browser_dir() -> PathBuf {
-    match std::env::var("MJ_BROWSER_DIR") {
+    match std::env::var("VH_BROWSER_DIR").or_else(|_| std::env::var("MJ_BROWSER_DIR")) {
         Ok(d) if !d.trim().is_empty() => PathBuf::from(d),
         _ => {
             // Portable default under the user's app-data directory - never a hardcoded
@@ -803,7 +803,7 @@ fn browser_dir() -> PathBuf {
             if cfg!(windows) {
                 if let Ok(la) = std::env::var("LOCALAPPDATA") {
                     if !la.trim().is_empty() {
-                        return PathBuf::from(la).join("MJ").join("mj-browser");
+                        return PathBuf::from(la).join("VH").join("mj-browser");
                     }
                 }
             }
@@ -824,7 +824,7 @@ fn browser_dir() -> PathBuf {
 /// probed afterwards rather than trusting the name to resolve.
 fn browser_node_candidates() -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
-    if let Ok(n) = std::env::var("MJ_BROWSER_NODE") {
+    if let Ok(n) = std::env::var("VH_BROWSER_NODE").or_else(|_| std::env::var("MJ_BROWSER_NODE")) {
         if !n.trim().is_empty() {
             out.push(n);
         }
@@ -863,7 +863,7 @@ fn spawn_browser_service(server: &std::path::Path, dir: &std::path::Path) -> Res
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;
-            // CREATE_NO_WINDOW: no console flash when MJ starts the service behind the UI.
+            // CREATE_NO_WINDOW: no console flash when VH starts the service behind the UI.
             cmd.creation_flags(0x08000000);
         }
         match cmd.spawn() {
@@ -872,7 +872,7 @@ fn spawn_browser_service(server: &std::path::Path, dir: &std::path::Path) -> Res
         }
     }
     Err(format!(
-        "could not launch a Node runtime for the browser service. Tried: {}. Set MJ_BROWSER_NODE to the full path of your node.exe.",
+        "could not launch a Node runtime for the browser service. Tried: {}. Set VH_BROWSER_NODE to the full path of your node.exe.",
         attempts.join(", ")
     ))
 }
@@ -928,7 +928,7 @@ async fn ensure_browser() -> Result<(), String> {
     let server = dir.join("server.mjs");
     if !server.exists() {
         return Err(format!(
-            "the MJ browser service is not installed at {} (no server.mjs there). Set MJ_BROWSER_DIR to where it lives.",
+            "the VH browser service is not installed at {} (no server.mjs there). Set VH_BROWSER_DIR to where it lives.",
             dir.display()
         ));
     }
@@ -1309,7 +1309,7 @@ fn run_timeout(mut cmd: std::process::Command, secs: u64) -> Result<(String, Str
     let mut child = cmd.spawn().map_err(|e| format!("spawn: {e}"))?;
 
     // Coding agents print a lot. Reading only after exit lets the OS pipe buffer fill, the child
-    // blocks on write, and MJ waits for a child that is waiting for MJ. Drain both pipes on
+    // blocks on write, and VH waits for a child that is waiting for VH. Drain both pipes on
     // threads instead.
     let drain = |pipe: Option<std::process::ChildStdout>| -> std::thread::JoinHandle<String> {
         std::thread::spawn(move || {
@@ -1355,7 +1355,7 @@ fn run_timeout(mut cmd: std::process::Command, secs: u64) -> Result<(String, Str
 
 /// Binaries `cli_invoke` is willing to run. The webview may pass an explicit argv (so the
 /// risk -> sandbox mapping lives in one typed TypeScript module, `src/mission/harnessPolicy.ts`),
-/// but it may not make MJ execute an arbitrary program.
+/// but it may not make VH execute an arbitrary program.
 const ALLOWED_CLI_BINS: &[&str] = &[
     "hermes", "claude", "codex", "opencode", "openclaude", "copilot", "cursor-agent", "agent",
     "grok", "cline", "kilo", "qwen", "gemini", "aider", "goose", "amazonq",
@@ -1367,7 +1367,7 @@ const ALLOWED_CLI_BINS: &[&str] = &[
 // V11.6 — CUSTOM HARNESSES (the Connector pass)
 //
 // A user can register their own binary as a harness: a name, an executable, and an
-// argv template containing $PROMPT exactly once. The webview can never make MJ run
+// argv template containing $PROMPT exactly once. The webview can never make VH run
 // a program that was not explicitly registered here — cli_invoke only accepts a
 // custom bin that exists in this saved registry, and saving re-validates everything
 // (plain bin name, no shell metacharacters, no newlines, exactly one $PROMPT).
@@ -1415,7 +1415,7 @@ fn custom_harness_validate(h: &CustomHarness) -> Result<(), String> {
     if bin.chars().any(|c| c.is_whitespace()) { return Err("bin must be a single command or path".into()); }
     if bin.contains("..") { return Err("bin cannot contain '..'".into()); }
     if bin.chars().any(|c| ";|&`$><\"'".contains(c)) {
-        return Err("bin cannot contain shell characters. MJ execs it directly; arguments go in argv".into());
+        return Err("bin cannot contain shell characters. VH execs it directly; arguments go in argv".into());
     }
     let prompt_slots = h.argv.iter().filter(|a| *a == "$PROMPT").count();
     if prompt_slots != 1 { return Err("argv must contain $PROMPT exactly once".into()); }
@@ -1499,7 +1499,7 @@ pub fn cli_invoke(
     let resolved = which_bin(&bin).ok_or_else(|| {
         format!(
             "'{bin}' was not found. Searched PATH plus the usual install directories. \
-             Install it, or add its folder to PATH and restart MJ."
+             Install it, or add its folder to PATH and restart VH."
         )
     })?;
     let mut cmd = std::process::Command::new(&resolved);
@@ -1509,7 +1509,7 @@ pub fn cli_invoke(
     Ok(json!({ "stdout": stdout, "stderr": stderr, "code": code, "program": resolved, "argv": args }))
 }
 
-/// Diagnostics for the Providers page: exactly where MJ looked, and what it found. Without this
+/// Diagnostics for the Providers page: exactly where VH looked, and what it found. Without this
 /// "not installed" is unactionable.
 #[tauri::command]
 pub fn cli_env() -> Value {

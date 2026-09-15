@@ -1,4 +1,4 @@
-//! ACP process bridge (V11, MJ-11.0-PROPOSAL W1).
+//! ACP process bridge (V11, VH-11.0-PROPOSAL W1).
 //!
 //! The WebView cannot spawn processes, so the Rust side owns the ACP agent child. One handle
 //! per child; stdout lines flow through a channel the frontend polls via `acp_recv`. The

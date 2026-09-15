@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-/// MJ-authored Control MCP. In-process, stdio-shaped. Mutations are Plan → Apply → Verify.
+/// VH-authored Control MCP. In-process, stdio-shaped. Mutations are Plan → Apply → Verify.
 ///
 /// V7 rewrite (bug U). This module used to answer `ok: true` to every tool it advertised —
 /// `connect_ports`, `run_workflow`, `cancel_execution` and the rest all echoed their arguments
@@ -153,7 +153,7 @@ pub fn validate_graph(args: &Value) -> Value {
     }
 
     // -- wires -------------------------------------------------------------------
-    // MJ graphs store wires under `connections` (and node types under `definitionId`);
+    // VH graphs store wires under `connections` (and node types under `definitionId`);
     // accept both shapes so an external MCP caller can send either.
     let wires_val = graph.get("wires").or_else(|| graph.get("connections")).cloned().unwrap_or(Value::Null);
     let wire_objs: Vec<Value> = match &wires_val {
@@ -169,7 +169,7 @@ pub fn validate_graph(args: &Value) -> Value {
     let mut adj: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
     for (idx, w) in wire_objs.iter().enumerate() {
         let wid = str_field(w, "id").unwrap_or_else(|| format!("wires[{idx}]"));
-        // MJ's own tools write `sourceNodeId` / `targetNodeId`; the legacy shape used
+        // VH's own tools write `sourceNodeId` / `targetNodeId`; the legacy shape used
         // `from` / `to`. Accept both, exactly as the module comment promises — a wire is
         // only "incomplete" when BOTH shapes are missing an endpoint.
         let from = str_field(w, "from").or_else(|| str_field(w, "sourceNodeId"));
@@ -488,7 +488,7 @@ pub fn run_workflow(conn: &rusqlite::Connection, args: &Value) -> Value {
             "checked": true,
             "workflowId": workflow_id,
             "status": "queued",
-            "note": "the run is queued in the SQLite run_queue; the MJ frontend scheduler drains it via run_request_take. This server does not execute graphs itself.",
+            "note": "the run is queued in the SQLite run_queue; the VH frontend scheduler drains it via run_request_take. This server does not execute graphs itself.",
         }),
         Err(e) => json!({ "ok": false, "tool": "run_workflow", "error": e }),
     }
@@ -658,7 +658,7 @@ mod tests {
 
     #[test]
     fn a_ts_shaped_graph_validates_through_the_aliases() {
-        // MJ graphs say `connections` + `definitionId`; the aliases must accept them.
+        // VH graphs say `connections` + `definitionId`; the aliases must accept them.
         let g = json!({
             "graph": {
                 "nodes": [

@@ -1,5 +1,5 @@
 /*
- * git_core.rs — the pure half of MJ's git integration.
+ * git_core.rs — the pure half of VH's git integration.
  *
  * Everything here is plain `std`: no `tauri::command`, no `Value`, no process spawning. That split is
  * deliberate and load-bearing. `cargo check` cannot run on the full Tauri crate in a container without
@@ -363,7 +363,7 @@ pub fn truncate_diff_for_prompt(raw: &str, budget: usize) -> String {
     let mut out = kept.concat();
     if !dropped.is_empty() {
         out.push_str(&format!(
-            "\n[MJ truncated this diff to fit the prompt: {} more file(s) were changed but are not shown: {}]\n",
+            "\n[VH truncated this diff to fit the prompt: {} more file(s) were changed but are not shown: {}]\n",
             dropped.len(),
             dropped.join(", ")
         ));
@@ -374,7 +374,7 @@ pub fn truncate_diff_for_prompt(raw: &str, budget: usize) -> String {
 ///
 /// Decide whether a claimed read-only seat actually left the tree alone.
 ///
-/// A harness flag is a promise, not a guarantee — only two of MJ's nine harnesses have a read-only mode
+/// A harness flag is a promise, not a guarantee — only two of VH's nine harnesses have a read-only mode
 /// that has been verified against the real binary. So the claim is checked against what git reports,
 /// and the answer distinguishes "clean" from "could not tell", because treating an unreadable status as
 /// clean is how a write goes unnoticed.
@@ -525,7 +525,7 @@ mod tests {
         }
         let cut = truncate_diff_for_prompt(&raw, 200);
         assert!(cut.len() < raw.len());
-        assert!(cut.contains("MJ truncated this diff"), "no truncation notice");
+        assert!(cut.contains("VH truncated this diff"), "no truncation notice");
         assert!(cut.contains("f5.js"), "the dropped file was not named");
     }
 

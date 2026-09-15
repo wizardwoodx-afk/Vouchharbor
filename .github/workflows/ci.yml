@@ -62,7 +62,7 @@ jobs:
         env:
           # offlinePack rebuilds all bundles sequentially and then runs the whole offline
           # pack; on a loaded CI runner the default 120s per-suite watchdog can trip on it.
-          MJ_PROBE_TIMEOUT_MS: "300000"
+          VH_PROBE_TIMEOUT_MS: "300000"
         run: |
           set -o pipefail
           npm test 2>&1 | tee probe-run.log

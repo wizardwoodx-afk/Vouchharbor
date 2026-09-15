@@ -52,14 +52,14 @@ pub fn run() {
                 secrets: secrets::SecretStore::new(),
             }));
 
-            let quit = tauri::menu::MenuItem::with_id(app, "quit", "Quit MJ", true, None::<&str>)?;
+            let quit = tauri::menu::MenuItem::with_id(app, "quit", "Quit VH", true, None::<&str>)?;
             let show = tauri::menu::MenuItem::with_id(app, "show", "Show window", true, None::<&str>)?;
             let run = tauri::menu::MenuItem::with_id(app, "run", "Run active workflow", true, None::<&str>)?;
             let menu = tauri::menu::Menu::with_items(app, &[&show, &run, &quit])?;
             let _tray = tauri::tray::TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .menu(&menu)
-                .tooltip("MJ — agent workstation")
+                .tooltip("VH — agent workstation")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => app.exit(0),
                     "show" => {
@@ -195,5 +195,5 @@ pub fn run() {
             git::git_read_only_check,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running MJ");
+        .expect("error while running VH");
 }
