@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.1.0";
-var VH_SHORT = "19.1";
-var VH_CODENAME = "Shipyard";
+var VH_VERSION = "19.2.0";
+var VH_SHORT = "19.2";
+var VH_CODENAME = "Armada";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/versionDrift.test.ts

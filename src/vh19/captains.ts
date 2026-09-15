@@ -97,7 +97,7 @@ export function planDomainWork(captainId: string, task: string, cap = 3): { spec
  */
 export function buildCaptainReport(
   captainId: string,
-  results: { specialistId: string; outcome: string; note?: string }[],
+  results: { specialistId: string; outcome: string; note?: string; memberDigest?: string }[],
 ): CaptainReport | null {
   const l = getCaptain(captainId);
   if (!l || results.length === 0) return null;
@@ -112,6 +112,8 @@ export function buildCaptainReport(
     specialistId: r.specialistId,
     name: getSpecialist(r.specialistId)?.name ?? r.specialistId,
     outcome: r.outcome,
+    note: r.note,
+    memberDigest: r.memberDigest,
   }));
   const failures = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated")
     .map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` — ${r.note.slice(0, 80)}` : ""}`);

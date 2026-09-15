@@ -1,5 +1,11 @@
 /**
- * VH-19 — the autonomous token optimizer (19.1.0 "Shipyard").
+ * VH-19 — the autonomous prompt-budget optimizer (19.1.0 "Shipyard").
+ *
+ * Honest naming (19.2.0 review note): this is a PROMPT-BUDGET optimizer
+ * working on token ESTIMATES (~4 chars/token) — not a tokenizer-exact
+ * counter. Providers tokenize differently and the estimate can be
+ * materially off; every surface says "estimate". The budgeting, the
+ * marked trims and the local usage ledger are real.
  *
  * Every provider call passes through here, without being asked: the
  * composed prompt is measured against a budget, the least-load-bearing

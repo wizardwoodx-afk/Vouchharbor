@@ -1,4 +1,4 @@
-# Vouch Harbor 19.1.0 "Shipyard" — feature sheet
+# Vouch Harbor 19.2.0 "Armada" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -138,11 +138,19 @@ Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
 | 3 | **Autonomous token optimizer** — budget-fitted prompts (marked cuts, never silent), local usage ledger shown live | every provider call · `src/vh19/tokenOptim.ts` |
 | 4 | **Live-data GuardRail** — research/analysis prompts hard-carry "always search for current and live data; date every claim; flag stale data" | `research.live-data` skill |
 
-Probes: `shipyard` 22 · `captains` 27 (incl. the all-members pin).
+Probes: `shipyard` 22 · `captains` 37 (incl. the multi-member execution pins).
+
+## H. 19.2.0 — the claims-execute release
+
+| # | Feature | Where |
+|---|---|---|
+| 1 | **True multi-member execution** — N routed specialists = N provider calls, N attributed answers, N member receipt digests; the Captain reports on real per-member results; a failed member is `error`, never relabelled | `askVH19` · `probe/captains` |
+| 2 | **Live-data GuardRail at runtime** — answered research/analysis replies are scanned; time-sensitive claims without dated live sources get the stale flag appended to the reply, sealed in the digest, stamped in the door | `src/vh19/liveData.ts` · `probe/liveData` 17 |
+| 3 | **Honest naming** — the token optimizer is a **prompt-budget optimizer** working on token estimates (~4 chars/token, labelled everywhere as an estimate) | door strip · `tokenOptim.ts` |
 
 ## E. Version integrity
 
-Every manifest agrees on **19.1.0 "Shipyard"**: `src/version.ts`,
+Every manifest agrees on **19.2.0 "Armada"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

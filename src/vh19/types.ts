@@ -186,9 +186,22 @@ export interface CaptainReport {
   domain: string;
   status: "completed" | "partial" | "planned" | "blocked";
   summary: string;
-  members: { specialistId: string; name: string; outcome: string }[];
+  members: { specialistId: string; name: string; outcome: string; note?: string; memberDigest?: string }[];
   failures: string[];
   nextStep: string;
+}
+
+/** Live-data GuardRail verdict (19.2.0) — computed at runtime over the real reply, sealed in the digest. */
+export interface LiveDataVerdict {
+  required: boolean;
+  verified: boolean;
+  /** Time-sensitive claim markers found in the answer itself. */
+  claims: string[];
+  /** URLs present in the answer. */
+  sources: number;
+  /** as-of / dated-claim markers present in the answer. */
+  datedClaims: number;
+  note: string;
 }
 
 /** Classified failure with recovery advice (19.0.0). */
@@ -213,6 +226,8 @@ export interface GeneralistResponse {
   note?: string;
   /** The domain captain's report on the routed work — present whenever the bench was routed. */
   captain?: CaptainReport;
+  /** Live-data GuardRail verdict (19.2.0) — present when the answer makes time-sensitive claims in research/analysis. */
+  liveData?: LiveDataVerdict;
   /** Classified failure + recovery advice whenever the outcome is not an execution (19.0.0). */
   failure?: FailureInfo;
 }

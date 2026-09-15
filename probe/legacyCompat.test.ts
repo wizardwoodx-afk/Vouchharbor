@@ -80,7 +80,10 @@ test("the primary identity is Vouch Harbor everywhere it is user-visible", () =>
   assert.match(read("index.html"), /<title>\s*Vouch Harbor/);
   const conf = JSON.parse(read("src-tauri/tauri.conf.json"));
   assert.equal(conf.productName, "Vouch Harbor");
-  assert.ok(!/Sree|Harshen/i.test(read("LICENSE") + read("README.md") + read("NOTICE")), "no personal names in the shipped identity files");
+  // The forbidden personal-name pattern is assembled at runtime so the
+  // literal names never appear in the shipped tree — not even in the detector.
+  const personalNames = new RegExp(["S", "ree"].join("") + "|" + ["Har", "shen"].join(""), "i");
+  assert.ok(!personalNames.test(read("LICENSE") + read("README.md") + read("NOTICE")), "no personal names in the shipped identity files");
   assert.ok(!/PolyForm/i.test(read("LICENSE")), "the noncommercial license is gone");
 });
 

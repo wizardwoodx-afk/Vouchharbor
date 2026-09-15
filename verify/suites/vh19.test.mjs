@@ -5196,6 +5196,43 @@ function recordUsage(entry, now = () => /* @__PURE__ */ new Date()) {
   storage5()?.setItem(LEDGER_KEY, JSON.stringify(list.slice(-LEDGER_CAP)));
 }
 
+// src/vh19/liveData.ts
+var LIVE_CATEGORIES = /* @__PURE__ */ new Set(["research", "analysis"]);
+var TIME_SENSITIVE = /\b(?:latest|current|today|tonight|yesterday|this (?:week|month|year)|last (?:week|month|year)|news|price|prices|pricing|stock|stocks|inflation|interest rates?|election|elections|cve-\d{4}-\d+|vulnerabilit(?:y|ies)|exploit|exploits|as of)\b|\bversion\s+\d+(?:\.\d+)*|\b(?:19|20)\d{2}\b/gi;
+var MONTH_DATE = /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}\b/gi;
+var ISO_DATE = /\b(?:19|20)\d{2}-\d{2}(?:-\d{2})?\b/g;
+var URL2 = /https?:\/\/[^\s)"'<>]+/g;
+function detectTimeSensitiveClaims(text) {
+  const hits = text.match(TIME_SENSITIVE);
+  return hits ? [...new Set(hits.map((h) => h.toLowerCase().trim()))].slice(0, 8) : [];
+}
+function assessReplyEvidence(reply) {
+  const sources = (reply.match(URL2) ?? []).length;
+  const datedClaims = (reply.match(/as of\b/gi) ?? []).length + (reply.match(ISO_DATE) ?? []).length + (reply.match(MONTH_DATE) ?? []).length;
+  return { sources, datedClaims };
+}
+function liveDataVerdict(reply, categories) {
+  if (!categories.some((c) => LIVE_CATEGORIES.has(c))) return null;
+  const claims = detectTimeSensitiveClaims(reply);
+  if (claims.length === 0) return null;
+  const { sources, datedClaims } = assessReplyEvidence(reply);
+  const verified = sources > 0 && datedClaims > 0;
+  const shown = claims.slice(0, 3).join(", ");
+  return {
+    required: true,
+    verified,
+    claims,
+    sources,
+    datedClaims,
+    note: verified ? `Time-sensitive claims (${shown}\u2026) carry dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s).` : `Time-sensitive claims (${shown}\u2026) carry NO dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s). Flagged as unverified.`
+  };
+}
+function liveDataBanner(v) {
+  return `
+
+\u26A0 LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v.claims.slice(0, 4).join(", ")}) but carries no dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)). VH ships no web-search provider, so treat this as knowledge-cutoff data until verified \u2014 flagged honestly instead of dressed as fresh.`;
+}
+
 // src/vh19/captains.ts
 var captain = (domain, name, mandate, focus) => ({
   id: `captain.${domain}`,
@@ -5248,7 +5285,9 @@ function buildCaptainReport(captainId, results) {
   const members = results.map((r) => ({
     specialistId: r.specialistId,
     name: getSpecialist(r.specialistId)?.name ?? r.specialistId,
-    outcome: r.outcome
+    outcome: r.outcome,
+    note: r.note,
+    memberDigest: r.memberDigest
   }));
   const failures = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated").map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` \u2014 ${r.note.slice(0, 80)}` : ""}`);
   const summary = status === "completed" ? `All ${done} routed ${l.domain} member(s) executed; work is done end to end.` : status === "partial" ? `${done} of ${results.length} routed member(s) executed; the rest did not run \u2014 see failures.` : status === "planned" ? `No member executed (no provider); the ${l.domain} plan is ready to run when a key exists.` : `Nothing executed in the ${l.domain} domain; progress stopped at the gate or a refusal.`;
@@ -5485,7 +5524,8 @@ function responseCanonical(r) {
     strategy: r.routed.strategy,
     note: r.note ?? null,
     captain: r.captain ?? null,
-    failure: r.failure ?? null
+    failure: r.failure ?? null,
+    liveData: r.liveData ?? null
   });
 }
 async function askVH19(args, deps = {}) {
@@ -5496,7 +5536,16 @@ async function askVH19(args, deps = {}) {
   const finish = async (r) => {
     const captain2 = r.captain ?? (r.specialistIds.length > 0 ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? void 0 : void 0);
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated" ? void 0 : classifyFailure(r.outcome, r.note));
-    const full = { ...r, captain: captain2, failure };
+    let reply = r.reply;
+    let liveData = r.liveData;
+    if (r.outcome === "answered") {
+      const verdict = liveDataVerdict(reply, r.specialistIds.map((id) => id.split(".")[0]));
+      if (verdict) {
+        liveData = verdict;
+        if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
+      }
+    }
+    const full = { ...r, reply, captain: captain2, failure, liveData };
     return { ...full, provenanceDigest: await sha256Hex2(responseCanonical(full)) };
   };
   const findings = detectInjection(text);
@@ -5605,11 +5654,53 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
       note: "provider not configured \u2014 plan only, nothing executed"
     });
   }
+  const gateLine = "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.";
+  const briefing = memoryBriefing(userId);
+  if (specialists.length > 1) {
+    const memberResults = [];
+    const sections = [];
+    for (const s of specialists) {
+      const opt = optimizeComposedPrompt([buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n"));
+      const res = await complete(provider, opt.prompt, text, { fetchImpl: deps.fetchImpl });
+      recordUsage({
+        promptTokens: opt.estimatedTokens + estimateTokens(text),
+        replyTokens: estimateTokens(res.ok ? res.text : res.error),
+        optimized: opt.optimized,
+        savedTokens: opt.savedTokens
+      });
+      if (res.ok) {
+        const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: res.model, text: res.text }));
+        memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
+        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 answered \xB7 ${res.model} \xB7 ${res.latencyMs}ms \xB7 member receipt ${digest.slice(0, 12)}
+${res.text}`);
+      } else {
+        const note = `${res.kind}: ${redactSecrets(res.error, [provider.apiKey])}`;
+        const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
+        memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
+        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 ERROR \u2014 this member's own provider call failed
+${note}`);
+      }
+    }
+    const executedCount = memberResults.filter((m) => m.outcome === "answered").length;
+    const captain2 = buildCaptainReport(captainForRoute(memberResults.map((m) => m.specialistId))?.id ?? "", memberResults) ?? void 0;
+    const header = `${captain2?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists \u2014 each section below is that member's OWN provider run, not one shared answer:`;
+    return finish({
+      reply: `${header}
+
+${sections.join("\n\n")}`,
+      routed,
+      executed: executedCount > 0,
+      outcome: executedCount > 0 ? "answered" : "error",
+      specialistIds: memberResults.map((m) => m.specialistId),
+      captain: captain2,
+      note: `${executedCount} of ${memberResults.length} routed members executed \u2014 each with its own call, result and member receipt`
+    });
+  }
   const primary = specialists[0] ?? null;
   const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
-    "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
-    ...memoryBriefing(userId)
+    gateLine,
+    ...briefing
   ].join("\n\n");
   const optimized = optimizeComposedPrompt(composedSystem);
   const system = optimized.prompt;

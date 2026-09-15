@@ -21,6 +21,7 @@ import { detectInjection, sanitizeText } from "../security/guardrail";
 import { getSpecialist } from "./registry";
 import { buildSpecialistPrompt } from "./skills";
 import { estimateTokens, optimizeComposedPrompt, recordUsage } from "./tokenOptim";
+import { liveDataBanner, liveDataVerdict } from "./liveData";
 import { buildCaptainReport, captainForRoute } from "./captains";
 import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
@@ -49,6 +50,7 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     note: r.note ?? null,
     captain: r.captain ?? null,
     failure: r.failure ?? null,
+    liveData: r.liveData ?? null,
   });
 }
 
@@ -68,13 +70,12 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   void now; // reserved for receipt timestamps in the UI wiring phase
 
   /* The advisory layer is attached centrally so EVERY exit path carries it:
-     the domain captain reports on the routed work, and every non-execution
-     is classified with recovery advice. Both are computed from the
-     response's own real fields and are inside the digest.
-     19.1.0 aggregation fix (19.0.0 review): the captain receives EVERY
-     routed member's result — this pipeline runs one combined execution for
-     the routed set, so each participating member carries that run's real
-     outcome, honestly labelled as a combined run. */
+     the domain captain reports on the routed work, every non-execution is
+     classified with recovery advice, and the live-data GuardRail (19.2.0)
+     assesses every answered research/analysis reply at RUNTIME — a reply
+     making time-sensitive claims without dated live sources gets the
+     stale flag appended to the reply itself, inside the digest. All three
+     are computed from the response's own real fields. */
   const finish = async (r: Omit<GeneralistResponse, "provenanceDigest">): Promise<GeneralistResponse> => {
     const captain = r.captain ?? (r.specialistIds.length > 0
       ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? undefined
@@ -82,7 +83,16 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated"
       ? undefined
       : classifyFailure(r.outcome as "planned" | "refused" | "gated-out" | "error", r.note));
-    const full = { ...r, captain, failure };
+    let reply = r.reply;
+    let liveData = r.liveData;
+    if (r.outcome === "answered") {
+      const verdict = liveDataVerdict(reply, r.specialistIds.map((id) => id.split(".")[0]));
+      if (verdict) {
+        liveData = verdict;
+        if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
+      }
+    }
+    const full = { ...r, reply, captain, failure, liveData };
     return { ...full, provenanceDigest: await sha256Hex(responseCanonical(full)) };
   };
 
@@ -211,14 +221,61 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     });
   }
 
+  const gateLine = "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.";
+  const briefing = memoryBriefing(userId);
+
+  /* 19.2.0 — TRUE multi-member execution (the 19.1.0 review's first
+     finding): when the router selects several specialists, EACH member
+     gets its own provider call under its own composed prompt, its own
+     token-ledger entry, its own result and its own member receipt
+     digest. The Captain then reports on N real per-member results — the
+     hierarchy executes, it is not organizational metadata. One routed
+     specialist keeps the single-call path below. */
+  if (specialists.length > 1) {
+    const memberResults: { specialistId: string; outcome: string; note?: string; memberDigest?: string }[] = [];
+    const sections: string[] = [];
+    for (const s of specialists) {
+      const opt = optimizeComposedPrompt([buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n"));
+      const res = await complete(provider, opt.prompt, text, { fetchImpl: deps.fetchImpl });
+      recordUsage({
+        promptTokens: opt.estimatedTokens + estimateTokens(text),
+        replyTokens: estimateTokens(res.ok ? res.text : res.error),
+        optimized: opt.optimized,
+        savedTokens: opt.savedTokens,
+      });
+      if (res.ok) {
+        const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: res.model, text: res.text }));
+        memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
+        sections.push(`── ${s.name} (${s.id}) · answered · ${res.model} · ${res.latencyMs}ms · member receipt ${digest.slice(0, 12)}\n${res.text}`);
+      } else {
+        const note = `${res.kind}: ${redactSecrets(res.error, [provider.apiKey])}`;
+        const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
+        memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
+        sections.push(`── ${s.name} (${s.id}) · ERROR — this member's own provider call failed\n${note}`);
+      }
+    }
+    const executedCount = memberResults.filter((m) => m.outcome === "answered").length;
+    const captain = buildCaptainReport(captainForRoute(memberResults.map((m) => m.specialistId))?.id ?? "", memberResults) ?? undefined;
+    const header = `${captain?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists — each section below is that member's OWN provider run, not one shared answer:`;
+    return finish({
+      reply: `${header}\n\n${sections.join("\n\n")}`,
+      routed,
+      executed: executedCount > 0,
+      outcome: executedCount > 0 ? "answered" : "error",
+      specialistIds: memberResults.map((m) => m.specialistId),
+      captain,
+      note: `${executedCount} of ${memberResults.length} routed members executed — each with its own call, result and member receipt`,
+    });
+  }
+
   const primary = specialists[0] ?? null;
-  /* 19.1.0 — the autonomous token optimizer: every composed prompt is
-     measured and budget-fitted before it leaves, and every call is
-     written to the local usage ledger. Silent, honest, reversible. */
+  /* The token optimizer: every composed prompt is measured and
+     budget-fitted before it leaves, and every call is written to the
+     local usage ledger. Estimates are labelled as estimates. */
   const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
-    "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
-    ...memoryBriefing(userId),
+    gateLine,
+    ...briefing,
   ].join("\n\n");
   const optimized = optimizeComposedPrompt(composedSystem);
   const system = optimized.prompt;

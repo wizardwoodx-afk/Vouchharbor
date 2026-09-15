@@ -4340,7 +4340,9 @@ function buildCaptainReport(captainId, results) {
   const members = results.map((r) => ({
     specialistId: r.specialistId,
     name: getSpecialist(r.specialistId)?.name ?? r.specialistId,
-    outcome: r.outcome
+    outcome: r.outcome,
+    note: r.note,
+    memberDigest: r.memberDigest
   }));
   const failures = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated").map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` \u2014 ${r.note.slice(0, 80)}` : ""}`);
   const summary = status === "completed" ? `All ${done} routed ${l.domain} member(s) executed; work is done end to end.` : status === "partial" ? `${done} of ${results.length} routed member(s) executed; the rest did not run \u2014 see failures.` : status === "planned" ? `No member executed (no provider); the ${l.domain} plan is ready to run when a key exists.` : `Nothing executed in the ${l.domain} domain; progress stopped at the gate or a refusal.`;
@@ -4838,6 +4840,65 @@ function recordUsage(entry, now = () => /* @__PURE__ */ new Date()) {
   list.push({ ...entry, at: now().toISOString() });
   storage3()?.setItem(LEDGER_KEY, JSON.stringify(list.slice(-LEDGER_CAP)));
 }
+function usageReport() {
+  const raw = storage3()?.getItem(LEDGER_KEY);
+  let list = [];
+  try {
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) list = parsed;
+  } catch {
+  }
+  return list.reduce(
+    (acc, e) => ({
+      calls: acc.calls + 1,
+      promptTokens: acc.promptTokens + e.promptTokens,
+      replyTokens: acc.replyTokens + e.replyTokens,
+      optimizedCalls: acc.optimizedCalls + (e.optimized ? 1 : 0),
+      savedTokens: acc.savedTokens + e.savedTokens
+    }),
+    { calls: 0, promptTokens: 0, replyTokens: 0, optimizedCalls: 0, savedTokens: 0 }
+  );
+}
+function clearTokenLedger() {
+  storage3()?.removeItem(LEDGER_KEY);
+}
+
+// src/vh19/liveData.ts
+var LIVE_CATEGORIES = /* @__PURE__ */ new Set(["research", "analysis"]);
+var TIME_SENSITIVE = /\b(?:latest|current|today|tonight|yesterday|this (?:week|month|year)|last (?:week|month|year)|news|price|prices|pricing|stock|stocks|inflation|interest rates?|election|elections|cve-\d{4}-\d+|vulnerabilit(?:y|ies)|exploit|exploits|as of)\b|\bversion\s+\d+(?:\.\d+)*|\b(?:19|20)\d{2}\b/gi;
+var MONTH_DATE = /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}\b/gi;
+var ISO_DATE = /\b(?:19|20)\d{2}-\d{2}(?:-\d{2})?\b/g;
+var URL2 = /https?:\/\/[^\s)"'<>]+/g;
+function detectTimeSensitiveClaims(text) {
+  const hits = text.match(TIME_SENSITIVE);
+  return hits ? [...new Set(hits.map((h) => h.toLowerCase().trim()))].slice(0, 8) : [];
+}
+function assessReplyEvidence(reply) {
+  const sources = (reply.match(URL2) ?? []).length;
+  const datedClaims = (reply.match(/as of\b/gi) ?? []).length + (reply.match(ISO_DATE) ?? []).length + (reply.match(MONTH_DATE) ?? []).length;
+  return { sources, datedClaims };
+}
+function liveDataVerdict(reply, categories) {
+  if (!categories.some((c) => LIVE_CATEGORIES.has(c))) return null;
+  const claims = detectTimeSensitiveClaims(reply);
+  if (claims.length === 0) return null;
+  const { sources, datedClaims } = assessReplyEvidence(reply);
+  const verified = sources > 0 && datedClaims > 0;
+  const shown = claims.slice(0, 3).join(", ");
+  return {
+    required: true,
+    verified,
+    claims,
+    sources,
+    datedClaims,
+    note: verified ? `Time-sensitive claims (${shown}\u2026) carry dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s).` : `Time-sensitive claims (${shown}\u2026) carry NO dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s). Flagged as unverified.`
+  };
+}
+function liveDataBanner(v) {
+  return `
+
+\u26A0 LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v.claims.slice(0, 4).join(", ")}) but carries no dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)). VH ships no web-search provider, so treat this as knowledge-cutoff data until verified \u2014 flagged honestly instead of dressed as fresh.`;
+}
 
 // src/vh19/router.ts
 var MIN_SCORE = 3;
@@ -5243,7 +5304,8 @@ function responseCanonical(r) {
     strategy: r.routed.strategy,
     note: r.note ?? null,
     captain: r.captain ?? null,
-    failure: r.failure ?? null
+    failure: r.failure ?? null,
+    liveData: r.liveData ?? null
   });
 }
 async function askVH19(args, deps = {}) {
@@ -5254,7 +5316,16 @@ async function askVH19(args, deps = {}) {
   const finish = async (r) => {
     const captain2 = r.captain ?? (r.specialistIds.length > 0 ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? void 0 : void 0);
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated" ? void 0 : classifyFailure(r.outcome, r.note));
-    const full = { ...r, captain: captain2, failure };
+    let reply = r.reply;
+    let liveData = r.liveData;
+    if (r.outcome === "answered") {
+      const verdict = liveDataVerdict(reply, r.specialistIds.map((id) => id.split(".")[0]));
+      if (verdict) {
+        liveData = verdict;
+        if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
+      }
+    }
+    const full = { ...r, reply, captain: captain2, failure, liveData };
     return { ...full, provenanceDigest: await sha256Hex2(responseCanonical(full)) };
   };
   const findings = detectInjection(text);
@@ -5363,11 +5434,53 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
       note: "provider not configured \u2014 plan only, nothing executed"
     });
   }
+  const gateLine = "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.";
+  const briefing = memoryBriefing(userId);
+  if (specialists.length > 1) {
+    const memberResults = [];
+    const sections = [];
+    for (const s of specialists) {
+      const opt = optimizeComposedPrompt([buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n"));
+      const res = await complete(provider, opt.prompt, text, { fetchImpl: deps.fetchImpl });
+      recordUsage({
+        promptTokens: opt.estimatedTokens + estimateTokens(text),
+        replyTokens: estimateTokens(res.ok ? res.text : res.error),
+        optimized: opt.optimized,
+        savedTokens: opt.savedTokens
+      });
+      if (res.ok) {
+        const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: res.model, text: res.text }));
+        memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
+        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 answered \xB7 ${res.model} \xB7 ${res.latencyMs}ms \xB7 member receipt ${digest.slice(0, 12)}
+${res.text}`);
+      } else {
+        const note = `${res.kind}: ${redactSecrets(res.error, [provider.apiKey])}`;
+        const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
+        memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
+        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 ERROR \u2014 this member's own provider call failed
+${note}`);
+      }
+    }
+    const executedCount = memberResults.filter((m) => m.outcome === "answered").length;
+    const captain2 = buildCaptainReport(captainForRoute(memberResults.map((m) => m.specialistId))?.id ?? "", memberResults) ?? void 0;
+    const header = `${captain2?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists \u2014 each section below is that member's OWN provider run, not one shared answer:`;
+    return finish({
+      reply: `${header}
+
+${sections.join("\n\n")}`,
+      routed,
+      executed: executedCount > 0,
+      outcome: executedCount > 0 ? "answered" : "error",
+      specialistIds: memberResults.map((m) => m.specialistId),
+      captain: captain2,
+      note: `${executedCount} of ${memberResults.length} routed members executed \u2014 each with its own call, result and member receipt`
+    });
+  }
   const primary = specialists[0] ?? null;
   const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
-    "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
-    ...memoryBriefing(userId)
+    gateLine,
+    ...briefing
   ].join("\n\n");
   const optimized = optimizeComposedPrompt(composedSystem);
   const system = optimized.prompt;
@@ -5399,6 +5512,19 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
 }
 
 // probe/captains.test.ts
+if (typeof globalThis.localStorage === "undefined") {
+  const map = /* @__PURE__ */ new Map();
+  globalThis.localStorage = {
+    getItem: (k) => map.get(k) ?? null,
+    setItem: (k, v) => void map.set(k, String(v)),
+    removeItem: (k) => void map.delete(k),
+    clear: () => map.clear(),
+    key: (i) => Array.from(map.keys())[i] ?? null,
+    get length() {
+      return map.size;
+    }
+  };
+}
 test("captains + failures \u2014 oversight that never fabricates", async () => {
   let pass = 0, fail = 0;
   const check = (name, cond, detail) => {
@@ -5456,6 +5582,43 @@ test("captains + failures \u2014 oversight that never fabricates", async () => {
   check("a non-executed response carries classified failure advice", resp.failure != null && resp.failure.meaning.length > 20 && resp.outcome !== "answered");
   check("the captain report covers EVERY routed member (19.0.0 review fix)", (resp.captain?.members.length ?? 0) === resp.specialistIds.length);
   check("the digest still seals the response", typeof resp.provenanceDigest === "string" && resp.provenanceDigest.length === 64);
+  console.log("\n\u2500\u2500 multi-member execution (19.2.0 review fix) \u2500\u2500");
+  const MULTI_TEXT = "write unit tests for the typescript parser and review the code changes";
+  const prov = { kind: "openai-compatible", baseUrl: "https://api.openai.com/v1", apiKey: "sk-test-abcdefgh123456789", model: "gpt-test" };
+  let callNo = 0;
+  let failCallNo = -1;
+  const calls = [];
+  const memberFetch = (async (_input, init) => {
+    const req = init ?? {};
+    calls.push(String(req.body ?? ""));
+    callNo += 1;
+    if (callNo === failCallNo) return new Response(JSON.stringify({ error: "member down" }), { status: 500 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: `member answer #${callNo}` } }] }), { status: 200 });
+  });
+  clearTokenLedger();
+  callNo = 0;
+  calls.length = 0;
+  const multi = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
+  const nMem = multi.specialistIds.length;
+  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 = the LLM re-rank attempt)", nMem > 1 && calls.length === nMem + 1, { routed: nMem, calls: calls.length });
+  const memberAnswers = [...multi.reply.matchAll(/member answer #(\d+)/g)].map((m) => m[1]);
+  check("each member's OWN distinct answer appears in the reply \u2014 no shared answer relabelled", memberAnswers.length === nMem && new Set(memberAnswers).size === nMem, memberAnswers);
+  check("each member carries its own receipt digest, all distinct", (multi.captain?.members ?? []).every((m) => typeof m.memberDigest === "string" && /^[0-9a-f]{64}$/.test(m.memberDigest ?? "")) && new Set(multi.captain?.members.map((m) => m.memberDigest)).size === multi.specialistIds.length);
+  check("the captain reports on N real member results \u2014 completed only when all answered", multi.captain?.status === "completed" && multi.captain?.members.every((m) => m.outcome === "answered"));
+  check("the response note counts the real per-member executions", (multi.note ?? "").includes(`${multi.specialistIds.length} of ${multi.specialistIds.length} routed members executed`));
+  check("every member call lands in the token ledger", usageReport().calls === multi.specialistIds.length, usageReport());
+  callNo = 0;
+  calls.length = 0;
+  failCallNo = 2;
+  const partialRun = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
+  failCallNo = -1;
+  const failedMember = partialRun.captain?.members.find((m) => m.outcome === "error");
+  check("a member whose OWN call failed is recorded as error \u2014 never relabelled answered", partialRun.captain?.status === "partial" && failedMember !== void 0 && (failedMember.note ?? "").includes("http-error"));
+  check("the reply shows the failed member's failure in words", partialRun.reply.includes("ERROR") && partialRun.reply.includes("member down"));
+  check("a partial run is still honestly executed (some member really ran)", partialRun.executed === true && partialRun.outcome === "answered");
+  const downFetch = (async () => new Response(JSON.stringify({ error: "all down" }), { status: 500 }));
+  const dead = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: downFetch });
+  check("when NO member executes: error, executed:false, captain blocked \u2014 never a fake synthesis", dead.outcome === "error" && dead.executed === false && dead.captain?.status === "blocked");
   console.log(`
 ${fail === 0 ? "\u2705" : "\u274C"} captains probe: ${pass} passed, ${fail} failed
 `);

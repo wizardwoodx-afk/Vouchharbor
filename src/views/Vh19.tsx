@@ -269,6 +269,12 @@ export const Vh19: React.FC = () => {
                     <strong>{m.resp.captain.captainName}</strong> → Generalist: {m.resp.captain.summary} <span style={{ opacity: 0.75 }}>(next: {m.resp.captain.nextStep})</span>
                   </div>
                 )}
+                {m.resp?.liveData && (
+                  <div className="row-sub" style={{ fontSize: 11, marginTop: 3 }}>
+                    <span className="stamp" style={{ color: m.resp.liveData.verified ? 'var(--success)' : 'var(--warn)' }}>{m.resp.liveData.verified ? 'LIVE-DATA VERIFIED' : 'LIVE-DATA UNVERIFIED'}</span>{' '}
+                    {m.resp.liveData.note}
+                  </div>
+                )}
                 {m.resp?.failure && (
                   <div className="row-sub" style={{ fontSize: 11, marginTop: 2, color: m.resp.failure.severity === 'error' ? 'var(--err)' : undefined }}>
                     ⚠ {m.resp.failure.klass} — {m.resp.failure.meaning} <em>{m.resp.failure.advice}</em>
@@ -599,7 +605,7 @@ export const Vh19: React.FC = () => {
             </div>
           </div>
         ))}
-        <div className="row-sub" style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>token optimizer · estimates: {tokens.calls} provider calls · {tokens.promptTokens} prompt / {tokens.replyTokens} reply tokens · {tokens.optimizedCalls} prompts trimmed · ~{tokens.savedTokens} tokens saved</div>
+        <div className="row-sub" style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>prompt-budget optimizer · token estimates (≈4 chars/token — an estimate, not a tokenizer): {tokens.calls} provider calls · {tokens.promptTokens} prompt / {tokens.replyTokens} reply tokens · {tokens.optimizedCalls} prompts trimmed · ~{tokens.savedTokens} tokens saved</div>
       </div>
 
       {/* ── assignments — goal mode (18.5.0) ── */}

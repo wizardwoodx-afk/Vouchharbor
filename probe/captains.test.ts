@@ -8,10 +8,26 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
+
+if (typeof globalThis.localStorage === "undefined") {
+  const map = new Map<string, string>();
+  (globalThis as unknown as { localStorage: Storage }).localStorage = {
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => void map.set(k, String(v)),
+    removeItem: (k: string) => void map.delete(k),
+    clear: () => map.clear(),
+    key: (i: number) => Array.from(map.keys())[i] ?? null,
+    get length() {
+      return map.size;
+    },
+  } as Storage;
+}
 import { CAPTAINS, buildCaptainReport, getCaptain, captainForDomain, captainForRoute, planDomainWork } from "../src/vh19/captains";
 import { classifyFailure, shouldRetry } from "../src/vh19/failures";
 import { SPECIALISTS } from "../src/vh19/registry";
 import { askVH19 } from "../src/vh19/generalist";
+import { clearTokenLedger, usageReport } from "../src/vh19/tokenOptim";
+import type { ProviderConfig } from "../src/vh19/types";
 
 test("captains + failures — oversight that never fabricates", async () => {
   let pass = 0, fail = 0;
@@ -66,6 +82,44 @@ test("captains + failures — oversight that never fabricates", async () => {
   check("a non-executed response carries classified failure advice", resp.failure != null && resp.failure.meaning.length > 20 && resp.outcome !== "answered");
   check("the captain report covers EVERY routed member (19.0.0 review fix)", (resp.captain?.members.length ?? 0) === resp.specialistIds.length);
   check("the digest still seals the response", typeof resp.provenanceDigest === "string" && resp.provenanceDigest.length === 64);
+
+  console.log("\n── multi-member execution (19.2.0 review fix) ──");
+  const MULTI_TEXT = "write unit tests for the typescript parser and review the code changes";
+  const prov: ProviderConfig = { kind: "openai-compatible", baseUrl: "https://api.openai.com/v1", apiKey: "sk-test-abcdefgh123456789", model: "gpt-test" };
+  let callNo = 0;
+  let failCallNo = -1;
+  const calls: string[] = [];
+  const memberFetch = (async (_input: unknown, init?: unknown) => {
+    const req = (init ?? {}) as RequestInit;
+    calls.push(String(req.body ?? ""));
+    callNo += 1;
+    if (callNo === failCallNo) return new Response(JSON.stringify({ error: "member down" }), { status: 500 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: `member answer #${callNo}` } }] }), { status: 200 });
+  }) as unknown as typeof fetch;
+
+  clearTokenLedger();
+  callNo = 0; calls.length = 0;
+  const multi = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
+  const nMem = multi.specialistIds.length;
+  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 = the LLM re-rank attempt)", nMem > 1 && calls.length === nMem + 1, { routed: nMem, calls: calls.length });
+  const memberAnswers = [...multi.reply.matchAll(/member answer #(\d+)/g)].map((m) => m[1]);
+  check("each member's OWN distinct answer appears in the reply — no shared answer relabelled", memberAnswers.length === nMem && new Set(memberAnswers).size === nMem, memberAnswers);
+  check("each member carries its own receipt digest, all distinct", (multi.captain?.members ?? []).every((m) => typeof m.memberDigest === "string" && /^[0-9a-f]{64}$/.test(m.memberDigest ?? "")) && new Set(multi.captain?.members.map((m) => m.memberDigest)).size === multi.specialistIds.length);
+  check("the captain reports on N real member results — completed only when all answered", multi.captain?.status === "completed" && multi.captain?.members.every((m) => m.outcome === "answered"));
+  check("the response note counts the real per-member executions", (multi.note ?? "").includes(`${multi.specialistIds.length} of ${multi.specialistIds.length} routed members executed`));
+  check("every member call lands in the token ledger", usageReport().calls === multi.specialistIds.length, usageReport());
+
+  callNo = 0; calls.length = 0; failCallNo = 2;
+  const partialRun = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
+  failCallNo = -1;
+  const failedMember = partialRun.captain?.members.find((m) => m.outcome === "error");
+  check("a member whose OWN call failed is recorded as error — never relabelled answered", partialRun.captain?.status === "partial" && failedMember !== undefined && (failedMember.note ?? "").includes("http-error"));
+  check("the reply shows the failed member's failure in words", partialRun.reply.includes("ERROR") && partialRun.reply.includes("member down"));
+  check("a partial run is still honestly executed (some member really ran)", partialRun.executed === true && partialRun.outcome === "answered");
+
+  const downFetch = (async () => new Response(JSON.stringify({ error: "all down" }), { status: 500 })) as unknown as typeof fetch;
+  const dead = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: downFetch });
+  check("when NO member executes: error, executed:false, captain blocked — never a fake synthesis", dead.outcome === "error" && dead.executed === false && dead.captain?.status === "blocked");
 
   console.log(`\n${fail === 0 ? "✅" : "❌"} captains probe: ${pass} passed, ${fail} failed\n`);
   assert.equal(fail, 0, `${fail} captains checks failed`);
