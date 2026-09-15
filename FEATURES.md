@@ -1,4 +1,4 @@
-# Vouch Harbor 18.6.0 "Polaris" — feature sheet
+# Vouch Harbor 18.7.0 "Keystone" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -103,7 +103,7 @@ Harbor/Helm → HarborProvider (src/app/harbor.tsx) → Vouch engine → bridge
 Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
 (`node tools/verify-receipt.mjs`, zero deps, zero state).
 
-## F. Signed collaboration, self-evolution & the Horizon UI (18.2.0; hardened in 18.6.0)
+## F. Signed collaboration, self-evolution & the Horizon UI (18.2.0; hardened in 18.7.0)
 
 - **Horizon UI.** A new token sheet from the product owner's three palettes:
   near-black inks, platinum mist text, Echo Park sage-gray accent (#748785).
@@ -131,7 +131,7 @@ Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
 
 ## E. Version integrity
 
-Every manifest agrees on **18.6.0 "Polaris"**: `src/version.ts`,
+Every manifest agrees on **18.7.0 "Keystone"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

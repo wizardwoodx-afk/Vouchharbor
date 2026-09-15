@@ -19763,6 +19763,7 @@ async function askVH19(args, deps = {}) {
   }
   if (args.peer) {
     if (!deps.peerDelegate) {
+      deps.onHandoff?.({ peer: args.peer, task: text, outcome: "refused", detail: "no A2A bridge is wired into this runtime \u2014 nothing was sent" });
       return finish({
         reply: `Peer delegation to "${args.peer}" is not available: no A2A bridge is wired into this runtime.`,
         routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -19773,6 +19774,7 @@ async function askVH19(args, deps = {}) {
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    deps.onHandoff?.({ peer: args.peer, task: text, outcome: res.ok ? "delegated" : "refused", detail: res.detail, receiptDigest: res.receiptDigest });
     if (args.team) {
       recordTeamRun({
         teamId: args.team.id,
@@ -19785,7 +19787,7 @@ async function askVH19(args, deps = {}) {
       void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
-      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
+      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}${res.receiptDigest ? ` (peer receipt ${res.receiptDigest.slice(0, 12)}\u2026)` : ""}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
       executed: res.ok,
       outcome: res.ok ? "peer-delegated" : "refused",
@@ -20105,8 +20107,10 @@ function settleStep(goalId, stepId, outcome, now = () => /* @__PURE__ */ new Dat
   step.note = "note" in outcome ? outcome.note : void 0;
   step.receiptDigest = "receiptDigest" in outcome ? outcome.receiptDigest : void 0;
   if (step.status === "gated") goal.state = "paused";
-  if (goal.steps.every((s) => s.status === "done" || s.status === "planned" || s.status === "refused")) {
+  if (goal.steps.every((s) => s.status === "done")) {
     goal.state = "done";
+  } else if (goal.steps.every((s) => s.status !== "pending" && s.status !== "gated")) {
+    goal.state = "settled";
   } else if (step.status !== "gated") {
     goal.state = "active";
   }
@@ -20128,6 +20132,55 @@ function goalProgress(goal) {
   if (goal.steps.length === 0) return 0;
   const settled = goal.steps.filter((s) => s.status !== "pending" && s.status !== "gated").length;
   return Math.round(settled / goal.steps.length * 100);
+}
+function executedProgress(goal) {
+  if (goal.steps.length === 0) return 0;
+  const done = goal.steps.filter((s) => s.status === "done").length;
+  return Math.round(done / goal.steps.length * 100);
+}
+function goalStatus(goal) {
+  if (goal.steps.length === 0) return "IN-PROGRESS";
+  const open = goal.steps.some((s) => s.status === "pending" || s.status === "gated");
+  if (open) return "IN-PROGRESS";
+  const done = goal.steps.filter((s) => s.status === "done").length;
+  if (done === goal.steps.length) return "DONE";
+  if (done > 0) return "PARTIAL";
+  if (goal.steps.some((s) => s.status === "refused")) return "BLOCKED";
+  return "PLANNED";
+}
+
+// src/vh19/handoffs.ts
+var HANDOFFS_KEY = "vh19.handoffs.v1";
+var HANDOFF_CAP = 100;
+function storage10() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function listHandoffs() {
+  const raw = storage10()?.getItem(HANDOFFS_KEY) ?? null;
+  if (!raw) return [];
+  try {
+    const h = JSON.parse(raw);
+    return Array.isArray(h) ? h : [];
+  } catch {
+    return [];
+  }
+}
+function recordHandoff(input, now = () => /* @__PURE__ */ new Date()) {
+  const rec = {
+    id: `ho-${now().getTime().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    peer: input.peer,
+    taskDigest: input.task.slice(0, 120),
+    outcome: input.outcome,
+    detail: input.detail.slice(0, 200),
+    receiptDigest: input.receiptDigest,
+    at: now().toISOString()
+  };
+  storage10()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
+  return rec;
 }
 
 // src/views/Vh19.tsx
@@ -20176,6 +20229,7 @@ var Vh19 = () => {
   const [idMsg, setIdMsg] = (0, import_react.useState)(null);
   const [unlockedNow, setUnlockedNow] = (0, import_react.useState)(false);
   const [peers, setPeers] = (0, import_react.useState)([]);
+  const [handoffs, setHandoffs] = (0, import_react.useState)([]);
   const [received, setReceived] = (0, import_react.useState)("");
   const [parsed, setParsed] = (0, import_react.useState)(null);
   const [parseErr, setParseErr] = (0, import_react.useState)(null);
@@ -20224,7 +20278,8 @@ var Vh19 = () => {
           setDenyReason("");
           setGateAsk({ ask, resolve });
         });
-      }
+      },
+      onHandoff: (h) => recordHandoff(h)
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
@@ -20521,6 +20576,24 @@ var Vh19 = () => {
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { padding: 14 }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Team-Evolve \xB7 shared team learning" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Handoff ledger \u2014 every delegation attempt, including the refusals" }),
+          handoffs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: "No handoffs yet. Ask VH-19 to delegate to a peer and the attempt \u2014 or the honest refusal \u2014 is stamped here." }),
+          handoffs.slice(-6).reverse().map((h) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mb-16", style: { padding: "8px 10px", background: "var(--bg)" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 11 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: h.outcome === "delegated" ? "var(--success)" : "var(--err)" }, children: h.outcome }),
+              " ",
+              "\u2192 ",
+              h.peer,
+              " \xB7 ",
+              h.taskDigest.slice(0, 48),
+              h.receiptDigest && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontFamily: "var(--font-mono)", fontSize: 10 }, children: [
+                " peer-receipt ",
+                h.receiptDigest.slice(0, 12),
+                "\u2026"
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 10 }, children: h.detail })
+          ] }, h.id)),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "peer member id (e.g. qwen)", value: teamPeer, onChange: (e) => setTeamPeer(e.target.value), onBlur: () => refreshTeam() }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => refreshTeam(), children: "Load" })
@@ -20582,12 +20655,31 @@ var Vh19 = () => {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
         setShowCollab((v) => !v);
         setPeers(allKnownIdentities());
+        setHandoffs(listHandoffs());
       }, children: [
         showCollab ? "\u25BE" : "\u25B8",
         " Collaboration invitations \xB7 signed & identity-bound"
       ] }),
       showCollab && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 12 }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: "Your signing key is encrypted at rest under a passphrase (AES-GCM \xB7 PBKDF2 150k) and lives decrypted in memory only for this session. Approvals verify against BOUND identities \u2014 never against a key carried inside the approval. First contact is trust-on-first-use and says so." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Handoff ledger \u2014 every delegation attempt, including the refusals" }),
+        handoffs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: "No handoffs yet. Ask VH-19 to delegate to a peer and the attempt \u2014 or the honest refusal \u2014 is stamped here." }),
+        handoffs.slice(-6).reverse().map((h) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mb-16", style: { padding: "8px 10px", background: "var(--bg)" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 11 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: h.outcome === "delegated" ? "var(--success)" : "var(--err)" }, children: h.outcome }),
+            " ",
+            "\u2192 ",
+            h.peer,
+            " \xB7 ",
+            h.taskDigest.slice(0, 48),
+            h.receiptDigest && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontFamily: "var(--font-mono)", fontSize: 10 }, children: [
+              " peer-receipt ",
+              h.receiptDigest.slice(0, 12),
+              "\u2026"
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 10 }, children: h.detail })
+        ] }, h.id)),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", type: "password", placeholder: "identity passphrase (min 8 chars)", value: passphrase, onChange: (e) => setPassphrase(e.target.value), style: { maxWidth: 260 } }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: async () => {
@@ -20655,6 +20747,24 @@ var Vh19 = () => {
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Received invite" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { className: "input mb-16", rows: 3, placeholder: "paste an invite token", value: received, onChange: (e) => setReceived(e.target.value) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "eyebrow mb-16", children: "Handoff ledger \u2014 every delegation attempt, including the refusals" }),
+            handoffs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: "No handoffs yet. Ask VH-19 to delegate to a peer and the attempt \u2014 or the honest refusal \u2014 is stamped here." }),
+            handoffs.slice(-6).reverse().map((h) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mb-16", style: { padding: "8px 10px", background: "var(--bg)" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 11 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: h.outcome === "delegated" ? "var(--success)" : "var(--err)" }, children: h.outcome }),
+                " ",
+                "\u2192 ",
+                h.peer,
+                " \xB7 ",
+                h.taskDigest.slice(0, 48),
+                h.receiptDigest && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "row-sub", style: { fontFamily: "var(--font-mono)", fontSize: 10 }, children: [
+                  " peer-receipt ",
+                  h.receiptDigest.slice(0, 12),
+                  "\u2026"
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 10 }, children: h.detail })
+            ] }, h.id)),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: async () => {
                 const r = await parseInvitation(received);
@@ -20789,12 +20899,17 @@ var Vh19 = () => {
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
             g.text,
             " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: goalStatus(g) === "DONE" ? "var(--success)" : goalStatus(g) === "IN-PROGRESS" ? "var(--aged)" : "var(--warn)" }, children: goalStatus(g) }),
+            " ",
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip", children: [
-              goalProgress(g),
-              "%"
+              executedProgress(g),
+              "% executed"
             ] }),
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: g.state })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip", title: "settled = decided either way; executed = actually ran", children: [
+              goalProgress(g),
+              "% settled"
+            ] })
           ] }),
           g.steps.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 3 }, children: [
             "\xB7 [",
@@ -20804,7 +20919,7 @@ var Vh19 = () => {
             s.note ? ` \u2014 ${s.note}` : ""
           ] }, s.id)),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginTop: 8 }, children: [
-            g.state !== "done" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", disabled: busy, onClick: async () => {
+            g.state !== "done" && g.state !== "settled" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", disabled: busy, onClick: async () => {
               const step = nextPendingStep(g);
               if (!step) return;
               setBusy(true);
@@ -20817,7 +20932,8 @@ var Vh19 = () => {
                     setDenyReason("");
                     setGateAsk({ ask, resolve });
                   });
-                }
+                },
+                onHandoff: (h) => recordHandoff(h)
               });
               const outcome = resp.outcome === "answered" || resp.outcome === "peer-delegated" ? { status: "done", receiptDigest: resp.provenanceDigest, note: resp.reply.slice(0, 120) } : resp.outcome === "planned" ? { status: "planned", note: "no provider key \u2014 delivered as a plan, honestly" } : resp.outcome === "gated-out" ? { status: "refused", note: "denied at the human gate" } : { status: "refused", note: resp.outcome };
               settleStep(g.id, step.id, outcome);

@@ -37,7 +37,7 @@ export interface Goal {
   user: string;
   text: string;
   steps: GoalStep[];
-  state: "active" | "done" | "paused";
+  state: "active" | "done" | "settled" | "paused";
   createdAt: string;
   updatedAt: string;
 }
@@ -123,8 +123,10 @@ export function settleStep(goalId: string, stepId: string, outcome: StepOutcome,
   step.note = "note" in outcome ? outcome.note : undefined;
   step.receiptDigest = "receiptDigest" in outcome ? outcome.receiptDigest : undefined;
   if (step.status === "gated") goal.state = "paused";
-  if (goal.steps.every((s) => s.status === "done" || s.status === "planned" || s.status === "refused")) {
-    goal.state = "done";
+  if (goal.steps.every((s) => s.status === "done")) {
+    goal.state = "done"; // done means EXECUTED — never planned, never refused
+  } else if (goal.steps.every((s) => s.status !== "pending" && s.status !== "gated")) {
+    goal.state = "settled"; // terminal, but honest: not every step ran
   } else if (step.status !== "gated") {
     goal.state = "active";
   }
@@ -145,10 +147,35 @@ export function resumeGoal(goalId: string, now: () => Date = () => new Date()): 
   return goal;
 }
 
+/** How much of the goal has been decided either way — settled, not executed. */
 export function goalProgress(goal: Goal): number {
   if (goal.steps.length === 0) return 0;
   const settled = goal.steps.filter((s) => s.status !== "pending" && s.status !== "gated").length;
   return Math.round((settled / goal.steps.length) * 100);
+}
+
+/** How much of the goal actually RAN. The number that means something. */
+export function executedProgress(goal: Goal): number {
+  if (goal.steps.length === 0) return 0;
+  const done = goal.steps.filter((s) => s.status === "done").length;
+  return Math.round((done / goal.steps.length) * 100);
+}
+
+/**
+ * The honest verdict on a goal (18.6.0 review fix): a goal of five planned
+ * steps is PLANNED, not DONE. DONE requires every step executed.
+ */
+export type GoalStatus = "DONE" | "PARTIAL" | "PLANNED" | "BLOCKED" | "IN-PROGRESS";
+
+export function goalStatus(goal: Goal): GoalStatus {
+  if (goal.steps.length === 0) return "IN-PROGRESS";
+  const open = goal.steps.some((s) => s.status === "pending" || s.status === "gated");
+  if (open) return "IN-PROGRESS";
+  const done = goal.steps.filter((s) => s.status === "done").length;
+  if (done === goal.steps.length) return "DONE";
+  if (done > 0) return "PARTIAL";
+  if (goal.steps.some((s) => s.status === "refused")) return "BLOCKED";
+  return "PLANNED";
 }
 
 export function clearGoals(): void {

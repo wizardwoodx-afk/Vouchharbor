@@ -24,7 +24,9 @@ import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChang
 import type { SelfProposal } from '../vh19/selfEvolve';
 import { effectiveRiskTier, getSpecialist } from '../vh19/registry';
 import { allowCategoryForSession, answerGateWithRules, listSessionRules, revokeSessionRule } from '../vh19/gateRules';
-import { createGoal, goalProgress, loadGoals, nextPendingStep, resumeGoal, settleStep } from '../vh19/goals';
+import { createGoal, executedProgress, goalProgress, goalStatus, loadGoals, nextPendingStep, resumeGoal, settleStep } from '../vh19/goals';
+import { listHandoffs, recordHandoff } from '../vh19/handoffs';
+import type { HandoffRecord } from '../vh19/handoffs';
 import type { Goal, StepOutcome } from '../vh19/goals';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
@@ -87,6 +89,7 @@ export const Vh19: React.FC = () => {
   const [idMsg, setIdMsg] = useState<string | null>(null);
   const [unlockedNow, setUnlockedNow] = useState(false);
   const [peers, setPeers] = useState<KnownIdentityRow[]>([]);
+  const [handoffs, setHandoffs] = useState<HandoffRecord[]>([]);
   const [received, setReceived] = useState('');
   const [parsed, setParsed] = useState<SignedInvitation | null>(null);
   const [parseErr, setParseErr] = useState<string | null>(null);
@@ -138,6 +141,7 @@ export const Vh19: React.FC = () => {
         if (ruled) return Promise.resolve(ruled); // a human-standing rule answers; logged in gateRules
         return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
       },
+      onHandoff: (h) => recordHandoff(h),
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
@@ -348,6 +352,18 @@ export const Vh19: React.FC = () => {
 
           <div className="card" style={{ padding: 14 }}>
             <div className="eyebrow mb-16">Team-Evolve · shared team learning</div>
+            <div className="eyebrow mb-16">Handoff ledger — every delegation attempt, including the refusals</div>
+            {handoffs.length === 0 && <div className="row-sub mb-16" style={{ fontSize: 11 }}>No handoffs yet. Ask VH-19 to delegate to a peer and the attempt — or the honest refusal — is stamped here.</div>}
+            {handoffs.slice(-6).reverse().map((h) => (
+              <div key={h.id} className="row mb-16" style={{ padding: '8px 10px', background: 'var(--bg)' }}>
+                <div className="row-title" style={{ fontSize: 11 }}>
+                  <span className="stamp" style={{ color: h.outcome === 'delegated' ? 'var(--success)' : 'var(--err)' }}>{h.outcome}</span>{' '}
+                  → {h.peer} · {h.taskDigest.slice(0, 48)}
+                  {h.receiptDigest && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}> peer-receipt {h.receiptDigest.slice(0, 12)}…</span>}
+                </div>
+                <div className="row-sub" style={{ fontSize: 10 }}>{h.detail}</div>
+              </div>
+            ))}
             <div style={{ display: 'flex', gap: 6 }} className="mb-16">
               <input className="input" placeholder="peer member id (e.g. qwen)" value={teamPeer} onChange={(e) => setTeamPeer(e.target.value)} onBlur={() => refreshTeam()} />
               <button className="btn btn-ghost btn-sm" onClick={() => refreshTeam()}>Load</button>
@@ -391,12 +407,24 @@ export const Vh19: React.FC = () => {
 
       {/* ── collaboration invitations — hardened (18.3.0) ── */}
       <div className="card mt-16" style={{ padding: 14 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => { setShowCollab((v) => !v); setPeers(allKnownIdentities()); }}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed &amp; identity-bound</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setShowCollab((v) => !v); setPeers(allKnownIdentities()); setHandoffs(listHandoffs()); }}>{showCollab ? '▾' : '▸'} Collaboration invitations · signed &amp; identity-bound</button>
         {showCollab && (
           <div style={{ marginTop: 12 }}>
             <div className="row-sub mb-16" style={{ fontSize: 11 }}>
               Your signing key is encrypted at rest under a passphrase (AES-GCM · PBKDF2 150k) and lives decrypted in memory only for this session. Approvals verify against BOUND identities — never against a key carried inside the approval. First contact is trust-on-first-use and says so.
             </div>
+            <div className="eyebrow mb-16">Handoff ledger — every delegation attempt, including the refusals</div>
+            {handoffs.length === 0 && <div className="row-sub mb-16" style={{ fontSize: 11 }}>No handoffs yet. Ask VH-19 to delegate to a peer and the attempt — or the honest refusal — is stamped here.</div>}
+            {handoffs.slice(-6).reverse().map((h) => (
+              <div key={h.id} className="row mb-16" style={{ padding: '8px 10px', background: 'var(--bg)' }}>
+                <div className="row-title" style={{ fontSize: 11 }}>
+                  <span className="stamp" style={{ color: h.outcome === 'delegated' ? 'var(--success)' : 'var(--err)' }}>{h.outcome}</span>{' '}
+                  → {h.peer} · {h.taskDigest.slice(0, 48)}
+                  {h.receiptDigest && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}> peer-receipt {h.receiptDigest.slice(0, 12)}…</span>}
+                </div>
+                <div className="row-sub" style={{ fontSize: 10 }}>{h.detail}</div>
+              </div>
+            ))}
             <div style={{ display: 'flex', gap: 6 }} className="mb-16">
               <input className="input" type="password" placeholder="identity passphrase (min 8 chars)" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} style={{ maxWidth: 260 }} />
               <button className="btn btn-primary btn-sm" onClick={async () => {
@@ -441,7 +469,19 @@ export const Vh19: React.FC = () => {
               <div>
                 <div className="eyebrow mb-16">Received invite</div>
                 <textarea className="input mb-16" rows={3} placeholder="paste an invite token" value={received} onChange={(e) => setReceived(e.target.value)} />
-                <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+                <div className="eyebrow mb-16">Handoff ledger — every delegation attempt, including the refusals</div>
+            {handoffs.length === 0 && <div className="row-sub mb-16" style={{ fontSize: 11 }}>No handoffs yet. Ask VH-19 to delegate to a peer and the attempt — or the honest refusal — is stamped here.</div>}
+            {handoffs.slice(-6).reverse().map((h) => (
+              <div key={h.id} className="row mb-16" style={{ padding: '8px 10px', background: 'var(--bg)' }}>
+                <div className="row-title" style={{ fontSize: 11 }}>
+                  <span className="stamp" style={{ color: h.outcome === 'delegated' ? 'var(--success)' : 'var(--err)' }}>{h.outcome}</span>{' '}
+                  → {h.peer} · {h.taskDigest.slice(0, 48)}
+                  {h.receiptDigest && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}> peer-receipt {h.receiptDigest.slice(0, 12)}…</span>}
+                </div>
+                <div className="row-sub" style={{ fontSize: 10 }}>{h.detail}</div>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 6 }} className="mb-16">
                   <button className="btn btn-ghost btn-sm" onClick={async () => {
                     const r = await parseInvitation(received);
                     if (!r.ok) { setParsed(null); setParseErr(r.error); return; }
@@ -516,12 +556,16 @@ export const Vh19: React.FC = () => {
           )}
           {goals.slice(-4).reverse().map((g) => (
             <div key={g.id} className="row" style={{ padding: '10px 12px', background: 'var(--bg)', marginBottom: 8, display: 'block' }}>
-              <div className="row-title" style={{ fontSize: 12 }}>{g.text} <span className="chip">{goalProgress(g)}%</span> <span className="chip">{g.state}</span></div>
+              <div className="row-title" style={{ fontSize: 12 }}>{g.text}{' '}
+                <span className="stamp" style={{ color: goalStatus(g) === 'DONE' ? 'var(--success)' : goalStatus(g) === 'IN-PROGRESS' ? 'var(--aged)' : 'var(--warn)' }}>{goalStatus(g)}</span>{' '}
+                <span className="chip">{executedProgress(g)}% executed</span>{' '}
+                <span className="chip" title="settled = decided either way; executed = actually ran">{goalProgress(g)}% settled</span>
+              </div>
               {g.steps.map((s) => (
                 <div key={s.id} className="row-sub" style={{ fontSize: 11, marginTop: 3 }}>· [{s.status}] {s.title}{s.note ? ` — ${s.note}` : ''}</div>
               ))}
               <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                {g.state !== 'done' && <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => {
+                {g.state !== 'done' && g.state !== 'settled' && <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => {
                   const step = nextPendingStep(g); if (!step) return;
                   setBusy(true);
                   const resp = await askVH19({ text: `${g.text} — step: ${step.title}`, userId: USER, team: { id: teamId, members: teamMembers } }, {
@@ -531,6 +575,7 @@ export const Vh19: React.FC = () => {
                       if (ruled) return Promise.resolve(ruled);
                       return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
                     },
+                    onHandoff: (h) => recordHandoff(h),
                   });
                   const outcome: StepOutcome =
                     resp.outcome === 'answered' || resp.outcome === 'peer-delegated'

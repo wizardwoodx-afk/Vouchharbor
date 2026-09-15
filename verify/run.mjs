@@ -16,7 +16,6 @@
  * WORDS, and this runner honestly marks such bundles `SKIP (needs node_modules)` —
  * counted separately, never as passes, never as verification failures.
  */
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,35 +37,59 @@ const NEEDS_DEPS = new RegExp([
   "Cannot find package .esbuild",                  // ERR_MODULE_NOT_FOUND, any TAP quoting
   "no such file or directory, open .node_modules", // pinned-dep provenance reads (E4)
 ].join("|"));
-for (const s of suites) {
+// Performance (18.7.0): the sequential pass took ~2.5 min, which exceeded the
+// 18.6.0 reviewer's execution window before the pack finished. Suites are
+// independent, so they run in a bounded pool; output is buffered per suite and
+// printed in deterministic sort order, so a PASS/FAIL is always attributable
+// and two runs of the same tree print the same transcript.
+const { execFile } = await import("node:child_process");
+const os = await import("node:os");
+const POOL = Math.max(2, Math.min(6, os.cpus().length));
+const results = new Map();
+
+async function runSuite(s) {
   try {
-    // QA fix (audit C1): `stdio: "inherit"` deadlocked on Windows whenever this runner's own
-    // output was redirected (npm logs, CI) — the git child processes inside gitTs stalled on
-    // the inherited handles and the whole gate died silently. Piping + a per-suite timeout
-    // turns any hang into a visible, attributable FAIL.
-    const stdout = execFileSync(process.execPath, [path.join(suitesDir, s)], {
-      cwd: root,
-      timeout: 120_000,
-      killSignal: "SIGKILL",
-      maxBuffer: 256 * 1024 * 1024,
-      encoding: "utf8",
+    const stdout = await new Promise((resolve, reject) => {
+      const child = execFile(
+        process.execPath,
+        [path.join(suitesDir, s)],
+        { cwd: root, timeout: 120_000, killSignal: "SIGKILL", maxBuffer: 256 * 1024 * 1024, encoding: "utf8" },
+        (err, so) => (err ? reject(Object.assign(err, { stdout: so })) : resolve(so)),
+      );
+      void child;
     });
-    process.stdout.write(stdout);
-    console.log(`PASS: ${s}\n`);
-    pass++;
+    results.set(s, { status: "pass", stdout });
   } catch (err) {
     const text = `${err && typeof err === "object" ? `${err.stdout || ""}${err.stderr || ""}` : ""}${err?.message || ""}`;
-    if (NEEDS_DEPS.test(text)) {
-      console.log(`SKIP (needs node_modules): ${s}\n`);
-      process.stdout.write(err.stdout || "");
-      skipped.push(s);
-      skippedNeedDeps++;
-      continue;
+    if (NEEDS_DEPS.test(text)) results.set(s, { status: "skip", stdout: err?.stdout || "" });
+    else results.set(s, { status: "fail", stdout: err && typeof err === "object" && "stdout" in err && typeof err.stdout === "string" ? err.stdout : "" });
+  }
+}
+
+let cursor = 0;
+await Promise.all(
+  Array.from({ length: Math.min(POOL, suites.length) }, async () => {
+    while (cursor < suites.length) {
+      const next = suites[cursor++];
+      await runSuite(next);
     }
+  }),
+);
+
+for (const s of suites) {
+  const res = results.get(s);
+  if (res.status === "pass") {
+    process.stdout.write(res.stdout);
+    console.log(`PASS: ${s}\n`);
+    pass++;
+  } else if (res.status === "skip") {
+    console.log(`SKIP (needs node_modules): ${s}\n`);
+    process.stdout.write(res.stdout);
+    skipped.push(s);
+    skippedNeedDeps++;
+  } else {
     console.log(`FAIL: ${s}\n`);
-    if (err && typeof err === "object" && "stdout" in err && typeof err.stdout === "string") {
-      process.stdout.write(err.stdout);
-    }
+    process.stdout.write(res.stdout);
     failures.push(s);
     fail++;
   }

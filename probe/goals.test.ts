@@ -26,8 +26,9 @@ if (typeof globalThis.localStorage === "undefined") {
 }
 
 import {
-  clearGoals, createGoal, getGoal, goalProgress, loadGoals, nextPendingStep, resumeGoal, settleStep,
+  clearGoals, createGoal, executedProgress, getGoal, goalProgress, goalStatus, loadGoals, nextPendingStep, resumeGoal, settleStep,
 } from "../src/vh19/goals";
+import { clearHandoffs, listHandoffs, recordHandoff } from "../src/vh19/handoffs";
 import {
   allowCategoryForSession, answerGateWithRules, clearSessionRules, listSessionRules, revokeSessionRule, sessionRuleLog,
 } from "../src/vh19/gateRules";
@@ -66,11 +67,32 @@ test("goals + session rules — governed goal mode", async () => {
   check("next pending still finds the gated step after resume", (() => { resumeGoal(g.id); return nextPendingStep(getGoal(g.id)!)?.id === s1.id; })());
   check("resume re-activates the goal", getGoal(g.id)?.state === "active");
 
-  console.log("\n── 4. progress and completion ──");
+  console.log("\n── 4. progress and completion — the honest verdict (18.6.0 review fix) ──");
   const cur = getGoal(g.id)!;
   for (const s of cur.steps) settleStep(g.id, s.id, { status: "planned", note: "plan" });
-  check("all-settled goal reports 100% and done", goalProgress(getGoal(g.id)!) === 100 && getGoal(g.id)?.state === "done");
+  check("all-settled is 100% SETTLED — but the state is 'settled', never 'done'", goalProgress(getGoal(g.id)!) === 100 && getGoal(g.id)?.state === "settled");
+  check("one executed step among plans reads PARTIAL, not DONE", goalStatus(getGoal(g.id)!) === "PARTIAL" && executedProgress(getGoal(g.id)!) < 100);
   check("loadGoals survives as the checkpoint list", loadGoals().some((x) => x.id === g.id));
+
+  const gp = createGoal("probe-user", "typescript types refactor and react component state");
+  for (const s of gp.steps) settleStep(gp.id, s.id, { status: "planned", note: "plan" });
+  check("a goal of pure plans says PLANNED — done means executed", goalStatus(getGoal(gp.id)!) === "PLANNED" && executedProgress(getGoal(gp.id)!) === 0);
+  const gb = createGoal("probe-user", "typescript types refactor and react component state");
+  settleStep(gb.id, gb.steps[0].id, { status: "refused", note: "denied at the gate" });
+  for (const s of getGoal(gb.id)!.steps.slice(1)) settleStep(gb.id, s.id, { status: "planned", note: "plan" });
+  check("a refusal with nothing executed says BLOCKED", goalStatus(getGoal(gb.id)!) === "BLOCKED");
+  const gd = createGoal("probe-user", "typescript types refactor and react component state");
+  for (const s of gd.steps) settleStep(gd.id, s.id, { status: "done", receiptDigest: "d1", note: "ran" });
+  check("only a fully executed goal says DONE — at 100% executed", goalStatus(getGoal(gd.id)!) === "DONE" && getGoal(gd.id)?.state === "done" && executedProgress(getGoal(gd.id)!) === 100);
+
+  console.log("\n── 6. the A2A handoff ledger ──");
+  clearHandoffs();
+  const h1 = recordHandoff({ peer: "peer-harbor", task: "run the suite", outcome: "delegated", detail: "ran on peer", receiptDigest: "vh-peer-1" });
+  recordHandoff({ peer: "peer-harbor", task: "deploy prod", outcome: "refused", detail: "no bridge wired — nothing sent" });
+  const led = listHandoffs();
+  check("a delegated handoff keeps the peer receipt digest", led[0].receiptDigest === "vh-peer-1" && led[0].outcome === "delegated" && h1.id === led[0].id);
+  check("a refused handoff is recorded with the reason in words", led[1].outcome === "refused" && led[1].detail.includes("nothing sent"));
+  check("the ledger lists in order and clears", led.length === 2 && (clearHandoffs(), listHandoffs().length === 0));
 
   console.log("\n── 5. session Auto-Review rules ──");
   clearSessionRules();

@@ -1,4 +1,4 @@
-# Vouch Harbor 18.6.0 "Polaris" — release verification record
+# Vouch Harbor 18.7.0 "Keystone" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,12 +6,12 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the 111-suite
 offline pack. The protocol selftest needs `cd protocol && npm install`.)
 
-## The 18.6.0 record (ledger identity + motion grammar + clean tree)
+## The 18.7.0 record (goal truthfulness + A2A handoff ledger + release-contract fixes)
 
-18.6.0 is the identity release: the door becomes a numbered receipt log
-(entries, timestamps, outcome stamps), a new reduced-motion-safe motion
-grammar (horizon-arc draw, tide bar, staged entries), matured chrome, and a
-cleaner tree. Semantics unchanged; protocol v0.10.7; suites unchanged.
+18.7.0 fixes both 18.6.0 review findings (stale VERIFY.sh header; goal
+"done" for plan-only goals), makes every A2A delegation attempt — including
+refusals — a receipted ledger entry, and parallelizes the offline verifier
+(~2×) with deterministic attribution. Protocol v0.10.7; suites 113/112.
 
 | Gate | Command | Result |
 |---|---|---|
@@ -20,16 +20,26 @@ cleaner tree. Semantics unchanged; protocol v0.10.7; suites unchanged.
 | Unit | `npm run unit` | 20/20 |
 | Theme (Horizon) | `node tools/run-one-probe.mjs theme` | 10/10 |
 | Collab identity | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
-| Goals + session rules | `node tools/run-one-probe.mjs goals` | 19/19 |
+| Goals + session rules | `node tools/run-one-probe.mjs goals` | 26/26 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 28/28 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Offline pack | `node verify/run.mjs` | 112 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
 | Live fleet | `npm test` | 113/113 suites green |
+
+---
+
+# 18.6.0 "Polaris" — release verification record (standing depth record)
+
+Ledger identity + motion grammar + clean tree. All 18.6.0 gates were green
+at ship time: tsc 0 · protocol 171 · unit 20 · theme 10 · collabInvite 29 ·
+goals 19 · selfEvolve 18 · selfEvolveMission 52 · teamEvolve 35 · vh19 79 ·
+vh19Door 28 · versionDrift 41 · offline 112 · live 113 · VERIFY.sh green.
+See VH-18.6-UPGRADE.md for the full record.
 
 ---
 
@@ -61,7 +71,7 @@ reproducible on a bare machine (`sh VERIFY.sh`), and deepens the bench to
 | Collab identity (self-proof + structural) | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
@@ -88,7 +98,7 @@ system, a new icon, route-level code splitting and a browser CSP.
 | Collab identity (hardened) | `node tools/run-one-probe.mjs collabInvite` | 23/23 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
@@ -117,7 +127,7 @@ automatic team self-proposal after connection (`probe/teamEvolve`, 35 checks).
 | Collab invitations | `node tools/run-one-probe.mjs collabInvite` | 14/14 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 26/26 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
@@ -141,7 +151,7 @@ from the 18.0.1 review is fixed and pinned.
 | TypeScript | `tsc --noEmit` | 0 errors |
 | Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
 | Unit | `npm run unit` | 20/20 |
-| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 79/79 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 31/31 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 22/22 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |

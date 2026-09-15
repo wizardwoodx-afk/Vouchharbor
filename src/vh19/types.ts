@@ -173,7 +173,9 @@ export interface GeneralistDeps {
   /** Injectable fetch (probes drive a fake; production uses global fetch). */
   fetchImpl?: typeof fetch;
   /** Injectable peer delegation — the real one is the A2A bridge. */
-  peerDelegate?: (d: PeerDelegation) => Promise<{ ok: boolean; detail: string }>;
+  peerDelegate?: (d: PeerDelegation) => Promise<{ ok: boolean; detail: string; receiptDigest?: string }>;
+  /** A2A handoff ledger hook — every delegation attempt, including refusals, gets a receipt (18.7.0). */
+  onHandoff?: (h: { peer: string; task: string; outcome: "delegated" | "refused"; detail: string; receiptDigest?: string }) => void;
   now?: () => Date;
 }
 

@@ -2188,6 +2188,7 @@ async function askVH19(args, deps = {}) {
   }
   if (args.peer) {
     if (!deps.peerDelegate) {
+      deps.onHandoff?.({ peer: args.peer, task: text, outcome: "refused", detail: "no A2A bridge is wired into this runtime \u2014 nothing was sent" });
       return finish({
         reply: `Peer delegation to "${args.peer}" is not available: no A2A bridge is wired into this runtime.`,
         routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -2198,6 +2199,7 @@ async function askVH19(args, deps = {}) {
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    deps.onHandoff?.({ peer: args.peer, task: text, outcome: res.ok ? "delegated" : "refused", detail: res.detail, receiptDigest: res.receiptDigest });
     if (args.team) {
       recordTeamRun({
         teamId: args.team.id,
@@ -2210,7 +2212,7 @@ async function askVH19(args, deps = {}) {
       void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
-      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
+      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}${res.receiptDigest ? ` (peer receipt ${res.receiptDigest.slice(0, 12)}\u2026)` : ""}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
       executed: res.ok,
       outcome: res.ok ? "peer-delegated" : "refused",
@@ -2526,16 +2528,27 @@ test("vh19 \u2014 registry, router, providers, memory, exam, generalist", async 
     gate: async () => ({ approved: true })
   });
   check("an approved gate lets risky work execute", approved.outcome === "answered" && approved.executed === true);
-  const noBridge = await askVH19({ text: "ask the peer harbor to run the test suite", userId: "gen-user", peer: "qwen-harbor" });
+  let handoffLog = [];
+  const noBridge = await askVH19({ text: "ask the peer harbor to run the test suite", userId: "gen-user", peer: "qwen-harbor" }, {
+    onHandoff: (h) => {
+      handoffLog.push({ peer: h.peer, outcome: h.outcome, receiptDigest: h.receiptDigest });
+    }
+  });
   check("peer delegation without an A2A bridge refuses in words \u2014 nothing sent", noBridge.outcome === "refused" && (noBridge.note ?? "").includes("a2aBridge"));
+  check("the refusal itself gets a handoff receipt \u2014 nothing goes unrecorded", handoffLog.length === 1 && handoffLog[0].outcome === "refused" && handoffLog[0].peer === "qwen-harbor");
   let delegatedTo = "";
+  handoffLog = [];
   const withBridge = await askVH19({ text: "run the test suite", userId: "gen-user", peer: "qwen-harbor" }, {
     peerDelegate: async (d) => {
       delegatedTo = d.peerName;
-      return { ok: true, detail: "receipt vh-proof-receipt/2 verified" };
+      return { ok: true, detail: "receipt vh-proof-receipt/2 verified", receiptDigest: "vh-peer-receipt-9f3a" };
+    },
+    onHandoff: (h) => {
+      handoffLog.push({ peer: h.peer, outcome: h.outcome, receiptDigest: h.receiptDigest });
     }
   });
   check("peer delegation with the bridge rides the seam and reports the outcome", withBridge.outcome === "peer-delegated" && withBridge.executed === true && delegatedTo === "qwen-harbor");
+  check("a successful handoff carries the peer receipt digest into the ledger", handoffLog.length === 1 && handoffLog[0].outcome === "delegated" && handoffLog[0].receiptDigest === "vh-peer-receipt-9f3a" && withBridge.reply.includes("vh-peer-rece\u2026".slice(0, 12)));
   console.log(`
 ${fail === 0 ? "\u2705" : "\u274C"} vh19 probe: ${pass} passed, ${fail} failed
 `);

@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.6.0";
-    VH_SHORT = "18.6";
-    VH_CODENAME = "Polaris";
+    VH_VERSION = "18.7.0";
+    VH_SHORT = "18.7";
+    VH_CODENAME = "Keystone";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

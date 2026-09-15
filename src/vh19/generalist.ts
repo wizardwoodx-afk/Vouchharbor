@@ -83,6 +83,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
          is the a2aBridge). No seam, no delegation — refused in words. */
   if (args.peer) {
     if (!deps.peerDelegate) {
+      deps.onHandoff?.({ peer: args.peer, task: text, outcome: "refused", detail: "no A2A bridge is wired into this runtime — nothing was sent" });
       return finish({
         reply: `Peer delegation to "${args.peer}" is not available: no A2A bridge is wired into this runtime.`,
         routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
@@ -93,6 +94,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       });
     }
     const res = await deps.peerDelegate({ peerName: args.peer, task: text });
+    deps.onHandoff?.({ peer: args.peer, task: text, outcome: res.ok ? "delegated" : "refused", detail: res.detail, receiptDigest: res.receiptDigest });
     if (args.team) {
       recordTeamRun({
         teamId: args.team.id,
@@ -105,7 +107,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       void autoProposeIfReady(args.team.id, args.team.members);
     }
     return finish({
-      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
+      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}${res.receiptDigest ? ` (peer receipt ${res.receiptDigest.slice(0, 12)}…)` : ""}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
       routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
       executed: res.ok,
       outcome: res.ok ? "peer-delegated" : "refused",
