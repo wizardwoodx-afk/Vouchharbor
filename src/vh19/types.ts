@@ -179,10 +179,10 @@ export interface GeneralistDeps {
   now?: () => Date;
 }
 
-/** The AgentLead's report to the Generalist (19.0.0) — computed from real member results. */
-export interface LeadReport {
-  leadId: string;
-  leadName: string;
+/** The domain Captain's report to the Generalist (19.0.0 as AgentLead, renamed 19.1.0) — computed from real member results. */
+export interface CaptainReport {
+  captainId: string;
+  captainName: string;
   domain: string;
   status: "completed" | "partial" | "planned" | "blocked";
   summary: string;
@@ -211,8 +211,8 @@ export interface GeneralistResponse {
   provenanceDigest: string;
   /** Refusals and non-execution carry their reason in words. */
   note?: string;
-  /** The domain lead's report on the routed work (19.0.0) — present whenever the bench was routed. */
-  lead?: LeadReport;
+  /** The domain captain's report on the routed work — present whenever the bench was routed. */
+  captain?: CaptainReport;
   /** Classified failure + recovery advice whenever the outcome is not an execution (19.0.0). */
   failure?: FailureInfo;
 }

@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.0.0 · September 2026*
+*Vouch Harbor Labs · v19.1.0 · September 2026*
 *Companion to `PRESEED-PITCH.md` (the enterprise thesis) — this page is the brand layer and the product story as shipped.*
 
 ---
@@ -26,7 +26,7 @@ bots are not a security boundary — their own docs say so.*
 **Nobody owns the quadrant: a teammate you can talk to, running on YOUR
 machine, that signs what it did.**
 
-## The product (shipped, v19.0.0 — this tree)
+## The product (shipped, v19.1.0 — this tree)
 
 One local-first app (Tauri v2 desktop + browser edition), one engine, six
 doors:
@@ -142,7 +142,7 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
 
 ## Traction & stage (honest)
 
-- Complete, working product — v19.0.0, 30+ tagged releases, **113 probe
+- Complete, working product — v19.1.0, 30+ tagged releases, **113 probe
   suites / 115 offline verification bundles**, byte-pinned offline
   verification pack (runs in ~2.5 min with zero network), CI on the
   Windows pre-seed platform (Node 22, the supported runtime) plus

@@ -13,6 +13,8 @@
  */
 import React, { useMemo, useRef, useState } from 'react';
 import { askVH19 } from '../vh19/generalist';
+import { advanceBuild, buildSummary, createBuild, listBuilds, runAllOrders, settleBuild, type Build, type RunResult } from '../vh19/shipyard';
+import { usageReport } from '../vh19/tokenOptim';
 import { catalogStats, listSpecialists, setSpecialistEnabled, disabledSpecialists } from '../vh19/registry';
 import { patternReport, recordDecision } from '../vh19/memory';
 import { autonomyStatus, gradeExam, proposeExam, revokeAutonomy, PASS_THRESHOLD } from '../vh19/exam';
@@ -75,6 +77,9 @@ export const Vh19: React.FC = () => {
   const [form, setForm] = useState({ kind: 'openai-compatible' as ProviderKind, baseUrl: PROVIDER_DEFAULTS['openai-compatible'], model: '', apiKey: '' });
   const [examCategory, setExamCategory] = useState<SpecialistCategory | 'all'>('all');
   const [teamPeer, setTeamPeer] = useState('qwen');
+  const [shipBrief, setShipBrief] = useState('');
+  const [builds, setBuilds] = useState<Build[]>(() => listBuilds());
+  const [tokens, setTokens] = useState(() => usageReport());
   const [teamReport, setTeamReport] = useState<TeamMemoryReport | null>(null);
   const [teamProposal, setTeamProposal] = useState<EvolutionProposal | null>(null);
   const [teamConfig, setTeamConfig] = useState<EvolvedTeamConfig | null>(null);
@@ -123,6 +128,21 @@ export const Vh19: React.FC = () => {
     setPatterns(patternReport(USER));
     setAutonomy(autonomyStatus(USER));
     setDisabled(disabledSpecialists());
+  };
+
+  /* The Shipyard runs work orders through the SAME door as everything
+     else — gate, routing, receipts. Only a truly executed run counts. */
+  const shipRun = async (text: string): Promise<RunResult> => {
+    const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
+      provider,
+      gate: (ask) => {
+        const ruled = answerGateWithRules(ask);
+        if (ruled) return Promise.resolve(ruled);
+        return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
+      },
+      onHandoff: (h) => recordHandoff(h),
+    });
+    return { executed: resp.executed, outcome: resp.outcome, note: resp.note ?? resp.reply.slice(0, 120), provenanceDigest: resp.provenanceDigest };
   };
 
   const send = async () => {
@@ -243,10 +263,10 @@ export const Vh19: React.FC = () => {
                   {m.resp && <span className="stamp" title={m.resp.note ?? ''} style={{ color: m.resp.outcome === 'answered' || m.resp.outcome === 'peer-delegated' ? 'var(--success)' : m.resp.outcome === 'planned' ? 'var(--aged)' : 'var(--warn)' }}>{OUTCOME_LABEL[m.resp.outcome]}</span>}
                   {m.resp && <span className="row-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>proof-digest {m.resp.provenanceDigest.slice(0, 12)}…</span>}
                 </div>
-                {m.resp?.lead && (
+                {m.resp?.captain && (
                   <div className="row-sub" style={{ fontSize: 11, marginTop: 2 }}>
-                    <span className="stamp" style={{ color: m.resp.lead.status === 'completed' ? 'var(--success)' : m.resp.lead.status === 'blocked' ? 'var(--err)' : 'var(--warn)' }}>{m.resp.lead.status}</span>{' '}
-                    <strong>{m.resp.lead.leadName}</strong> → Generalist: {m.resp.lead.summary} <span style={{ opacity: 0.75 }}>(next: {m.resp.lead.nextStep})</span>
+                    <span className="stamp" style={{ color: m.resp.captain.status === 'completed' ? 'var(--success)' : m.resp.captain.status === 'blocked' ? 'var(--err)' : 'var(--warn)' }}>{m.resp.captain.status}</span>{' '}
+                    <strong>{m.resp.captain.captainName}</strong> → Generalist: {m.resp.captain.summary} <span style={{ opacity: 0.75 }}>(next: {m.resp.captain.nextStep})</span>
                   </div>
                 )}
                 {m.resp?.failure && (
@@ -550,6 +570,36 @@ export const Vh19: React.FC = () => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* ── The Shipyard — Team workspace (19.1.0) ── */}
+      <div className="card mt-16" style={{ padding: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="row-title" style={{ fontSize: 13 }}>The Shipyard — team workspace</div>
+          <button className="btn btn-ghost btn-sm" onClick={() => { setBuilds(listBuilds()); setTokens(usageReport()); }}>↻ Shipyard</button>
+        </div>
+        <div className="row-sub" style={{ fontSize: 11, margin: '4px 0 10px' }}>One brief becomes work orders — one per needed domain, each led by its Captain. Orders execute through the real pipeline; nothing counts as done until it ran.</div>
+        <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+          <input className="input" placeholder="e.g. build me a recipe app with secure auth, unit tests, CI deployment and a clean UI" value={shipBrief} onChange={(e) => setShipBrief(e.target.value)} />
+          <button className="btn btn-primary btn-sm" onClick={() => { if (shipBrief.trim()) { createBuild(shipBrief.trim()); setShipBrief(''); setBuilds(listBuilds()); } }}>Start build</button>
+        </div>
+        {builds.slice(-3).reverse().map((b) => (
+          <div key={b.id} className="row" style={{ padding: '10px 12px', background: 'var(--bg)', marginBottom: 8, display: 'block' }}>
+            <div className="row-title" style={{ fontSize: 12 }}>{b.brief}{' '}
+              <span className="stamp" style={{ color: b.status === 'settled' ? 'var(--success)' : b.status === 'paused' ? 'var(--err)' : 'var(--warn)' }}>{b.status.toUpperCase()}</span>
+            </div>
+            {b.orders.map((o) => (
+              <div key={o.id} className="row-sub" style={{ fontSize: 11, marginTop: 3 }}>· [{o.status}] {o.domain} — {o.captainName}{o.note ? ` — ${o.note.slice(0, 80)}` : ''}</div>
+            ))}
+            <div className="row-sub" style={{ fontSize: 11, marginTop: 6, opacity: 0.8 }}>{buildSummary(b)}</div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <button className="btn btn-primary btn-sm" disabled={busy || b.status === 'settled'} onClick={async () => { setBusy(true); await advanceBuild(b.id, shipRun); setBuilds(listBuilds()); setBusy(false); }}>Run next</button>
+              <button className="btn btn-ghost btn-sm" disabled={busy || b.status === 'settled'} onClick={async () => { setBusy(true); await runAllOrders(b.id, shipRun); setBuilds(listBuilds()); setBusy(false); }}>Run all</button>
+              <button className="btn btn-ghost btn-sm" disabled={busy || b.status === 'settled'} onClick={async () => { setBusy(true); await settleBuild(b.id); setBuilds(listBuilds()); setBusy(false); }}>Settle</button>
+            </div>
+          </div>
+        ))}
+        <div className="row-sub" style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>token optimizer · estimates: {tokens.calls} provider calls · {tokens.promptTokens} prompt / {tokens.replyTokens} reply tokens · {tokens.optimizedCalls} prompts trimmed · ~{tokens.savedTokens} tokens saved</div>
       </div>
 
       {/* ── assignments — goal mode (18.5.0) ── */}

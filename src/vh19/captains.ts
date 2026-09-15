@@ -1,8 +1,8 @@
 /**
- * VH-19 — the AgentLead layer (19.0.0 "Bastion").
+ * VH-19 — the Captain layer (19.0.0 as AgentLead; renamed Captain in 19.1.0 "Shipyard").
  *
  * Specialists within a domain are not a flat crowd: each of the ten domains
- * has an AgentLead — a named oversight role that (a) plans domain work
+ * has a Captain — a named oversight role that (a) plans domain work
  * across its members, (b) aggregates what actually happened, and (c)
  * reports DIRECTLY to the Generalist in a structured, honest report. The
  * lead never fabricates member outcomes: its report is computed from the
@@ -10,10 +10,10 @@
  * response. A lead is an orchestrator over states — like the goal engine,
  * it calls no provider and invents nothing.
  */
-import type { LeadReport, SpecialistCategory } from "./types";
+import type { CaptainReport, SpecialistCategory } from "./types";
 import { getSpecialist, specialistsForCategory } from "./registry";
 
-export interface AgentLead {
+export interface Captain {
   id: string;
   name: string;
   domain: SpecialistCategory;
@@ -23,37 +23,37 @@ export interface AgentLead {
   systemPrompt: string;
 }
 
-const lead = (domain: SpecialistCategory, name: string, mandate: string, focus: string): AgentLead => ({
-  id: `lead.${domain}`,
+const captain = (domain: SpecialistCategory, name: string, mandate: string, focus: string): Captain => ({
+  id: `captain.${domain}`,
   name,
   domain,
   mandate,
-  systemPrompt: `You are ${name}, the ${domain} domain lead. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`,
+  systemPrompt: `You are ${name}, captain of the ${domain} domain. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`,
 });
 
-export const AGENT_LEADS: AgentLead[] = [
-  lead("code", "Code Domain Lead", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
-  lead("security", "Security Domain Lead", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
-  lead("testing", "Testing Domain Lead", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
-  lead("review", "Review Domain Lead", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
-  lead("data", "Data Domain Lead", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
-  lead("devops", "DevOps Domain Lead", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
-  lead("research", "Research Domain Lead", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
-  lead("writing", "Writing Domain Lead", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
-  lead("analysis", "Analysis Domain Lead", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
-  lead("design", "Design Domain Lead", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one."),
+export const CAPTAINS: Captain[] = [
+  captain("code", "Captain of Code", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
+  captain("security", "Captain of Security", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
+  captain("testing", "Captain of Testing", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
+  captain("review", "Captain of Review", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
+  captain("data", "Captain of Data", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
+  captain("devops", "Captain of DevOps", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
+  captain("research", "Captain of Research", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
+  captain("writing", "Captain of Writing", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
+  captain("analysis", "Captain of Analysis", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
+  captain("design", "Captain of Design", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one."),
 ];
 
-export function getLead(id: string): AgentLead | null {
-  return AGENT_LEADS.find((l) => l.id === id) ?? null;
+export function getCaptain(id: string): Captain | null {
+  return CAPTAINS.find((l) => l.id === id) ?? null;
 }
 
-export function leadForDomain(domain: SpecialistCategory): AgentLead | null {
-  return AGENT_LEADS.find((l) => l.domain === domain) ?? null;
+export function captainForDomain(domain: SpecialistCategory): Captain | null {
+  return CAPTAINS.find((l) => l.domain === domain) ?? null;
 }
 
 /** The lead accountable for a routed set: the domain with the most members routed (ties → first routed). */
-export function leadForRoute(specialistIds: string[]): AgentLead | null {
+export function captainForRoute(specialistIds: string[]): Captain | null {
   const counts = new Map<SpecialistCategory, number>();
   let firstCat: SpecialistCategory | null = null;
   for (const id of specialistIds) {
@@ -66,7 +66,7 @@ export function leadForRoute(specialistIds: string[]): AgentLead | null {
   let best = firstCat;
   let bestN = -1;
   for (const [cat, n] of counts) if (n > bestN) { best = cat; bestN = n; }
-  return leadForDomain(best);
+  return captainForDomain(best);
 }
 
 /**
@@ -75,8 +75,8 @@ export function leadForRoute(specialistIds: string[]): AgentLead | null {
  * wishlist. Pure keyword scoring; the router remains the authority for
  * actual routing.
  */
-export function planDomainWork(leadId: string, task: string, cap = 3): { specialistId: string; name: string; score: number }[] {
-  const l = getLead(leadId);
+export function planDomainWork(captainId: string, task: string, cap = 3): { specialistId: string; name: string; score: number }[] {
+  const l = getCaptain(captainId);
   if (!l) return [];
   const tokens = new Set(task.toLowerCase().split(/[^a-z0-9+#.]+/).filter((t) => t.length > 2));
   return specialistsForCategory(l.domain)
@@ -95,14 +95,14 @@ export function planDomainWork(leadId: string, task: string, cap = 3): { special
  * never asserted. Status logic mirrors the goal truthfulness contract:
  * "completed" requires every involved member actually executed.
  */
-export function buildLeadReport(
-  leadId: string,
+export function buildCaptainReport(
+  captainId: string,
   results: { specialistId: string; outcome: string; note?: string }[],
-): LeadReport | null {
-  const l = getLead(leadId);
+): CaptainReport | null {
+  const l = getCaptain(captainId);
   if (!l || results.length === 0) return null;
   const done = results.filter((r) => r.outcome === "answered" || r.outcome === "peer-delegated").length;
-  const status: LeadReport["status"] =
+  const status: CaptainReport["status"] =
     done === results.length ? "completed"
     : done > 0 ? "partial"
     : results.some((r) => r.outcome === "refused" || r.outcome === "gated-out") ? "blocked"
@@ -125,5 +125,5 @@ export function buildLeadReport(
     : status === "planned" ? "Add a provider key and re-run the plan."
     : status === "partial" ? "Re-run only the failed members; the executed ones keep their receipts."
     : "Resolve the blocking decision at the gate, then resume.";
-  return { leadId: l.id, leadName: l.name, domain: l.domain, status, summary, members, failures, nextStep };
+  return { captainId: l.id, captainName: l.name, domain: l.domain, status, summary, members, failures, nextStep };
 }

@@ -1,5 +1,5 @@
 /**
- * VH-19 — AgentLead + failure-handling probe (19.0.0 "Bastion").
+ * VH-19 — Captains + failure-handling probe (19.1.0 "Shipyard").
  *
  * Pins the lead layer (leads exist per domain, plans are real member plans,
  * reports are computed from real outcomes and never inflate status) and the
@@ -8,12 +8,12 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { AGENT_LEADS, buildLeadReport, getLead, leadForDomain, leadForRoute, planDomainWork } from "../src/vh19/agentLead";
+import { CAPTAINS, buildCaptainReport, getCaptain, captainForDomain, captainForRoute, planDomainWork } from "../src/vh19/captains";
 import { classifyFailure, shouldRetry } from "../src/vh19/failures";
 import { SPECIALISTS } from "../src/vh19/registry";
 import { askVH19 } from "../src/vh19/generalist";
 
-test("agentLead + failures — oversight that never fabricates", async () => {
+test("captains + failures — oversight that never fabricates", async () => {
   let pass = 0, fail = 0;
   const check = (name: string, cond: boolean, detail?: unknown) => {
     cond ? pass++ : fail++;
@@ -21,29 +21,29 @@ test("agentLead + failures — oversight that never fabricates", async () => {
   };
 
   console.log("\n── 1. the lead layer ──");
-  check("every domain has exactly one AgentLead", AGENT_LEADS.length === 10 && new Set(AGENT_LEADS.map((l) => l.domain)).size === 10);
-  check("leads have a mandate and their own playbook", AGENT_LEADS.every((l) => l.mandate.length > 10 && l.systemPrompt.includes(l.name)));
-  check("leadForDomain resolves every category", ["code", "security", "design"].every((c) => leadForDomain(c as "code") !== null));
-  check("leadForRoute picks the dominant domain", leadForRoute(["code.typescript", "code.debugging", "testing.unit"])?.domain === "code");
-  check("leadForRoute returns null for unknown specialists only", leadForRoute(["nope.404"]) === null);
+  check("every domain has exactly one Captain", CAPTAINS.length === 10 && new Set(CAPTAINS.map((l) => l.domain)).size === 10);
+  check("captains have a mandate and their own playbook", CAPTAINS.every((l) => l.mandate.length > 10 && l.systemPrompt.includes(l.name)));
+  check("captainForDomain resolves every category", ["code", "security", "design"].every((c) => captainForDomain(c as "code") !== null));
+  check("captainForRoute picks the dominant domain", captainForRoute(["code.typescript", "code.debugging", "testing.unit"])?.domain === "code");
+  check("captainForRoute returns null for unknown specialists only", captainForRoute(["nope.404"]) === null);
 
   console.log("\n── 2. the lead plans with real members ──");
-  const plan = planDomainWork("lead.code", "refactor typescript types and debug the crash");
+  const plan = planDomainWork("captain.code", "refactor typescript types and debug the crash");
   check("the plan lists real bench members with scores", plan.length > 0 && plan.every((p) => SPECIALISTS.some((s) => s.id === p.specialistId) && p.score > 0));
-  check("the plan is capped — a plan, not a wishlist", planDomainWork("lead.devops", "deploy kubernetes terraform docker ci observability").length <= 3);
-  check("an unrelated task yields no plan (no invented work)", planDomainWork("lead.design", "zzz qqq xxx").length === 0);
-  check("unknown leads refuse politely", planDomainWork("lead.nope", "typescript").length === 0 && getLead("lead.nope") === null);
+  check("the plan is capped — a plan, not a wishlist", planDomainWork("captain.devops", "deploy kubernetes terraform docker ci observability").length <= 3);
+  check("an unrelated task yields no plan (no invented work)", planDomainWork("captain.design", "zzz qqq xxx").length === 0);
+  check("unknown captains refuse politely", planDomainWork("captain.nope", "typescript").length === 0 && getCaptain("captain.nope") === null);
 
   console.log("\n── 3. the report tells the truth ──");
-  const done = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "answered" }])!;
+  const done = buildCaptainReport("captain.code", [{ specialistId: "code.typescript", outcome: "answered" }])!;
   check("all-executed reads completed", done.status === "completed" && done.failures.length === 0);
-  const partial = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "answered" }, { specialistId: "code.debugging", outcome: "refused", note: "denied at the gate" }])!;
+  const partial = buildCaptainReport("captain.code", [{ specialistId: "code.typescript", outcome: "answered" }, { specialistId: "code.debugging", outcome: "refused", note: "denied at the gate" }])!;
   check("mixed reads partial — never completed", partial.status === "partial" && partial.failures.length === 1);
-  const planned = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "planned" }])!;
+  const planned = buildCaptainReport("captain.code", [{ specialistId: "code.typescript", outcome: "planned" }])!;
   check("plan-only reads planned, with the key advice", planned.status === "planned" && planned.nextStep.includes("provider key"));
-  const blocked = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "gated-out" }])!;
+  const blocked = buildCaptainReport("captain.code", [{ specialistId: "code.typescript", outcome: "gated-out" }])!;
   check("gate-stop reads blocked with the resume step", blocked.status === "blocked" && blocked.nextStep.includes("gate"));
-  check("an empty result set yields no report (nothing to report)", buildLeadReport("lead.code", []) === null);
+  check("an empty result set yields no report (nothing to report)", buildCaptainReport("captain.code", []) === null);
 
   console.log("\n── 4. the failure taxonomy ──");
   const auth = classifyFailure("error", "provider returned 401 unauthorized");
@@ -62,10 +62,11 @@ test("agentLead + failures — oversight that never fabricates", async () => {
 
   console.log("\n── 5. the generalist attaches both to every routed exit ──");
   const resp = await askVH19({ text: "refactor the typescript types in the parser", userId: "probe-user" });
-  check("a routed response carries its lead report", resp.lead != null && resp.lead.leadId.startsWith("lead.") && resp.lead.members.length > 0, resp.outcome);
+  check("a routed response carries its captain report", resp.captain != null && resp.captain.captainId.startsWith("captain.") && resp.captain.members.length > 0, resp.outcome);
   check("a non-executed response carries classified failure advice", resp.failure != null && resp.failure.meaning.length > 20 && resp.outcome !== "answered");
+  check("the captain report covers EVERY routed member (19.0.0 review fix)", (resp.captain?.members.length ?? 0) === resp.specialistIds.length);
   check("the digest still seals the response", typeof resp.provenanceDigest === "string" && resp.provenanceDigest.length === 64);
 
-  console.log(`\n${fail === 0 ? "✅" : "❌"} agentLead probe: ${pass} passed, ${fail} failed\n`);
-  assert.equal(fail, 0, `${fail} agentLead checks failed`);
+  console.log(`\n${fail === 0 ? "✅" : "❌"} captains probe: ${pass} passed, ${fail} failed\n`);
+  assert.equal(fail, 0, `${fail} captains checks failed`);
 });

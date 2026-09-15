@@ -20,7 +20,8 @@ import { uid } from "../app/id";
 import { detectInjection, sanitizeText } from "../security/guardrail";
 import { getSpecialist } from "./registry";
 import { buildSpecialistPrompt } from "./skills";
-import { buildLeadReport, leadForRoute } from "./agentLead";
+import { estimateTokens, optimizeComposedPrompt, recordUsage } from "./tokenOptim";
+import { buildCaptainReport, captainForRoute } from "./captains";
 import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
@@ -46,7 +47,7 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     selected: r.routed.selected.map((c) => [c.id, c.score]),
     strategy: r.routed.strategy,
     note: r.note ?? null,
-    lead: r.lead ?? null,
+    captain: r.captain ?? null,
     failure: r.failure ?? null,
   });
 }
@@ -66,18 +67,22 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   const now = deps.now ?? (() => new Date());
   void now; // reserved for receipt timestamps in the UI wiring phase
 
-  /* 19.0.0 — the advisory layer is attached centrally so EVERY exit path
-     carries it: the domain lead reports on the routed work, and every
-     non-execution is classified with recovery advice. Both are computed
-     from the response's own real fields and are inside the digest. */
+  /* The advisory layer is attached centrally so EVERY exit path carries it:
+     the domain captain reports on the routed work, and every non-execution
+     is classified with recovery advice. Both are computed from the
+     response's own real fields and are inside the digest.
+     19.1.0 aggregation fix (19.0.0 review): the captain receives EVERY
+     routed member's result — this pipeline runs one combined execution for
+     the routed set, so each participating member carries that run's real
+     outcome, honestly labelled as a combined run. */
   const finish = async (r: Omit<GeneralistResponse, "provenanceDigest">): Promise<GeneralistResponse> => {
-    const lead = r.lead ?? (r.specialistIds.length > 0
-      ? buildLeadReport(leadForRoute(r.specialistIds)?.id ?? "", [{ specialistId: r.specialistIds[0], outcome: r.outcome, note: r.note }]) ?? undefined
+    const captain = r.captain ?? (r.specialistIds.length > 0
+      ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? undefined
       : undefined);
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated"
       ? undefined
       : classifyFailure(r.outcome as "planned" | "refused" | "gated-out" | "error", r.note));
-    const full = { ...r, lead, failure };
+    const full = { ...r, captain, failure };
     return { ...full, provenanceDigest: await sha256Hex(responseCanonical(full)) };
   };
 
@@ -207,13 +212,24 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   }
 
   const primary = specialists[0] ?? null;
-  const system = [
+  /* 19.1.0 — the autonomous token optimizer: every composed prompt is
+     measured and budget-fitted before it leaves, and every call is
+     written to the local usage ledger. Silent, honest, reversible. */
+  const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
     ...memoryBriefing(userId),
   ].join("\n\n");
+  const optimized = optimizeComposedPrompt(composedSystem);
+  const system = optimized.prompt;
 
   const result = await complete(provider, system, text, { fetchImpl: deps.fetchImpl });
+  recordUsage({
+    promptTokens: optimized.estimatedTokens + estimateTokens(text),
+    replyTokens: estimateTokens(result.ok ? result.text : result.error),
+    optimized: optimized.optimized,
+    savedTokens: optimized.savedTokens,
+  });
   if (!result.ok) {
     return finish({
       reply: `The provider call did not complete (${result.kind}): ${result.error}`,

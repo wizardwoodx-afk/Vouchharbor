@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.0.0";
-    VH_SHORT = "19.0";
-    VH_CODENAME = "Bastion";
+    VH_VERSION = "19.1.0";
+    VH_SHORT = "19.1";
+    VH_CODENAME = "Shipyard";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -6347,7 +6347,7 @@ var poisoned = addTeammate(team1, {
 ok("a poisoned description is REFUSED, never stored", poisoned.ok === false && poisoned.reason.includes("guardrail"));
 var dup = addTeammate(team1, { name: "scout", title: "x", description: "duplicate identity check" });
 ok("duplicate teammate names are refused (case-insensitive)", dup.ok === false);
-section("2. delegation routing \u2014 the Grokbot rule, honestly");
+section("2. delegation routing \u2014 the teammate-description rule, honestly");
 var r1 = routeDelegation(team1, "please do web research on agent protocols and summarize the sources");
 ok("the research task routes to Scout (description match)", r1.ok === true && r1.value.teammate.name === "Scout");
 var r2 = routeDelegation(team1, "write the report from the brief");

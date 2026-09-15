@@ -1,8 +1,8 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
-// probe/agentLead.test.ts
-import assert from "node:assert/strict";
+// probe/shipyard.test.ts
 import { test } from "node:test";
+import assert from "node:assert/strict";
 
 // src/vh19/selfOverrides.ts
 var KEY = "vh19.self.overrides.v1";
@@ -4271,511 +4271,6 @@ function enabledSpecialists() {
   const off = new Set(disabledSpecialists());
   return SPECIALISTS.filter((s) => !off.has(s.id));
 }
-function getSpecialist(id) {
-  return BY_ID.get(id) ?? null;
-}
-function specialistsForCategory(category) {
-  return SPECIALISTS.filter((s) => s.category === category);
-}
-
-// src/vh19/agentLead.ts
-var lead = (domain, name, mandate, focus) => ({
-  id: `lead.${domain}`,
-  name,
-  domain,
-  mandate,
-  systemPrompt: `You are ${name}, the ${domain} domain lead. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
-});
-var AGENT_LEADS = [
-  lead("code", "Code Domain Lead", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
-  lead("security", "Security Domain Lead", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
-  lead("testing", "Testing Domain Lead", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
-  lead("review", "Review Domain Lead", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
-  lead("data", "Data Domain Lead", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
-  lead("devops", "DevOps Domain Lead", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
-  lead("research", "Research Domain Lead", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
-  lead("writing", "Writing Domain Lead", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
-  lead("analysis", "Analysis Domain Lead", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
-  lead("design", "Design Domain Lead", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
-];
-function getLead(id) {
-  return AGENT_LEADS.find((l) => l.id === id) ?? null;
-}
-function leadForDomain(domain) {
-  return AGENT_LEADS.find((l) => l.domain === domain) ?? null;
-}
-function leadForRoute(specialistIds) {
-  const counts = /* @__PURE__ */ new Map();
-  let firstCat = null;
-  for (const id of specialistIds) {
-    const s = getSpecialist(id);
-    if (!s) continue;
-    if (firstCat === null) firstCat = s.category;
-    counts.set(s.category, (counts.get(s.category) ?? 0) + 1);
-  }
-  if (firstCat === null) return null;
-  let best = firstCat;
-  let bestN = -1;
-  for (const [cat, n2] of counts) if (n2 > bestN) {
-    best = cat;
-    bestN = n2;
-  }
-  return leadForDomain(best);
-}
-function planDomainWork(leadId, task, cap = 3) {
-  const l = getLead(leadId);
-  if (!l) return [];
-  const tokens = new Set(task.toLowerCase().split(/[^a-z0-9+#.]+/).filter((t) => t.length > 2));
-  return specialistsForCategory(l.domain).map((s) => ({
-    specialistId: s.id,
-    name: s.name,
-    score: s.keywords.reduce((n2, k) => n2 + (tokens.has(k.toLowerCase()) ? 1 : 0), 0)
-  })).filter((m) => m.score > 0).sort((a, b) => b.score - a.score || a.specialistId.localeCompare(b.specialistId)).slice(0, cap);
-}
-function buildLeadReport(leadId, results) {
-  const l = getLead(leadId);
-  if (!l || results.length === 0) return null;
-  const done = results.filter((r) => r.outcome === "answered" || r.outcome === "peer-delegated").length;
-  const status = done === results.length ? "completed" : done > 0 ? "partial" : results.some((r) => r.outcome === "refused" || r.outcome === "gated-out") ? "blocked" : results.every((r) => r.outcome === "planned") ? "planned" : "blocked";
-  const members = results.map((r) => ({
-    specialistId: r.specialistId,
-    name: getSpecialist(r.specialistId)?.name ?? r.specialistId,
-    outcome: r.outcome
-  }));
-  const failures = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated").map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` \u2014 ${r.note.slice(0, 80)}` : ""}`);
-  const summary = status === "completed" ? `All ${done} routed ${l.domain} member(s) executed; work is done end to end.` : status === "partial" ? `${done} of ${results.length} routed member(s) executed; the rest did not run \u2014 see failures.` : status === "planned" ? `No member executed (no provider); the ${l.domain} plan is ready to run when a key exists.` : `Nothing executed in the ${l.domain} domain; progress stopped at the gate or a refusal.`;
-  const nextStep = status === "completed" ? "None \u2014 accept or reject the work in the log." : status === "planned" ? "Add a provider key and re-run the plan." : status === "partial" ? "Re-run only the failed members; the executed ones keep their receipts." : "Resolve the blocking decision at the gate, then resume.";
-  return { leadId: l.id, leadName: l.name, domain: l.domain, status, summary, members, failures, nextStep };
-}
-
-// src/vh19/failures.ts
-var INFO = {
-  "no-provider": {
-    meaning: "No provider key is configured, so nothing could execute \u2014 you received a plan instead of a run.",
-    advice: "Add a provider key in the door (stored locally, never uploaded) and re-run; the plan is ready to execute as-is."
-  },
-  "gate-denied": {
-    meaning: "A human denied this at the gate. That decision is final for this run.",
-    advice: "If the concern was scope, narrow the request and send it again; the denial is logged and never silently retried."
-  },
-  "policy-refused": {
-    meaning: "This work is refused by policy \u2014 the refusal is the correct, intended behaviour.",
-    advice: "Reframe the request within policy, or route the underlying need through a permitted path."
-  },
-  "injection-blocked": {
-    meaning: "The GuardRail detected prompt-injection content and blocked the request before anything ran.",
-    advice: "Remove embedded instructions from pasted content (quote it as data), then resend."
-  },
-  "peer-refused": {
-    meaning: "The peer declined or the delegation could not be sent \u2014 nothing ran on either side.",
-    advice: "Check the handoff ledger for the reason in the peer's words; fix the cause before re-offering."
-  }
-};
-var ERRORS = {
-  "provider-auth": {
-    meaning: "The provider rejected the API key (401/403).",
-    advice: "Verify the key is active and has quota; re-enter it in the door. The key never leaves this machine.",
-    retryable: false
-  },
-  "provider-rate-limit": {
-    meaning: "The provider rate-limited the request (429).",
-    advice: "Wait briefly and retry; if it persists, spread requests out or switch provider.",
-    retryable: true
-  },
-  "provider-timeout": {
-    meaning: "The provider did not respond within the time limit.",
-    advice: "Retry once; if it repeats, shorten the request or check provider status.",
-    retryable: true
-  },
-  "provider-unreachable": {
-    meaning: "The provider endpoint could not be reached (network/DNS/endpoint).",
-    advice: "Check connectivity and the endpoint URL; nothing was sent or executed.",
-    retryable: true
-  },
-  "bad-response": {
-    meaning: "The provider responded, but the response could not be used (malformed or empty).",
-    advice: "Retry; if it persists, the provider may be degraded \u2014 try another one.",
-    retryable: true
-  },
-  "bad-input": {
-    meaning: "The request itself could not be processed (empty or unreadable).",
-    advice: "Rephrase the request; if it contained pasted content, check for encoding damage.",
-    retryable: false
-  },
-  "unknown": {
-    meaning: "The failure did not match any known class \u2014 reported honestly as unknown rather than guessed at.",
-    advice: "The full note is preserved verbatim; retry once, and if it repeats, report it with the note attached.",
-    retryable: false
-  }
-};
-function classifyFailure(outcome, note) {
-  const n2 = (note ?? "").toLowerCase();
-  if (outcome === "planned") return info("no-provider");
-  if (outcome === "gated-out") return info("gate-denied");
-  if (outcome === "refused") {
-    if (n2.includes("injection") || n2.includes("guardrail")) return info("injection-blocked");
-    if (n2.includes("peer") || n2.includes("delegat") || n2.includes("bridge")) return info("peer-refused");
-    return info("policy-refused");
-  }
-  if (/401|403|invalid api key|unauthorized|forbidden/.test(n2)) return error("provider-auth");
-  if (/429|rate.?limit|too many requests|quota/.test(n2)) return error("provider-rate-limit");
-  if (/timeout|timed out|deadline/.test(n2)) return error("provider-timeout");
-  if (/econnrefused|enotfound|fetch failed|network|dns|unreachable|socket/.test(n2)) return error("provider-unreachable");
-  if (/json|parse|malformed|empty response|unexpected token/.test(n2)) return error("bad-response");
-  if (/empty request|too short|unreadable/.test(n2)) return error("bad-input");
-  return error("unknown");
-}
-function info(klass) {
-  const e = INFO[klass] ?? INFO["policy-refused"];
-  return { klass, severity: "info", meaning: e.meaning, advice: e.advice, retryable: false };
-}
-function error(klass) {
-  const e = ERRORS[klass] ?? ERRORS["unknown"];
-  return { klass, severity: "error", meaning: e.meaning, advice: e.advice, retryable: e.retryable };
-}
-function shouldRetry(f) {
-  return f.severity === "error" && f.retryable;
-}
-
-// src/app/id.ts
-var n = 0;
-function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
-
-// src/security/guardrail.ts
-var CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
-var INVISIBLE_UNICODE = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF\u{E0000}-\u{E007F}]/gu;
-function sanitizeText(text, maxLen = 2e3) {
-  return text.replace(CONTROL_CHARS, "").replace(INVISIBLE_UNICODE, "").slice(0, maxLen).trim();
-}
-var INJECTION_DETECTORS = [
-  {
-    code: "role-hijack",
-    reason: "content tries to override the agent's role or instructions",
-    test: (t) => /ignore\s+(all\s+|any\s+|previous\s+|prior\s+|above\s+)*instructions/i.test(t) || /disregard\s+(all\s+|any\s+|previous\s+|prior\s+)*instructions/i.test(t) || /you\s+are\s+now\s+(a|an|in)\b/i.test(t) || /new\s+system\s+prompt/i.test(t)
-  },
-  {
-    code: "fake-system-marker",
-    reason: "content contains forged system/role delimiters",
-    test: (t) => /<\/?\s*system\s*>/i.test(t) || /\[\s*(SYSTEM|INST|SYS)\s*\]/i.test(t) || /^system\s*:/im.test(t) && /assistant\s*:/i.test(t)
-  },
-  {
-    code: "fake-tool-call",
-    reason: "content embeds forged tool/function-call markup",
-    test: (t) => /\[\s*tool(_use|_call|_result)?\s*\]/i.test(t) || /<\s*\/?\s*(antml|function_call|tool_use|invoke)\b/i.test(t) || /\{\s*"name"\s*:\s*"[a-z0-9_.-]{1,64}"\s*,\s*"arguments"/i.test(t)
-  },
-  {
-    code: "encoded-payload",
-    reason: "content carries a long encoded blob (base64-class) that hides instructions from review",
-    test: (t) => /[A-Za-z0-9+/]{80,}={0,2}/.test(t)
-  },
-  {
-    code: "exfiltration-prompt",
-    reason: "content asks for credentials/secrets to be sent somewhere",
-    test: (t) => /(api[_ -]?key|secret[_ -]?key|access[_ -]?token|password|credentials?).{0,60}(send|post|upload|fetch|transmit|exfiltrate|to\s+https?:)/i.test(t)
-  },
-  {
-    code: "html-data-uri",
-    reason: "content embeds an executable data: URI",
-    test: (t) => /data\s*:\s*text\/html/i.test(t) || /javascript\s*:/i.test(t)
-  },
-  {
-    code: "invisible-characters",
-    reason: "content contains invisible/zero-width characters (smuggling surface)",
-    test: (t) => INVISIBLE_UNICODE.test(t)
-  }
-];
-function detectInjection(text) {
-  if (!text) return [];
-  const findings = [];
-  for (const d of INJECTION_DETECTORS) {
-    if (d.test(text)) findings.push({ code: d.code, reason: d.reason });
-  }
-  return findings;
-}
-var RateGate = class {
-  constructor(limit, windowMs, now = () => Date.now()) {
-    this.limit = limit;
-    this.windowMs = windowMs;
-    this.now = now;
-  }
-  hits = /* @__PURE__ */ new Map();
-  /** Returns true when the action is within budget (and records it). */
-  check(key) {
-    const t = this.now();
-    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
-    if (arr.length >= this.limit) {
-      this.hits.set(key, arr);
-      return false;
-    }
-    arr.push(t);
-    this.hits.set(key, arr);
-    return true;
-  }
-};
-var BLOCKED_HOST_SUFFIXES = [".internal", ".local", ".localhost"];
-function checkEgressUrl(raw) {
-  let u;
-  try {
-    u = new URL(raw);
-  } catch {
-    return { ok: false, reason: "not a parseable URL" };
-  }
-  if (u.protocol !== "http:" && u.protocol !== "https:") {
-    return { ok: false, reason: `scheme "${u.protocol}" refused \u2014 only http(s) egress is allowed` };
-  }
-  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (host === "169.254.169.254" || host === "metadata.google.internal") {
-    return { ok: false, reason: "cloud metadata endpoint refused (SSRF guard)" };
-  }
-  if (/^169\.254\./.test(host)) {
-    return { ok: false, reason: "link-local address refused (SSRF guard)" };
-  }
-  if (host === "0.0.0.0" || host === "::") {
-    return { ok: false, reason: "unspecified address refused" };
-  }
-  for (const sfx of BLOCKED_HOST_SUFFIXES) {
-    if (host.endsWith(sfx)) return { ok: false, reason: `host suffix "${sfx}" refused` };
-  }
-  return { ok: true, reason: "" };
-}
-var callRateGate = new RateGate(120, 6e4);
-
-// src/vh19/skills.ts
-var skill = (id, name, description, body) => ({ id, name, description, body });
-var SKILLS = [
-  skill(
-    "design.premium-ui",
-    "Premium Interface Craft",
-    "Produces distinctive, production-grade interfaces. Use for any UI surface, component, page or app work.",
-    `Procedure:
-1. Establish the design stance before any layout: who is this for, what feeling should it carry, what is the ONE thing on screen.
-2. Refuse the generic-AI look: no default purple gradients, no centered hero-plus-three-cards, no stock rounded-everything. Choose one deliberate visual idea and commit.
-3. Build the hierarchy first with type and space (size, weight, spacing), colour last. If the layout works in greyscale, colour is seasoning \u2014 if it needs colour to make sense, the layout is broken.
-4. Use a real spacing scale (4/8px rhythm) and one accent used sparingly; neutral surfaces do the work.
-5. Design every state: empty, loading, error, overflow, first-run. A premium product is premium in its worst state.
-Quality checklist before delivering: Does it look like it belongs to ONE product? Is the primary action unmistakable? Does every state exist? Would a designer defend each choice in one sentence?`
-  ),
-  skill(
-    "design.typographic-hierarchy",
-    "Typographic Hierarchy",
-    "Type-led hierarchy and readable text. Use whenever text, titles, tables or reading order matter.",
-    `Procedure:
-1. Set no more than three type roles: display, body, meta. Everything maps to one of them.
-2. Hierarchy by size AND weight AND colour together \u2014 one axis alone reads as a mistake.
-3. Line length 60\u201375 characters; line height 1.4\u20131.6 for body, tighter for display.
-4. Numerals in tables get tabular figures and right alignment.
-Checklist: Can a stranger find the title, the action and the metadata in under two seconds? Is anything competing for "most important"?`
-  ),
-  skill(
-    "design.color-and-contrast",
-    "Colour & Contrast Systems",
-    "Purposeful colour systems that stay accessible. Use for palettes, themes, status colours, dark mode.",
-    `Procedure:
-1. Every colour has a job: surface, content, accent, status. A colour without a job does not ship.
-2. Status colours (success/warning/error) are never the only carrier of meaning \u2014 pair with icon or text.
-3. Verify contrast: 4.5:1 body text, 3:1 large text and interactive boundaries.
-4. Dark mode is a redesigned palette, not inverted values: desaturate accents, lift surfaces, never pure black on pure white.
-Checklist: Does each colour survive greyscale printing? Is every text pairing contrast-checked, not eyeballed?`
-  ),
-  skill(
-    "design.spatial-rhythm",
-    "Spatial Rhythm & Layout",
-    "Grid, density and spacing decisions. Use for layouts, dashboards, forms, dense data surfaces.",
-    `Procedure:
-1. Pick one grid (8px base) and one density posture; mixing densities on one screen reads as unfinished.
-2. Related things close, unrelated things far \u2014 proximity IS the grouping signal; borders are the fallback, not the tool.
-3. Whitespace is structure: margins between groups must exceed padding inside them, always.
-4. Dense data gets alignment (left for text, right for numbers) and zebra or hairline separation, never heavy boxes.
-Checklist: Squint test \u2014 do the groups read as groups? Is any spacing arbitrary (not on the scale)?`
-  ),
-  skill(
-    "security.evidence-first-audit",
-    "Evidence-First Security Audit",
-    "Security review that produces defensible, cited findings. Use for any security review or audit task.",
-    `Procedure:
-1. Enumerate the trust boundaries first (inputs, identity, network, storage); findings live at boundaries.
-2. Every finding cites: exact location, attacker precondition, impact, and a reproduction sketch.
-3. Severity = exploitability \xD7 impact, stated honestly; no severity inflation, no "could be critical" hedging.
-4. Each finding ships with a fix at the right layer and a regression test that would catch its return.
-Checklist: Could the team fix every finding without asking a clarifying question? Is every severity justified by a stated precondition?`
-  ),
-  skill(
-    "security.assume-breach",
-    "Assume-Breach Design Review",
-    "Designs for the compromised component. Use for architecture reviews, key handling, multi-tenant or agent systems.",
-    `Procedure:
-1. Ask which single component, if fully controlled by an attacker, does the least damage \u2014 then check that is the actual design.
-2. Every secret answers: where it lives, who can read it, how it rotates, what exposure looks like.
-3. Privileges are per-operation, not per-service; a component holds the minimum for the operation in flight.
-4. Logs must reconstruct who did what with which authority \u2014 an incident without an audit trail is unfixable.
-Checklist: Name the blast radius of each component's compromise. Is any component's compromise fatal? If yes, say so plainly.`
-  ),
-  skill(
-    "code.reproduction-first",
-    "Reproduction-First Engineering",
-    "Diagnosis discipline for bugs and incidents. Use whenever something is broken and the cause is unknown.",
-    `Procedure:
-1. Reproduce deterministically before proposing any fix \u2014 no repro, no diagnosis, say so.
-2. Bisect the failure surface (input, state, version, environment) one variable at a time.
-3. State the causal chain: this input, through this path, produces this observed symptom.
-4. The fix targets the cause, not the symptom, and ships with the reproduction as its regression test.
-Checklist: Does the fix make the reproduction fail? Can you explain the bug in two sentences to a non-author?`
-  ),
-  skill(
-    "code.reversible-change",
-    "Reversible Change Discipline",
-    "Keeps risky changes survivable. Use for migrations, refactors, dependency upgrades, infrastructure edits.",
-    `Procedure:
-1. Before the change: state the rollback path and test it, or state plainly that this step is irreversible and why it is still right.
-2. Change in the smallest increment that produces a verifiable result; verify before the next increment.
-3. Data outlives code: never destroy data a rollback would need.
-4. Feature-flag anything user-visible so the change and the release are separate events.
-Checklist: If this breaks at 3am, what is the exact rollback command? Has anyone run it?`
-  ),
-  skill(
-    "testing.pyramid-balance",
-    "Test Pyramid Balance",
-    "Chooses the right test level for each risk. Use when designing or repairing a test strategy.",
-    `Procedure:
-1. Unit tests own logic branches; integration tests own boundaries; E2E owns money paths and login \u2014 nothing else.
-2. Every test names the production failure it would catch; a test that cannot is deleted or rewritten.
-3. Speed budget: the inner loop stays under a minute or it will be skipped, and a skipped suite is a dead suite.
-4. Flaky tests are quarantined with an owner and a date, never retried into silence.
-Checklist: What is the slowest tier's runtime? Does each tier catch something the tier below cannot?`
-  ),
-  skill(
-    "testing.adversarial-data",
-    "Adversarial Test Data",
-    "Tests against hostile and edge inputs. Use for parsers, validators, APIs, anything processing input.",
-    `Procedure:
-1. Every input gets five adversaries: empty, oversized, wrong-type, boundary (0/-1/MAX), and injection-shaped.
-2. Unicode adversarial set: RTL overrides, zero-width joiners, combining marks, emoji sequences.
-3. Time adversarial set: epoch, leap second, DST transition, year 2038.
-4. Failures must fail closed with a useful message \u2014 a stack trace shown to a user is a second bug.
-Checklist: Did any adversary pass through unchanged? Is every rejection message actionable?`
-  ),
-  skill(
-    "research.triangulation",
-    "Source Triangulation",
-    "Research with verifiable confidence levels. Use for any research, comparison or market question.",
-    `Procedure:
-1. Every load-bearing claim needs two independent sources or is labelled single-sourced.
-2. Tier sources: primary > official docs > reputable secondary > community; state the tier when it matters.
-3. Date every source; a 2023 benchmark in a 2026 decision is flagged, not hidden.
-4. Disagreement between sources is reported as disagreement with both numbers \u2014 never averaged into a fake consensus.
-Checklist: What is the weakest source a conclusion rests on? Would removing it change the answer? If yes, say the confidence drop.`
-  ),
-  skill(
-    "writing.pyramid-first",
-    "Pyramid-First Writing",
-    "Decision-ready documents. Use for briefs, proposals, reports, anything a busy person must act on.",
-    `Procedure:
-1. Lead with the answer and its stakes in the first two sentences \u2014 the reader decides whether to read on.
-2. Then the three supporting arguments, strongest first; evidence follows each claim it supports.
-3. One idea per paragraph; the first sentence of each paragraph must survive skimming alone.
-4. Recommendations are verbs with owners and dates, never "consider exploring".
-Checklist: If the reader stops after paragraph one, do they have the decision? Is any sentence load-bearing but buried?`
-  ),
-  skill(
-    "analysis.assumptions-visible",
-    "Assumptions-Visible Analysis",
-    "Analysis a decision-maker can stress-test. Use for forecasts, models, metrics work, business cases.",
-    `Procedure:
-1. List the assumptions where the reader sees them, before the results \u2014 a model hiding its inputs is a rumour.
-2. Show the sensitivity: which assumption moves the answer most, and by how much.
-3. Report uncertainty as a range with its basis; a point estimate without a range implies false precision.
-4. Separate measured data from estimated data visually and verbally, always.
-Checklist: Could a competent critic break the conclusion by changing one stated assumption? Do they know which one?`
-  ),
-  skill(
-    "devops.blast-radius",
-    "Blast-Radius Engineering",
-    "Operations changes sized by their worst case. Use for deploys, infrastructure, incident response, capacity.",
-    `Procedure:
-1. State the blast radius before the change: who is affected if this fails completely.
-2. Roll out in rings (canary \u2192 partial \u2192 full) with a stated abort signal per ring.
-3. Every automated action has a rate limit and a kill switch a human can reach in one step.
-4. Recovery is rehearsed, not hoped for: the restore path has been executed at least once.
-Checklist: What is the worst ten minutes this change can cause? Is that acceptable to a named human?`
-  ),
-  skill(
-    "data.lineage-trust",
-    "Lineage-First Data Trust",
-    "Data work where provenance is a first-class output. Use for pipelines, dashboards, datasets, migrations.",
-    `Procedure:
-1. Every number names its source table, its transform, and its freshness before anyone acts on it.
-2. Transformations are reversible or dual-run: new logic runs beside old until the outputs reconcile.
-3. Quality gates at ingestion (schema, volume, null-rate) fail the pipeline loudly \u2014 silent partial data poisons everything downstream.
-4. Destructive operations keep a restore window; "we can recompute it" is only true if the recompute is tested.
-Checklist: Can every displayed number be traced to source in two hops? Does any consumer trust data no gate protects?`
-  ),
-  skill(
-    "review.risk-weighted",
-    "Risk-Weighted Review",
-    "Review effort proportional to consequence. Use for any code, design or plan review.",
-    `Procedure:
-1. Classify the change's blast radius first: reversible/cosmetic vs data-touching vs user-facing vs security \u2014 spend review effort accordingly.
-2. High-risk changes get the adversarial pass: what input, ordering or failure makes this wrong?
-3. Every blocking comment states the risk concretely \u2014 "this feels off" is not a review finding.
-4. Approve with the residual risks named; an approval that hides its doubts is not an approval.
-Checklist: Did the riskiest line get the most attention? Could you defend the approval to someone who found the bug later?`
-  )
-];
-var CATEGORY_SKILLS = {
-  code: ["code.reproduction-first", "code.reversible-change"],
-  security: ["security.evidence-first-audit", "security.assume-breach"],
-  testing: ["testing.pyramid-balance", "testing.adversarial-data"],
-  review: ["review.risk-weighted"],
-  data: ["data.lineage-trust", "analysis.assumptions-visible"],
-  devops: ["devops.blast-radius", "code.reversible-change"],
-  research: ["research.triangulation"],
-  writing: ["writing.pyramid-first"],
-  analysis: ["analysis.assumptions-visible", "research.triangulation"],
-  design: ["design.premium-ui", "design.typographic-hierarchy", "design.color-and-contrast", "design.spatial-rhythm"],
-  ops: ["devops.blast-radius"]
-};
-var EXTRA_SKILLS = {
-  "design.data-model": ["data.lineage-trust"],
-  "design.threat-model": ["security.assume-breach"],
-  "design.conversational": ["writing.pyramid-first"],
-  "review.security-diff": ["security.evidence-first-audit"],
-  "review.test-quality": ["testing.pyramid-balance"],
-  "review.data-pipeline": ["data.lineage-trust"],
-  "review.ml-code": ["analysis.assumptions-visible"],
-  "writing.runbooks": ["devops.blast-radius"],
-  "writing.runbook": ["devops.blast-radius"],
-  "research.codebase": ["code.reproduction-first"],
-  "analysis.forensics": ["code.reproduction-first"],
-  "security.adversarial-testing": ["testing.adversarial-data"],
-  "testing.property": ["testing.adversarial-data"],
-  "testing.fuzz": ["testing.adversarial-data"],
-  "code.database": ["data.lineage-trust"],
-  "code.ml-pipelines": ["analysis.assumptions-visible"],
-  "devops.incident": ["security.assume-breach"],
-  "devops.prod-failover": ["security.assume-breach"]
-};
-function getSkill(id) {
-  return SKILLS.find((s) => s.id === id) ?? null;
-}
-function skillsFor(specialist) {
-  const ids = [...CATEGORY_SKILLS[specialist.category] ?? [], ...EXTRA_SKILLS[specialist.id] ?? []];
-  const seen = /* @__PURE__ */ new Set();
-  return ids.filter((i) => seen.has(i) ? false : (seen.add(i), true)).map((i) => getSkill(i)).filter((s) => s !== null);
-}
-function buildSpecialistPrompt(specialist) {
-  const skills = skillsFor(specialist);
-  if (skills.length === 0) return specialist.systemPrompt;
-  const blocks = skills.map((s) => `### Skill: ${s.name}
-${s.body}`).join("\n\n");
-  return `${specialist.systemPrompt}
-
-## Bound skills \u2014 follow these playbooks and their checklists
-
-${blocks}`;
-}
 
 // src/vh19/router.ts
 var MIN_SCORE = 3;
@@ -4828,185 +4323,29 @@ function routeDeterministic(request, k = MAX_K) {
   }
   return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
 }
-async function routeWithModel(request, provider, complete2, k = MAX_K) {
-  const base = routeDeterministic(request, Math.max(k * 2, MAX_K));
-  if (base.strategy === "none" || base.selected.length === 0) return base;
-  const ids = base.selected.map((c) => c.id);
-  const prompt = `Rank these specialist ids by fit for the request. Reply with ONLY a JSON array of ids, most-fit first, using exactly these ids: ${JSON.stringify(ids)}
 
-Request: ${request}`;
-  const res = await complete2(provider, "You are a routing assistant. Output only JSON.", prompt);
-  if (!res.ok) return { ...base, fallbackReason: `llm re-rank unavailable: ${res.error}` };
-  let parsed;
-  try {
-    parsed = JSON.parse(res.text.trim().replace(/^[^{[]*/, "").replace(/[^}\]]*$/, ""));
-  } catch {
-    return { ...base, fallbackReason: "llm re-rank returned unparseable JSON" };
-  }
-  if (!Array.isArray(parsed) || parsed.some((x) => typeof x !== "string" || !ids.includes(x)) || new Set(parsed).size !== parsed.length) {
-    return { ...base, fallbackReason: "llm re-rank returned ids outside the candidate set" };
-  }
-  const order = parsed;
-  const byId = new Map(base.selected.map((c) => [c.id, c]));
-  const reranked = order.map((id) => byId.get(id)).filter(Boolean).concat(base.selected.filter((c) => !order.includes(c.id)));
-  const selected = reranked.slice(0, k);
-  let strategy = selected.length === 1 ? "single" : "multi";
-  return { selected, considered: base.considered, strategy, routedBy: "llm-assisted" };
-}
-
-// src/vh19/providers.ts
-var DEFAULT_TIMEOUT_MS = 3e4;
-function redactSecrets(text, known = []) {
-  let out = text;
-  for (const k of known) {
-    if (k && k.length >= 8) out = out.split(k).join(`${k.slice(0, 4)}\u2026REDACTED`);
-  }
-  out = out.replace(/\b(sk-[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
-  out = out.replace(/\b(sk-ant-[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
-  out = out.replace(/\b(AIza[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+/g, "$1\u2026REDACTED");
-  return out;
-}
-function buildRequest(cfg, system, user) {
-  switch (cfg.kind) {
-    case "openai-compatible":
-      return {
-        url: `${cfg.baseUrl}/chat/completions`,
-        init: {
-          method: "POST",
-          headers: { "content-type": "application/json", authorization: `Bearer ${cfg.apiKey}` },
-          body: JSON.stringify({ model: cfg.model, messages: [{ role: "system", content: system }, { role: "user", content: user }] })
-        }
-      };
-    case "anthropic":
-      return {
-        url: `${cfg.baseUrl}/v1/messages`,
-        init: {
-          method: "POST",
-          headers: { "content-type": "application/json", "x-api-key": cfg.apiKey, "anthropic-version": "2023-06-01" },
-          body: JSON.stringify({ model: cfg.model, max_tokens: 2048, system, messages: [{ role: "user", content: user }] })
-        }
-      };
-    case "gemini":
-      return {
-        url: `${cfg.baseUrl}/models/${encodeURIComponent(cfg.model)}:generateContent`,
-        init: {
-          method: "POST",
-          headers: { "content-type": "application/json", "x-goog-api-key": cfg.apiKey },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: "user", parts: [{ text: user }] }]
-          })
-        }
-      };
-  }
-}
-function extractText(cfg, body) {
-  try {
-    if (cfg.kind === "openai-compatible") {
-      const b2 = body;
-      return b2.choices?.[0]?.message?.content ?? null;
-    }
-    if (cfg.kind === "anthropic") {
-      const b2 = body;
-      const parts2 = (b2.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "");
-      return parts2.length ? parts2.join("") : null;
-    }
-    const b = body;
-    const parts = b.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "") ?? [];
-    return parts.length ? parts.join("") : null;
-  } catch {
-    return null;
-  }
-}
-async function complete(cfg, system, user, opts = {}) {
-  if (!cfg) return { ok: false, kind: "no-key", error: "no provider configured \u2014 supply an API key (env or the Providers door); nothing was executed" };
-  if (!cfg.apiKey || !cfg.apiKey.trim()) return { ok: false, kind: "no-key", error: "provider key is empty \u2014 nothing was executed" };
-  const egress = checkEgressUrl(cfg.baseUrl);
-  if (!egress.ok) return { ok: false, kind: "egress-blocked", error: redactSecrets(`base URL refused by the egress guard: ${egress.reason}`, [cfg.apiKey]) };
-  const { url, init } = buildRequest(cfg, system, user);
-  const doFetch = opts.fetchImpl ?? globalThis.fetch?.bind(globalThis);
-  if (!doFetch) return { ok: false, kind: "network", error: "no fetch available in this runtime \u2014 nothing was executed" };
-  const controller = new AbortController();
-  const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const t0 = Date.now();
-  try {
-    const res = await doFetch(url, { ...init, signal: controller.signal });
-    const latencyMs = Date.now() - t0;
-    if (!res.ok) {
-      const bodyText = await res.text().catch(() => "");
-      return { ok: false, kind: "http-error", error: redactSecrets(`provider returned HTTP ${res.status}${bodyText ? `: ${bodyText.slice(0, 300)}` : ""}`, [cfg.apiKey]) };
-    }
-    const body = await res.json().catch(() => null);
-    const text = body == null ? null : extractText(cfg, body);
-    if (text == null || text.length === 0) {
-      return { ok: false, kind: "bad-response", error: "provider response carried no usable text \u2014 nothing was executed" };
-    }
-    return { ok: true, text, model: cfg.model, latencyMs };
-  } catch (err) {
-    const aborted = err instanceof Error && err.name === "AbortError";
-    return {
-      ok: false,
-      kind: aborted ? "timeout" : "network",
-      error: redactSecrets(aborted ? `provider timed out after ${timeoutMs}ms` : `network failure: ${err instanceof Error ? err.message : String(err)}`, [cfg.apiKey])
-    };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-// src/vh19/memory.ts
-var KEY2 = "vh19.memory.v1";
-function storage3() {
-  try {
-    return globalThis.localStorage ?? null;
-  } catch {
-    return null;
-  }
-}
-function loadMemory(userId = "default") {
-  const s = storage3();
-  if (!s) return [];
-  try {
-    const raw = JSON.parse(s.getItem(KEY2) ?? "[]");
-    return Array.isArray(raw) ? raw.filter((r) => r && r.userId === userId) : [];
-  } catch {
-    return [];
-  }
-}
-function patternReport(userId = "default") {
-  const mem = loadMemory(userId);
-  const accepts = mem.filter((r) => r.kind === "accept").length;
-  const rejects = mem.filter((r) => r.kind === "reject").length;
-  const corrections = mem.filter((r) => r.kind === "correction").length;
-  const perSpecialist = /* @__PURE__ */ new Map();
-  for (const r of mem) {
-    if (!r.specialistId) continue;
-    const e = perSpecialist.get(r.specialistId) ?? { accepts: 0, rejects: 0 };
-    if (r.kind === "accept") e.accepts += 1;
-    if (r.kind === "reject") e.rejects += 1;
-    perSpecialist.set(r.specialistId, e);
-  }
-  const bySpecialist = Array.from(perSpecialist.entries()).map(([id, e]) => ({ id, ...e, rate: e.accepts + e.rejects === 0 ? 0 : e.accepts / (e.accepts + e.rejects) })).sort((a, b) => b.accepts + b.rejects - (a.accepts + a.rejects));
-  return {
-    total: mem.length,
-    accepts,
-    rejects,
-    corrections,
-    acceptanceRate: accepts + rejects === 0 ? 0 : accepts / (accepts + rejects),
-    bySpecialist,
-    recentRejections: mem.filter((r) => r.kind === "reject").slice(-5)
-  };
-}
-function memoryBriefing(userId = "default", maxLines = 4) {
-  const p = patternReport(userId);
-  const lines = [];
-  if (p.total === 0) return ["No decision history yet for this user \u2014 do not assume preferences."];
-  lines.push(`User decision history: ${p.accepts} accepted, ${p.rejects} rejected, ${p.corrections} corrections (acceptance ${(p.acceptanceRate * 100).toFixed(0)}%).`);
-  for (const r of p.recentRejections.slice(-maxLines)) {
-    lines.push(`Rejected before: "${r.scenario.slice(0, 80)}" \u2014 ${r.reason ? `reason: ${r.reason.slice(0, 120)}` : "no reason stated"}.`);
-  }
-  return lines;
+// src/vh19/captains.ts
+var captain = (domain, name, mandate, focus) => ({
+  id: `captain.${domain}`,
+  name,
+  domain,
+  mandate,
+  systemPrompt: `You are ${name}, captain of the ${domain} domain. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
+});
+var CAPTAINS = [
+  captain("code", "Captain of Code", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
+  captain("security", "Captain of Security", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
+  captain("testing", "Captain of Testing", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
+  captain("review", "Captain of Review", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
+  captain("data", "Captain of Data", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
+  captain("devops", "Captain of DevOps", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
+  captain("research", "Captain of Research", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
+  captain("writing", "Captain of Writing", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
+  captain("analysis", "Captain of Analysis", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
+  captain("design", "Captain of Design", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
+];
+function captainForDomain(domain) {
+  return CAPTAINS.find((l) => l.domain === domain) ?? null;
 }
 
 // src/vh19/secureKeys.ts
@@ -5015,378 +4354,238 @@ var dec = new TextDecoder();
 
 // src/vh19/collabInvite.ts
 var enc2 = new TextEncoder();
+async function sha256Hex(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", enc2.encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
-// src/vh19/teamEvolve.ts
-var RUNS_KEY = "vh19.team.runs.v1";
-var CONFIG_KEY = "vh19.team.config.v1";
-var PENDING_KEY = "vh19.team.pending.v1";
-var RUN_CAP = 200;
-function storage4() {
+// src/vh19/shipyard.ts
+var MAX_ORDERS = 6;
+var SHIPYARD_KEY = "vh19.shipyard.v1";
+var BUILD_CAP = 50;
+var DOMAIN_LABEL = {
+  code: "Implementation",
+  security: "Security review",
+  testing: "Test strategy",
+  review: "Code review",
+  data: "Data & analytics",
+  devops: "Build & deployment",
+  research: "Research & discovery",
+  writing: "Content & docs",
+  analysis: "Analysis & decisions",
+  design: "Design & UI"
+};
+var CAPTAIN_INSTRUCTION = {
+  code: "Design the architecture and implement the core modules for this brief. List files, key types, and the entry point.",
+  security: "Threat-model this brief: trust boundaries, injection surfaces, auth needs, and a hardening checklist for the team's implementation.",
+  testing: "Produce the test plan for this brief: unit, integration, and end-to-end cases with the exact commands to run them.",
+  review: "Define the review bar for this build: what reviewers must check per domain before merge.",
+  data: "Specify the data model, storage, and analytics events this product needs.",
+  devops: "Specify the CI pipeline, packaging, and deployment steps for this product.",
+  research: "Research the problem space of this brief: current best practice, prior art, constraints. Date your findings.",
+  writing: "Draft the product content for this brief: README, onboarding copy, and docs structure.",
+  analysis: "Break this brief into decisions: what must be chosen, the options, and a recommendation with risks.",
+  design: "Produce the design system slice for this product: layout, components, palette, and the states every screen needs."
+};
+function storage3() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
     return null;
   }
 }
-async function sha256Hex(text) {
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-function recordTeamRun(run) {
-  const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage4();
-  if (s) {
-    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
-    all.push(rec);
-    s.setItem(RUNS_KEY, JSON.stringify(all.slice(-RUN_CAP * 4)));
-  }
-  return rec;
-}
-function teamRuns(teamId) {
-  const s = storage4();
-  if (!s) return [];
+function listBuilds() {
+  const raw = storage3()?.getItem(SHIPYARD_KEY) ?? null;
+  if (!raw) return [];
   try {
-    const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
-    return all.filter((r) => r.teamId === teamId).slice(-RUN_CAP);
+    const b = JSON.parse(raw);
+    return Array.isArray(b) ? b : [];
   } catch {
     return [];
   }
 }
-function teamMemoryReport(teamId) {
-  const runs = teamRuns(teamId);
-  const verified = runs.filter((r) => r.outcome === "verified");
-  const perSpec = /* @__PURE__ */ new Map();
-  for (const r of verified) for (const id of r.specialists) perSpec.set(id, (perSpec.get(id) ?? 0) + 1);
-  return {
-    runs: runs.length,
-    verified: verified.length,
-    failed: runs.filter((r) => r.outcome === "failed").length,
-    refused: runs.filter((r) => r.outcome === "refused").length,
-    successRate: runs.length === 0 ? 0 : verified.length / runs.length,
-    topSpecialists: Array.from(perSpec.entries()).map(([id, verifiedRuns]) => ({ id, verifiedRuns })).sort((a, b) => b.verifiedRuns - a.verifiedRuns || a.id.localeCompare(b.id))
-  };
+function save(list) {
+  storage3()?.setItem(SHIPYARD_KEY, JSON.stringify(list.slice(-BUILD_CAP)));
 }
-async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */ new Date()) {
-  const report = teamMemoryReport(teamId);
-  if (report.runs < 3) {
-    return { ok: false, error: `team has ${report.runs} recorded run(s) \u2014 at least 3 real runs are needed before an evolution proposal` };
-  }
-  if (report.verified < 1) {
-    return { ok: false, error: "team has no verified runs \u2014 a team that has never succeeded has nothing to evolve from" };
-  }
-  const recommended = report.topSpecialists.slice(0, 3).map((e) => e.id);
-  if (recommended.length < 2) {
-    return { ok: false, error: "verified runs used fewer than 2 distinct specialists \u2014 not enough signal to recommend a composition" };
-  }
-  const verifiedRuns = teamRuns(teamId).filter((r) => r.outcome === "verified");
-  const rationale = [
-    `${report.verified}/${report.runs} joint runs verified (${Math.round(report.successRate * 100)}% success).`,
-    ...recommended.map((id) => {
-      const e = report.topSpecialists.find((x) => x.id === id);
-      return `"${id}" proved out in ${e.verifiedRuns} verified run(s) \u2014 recommended for the evolved composition.`;
-    })
-  ];
-  const proposal = {
-    id: uid("evo"),
-    teamId,
-    members: Array.from(new Set(members)).sort(),
-    createdAt: now().toISOString(),
-    recommendedSpecialists: recommended,
-    rationale,
-    sourceRunIds: verifiedRuns.map((r) => r.id),
-    digest: ""
-  };
-  proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage4();
-  if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
-  return { ok: true, proposal };
+function getBuild(id) {
+  return listBuilds().find((b) => b.id === id) ?? null;
 }
-function pendingProposal(teamId) {
-  const s = storage4();
-  if (!s) return null;
-  try {
-    return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
-  } catch {
-    return null;
-  }
+function clearBuilds() {
+  storage3()?.removeItem(SHIPYARD_KEY);
 }
-function evolvedConfig(teamId) {
-  const s = storage4();
-  if (!s) return null;
-  try {
-    return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
-  } catch {
-    return null;
-  }
-}
-async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ new Date()) {
-  if (pendingProposal(teamId)) return null;
-  const report = teamMemoryReport(teamId);
-  const proven = new Set(report.topSpecialists.map((e) => e.id));
-  if (report.runs < 3 || report.verified < 1 || proven.size < 2) return null;
-  const r = await proposeTeamEvolution(teamId, members, now);
-  return r.ok ? r.proposal : null;
-}
-function applyTeamPreference(teamId, selected) {
-  const config = evolvedConfig(teamId);
-  if (!config) return selected;
-  return selected.map(
-    (c) => config.specialists.includes(c.id) ? { ...c, score: c.score + 2, reasons: [...c.reasons, `team-evolved preference (config v${config.version})`] } : c
-  ).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
-}
+function orderInstruction(brief, domain) {
+  return `${DOMAIN_LABEL[domain]} \u2014 brief: \u201C${brief}\u201D
+${CAPTAIN_INSTRUCTION[domain]}
 
-// src/vh19/exam.ts
-var AUTONOMY_KEY = "vh19.autonomy.v1";
-function storage5() {
-  try {
-    return globalThis.localStorage ?? null;
-  } catch {
-    return null;
+Work as the ${domain} domain of this build. Be concrete and specific to this brief. You may not claim work you did not do.`;
+}
+function domainOfSpecialist(id) {
+  const head = id.split(".")[0];
+  return head in DOMAIN_LABEL ? head : null;
+}
+function createBuild(brief, now = () => /* @__PURE__ */ new Date()) {
+  const route = routeDeterministic(brief);
+  const domains = [];
+  for (const c of route.selected) {
+    const d = domainOfSpecialist(c.id);
+    if (d && !domains.includes(d)) domains.push(d);
   }
-}
-function grantKey(userId, category) {
-  return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
-}
-function loadGrant(userId = "default", category) {
-  const s = storage5();
-  const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
-  if (!s) return fallback;
-  try {
-    const raw = JSON.parse(s.getItem(grantKey(userId, category)) ?? "null");
-    if (!raw) return fallback;
-    return { ...raw, monitorOverrideAlwaysOn: true };
-  } catch {
-    return fallback;
-  }
-}
-function autonomyCovers(userId, category) {
-  if (loadGrant(userId).granted) return true;
-  return category ? loadGrant(userId, category).granted : false;
-}
-
-// src/vh19/generalist.ts
-async function sha256Hex2(text) {
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-function responseCanonical(r) {
-  return JSON.stringify({
-    v: "vh19-response/1",
-    reply: r.reply,
-    executed: r.executed,
-    outcome: r.outcome,
-    specialistIds: r.specialistIds,
-    routedBy: r.routed.routedBy,
-    selected: r.routed.selected.map((c) => [c.id, c.score]),
-    strategy: r.routed.strategy,
-    note: r.note ?? null,
-    lead: r.lead ?? null,
-    failure: r.failure ?? null
+  if (domains.length === 0) domains.push("research");
+  const picked = domains.slice(0, MAX_ORDERS);
+  const id = `build-${now().getTime().toString(36)}`;
+  const orders = picked.map((domain, i) => {
+    const c = captainForDomain(domain);
+    return {
+      id: `${id}-order-${i + 1}`,
+      domain,
+      captainId: c?.id ?? "",
+      captainName: c?.name ?? "",
+      instruction: orderInstruction(brief, domain),
+      status: "pending"
+    };
   });
+  const build = { id, brief, createdAt: now().toISOString(), status: "active", orders };
+  save([...listBuilds(), build]);
+  return build;
 }
-async function askVH19(args, deps = {}) {
-  const userId = args.userId ?? "default";
-  const text = sanitizeText(args.text, 8e3);
-  const now = deps.now ?? (() => /* @__PURE__ */ new Date());
-  void now;
-  const finish = async (r) => {
-    const lead2 = r.lead ?? (r.specialistIds.length > 0 ? buildLeadReport(leadForRoute(r.specialistIds)?.id ?? "", [{ specialistId: r.specialistIds[0], outcome: r.outcome, note: r.note }]) ?? void 0 : void 0);
-    const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated" ? void 0 : classifyFailure(r.outcome, r.note));
-    const full = { ...r, lead: lead2, failure };
-    return { ...full, provenanceDigest: await sha256Hex2(responseCanonical(full)) };
-  };
-  const findings = detectInjection(text);
-  if (findings.length > 0) {
-    return finish({
-      reply: "I can't take this request into the pipeline: the content gate flagged it.",
-      routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
-      executed: false,
-      outcome: "refused",
-      specialistIds: [],
-      note: `guardrail findings: ${findings.map((f) => f.code).join(", ")}`
-    });
-  }
-  if (args.peer) {
-    if (!deps.peerDelegate) {
-      deps.onHandoff?.({ peer: args.peer, task: text, outcome: "refused", detail: "no A2A bridge is wired into this runtime \u2014 nothing was sent" });
-      return finish({
-        reply: `Peer delegation to "${args.peer}" is not available: no A2A bridge is wired into this runtime.`,
-        routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
-        executed: false,
-        outcome: "refused",
-        specialistIds: [],
-        note: "peer delegation requires the A2A bridge (src/mission/a2aBridge) \u2014 nothing was sent"
-      });
-    }
-    const res = await deps.peerDelegate({ peerName: args.peer, task: text });
-    deps.onHandoff?.({ peer: args.peer, task: text, outcome: res.ok ? "delegated" : "refused", detail: res.detail, receiptDigest: res.receiptDigest });
-    if (args.team) {
-      recordTeamRun({
-        teamId: args.team.id,
-        members: args.team.members,
-        task: text.slice(0, 200),
-        outcome: res.ok ? "verified" : "refused",
-        specialists: [],
-        note: res.detail.slice(0, 160)
-      });
-      void autoProposeIfReady(args.team.id, args.team.members);
-    }
-    return finish({
-      reply: res.ok ? `Delegated to ${args.peer}: ${res.detail}${res.receiptDigest ? ` (peer receipt ${res.receiptDigest.slice(0, 12)}\u2026)` : ""}` : `Delegation to ${args.peer} did not run: ${res.detail}`,
-      routed: { selected: [], considered: 0, strategy: "none", routedBy: "deterministic" },
-      executed: res.ok,
-      outcome: res.ok ? "peer-delegated" : "refused",
-      specialistIds: [],
-      note: res.ok ? void 0 : res.detail
-    });
-  }
-  const provider = deps.provider ?? null;
-  let routed;
-  if (provider) {
-    routed = await routeWithModel(text, provider, async (cfg, system2, user) => {
-      const r = await complete(cfg, system2, user, { fetchImpl: deps.fetchImpl, timeoutMs: 15e3 });
-      return r.ok ? { ok: true, text: r.text } : { ok: false, error: r.error };
-    });
-  } else {
-    routed = routeDeterministic(text);
-  }
-  if (args.team) {
-    routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
-  }
-  const specialists = routed.selected.map((c) => getSpecialist(c.id)).filter(Boolean);
-  const worstTier = specialists.some((s) => s.riskTier === "critical") ? "critical" : specialists.some((s) => s.riskTier === "risky") ? "risky" : "safe";
-  const primaryCategory = specialists[0]?.category;
-  const autonomyEarned = autonomyCovers(userId, primaryCategory);
-  const needsGate = worstTier !== "safe" && !(autonomyEarned && worstTier === "risky");
-  if (needsGate) {
-    if (!deps.gate) {
-      return finish({
-        reply: "This routes to specialists whose work is gated as risky, and no human gate is available in this runtime \u2014 so nothing was executed.",
-        routed,
-        executed: false,
-        outcome: "refused",
-        specialistIds: specialists.map((s) => s.id),
-        note: `risk tier "${worstTier}" requires the human gate; wire one or re-route`
-      });
-    }
-    const decision = await deps.gate({
-      action: `VH-19 routed "${text.slice(0, 120)}" to ${specialists.map((s) => s.name).join(", ")}`,
-      riskTier: worstTier,
-      specialistIds: specialists.map((s) => s.id),
-      summary: routed.selected.flatMap((c) => c.reasons).slice(0, 4).join("; ")
-    });
-    if (!decision.approved) {
-      return finish({
-        reply: `You (or the standing policy) declined this at the gate: ${decision.reason}`,
-        routed,
-        executed: false,
-        outcome: "gated-out",
-        specialistIds: specialists.map((s) => s.id),
-        note: decision.reason
-      });
-    }
-  }
-  if (!provider) {
-    const plan = specialists.length ? specialists.map((s) => `${s.name} (${s.id}): ${s.capabilities[0]}`).join("\n") : "no specialist cleared the routing bar \u2014 the Generalist would handle this directly once a provider is configured";
-    return finish({
-      reply: `No provider key is configured, so nothing was executed. Here is the plan I would run:
+function captainPrompt(order) {
+  return `${order.instruction}
 
-${plan}
-
-Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of ${routed.considered} specialists considered).` + (routed.fallbackReason ? ` Note: ${routed.fallbackReason}.` : ""),
-      routed,
-      executed: false,
-      outcome: "planned",
-      specialistIds: specialists.map((s) => s.id),
-      note: "provider not configured \u2014 plan only, nothing executed"
-    });
+[Shipyard work order ${order.id} \u2014 supervised by ${order.captainName}. Report only what this run actually produces.]`;
+}
+async function advanceBuild(buildId, run) {
+  const list = listBuilds();
+  const build = list.find((b) => b.id === buildId);
+  if (!build) return null;
+  if (build.status === "settled") return build;
+  const order = build.orders.find((o) => o.status === "pending") ?? build.orders.find((o) => o.status === "blocked");
+  if (!order) return build;
+  const result = await run(captainPrompt(order));
+  order.outcome = result.outcome;
+  order.note = result.note;
+  order.receiptDigest = result.provenanceDigest;
+  order.executedAt = (/* @__PURE__ */ new Date()).toISOString();
+  order.status = result.executed ? "executed" : "blocked";
+  recomputeStatus(build);
+  save(list);
+  return build;
+}
+async function runAllOrders(buildId, run) {
+  let build = getBuild(buildId);
+  while (build && build.orders.some((o) => o.status === "pending")) {
+    build = await advanceBuild(buildId, run);
+    if (build?.orders.some((o) => o.status === "blocked")) break;
   }
-  const primary = specialists[0] ?? null;
-  const system = [
-    primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
-    "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
-    ...memoryBriefing(userId)
-  ].join("\n\n");
-  const result = await complete(provider, system, text, { fetchImpl: deps.fetchImpl });
-  if (!result.ok) {
-    return finish({
-      reply: `The provider call did not complete (${result.kind}): ${result.error}`,
-      routed,
-      executed: false,
-      outcome: "error",
-      specialistIds: specialists.map((s) => s.id),
-      note: redactSecrets(result.error, [provider.apiKey])
-    });
+  return build;
+}
+function recomputeStatus(build) {
+  if (build.status === "settled") return;
+  const done = build.orders.every((o) => o.status === "executed" || o.status === "settled");
+  build.status = done ? "done" : "active";
+}
+async function settleBuild(buildId) {
+  const list = listBuilds();
+  const build = list.find((b) => b.id === buildId);
+  if (!build) return null;
+  if (build.status === "settled") return build;
+  const incomplete = build.orders.filter((o) => o.status !== "executed" && o.status !== "settled");
+  if (incomplete.length > 0) {
+    build.status = "paused";
+    save(list);
+    return build;
   }
-  return finish({
-    reply: result.text,
-    routed,
-    executed: true,
-    outcome: "answered",
-    specialistIds: specialists.map((s) => s.id),
-    note: `provider ${provider.kind}/${result.model} \xB7 ${result.latencyMs}ms \xB7 accept or reject this answer so I can learn${autonomyEarned ? " \xB7 running under earned autonomy (override always available)" : ""}`
+  for (const o of build.orders) o.status = "settled";
+  const canon = JSON.stringify({
+    id: build.id,
+    brief: build.brief,
+    orders: build.orders.map((o) => ({ id: o.id, domain: o.domain, status: o.status, outcome: o.outcome, receiptDigest: o.receiptDigest }))
   });
+  build.buildDigest = await sha256Hex(canon);
+  build.status = "settled";
+  save(list);
+  return build;
+}
+function buildSummary(build) {
+  const counts = build.orders.reduce(
+    (acc, o) => ({ ...acc, [o.status]: (acc[o.status] ?? 0) + 1 }),
+    {}
+  );
+  const parts = Object.entries(counts).map(([s, n]) => `${n} ${s}`);
+  const verdict = build.status === "settled" ? "SETTLED \u2014 every order executed; the build is closed with a digest." : build.status === "done" ? "DONE \u2014 all orders executed; settle to close the build." : build.status === "paused" ? "PAUSED \u2014 some orders are blocked or unexecuted; a blocked order is never counted as done." : "ACTIVE \u2014 work orders remain.";
+  return `${build.orders.length} work orders (${parts.join(", ")}) \u2014 ${verdict}`;
 }
 
-// probe/agentLead.test.ts
-test("agentLead + failures \u2014 oversight that never fabricates", async () => {
-  let pass = 0, fail = 0;
-  const check = (name, cond, detail) => {
-    cond ? pass++ : fail++;
-    console.log(`  ${cond ? "ok  " : "FAIL"} ${name}${cond || detail === void 0 ? "" : ` \u2014 ${JSON.stringify(detail)}`}`);
+// probe/shipyard.test.ts
+if (typeof globalThis.localStorage === "undefined") {
+  const map = /* @__PURE__ */ new Map();
+  globalThis.localStorage = {
+    getItem: (k) => map.get(k) ?? null,
+    setItem: (k, v) => void map.set(k, String(v)),
+    removeItem: (k) => void map.delete(k),
+    clear: () => map.clear(),
+    key: (i) => Array.from(map.keys())[i] ?? null,
+    get length() {
+      return map.size;
+    }
   };
-  console.log("\n\u2500\u2500 1. the lead layer \u2500\u2500");
-  check("every domain has exactly one AgentLead", AGENT_LEADS.length === 10 && new Set(AGENT_LEADS.map((l) => l.domain)).size === 10);
-  check("leads have a mandate and their own playbook", AGENT_LEADS.every((l) => l.mandate.length > 10 && l.systemPrompt.includes(l.name)));
-  check("leadForDomain resolves every category", ["code", "security", "design"].every((c) => leadForDomain(c) !== null));
-  check("leadForRoute picks the dominant domain", leadForRoute(["code.typescript", "code.debugging", "testing.unit"])?.domain === "code");
-  check("leadForRoute returns null for unknown specialists only", leadForRoute(["nope.404"]) === null);
-  console.log("\n\u2500\u2500 2. the lead plans with real members \u2500\u2500");
-  const plan = planDomainWork("lead.code", "refactor typescript types and debug the crash");
-  check("the plan lists real bench members with scores", plan.length > 0 && plan.every((p) => SPECIALISTS.some((s) => s.id === p.specialistId) && p.score > 0));
-  check("the plan is capped \u2014 a plan, not a wishlist", planDomainWork("lead.devops", "deploy kubernetes terraform docker ci observability").length <= 3);
-  check("an unrelated task yields no plan (no invented work)", planDomainWork("lead.design", "zzz qqq xxx").length === 0);
-  check("unknown leads refuse politely", planDomainWork("lead.nope", "typescript").length === 0 && getLead("lead.nope") === null);
-  console.log("\n\u2500\u2500 3. the report tells the truth \u2500\u2500");
-  const done = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "answered" }]);
-  check("all-executed reads completed", done.status === "completed" && done.failures.length === 0);
-  const partial = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "answered" }, { specialistId: "code.debugging", outcome: "refused", note: "denied at the gate" }]);
-  check("mixed reads partial \u2014 never completed", partial.status === "partial" && partial.failures.length === 1);
-  const planned = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "planned" }]);
-  check("plan-only reads planned, with the key advice", planned.status === "planned" && planned.nextStep.includes("provider key"));
-  const blocked = buildLeadReport("lead.code", [{ specialistId: "code.typescript", outcome: "gated-out" }]);
-  check("gate-stop reads blocked with the resume step", blocked.status === "blocked" && blocked.nextStep.includes("gate"));
-  check("an empty result set yields no report (nothing to report)", buildLeadReport("lead.code", []) === null);
-  console.log("\n\u2500\u2500 4. the failure taxonomy \u2500\u2500");
-  const auth = classifyFailure("error", "provider returned 401 unauthorized");
-  check("a 401 is provider-auth, not retryable", auth.klass === "provider-auth" && auth.retryable === false && auth.severity === "error");
-  check("a 429 is rate-limit and retryable", (() => {
-    const f = classifyFailure("error", "429 too many requests");
-    return f.klass === "provider-rate-limit" && shouldRetry(f);
-  })());
-  check("a timeout is retryable with wait advice", (() => {
-    const f = classifyFailure("error", "request timed out");
-    return f.klass === "provider-timeout" && f.retryable;
-  })());
-  check("a network failure is unreachable", classifyFailure("error", "fetch failed: ECONNREFUSED").klass === "provider-unreachable");
-  check("an unclassifiable error stays honestly unknown", classifyFailure("error", "something odd happened").klass === "unknown");
-  check("planned is info, not error \u2014 the plan is the product", (() => {
-    const f = classifyFailure("planned");
-    return f.klass === "no-provider" && f.severity === "info" && !shouldRetry(f);
-  })());
-  check("gate-denied is final and says so", classifyFailure("gated-out").advice.includes("narrow"));
-  check("injection blocks are named as guardrail work", classifyFailure("refused", "blocked by the GuardRail: injection detected").klass === "injection-blocked");
-  check("every class carries meaning AND advice", ["no-provider", "gate-denied", "policy-refused", "injection-blocked", "peer-refused"].every((k) => {
-    const f = classifyFailure(k === "no-provider" ? "planned" : k === "gate-denied" ? "gated-out" : "refused", k === "injection-blocked" ? "injection" : k === "peer-refused" ? "peer bridge missing" : void 0);
-    return f.meaning.length > 20 && f.advice.length > 20;
-  }));
-  console.log("\n\u2500\u2500 5. the generalist attaches both to every routed exit \u2500\u2500");
-  const resp = await askVH19({ text: "refactor the typescript types in the parser", userId: "probe-user" });
-  check("a routed response carries its lead report", resp.lead != null && resp.lead.leadId.startsWith("lead.") && resp.lead.members.length > 0, resp.outcome);
-  check("a non-executed response carries classified failure advice", resp.failure != null && resp.failure.meaning.length > 20 && resp.outcome !== "answered");
-  check("the digest still seals the response", typeof resp.provenanceDigest === "string" && resp.provenanceDigest.length === 64);
-  console.log(`
-${fail === 0 ? "\u2705" : "\u274C"} agentLead probe: ${pass} passed, ${fail} failed
-`);
-  assert.equal(fail, 0, `${fail} agentLead checks failed`);
+}
+var pass = 0;
+var fail = 0;
+var check = (name, cond, detail) => {
+  if (cond) pass++;
+  else {
+    fail++;
+    console.error(`  \u2717 ${name}${detail !== void 0 ? ` \u2014 ${JSON.stringify(detail)}` : ""}`);
+  }
+};
+var okRun = async () => ({ executed: true, outcome: "answered", note: "ran the slice", provenanceDigest: "a".repeat(64) });
+var blockedRun = async () => ({ executed: false, outcome: "gated-out", note: "human gate paused it" });
+test("The Shipyard \u2014 team workspace that never fakes progress", async () => {
+  clearBuilds();
+  const brief = "build me a recipe sharing app with secure auth, unit tests, CI deployment and a nice UI";
+  const b = createBuild(brief);
+  check("a build is created and checkpointed", getBuild(b.id) !== null && listBuilds().length === 1);
+  check("a rich brief opens multiple domain work orders", b.orders.length >= 3, b.orders.map((o) => o.domain));
+  check("orders are capped at MAX_ORDERS", b.orders.length <= MAX_ORDERS);
+  check("fresh build is active with all orders pending", b.status === "active" && b.orders.every((o) => o.status === "pending"));
+  check("every order names its domain's Captain", b.orders.every((o) => o.captainId === captainForDomain(o.domain)?.id && o.captainName === captainForDomain(o.domain)?.name));
+  check("every order carries the brief in its instruction", b.orders.every((o) => o.instruction.includes(brief)));
+  check("order ids are unique", new Set(b.orders.map((o) => o.id)).size === b.orders.length);
+  const vague = createBuild("zzz qqq xyzzy plugh");
+  check("a brief too vague to route opens one honest research order", vague.orders.length === 1 && vague.orders[0].domain === "research", vague.orders.map((o) => o.domain));
+  check("summary never claims done for an active build", buildSummary(b).includes("ACTIVE"));
+  let after = await advanceBuild(b.id, okRun);
+  check("one advance executes exactly one order", after !== null && after.orders.filter((o) => o.status === "executed").length === 1);
+  check("the executed order keeps the run's real outcome and digest", after?.orders[0].outcome === "answered" && after.orders[0].receiptDigest === "a".repeat(64));
+  check("build is still active while orders remain", after?.status === "active");
+  after = await advanceBuild(b.id, blockedRun);
+  const blockedOrder = after?.orders.find((o) => o.status === "blocked");
+  check("a non-executed run marks the order blocked, never executed", blockedOrder !== void 0 && blockedOrder.outcome === "gated-out" && blockedOrder.note === "human gate paused it");
+  after = await runAllOrders(b.id, okRun);
+  check("runAll stops at the first blocked order instead of pushing past it", after !== null && after.orders.some((o) => o.status === "blocked") && after.status !== "done");
+  after = await advanceBuild(b.id, okRun);
+  check("a blocked order can be retried and then counts as executed", after?.orders.every((o) => o.status === "executed") && after?.status === "done");
+  const premature = await settleBuild(vague.id);
+  check("settling an unexecuted build pauses it \u2014 never settles", premature?.status === "paused" && buildSummary(premise(vague.id)).includes("PAUSED"));
+  const settled = await settleBuild(b.id);
+  check("settling a fully executed build settles every order", settled?.status === "settled" && settled.orders.every((o) => o.status === "settled"));
+  check("settle seals a real 64-hex build digest", typeof settled?.buildDigest === "string" && /^[0-9a-f]{64}$/.test(settled.buildDigest ?? ""));
+  check("summary reports SETTLED only after settlement", buildSummary(settleOrFail(b.id)).includes("SETTLED"));
+  const frozen = await advanceBuild(b.id, okRun);
+  check("a settled build ignores further runs", frozen?.orders.every((o) => o.status === "settled"));
+  check("checkpoint persists every mutation", listBuilds().find((x) => x.id === b.id)?.status === "settled");
+  clearBuilds();
+  check("clearBuilds empties the Shipyard", listBuilds().length === 0);
+  assert.equal(fail, 0, `${fail} shipyard checks failed`);
+  console.log(`shipyard probe: ${pass} passed, ${fail} failed`);
 });
+function premise(id) {
+  const b = getBuild(id);
+  if (!b) throw new Error(`missing build ${id}`);
+  return b;
+}
+function settleOrFail(id) {
+  const b = getBuild(id);
+  if (!b) throw new Error(`missing build ${id}`);
+  return b;
+}

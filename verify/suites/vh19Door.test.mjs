@@ -21940,33 +21940,114 @@ ${s.body}`).join("\n\n");
 ${blocks}`;
 }
 
-// src/vh19/agentLead.ts
-var lead = (domain, name, mandate, focus) => ({
-  id: `lead.${domain}`,
+// src/vh19/tokenOptim.ts
+var LEDGER_KEY = "vh19.tokens.v1";
+var LEDGER_CAP = 500;
+var PROMPT_BUDGET = 6e3;
+function estimateTokens(text) {
+  return Math.ceil(text.length / 4);
+}
+function fitToBudget(text, budgetTokens) {
+  const total = estimateTokens(text);
+  if (total <= budgetTokens) return { text, trimmed: false, savedTokens: 0 };
+  const keepChars = Math.max(400, budgetTokens * 4 - 120);
+  const headLen = Math.floor(keepChars * 0.6);
+  const tailLen = keepChars - headLen;
+  const cut = total - budgetTokens;
+  const out = `${text.slice(0, headLen)}
+[\u2026 ${cut} tokens trimmed by the VH token optimizer \u2014 full playbook preserved in the skill library \u2026]
+${text.slice(text.length - tailLen)}`;
+  return { text: out, trimmed: true, savedTokens: Math.max(0, total - estimateTokens(out)) };
+}
+function optimizeComposedPrompt(composed, budgetTokens = PROMPT_BUDGET) {
+  const before = estimateTokens(composed);
+  if (before <= budgetTokens) return { prompt: composed, optimized: false, savedTokens: 0, estimatedTokens: before };
+  const MARKER = "## Bound skills";
+  const at = composed.indexOf(MARKER);
+  if (at === -1) {
+    const f2 = fitToBudget(composed, budgetTokens);
+    return { prompt: f2.text, optimized: f2.trimmed, savedTokens: f2.savedTokens, estimatedTokens: estimateTokens(f2.text) };
+  }
+  const base = composed.slice(0, at);
+  const skills = composed.slice(at);
+  const condensed = skills.split("\n").filter((line, _i, arr) => {
+    void arr;
+    return /^### Skill:/.test(line) || /^(Procedure:|Checklist:|Quality checklist)/.test(line) || /^\d+\./.test(line.trim()) || line.trim() === "";
+  }).join("\n").replace(/\n{3,}/g, "\n\n");
+  let prompt = base + condensed;
+  let est = estimateTokens(prompt);
+  if (est <= budgetTokens) {
+    return { prompt, optimized: true, savedTokens: before - est, estimatedTokens: est };
+  }
+  const f = fitToBudget(prompt, budgetTokens);
+  est = estimateTokens(f.text);
+  return { prompt: f.text, optimized: true, savedTokens: before - est, estimatedTokens: est };
+}
+function storage3() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function recordUsage(entry, now = () => /* @__PURE__ */ new Date()) {
+  const raw = storage3()?.getItem(LEDGER_KEY);
+  let list = [];
+  try {
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) list = parsed;
+  } catch {
+  }
+  list.push({ ...entry, at: now().toISOString() });
+  storage3()?.setItem(LEDGER_KEY, JSON.stringify(list.slice(-LEDGER_CAP)));
+}
+function usageReport() {
+  const raw = storage3()?.getItem(LEDGER_KEY);
+  let list = [];
+  try {
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) list = parsed;
+  } catch {
+  }
+  return list.reduce(
+    (acc, e) => ({
+      calls: acc.calls + 1,
+      promptTokens: acc.promptTokens + e.promptTokens,
+      replyTokens: acc.replyTokens + e.replyTokens,
+      optimizedCalls: acc.optimizedCalls + (e.optimized ? 1 : 0),
+      savedTokens: acc.savedTokens + e.savedTokens
+    }),
+    { calls: 0, promptTokens: 0, replyTokens: 0, optimizedCalls: 0, savedTokens: 0 }
+  );
+}
+
+// src/vh19/captains.ts
+var captain = (domain, name, mandate, focus) => ({
+  id: `captain.${domain}`,
   name,
   domain,
   mandate,
-  systemPrompt: `You are ${name}, the ${domain} domain lead. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
+  systemPrompt: `You are ${name}, captain of the ${domain} domain. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
 });
-var AGENT_LEADS = [
-  lead("code", "Code Domain Lead", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
-  lead("security", "Security Domain Lead", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
-  lead("testing", "Testing Domain Lead", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
-  lead("review", "Review Domain Lead", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
-  lead("data", "Data Domain Lead", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
-  lead("devops", "DevOps Domain Lead", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
-  lead("research", "Research Domain Lead", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
-  lead("writing", "Writing Domain Lead", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
-  lead("analysis", "Analysis Domain Lead", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
-  lead("design", "Design Domain Lead", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
+var CAPTAINS = [
+  captain("code", "Captain of Code", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
+  captain("security", "Captain of Security", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
+  captain("testing", "Captain of Testing", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
+  captain("review", "Captain of Review", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
+  captain("data", "Captain of Data", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
+  captain("devops", "Captain of DevOps", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
+  captain("research", "Captain of Research", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
+  captain("writing", "Captain of Writing", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
+  captain("analysis", "Captain of Analysis", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
+  captain("design", "Captain of Design", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
 ];
-function getLead(id) {
-  return AGENT_LEADS.find((l) => l.id === id) ?? null;
+function getCaptain(id) {
+  return CAPTAINS.find((l) => l.id === id) ?? null;
 }
-function leadForDomain(domain) {
-  return AGENT_LEADS.find((l) => l.domain === domain) ?? null;
+function captainForDomain(domain) {
+  return CAPTAINS.find((l) => l.domain === domain) ?? null;
 }
-function leadForRoute(specialistIds) {
+function captainForRoute(specialistIds) {
   const counts = /* @__PURE__ */ new Map();
   let firstCat = null;
   for (const id of specialistIds) {
@@ -21982,10 +22063,10 @@ function leadForRoute(specialistIds) {
     best = cat;
     bestN = n2;
   }
-  return leadForDomain(best);
+  return captainForDomain(best);
 }
-function buildLeadReport(leadId, results) {
-  const l = getLead(leadId);
+function buildCaptainReport(captainId, results) {
+  const l = getCaptain(captainId);
   if (!l || results.length === 0) return null;
   const done = results.filter((r) => r.outcome === "answered" || r.outcome === "peer-delegated").length;
   const status = done === results.length ? "completed" : done > 0 ? "partial" : results.some((r) => r.outcome === "refused" || r.outcome === "gated-out") ? "blocked" : results.every((r) => r.outcome === "planned") ? "planned" : "blocked";
@@ -21997,7 +22078,7 @@ function buildLeadReport(leadId, results) {
   const failures2 = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated").map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` \u2014 ${r.note.slice(0, 80)}` : ""}`);
   const summary = status === "completed" ? `All ${done} routed ${l.domain} member(s) executed; work is done end to end.` : status === "partial" ? `${done} of ${results.length} routed member(s) executed; the rest did not run \u2014 see failures.` : status === "planned" ? `No member executed (no provider); the ${l.domain} plan is ready to run when a key exists.` : `Nothing executed in the ${l.domain} domain; progress stopped at the gate or a refusal.`;
   const nextStep = status === "completed" ? "None \u2014 accept or reject the work in the log." : status === "planned" ? "Add a provider key and re-run the plan." : status === "partial" ? "Re-run only the failed members; the executed ones keep their receipts." : "Resolve the blocking decision at the gate, then resume.";
-  return { leadId: l.id, leadName: l.name, domain: l.domain, status, summary, members, failures: failures2, nextStep };
+  return { captainId: l.id, captainName: l.name, domain: l.domain, status, summary, members, failures: failures2, nextStep };
 }
 
 // src/vh19/failures.ts
@@ -22273,7 +22354,7 @@ async function complete(cfg, system, user, opts = {}) {
 // src/vh19/memory.ts
 var KEY2 = "vh19.memory.v1";
 var MEMORY_CAP = 500;
-function storage3() {
+function storage4() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -22281,7 +22362,7 @@ function storage3() {
   }
 }
 function loadMemory(userId = "default") {
-  const s = storage3();
+  const s = storage4();
   if (!s) return [];
   try {
     const raw = JSON.parse(s.getItem(KEY2) ?? "[]");
@@ -22291,14 +22372,14 @@ function loadMemory(userId = "default") {
   }
 }
 function saveAll(records) {
-  const s = storage3();
+  const s = storage4();
   if (!s) return;
   const capped = records.length > MEMORY_CAP ? records.slice(records.length - MEMORY_CAP) : records;
   s.setItem(KEY2, JSON.stringify(capped));
 }
 function recordDecision(input) {
   const rec = { id: uid("dec"), ts: input.ts ?? nowIso(), ...input };
-  const s = storage3();
+  const s = storage4();
   const all = s ? JSON.parse(s.getItem(KEY2) ?? "[]") : [];
   all.push(rec);
   saveAll(all);
@@ -22345,7 +22426,7 @@ var V1_KEY = (memberId) => `vh19.collab.key.v1:${memberId}`;
 var PBKDF_ITERATIONS = 15e4;
 var enc = new TextEncoder();
 var dec = new TextDecoder();
-function storage4() {
+function storage5() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -22364,7 +22445,7 @@ function identityUnlocked(memberId) {
   return unlocked.has(memberId);
 }
 function purgeLegacy(memberId) {
-  const s = storage4();
+  const s = storage5();
   if (s && s.getItem(V1_KEY(memberId)) !== null) {
     s.removeItem(V1_KEY(memberId));
   }
@@ -22383,7 +22464,7 @@ async function ensureIdentity(memberId, passphrase) {
   if (!memberId || !passphrase || passphrase.length < 8) {
     return { ok: false, error: "a passphrase of at least 8 characters guards the signing key" };
   }
-  const s = storage4();
+  const s = storage5();
   purgeLegacy(memberId);
   const raw = s?.getItem(V2_KEY(memberId)) ?? null;
   if (raw === null) {
@@ -22433,7 +22514,7 @@ async function ensureIdentity(memberId, passphrase) {
   }
 }
 function storedPublicJwk(memberId) {
-  const raw = storage4()?.getItem(V2_KEY(memberId)) ?? null;
+  const raw = storage5()?.getItem(V2_KEY(memberId)) ?? null;
   if (raw === null) return null;
   try {
     return JSON.parse(raw).publicJwk;
@@ -22465,7 +22546,7 @@ function jwkFingerprint(jwk) {
 
 // src/vh19/collabRegistry.ts
 var PEERS_KEY = "vh19.collab.peers.v1";
-function storage5() {
+function storage6() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -22473,7 +22554,7 @@ function storage5() {
   }
 }
 function load() {
-  const raw = storage5()?.getItem(PEERS_KEY) ?? null;
+  const raw = storage6()?.getItem(PEERS_KEY) ?? null;
   if (!raw) return { peers: [] };
   try {
     const r = JSON.parse(raw);
@@ -22483,7 +22564,7 @@ function load() {
   }
 }
 function save2(r) {
-  storage5()?.setItem(PEERS_KEY, JSON.stringify(r));
+  storage6()?.setItem(PEERS_KEY, JSON.stringify(r));
 }
 function boundIdentityFor(memberId) {
   return load().peers.find((p) => p.memberId === memberId) ?? null;
@@ -22502,7 +22583,7 @@ function unbindPeer(memberId) {
 }
 var A2A_PEERS_KEY = "vh19.collab.a2a.v1";
 function structuralIdentityFor(memberId) {
-  const raw = storage5()?.getItem(A2A_PEERS_KEY) ?? null;
+  const raw = storage6()?.getItem(A2A_PEERS_KEY) ?? null;
   if (!raw) return null;
   try {
     const r = JSON.parse(raw);
@@ -22514,7 +22595,7 @@ function structuralIdentityFor(memberId) {
 function allKnownIdentities() {
   const manual = load().peers;
   const structural = (() => {
-    const raw = storage5()?.getItem(A2A_PEERS_KEY) ?? null;
+    const raw = storage6()?.getItem(A2A_PEERS_KEY) ?? null;
     if (!raw) return [];
     try {
       const r = JSON.parse(raw);
@@ -22655,7 +22736,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage6() {
+function storage7() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -22672,7 +22753,7 @@ function teamIdFor(members) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage6();
+  const s = storage7();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -22681,7 +22762,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage6();
+  const s = storage7();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -22735,12 +22816,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex2(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage6();
+  const s = storage7();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage6();
+  const s = storage7();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -22781,7 +22862,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
     adoptedAt: now().toISOString(),
     digest: await sha256Hex2(JSON.stringify(["vh19-evolved-team/1", teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, members]))
   };
-  const s = storage6();
+  const s = storage7();
   if (s) {
     s.setItem(`${CONFIG_KEY}:${teamId}`, JSON.stringify(config));
     s.removeItem(`${PENDING_KEY}:${teamId}`);
@@ -22789,7 +22870,7 @@ async function approveTeamEvolution(teamId, proposalId, approvals, now = () => /
   return { ok: true, config };
 }
 function evolvedConfig(teamId) {
-  const s = storage6();
+  const s = storage7();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -22806,7 +22887,7 @@ async function autoProposeIfReady(teamId, members, now = () => /* @__PURE__ */ n
   return r.ok ? r.proposal : null;
 }
 function revokeEvolvedConfig(teamId) {
-  const s = storage6();
+  const s = storage7();
   if (s) s.removeItem(`${CONFIG_KEY}:${teamId}`);
 }
 function applyTeamPreference(teamId, selected) {
@@ -22822,7 +22903,7 @@ var PASS_THRESHOLD = 0.9;
 var AUTONOMY_KEY = "vh19.autonomy.v1";
 var SESSION_KEY = "vh19.exam.sessions.v1";
 var MAX_SESSIONS = 20;
-function storage7() {
+function storage8() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -22875,7 +22956,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
       explanation: explainFor(r, mem)
     }))
   };
-  const s = storage7();
+  const s = storage8();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
     sessions.push(session);
@@ -22900,7 +22981,7 @@ function explainFor(r, mem) {
   return `You accepted this action before${acc + rej > 1 ? `, and this specialist's record with you is ${acc} accepted / ${rej} rejected` : ""}. Repeating accepted behavior is the learned preference.`;
 }
 function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
-  const s = storage7();
+  const s = storage8();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
   const session = sessions.find((x) => x.id === sessionId);
@@ -22943,7 +23024,7 @@ function grantKey(userId, category) {
   return category ? `${AUTONOMY_KEY}:cat:${userId}:${category}` : `${AUTONOMY_KEY}:${userId}`;
 }
 function loadGrant(userId = "default", category) {
-  const s = storage7();
+  const s = storage8();
   const fallback = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: 0 };
   if (!s) return fallback;
   try {
@@ -22955,7 +23036,7 @@ function loadGrant(userId = "default", category) {
   }
 }
 function saveGrant(attempts, score, passed2, userId, now, category) {
-  const s = storage7();
+  const s = storage8();
   if (!s) return;
   const prev = loadGrant(userId, category);
   const grant = {
@@ -22975,7 +23056,7 @@ function autonomyCovers(userId, category) {
   return category ? loadGrant(userId, category).granted : false;
 }
 function revokeAutonomy(userId = "default", category) {
-  const s = storage7();
+  const s = storage8();
   const next = { granted: false, score: null, grantedAt: null, monitorOverrideAlwaysOn: true, attempts: loadGrant(userId, category).attempts };
   if (s) s.setItem(grantKey(userId, category), JSON.stringify(next));
   return next;
@@ -22997,7 +23078,7 @@ function responseCanonical(r) {
     selected: r.routed.selected.map((c) => [c.id, c.score]),
     strategy: r.routed.strategy,
     note: r.note ?? null,
-    lead: r.lead ?? null,
+    captain: r.captain ?? null,
     failure: r.failure ?? null
   });
 }
@@ -23007,9 +23088,9 @@ async function askVH19(args, deps = {}) {
   const now = deps.now ?? (() => /* @__PURE__ */ new Date());
   void now;
   const finish = async (r) => {
-    const lead2 = r.lead ?? (r.specialistIds.length > 0 ? buildLeadReport(leadForRoute(r.specialistIds)?.id ?? "", [{ specialistId: r.specialistIds[0], outcome: r.outcome, note: r.note }]) ?? void 0 : void 0);
+    const captain2 = r.captain ?? (r.specialistIds.length > 0 ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? void 0 : void 0);
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated" ? void 0 : classifyFailure(r.outcome, r.note));
-    const full = { ...r, lead: lead2, failure };
+    const full = { ...r, captain: captain2, failure };
     return { ...full, provenanceDigest: await sha256Hex3(responseCanonical(full)) };
   };
   const findings = detectInjection(text);
@@ -23119,12 +23200,20 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
     });
   }
   const primary = specialists[0] ?? null;
-  const system = [
+  const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
     ...memoryBriefing(userId)
   ].join("\n\n");
+  const optimized = optimizeComposedPrompt(composedSystem);
+  const system = optimized.prompt;
   const result = await complete(provider, system, text, { fetchImpl: deps.fetchImpl });
+  recordUsage({
+    promptTokens: optimized.estimatedTokens + estimateTokens(text),
+    replyTokens: estimateTokens(result.ok ? result.text : result.error),
+    optimized: optimized.optimized,
+    savedTokens: optimized.savedTokens
+  });
   if (!result.ok) {
     return finish({
       reply: `The provider call did not complete (${result.kind}): ${result.error}`,
@@ -23145,6 +23234,159 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
   });
 }
 
+// src/vh19/shipyard.ts
+var MAX_ORDERS = 6;
+var SHIPYARD_KEY = "vh19.shipyard.v1";
+var BUILD_CAP = 50;
+var DOMAIN_LABEL = {
+  code: "Implementation",
+  security: "Security review",
+  testing: "Test strategy",
+  review: "Code review",
+  data: "Data & analytics",
+  devops: "Build & deployment",
+  research: "Research & discovery",
+  writing: "Content & docs",
+  analysis: "Analysis & decisions",
+  design: "Design & UI"
+};
+var CAPTAIN_INSTRUCTION = {
+  code: "Design the architecture and implement the core modules for this brief. List files, key types, and the entry point.",
+  security: "Threat-model this brief: trust boundaries, injection surfaces, auth needs, and a hardening checklist for the team's implementation.",
+  testing: "Produce the test plan for this brief: unit, integration, and end-to-end cases with the exact commands to run them.",
+  review: "Define the review bar for this build: what reviewers must check per domain before merge.",
+  data: "Specify the data model, storage, and analytics events this product needs.",
+  devops: "Specify the CI pipeline, packaging, and deployment steps for this product.",
+  research: "Research the problem space of this brief: current best practice, prior art, constraints. Date your findings.",
+  writing: "Draft the product content for this brief: README, onboarding copy, and docs structure.",
+  analysis: "Break this brief into decisions: what must be chosen, the options, and a recommendation with risks.",
+  design: "Produce the design system slice for this product: layout, components, palette, and the states every screen needs."
+};
+function storage9() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function listBuilds() {
+  const raw = storage9()?.getItem(SHIPYARD_KEY) ?? null;
+  if (!raw) return [];
+  try {
+    const b = JSON.parse(raw);
+    return Array.isArray(b) ? b : [];
+  } catch {
+    return [];
+  }
+}
+function save3(list) {
+  storage9()?.setItem(SHIPYARD_KEY, JSON.stringify(list.slice(-BUILD_CAP)));
+}
+function getBuild(id) {
+  return listBuilds().find((b) => b.id === id) ?? null;
+}
+function orderInstruction(brief, domain) {
+  return `${DOMAIN_LABEL[domain]} \u2014 brief: \u201C${brief}\u201D
+${CAPTAIN_INSTRUCTION[domain]}
+
+Work as the ${domain} domain of this build. Be concrete and specific to this brief. You may not claim work you did not do.`;
+}
+function domainOfSpecialist(id) {
+  const head = id.split(".")[0];
+  return head in DOMAIN_LABEL ? head : null;
+}
+function createBuild(brief, now = () => /* @__PURE__ */ new Date()) {
+  const route = routeDeterministic(brief);
+  const domains = [];
+  for (const c of route.selected) {
+    const d = domainOfSpecialist(c.id);
+    if (d && !domains.includes(d)) domains.push(d);
+  }
+  if (domains.length === 0) domains.push("research");
+  const picked = domains.slice(0, MAX_ORDERS);
+  const id = `build-${now().getTime().toString(36)}`;
+  const orders = picked.map((domain, i) => {
+    const c = captainForDomain(domain);
+    return {
+      id: `${id}-order-${i + 1}`,
+      domain,
+      captainId: c?.id ?? "",
+      captainName: c?.name ?? "",
+      instruction: orderInstruction(brief, domain),
+      status: "pending"
+    };
+  });
+  const build = { id, brief, createdAt: now().toISOString(), status: "active", orders };
+  save3([...listBuilds(), build]);
+  return build;
+}
+function captainPrompt(order) {
+  return `${order.instruction}
+
+[Shipyard work order ${order.id} \u2014 supervised by ${order.captainName}. Report only what this run actually produces.]`;
+}
+async function advanceBuild(buildId, run) {
+  const list = listBuilds();
+  const build = list.find((b) => b.id === buildId);
+  if (!build) return null;
+  if (build.status === "settled") return build;
+  const order = build.orders.find((o) => o.status === "pending") ?? build.orders.find((o) => o.status === "blocked");
+  if (!order) return build;
+  const result = await run(captainPrompt(order));
+  order.outcome = result.outcome;
+  order.note = result.note;
+  order.receiptDigest = result.provenanceDigest;
+  order.executedAt = (/* @__PURE__ */ new Date()).toISOString();
+  order.status = result.executed ? "executed" : "blocked";
+  recomputeStatus(build);
+  save3(list);
+  return build;
+}
+async function runAllOrders(buildId, run) {
+  let build = getBuild(buildId);
+  while (build && build.orders.some((o) => o.status === "pending")) {
+    build = await advanceBuild(buildId, run);
+    if (build?.orders.some((o) => o.status === "blocked")) break;
+  }
+  return build;
+}
+function recomputeStatus(build) {
+  if (build.status === "settled") return;
+  const done = build.orders.every((o) => o.status === "executed" || o.status === "settled");
+  build.status = done ? "done" : "active";
+}
+async function settleBuild(buildId) {
+  const list = listBuilds();
+  const build = list.find((b) => b.id === buildId);
+  if (!build) return null;
+  if (build.status === "settled") return build;
+  const incomplete = build.orders.filter((o) => o.status !== "executed" && o.status !== "settled");
+  if (incomplete.length > 0) {
+    build.status = "paused";
+    save3(list);
+    return build;
+  }
+  for (const o of build.orders) o.status = "settled";
+  const canon = JSON.stringify({
+    id: build.id,
+    brief: build.brief,
+    orders: build.orders.map((o) => ({ id: o.id, domain: o.domain, status: o.status, outcome: o.outcome, receiptDigest: o.receiptDigest }))
+  });
+  build.buildDigest = await sha256Hex(canon);
+  build.status = "settled";
+  save3(list);
+  return build;
+}
+function buildSummary(build) {
+  const counts = build.orders.reduce(
+    (acc, o) => ({ ...acc, [o.status]: (acc[o.status] ?? 0) + 1 }),
+    {}
+  );
+  const parts = Object.entries(counts).map(([s, n2]) => `${n2} ${s}`);
+  const verdict = build.status === "settled" ? "SETTLED \u2014 every order executed; the build is closed with a digest." : build.status === "done" ? "DONE \u2014 all orders executed; settle to close the build." : build.status === "paused" ? "PAUSED \u2014 some orders are blocked or unexecuted; a blocked order is never counted as done." : "ACTIVE \u2014 work orders remain.";
+  return `${build.orders.length} work orders (${parts.join(", ")}) \u2014 ${verdict}`;
+}
+
 // src/vh19/selfEvolve.ts
 var PROPOSALS_KEY = "vh19.self.proposals.v1";
 var SELF_EVOLUTION_FLOOR = [
@@ -23153,7 +23395,7 @@ var SELF_EVOLUTION_FLOOR = [
   "the honesty contract (executed:false when nothing ran)",
   "any LOOSENING of any control (tiers, bars, ceilings)"
 ];
-function storage8() {
+function storage10() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -23165,7 +23407,7 @@ async function sha256Hex4(t) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 function selfProposals() {
-  const s = storage8();
+  const s = storage10();
   if (!s) return [];
   try {
     return JSON.parse(s.getItem(PROPOSALS_KEY) ?? "[]");
@@ -23174,7 +23416,7 @@ function selfProposals() {
   }
 }
 function saveProposals(list) {
-  storage8()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
+  storage10()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
 }
 async function proposeSelfChanges(userId = "default", now = () => /* @__PURE__ */ new Date()) {
   const report = patternReport(userId);
@@ -23311,7 +23553,7 @@ function answerGateWithRules(ask, now = () => /* @__PURE__ */ new Date()) {
 var GOALS_KEY = "vh19.goals.v1";
 var GOAL_CAP = 50;
 var MAX_STEPS = 5;
-function storage9() {
+function storage11() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -23319,7 +23561,7 @@ function storage9() {
   }
 }
 function loadGoals() {
-  const raw = storage9()?.getItem(GOALS_KEY) ?? null;
+  const raw = storage11()?.getItem(GOALS_KEY) ?? null;
   if (!raw) return [];
   try {
     const g = JSON.parse(raw);
@@ -23328,8 +23570,8 @@ function loadGoals() {
     return [];
   }
 }
-function save3(goals) {
-  storage9()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
+function save4(goals) {
+  storage11()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
 }
 function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
   const route = routeDeterministic(text);
@@ -23352,7 +23594,7 @@ function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
     createdAt: now().toISOString(),
     updatedAt: now().toISOString()
   };
-  save3([...loadGoals(), goal]);
+  save4([...loadGoals(), goal]);
   return goal;
 }
 function nextPendingStep(goal) {
@@ -23377,7 +23619,7 @@ function settleStep(goalId, stepId, outcome, now = () => /* @__PURE__ */ new Dat
     goal.state = "active";
   }
   goal.updatedAt = now().toISOString();
-  save3(goals);
+  save4(goals);
   return goal;
 }
 function resumeGoal(goalId, now = () => /* @__PURE__ */ new Date()) {
@@ -23387,7 +23629,7 @@ function resumeGoal(goalId, now = () => /* @__PURE__ */ new Date()) {
   for (const s of goal.steps) if (s.status === "gated") s.status = "pending";
   goal.state = "active";
   goal.updatedAt = now().toISOString();
-  save3(goals);
+  save4(goals);
   return goal;
 }
 function goalProgress(goal) {
@@ -23414,7 +23656,7 @@ function goalStatus(goal) {
 // src/vh19/handoffs.ts
 var HANDOFFS_KEY = "vh19.handoffs.v1";
 var HANDOFF_CAP = 100;
-function storage10() {
+function storage12() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -23422,7 +23664,7 @@ function storage10() {
   }
 }
 function listHandoffs() {
-  const raw = storage10()?.getItem(HANDOFFS_KEY) ?? null;
+  const raw = storage12()?.getItem(HANDOFFS_KEY) ?? null;
   if (!raw) return [];
   try {
     const h = JSON.parse(raw);
@@ -23441,7 +23683,7 @@ function recordHandoff(input, now = () => /* @__PURE__ */ new Date()) {
     receiptDigest: input.receiptDigest,
     at: now().toISOString()
   };
-  storage10()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
+  storage12()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
   return rec;
 }
 
@@ -23477,6 +23719,9 @@ var Vh19 = () => {
   const [form, setForm] = (0, import_react.useState)({ kind: "openai-compatible", baseUrl: PROVIDER_DEFAULTS["openai-compatible"], model: "", apiKey: "" });
   const [examCategory, setExamCategory] = (0, import_react.useState)("all");
   const [teamPeer, setTeamPeer] = (0, import_react.useState)("qwen");
+  const [shipBrief, setShipBrief] = (0, import_react.useState)("");
+  const [builds, setBuilds] = (0, import_react.useState)(() => listBuilds());
+  const [tokens, setTokens] = (0, import_react.useState)(() => usageReport());
   const [teamReport, setTeamReport] = (0, import_react.useState)(null);
   const [teamProposal, setTeamProposal] = (0, import_react.useState)(null);
   const [teamConfig, setTeamConfig] = (0, import_react.useState)(null);
@@ -23521,6 +23766,21 @@ var Vh19 = () => {
     setPatterns(patternReport(USER));
     setAutonomy(autonomyStatus(USER));
     setDisabled(disabledSpecialists());
+  };
+  const shipRun = async (text) => {
+    const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
+      provider,
+      gate: (ask) => {
+        const ruled = answerGateWithRules(ask);
+        if (ruled) return Promise.resolve(ruled);
+        return new Promise((resolve) => {
+          setDenyReason("");
+          setGateAsk({ ask, resolve });
+        });
+      },
+      onHandoff: (h) => recordHandoff(h)
+    });
+    return { executed: resp.executed, outcome: resp.outcome, note: resp.note ?? resp.reply.slice(0, 120), provenanceDigest: resp.provenanceDigest };
   };
   const send = async () => {
     const text = input.trim();
@@ -23664,16 +23924,16 @@ var Vh19 = () => {
               "\u2026"
             ] })
           ] }),
-          m.resp?.lead && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 2 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: m.resp.lead.status === "completed" ? "var(--success)" : m.resp.lead.status === "blocked" ? "var(--err)" : "var(--warn)" }, children: m.resp.lead.status }),
+          m.resp?.captain && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 2 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: m.resp.captain.status === "completed" ? "var(--success)" : m.resp.captain.status === "blocked" ? "var(--err)" : "var(--warn)" }, children: m.resp.captain.status }),
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: m.resp.lead.leadName }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: m.resp.captain.captainName }),
             " \u2192 Generalist: ",
-            m.resp.lead.summary,
+            m.resp.captain.summary,
             " ",
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { opacity: 0.75 }, children: [
               "(next: ",
-              m.resp.lead.nextStep,
+              m.resp.captain.nextStep,
               ")"
             ] })
           ] }),
@@ -24149,6 +24409,76 @@ var Vh19 = () => {
             refreshSelf();
           }, children: "Revert" })
         ] }, h.id))
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-title", style: { fontSize: 13 }, children: "The Shipyard \u2014 team workspace" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+          setBuilds(listBuilds());
+          setTokens(usageReport());
+        }, children: "\u21BB Shipyard" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11, margin: "4px 0 10px" }, children: "One brief becomes work orders \u2014 one per needed domain, each led by its Captain. Orders execute through the real pipeline; nothing counts as done until it ran." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "e.g. build me a recipe app with secure auth, unit tests, CI deployment and a clean UI", value: shipBrief, onChange: (e) => setShipBrief(e.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => {
+          if (shipBrief.trim()) {
+            createBuild(shipBrief.trim());
+            setShipBrief("");
+            setBuilds(listBuilds());
+          }
+        }, children: "Start build" })
+      ] }),
+      builds.slice(-3).reverse().map((b) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "10px 12px", background: "var(--bg)", marginBottom: 8, display: "block" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
+          b.brief,
+          " ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "stamp", style: { color: b.status === "settled" ? "var(--success)" : b.status === "paused" ? "var(--err)" : "var(--warn)" }, children: b.status.toUpperCase() })
+        ] }),
+        b.orders.map((o) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 3 }, children: [
+          "\xB7 [",
+          o.status,
+          "] ",
+          o.domain,
+          " \u2014 ",
+          o.captainName,
+          o.note ? ` \u2014 ${o.note.slice(0, 80)}` : ""
+        ] }, o.id)),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 6, opacity: 0.8 }, children: buildSummary(b) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginTop: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", disabled: busy || b.status === "settled", onClick: async () => {
+            setBusy(true);
+            await advanceBuild(b.id, shipRun);
+            setBuilds(listBuilds());
+            setBusy(false);
+          }, children: "Run next" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", disabled: busy || b.status === "settled", onClick: async () => {
+            setBusy(true);
+            await runAllOrders(b.id, shipRun);
+            setBuilds(listBuilds());
+            setBusy(false);
+          }, children: "Run all" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", disabled: busy || b.status === "settled", onClick: async () => {
+            setBusy(true);
+            await settleBuild(b.id);
+            setBuilds(listBuilds());
+            setBusy(false);
+          }, children: "Settle" })
+        ] })
+      ] }, b.id)),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, opacity: 0.7, marginTop: 4 }, children: [
+        "token optimizer \xB7 estimates: ",
+        tokens.calls,
+        " provider calls \xB7 ",
+        tokens.promptTokens,
+        " prompt / ",
+        tokens.replyTokens,
+        " reply tokens \xB7 ",
+        tokens.optimizedCalls,
+        " prompts trimmed \xB7 ~",
+        tokens.savedTokens,
+        " tokens saved"
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [

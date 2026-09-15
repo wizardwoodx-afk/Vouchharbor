@@ -309,9 +309,9 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "19.0.0";
-var VH_SHORT = "19.0";
-var VH_CODENAME = "Bastion";
+var VH_VERSION = "19.1.0";
+var VH_SHORT = "19.1";
+var VH_CODENAME = "Shipyard";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/vhClean.test.ts

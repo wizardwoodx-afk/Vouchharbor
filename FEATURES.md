@@ -1,4 +1,4 @@
-# Vouch Harbor 19.0.0 "Bastion" — feature sheet
+# Vouch Harbor 19.1.0 "Shipyard" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -129,9 +129,20 @@ Plus the moat: **offline-verifiable SHA-256 + HMAC + Ed25519 receipts**
   silent, never twice; adoption still needs every member, now optionally
   signed.
 
+## G. 19.1.0 — the team release
+
+| # | Feature | Where |
+|---|---|---|
+| 1 | **The Shipyard** — one brief → per-domain work orders under each domain's **Captain**, run through the real pipeline; DONE only when every order executed, SETTLED seals a build digest | VH-19 door → The Shipyard |
+| 2 | **Captains** (renamed AgentLeads) reporting on **every** routed member — the 19.0.0 review's aggregation fix | door log · `src/vh19/captains.ts` |
+| 3 | **Autonomous token optimizer** — budget-fitted prompts (marked cuts, never silent), local usage ledger shown live | every provider call · `src/vh19/tokenOptim.ts` |
+| 4 | **Live-data GuardRail** — research/analysis prompts hard-carry "always search for current and live data; date every claim; flag stale data" | `research.live-data` skill |
+
+Probes: `shipyard` 22 · `captains` 27 (incl. the all-members pin).
+
 ## E. Version integrity
 
-Every manifest agrees on **19.0.0 "Bastion"**: `src/version.ts`,
+Every manifest agrees on **19.1.0 "Shipyard"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

@@ -1,11 +1,10 @@
 /**
- * harborTeams.ts — the major upgrade: Grokbot-style agent teams over A2A v1.0,
+ * harborTeams.ts — the major upgrade: persistent named agent teams over A2A v1.0,
  * with the human in the loop on BOTH sides.
  *
  * WHAT THIS BUILDS (and why each rule exists)
  *   • TEAMMATES — persistent, named agents with a name, a title and a
- *     DESCRIPTION (the Grokbot pattern: the description is what delegation
- *     reads). Descriptions are GuardRail-sanitized and injection-scanned at
+ *     DESCRIPTION (the pattern: the description is what delegation reads). Descriptions are GuardRail-sanitized and injection-scanned at
  *     creation time: a poisoned description is persistent injection.
  *   • DELEGATION ROUTING — a task is matched against teammate descriptions
  *     by token overlap. When nothing matches well the router REFUSES in
@@ -42,7 +41,7 @@ import { VH_VERSION } from "../version";
 import { runInboundDelegation, type BridgeConfig, type BridgeExecution } from "./a2aBridge";
 import type { ProofReceipt } from "./receipts";
 
-/* ── teammates (the Grokbot pattern, vouched) ─────────────────────────────── */
+/* ── teammates (persistent, named, vouched) ──────────────────────────────── */
 
 export interface Teammate {
   id: string;

@@ -1,9 +1,9 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
 // src/version.ts
-var VH_VERSION = "19.0.0";
-var VH_SHORT = "19.0";
-var VH_CODENAME = "Bastion";
+var VH_VERSION = "19.1.0";
+var VH_SHORT = "19.1";
+var VH_CODENAME = "Shipyard";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/a2a.ts

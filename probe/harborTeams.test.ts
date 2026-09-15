@@ -1,5 +1,5 @@
 /**
- * Harbor Teams probe (major upgrade) — Grokbot-style agent teams over A2A
+ * Harbor Teams probe (major upgrade) — persistent named agent teams over A2A
  * v1.0, USER 1 ⇄ USER 2, human in the loop on both sides.
  *
  * Pins: the teammate model, description-driven routing honesty, v1.0 card
@@ -41,7 +41,7 @@ function memStore(): CrossHarborStore {
   return { get: (k) => m.get(k) ?? null, set: (k, v) => void m.set(k, v) };
 }
 
-/* ── 1. the teammate model (Grokbot pattern, vouched) ─────────────────────── */
+/* ── 1. the teammate model (persistent, named, vouched) ───────────────────── */
 section("1. teammates — named, described, GuardRail-clean");
 
 let team1 = createTeam("USER 1");
@@ -74,7 +74,7 @@ const dup = addTeammate(team1, { name: "scout", title: "x", description: "duplic
 ok("duplicate teammate names are refused (case-insensitive)", dup.ok === false);
 
 /* ── 2. routing is description-driven and never fakes a worker ────────────── */
-section("2. delegation routing — the Grokbot rule, honestly");
+section("2. delegation routing — the teammate-description rule, honestly");
 
 const r1 = routeDelegation(team1, "please do web research on agent protocols and summarize the sources");
 ok("the research task routes to Scout (description match)", r1.ok === true && r1.value.teammate.name === "Scout");

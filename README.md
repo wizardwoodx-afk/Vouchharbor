@@ -1,4 +1,4 @@
-# Vouch Harbor 19.0.0 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.1.0 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -33,7 +33,7 @@ it *learns*: a successful, verified mission distills into a test-gated skill,
 and the next matching mission fast-paths on it, still paused at the human
 gate.
 
-## The VH-19 Generalist — the one front door (19.0.0)
+## The VH-19 Generalist — the one front door (19.1.0)
 
 The app opens on the VH-19 door: the user talks to ONE agent. Behind it: a
 Mixture-of-Experts-style **specialist bench** (460 real specialists across 10
@@ -52,7 +52,7 @@ words and `executed: false`; no gate ⇒ risky work refused; no A2A bridge ⇒
 nothing sent; the door itself is probe-pinned (`probe/vh19Door`) to render and
 to import the real engine.
 
-**19.0.0 adds the differentiator: cross-user Team-Evolve.** Two users' VH
+**19.0.0 added the differentiator: cross-user Team-Evolve.** Two users' VH
 instances share a team; every joint run lands in the team ledger with its real
 outcome; with real verified history VH proposes an evolved team composition —
 and adoption requires EVERY member's explicit approval (partial, duplicated
@@ -61,7 +61,18 @@ config leans on future routing VISIBLY ("team-evolved preference"), and
 revocation is one click. Autonomy is now category-scoped: an exam can cover
 one category, and a grant covers only that category — the gate consults the
 scoped grant. Pinned by `probe/teamEvolve` (31 checks). Full notes:
-[VH-19.0-UPGRADE.md](VH-19.0-UPGRADE.md) · [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md).
+[VH-19.1-UPGRADE.md](VH-19.1-UPGRADE.md) · [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md).
+
+**19.1.0 adds The Shipyard — the team workspace.** Hand the door a whole
+brief ("build me a recipe app with secure auth, tests, CI and a clean UI")
+and it opens one **work order per needed domain**, each supervised by that
+domain's **Captain** (the renamed AgentLead layer). Orders run one at a
+time through the same governed pipeline — gate, routing, receipts — and a
+build is only DONE when every order genuinely executed; blocked work
+blocks the build, never fakes it. Every provider call now passes the
+**autonomous token optimizer** (budget-fitted prompts, local usage ledger),
+and research/analysis runs carry a **live-data GuardRail**: always search
+for current and live data, date every claim, flag stale findings.
 
 ## What it is
 
@@ -253,7 +264,7 @@ scoped grant. Pinned by `probe/teamEvolve` (31 checks). Full notes:
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 116 suites
+npm test              # 117 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -261,7 +272,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (~2 min, Node alone — dependency-backed suites honestly
 #   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 115 bundles
+node verify/run.mjs   # 116 bundles
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -349,7 +360,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       116 probe suites, run by `npm test`
+probe/       117 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
@@ -403,7 +414,7 @@ RULE 5 (a capability claim is not a licence) and RULE 6 (rotation possession +
 revocation authority). The v0.10.2 "Fix1" history is preserved further down
 that file.
 
-- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 19.0.0: [VH-18.0-UPGRADE.md](VH-18.0-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 19.1.0: [VH-19.1-UPGRADE.md](VH-19.1-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
 - Problem map (what each feature exists to solve): [docs/PROBLEM-FOCUS.md](docs/PROBLEM-FOCUS.md)
 - Information architecture (one product, one spine): [docs/INFORMATION-ARCHITECTURE.md](docs/INFORMATION-ARCHITECTURE.md)
 

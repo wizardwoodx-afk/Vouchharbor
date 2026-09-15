@@ -5134,33 +5134,95 @@ ${s.body}`).join("\n\n");
 ${blocks}`;
 }
 
-// src/vh19/agentLead.ts
-var lead = (domain, name, mandate, focus) => ({
-  id: `lead.${domain}`,
+// src/vh19/tokenOptim.ts
+var LEDGER_KEY = "vh19.tokens.v1";
+var LEDGER_CAP = 500;
+var PROMPT_BUDGET = 6e3;
+function estimateTokens(text) {
+  return Math.ceil(text.length / 4);
+}
+function fitToBudget(text, budgetTokens) {
+  const total = estimateTokens(text);
+  if (total <= budgetTokens) return { text, trimmed: false, savedTokens: 0 };
+  const keepChars = Math.max(400, budgetTokens * 4 - 120);
+  const headLen = Math.floor(keepChars * 0.6);
+  const tailLen = keepChars - headLen;
+  const cut = total - budgetTokens;
+  const out = `${text.slice(0, headLen)}
+[\u2026 ${cut} tokens trimmed by the VH token optimizer \u2014 full playbook preserved in the skill library \u2026]
+${text.slice(text.length - tailLen)}`;
+  return { text: out, trimmed: true, savedTokens: Math.max(0, total - estimateTokens(out)) };
+}
+function optimizeComposedPrompt(composed, budgetTokens = PROMPT_BUDGET) {
+  const before = estimateTokens(composed);
+  if (before <= budgetTokens) return { prompt: composed, optimized: false, savedTokens: 0, estimatedTokens: before };
+  const MARKER = "## Bound skills";
+  const at = composed.indexOf(MARKER);
+  if (at === -1) {
+    const f2 = fitToBudget(composed, budgetTokens);
+    return { prompt: f2.text, optimized: f2.trimmed, savedTokens: f2.savedTokens, estimatedTokens: estimateTokens(f2.text) };
+  }
+  const base = composed.slice(0, at);
+  const skills = composed.slice(at);
+  const condensed = skills.split("\n").filter((line, _i, arr) => {
+    void arr;
+    return /^### Skill:/.test(line) || /^(Procedure:|Checklist:|Quality checklist)/.test(line) || /^\d+\./.test(line.trim()) || line.trim() === "";
+  }).join("\n").replace(/\n{3,}/g, "\n\n");
+  let prompt = base + condensed;
+  let est = estimateTokens(prompt);
+  if (est <= budgetTokens) {
+    return { prompt, optimized: true, savedTokens: before - est, estimatedTokens: est };
+  }
+  const f = fitToBudget(prompt, budgetTokens);
+  est = estimateTokens(f.text);
+  return { prompt: f.text, optimized: true, savedTokens: before - est, estimatedTokens: est };
+}
+function storage5() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function recordUsage(entry, now = () => /* @__PURE__ */ new Date()) {
+  const raw = storage5()?.getItem(LEDGER_KEY);
+  let list = [];
+  try {
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) list = parsed;
+  } catch {
+  }
+  list.push({ ...entry, at: now().toISOString() });
+  storage5()?.setItem(LEDGER_KEY, JSON.stringify(list.slice(-LEDGER_CAP)));
+}
+
+// src/vh19/captains.ts
+var captain = (domain, name, mandate, focus) => ({
+  id: `captain.${domain}`,
   name,
   domain,
   mandate,
-  systemPrompt: `You are ${name}, the ${domain} domain lead. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
+  systemPrompt: `You are ${name}, captain of the ${domain} domain. Your members are the ${domain} specialists on the bench. ${focus} Report only what actually happened: name the members involved, their real outcomes, and the single next step. Never claim work that did not run.`
 });
-var AGENT_LEADS = [
-  lead("code", "Code Domain Lead", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
-  lead("security", "Security Domain Lead", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
-  lead("testing", "Testing Domain Lead", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
-  lead("review", "Review Domain Lead", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
-  lead("data", "Data Domain Lead", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
-  lead("devops", "DevOps Domain Lead", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
-  lead("research", "Research Domain Lead", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
-  lead("writing", "Writing Domain Lead", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
-  lead("analysis", "Analysis Domain Lead", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
-  lead("design", "Design Domain Lead", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
+var CAPTAINS = [
+  captain("code", "Captain of Code", "Owns implementation quality end to end.", "Sequence work so foundations land before dependents; pair every implementation step with its test and review path."),
+  captain("security", "Captain of Security", "Owns the trust boundary of every plan.", "Nothing ships without its threat reviewed; escalate anything touching credentials, egress or autonomy immediately."),
+  captain("testing", "Captain of Testing", "Owns the evidence that work is correct.", "Every claimed fix needs a failing-then-passing test; quarantine flake with an owner, never with a retry."),
+  captain("review", "Captain of Review", "Owns the quality gate before merge.", "Weight review effort by blast radius; no approval without the residual risks named."),
+  captain("data", "Captain of Data", "Owns data trust: lineage, quality, privacy.", "Every number names its source and freshness; destructive data steps are reversible or flagged."),
+  captain("devops", "Captain of DevOps", "Owns delivery and operability.", "Every change states its blast radius and rollback before it runs; recovery is rehearsed, not hoped for."),
+  captain("research", "Captain of Research", "Owns evidence quality behind decisions.", "Load-bearing claims need two independent sources or an honest single-sourced label."),
+  captain("writing", "Captain of Writing", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
+  captain("analysis", "Captain of Analysis", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
+  captain("design", "Captain of Design", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one.")
 ];
-function getLead(id) {
-  return AGENT_LEADS.find((l) => l.id === id) ?? null;
+function getCaptain(id) {
+  return CAPTAINS.find((l) => l.id === id) ?? null;
 }
-function leadForDomain(domain) {
-  return AGENT_LEADS.find((l) => l.domain === domain) ?? null;
+function captainForDomain(domain) {
+  return CAPTAINS.find((l) => l.domain === domain) ?? null;
 }
-function leadForRoute(specialistIds) {
+function captainForRoute(specialistIds) {
   const counts = /* @__PURE__ */ new Map();
   let firstCat = null;
   for (const id of specialistIds) {
@@ -5176,10 +5238,10 @@ function leadForRoute(specialistIds) {
     best = cat;
     bestN = n2;
   }
-  return leadForDomain(best);
+  return captainForDomain(best);
 }
-function buildLeadReport(leadId, results) {
-  const l = getLead(leadId);
+function buildCaptainReport(captainId, results) {
+  const l = getCaptain(captainId);
   if (!l || results.length === 0) return null;
   const done = results.filter((r) => r.outcome === "answered" || r.outcome === "peer-delegated").length;
   const status = done === results.length ? "completed" : done > 0 ? "partial" : results.some((r) => r.outcome === "refused" || r.outcome === "gated-out") ? "blocked" : results.every((r) => r.outcome === "planned") ? "planned" : "blocked";
@@ -5191,7 +5253,7 @@ function buildLeadReport(leadId, results) {
   const failures = results.filter((r) => r.outcome !== "answered" && r.outcome !== "peer-delegated").map((r) => `${getSpecialist(r.specialistId)?.name ?? r.specialistId}: ${r.outcome}${r.note ? ` \u2014 ${r.note.slice(0, 80)}` : ""}`);
   const summary = status === "completed" ? `All ${done} routed ${l.domain} member(s) executed; work is done end to end.` : status === "partial" ? `${done} of ${results.length} routed member(s) executed; the rest did not run \u2014 see failures.` : status === "planned" ? `No member executed (no provider); the ${l.domain} plan is ready to run when a key exists.` : `Nothing executed in the ${l.domain} domain; progress stopped at the gate or a refusal.`;
   const nextStep = status === "completed" ? "None \u2014 accept or reject the work in the log." : status === "planned" ? "Add a provider key and re-run the plan." : status === "partial" ? "Re-run only the failed members; the executed ones keep their receipts." : "Resolve the blocking decision at the gate, then resume.";
-  return { leadId: l.id, leadName: l.name, domain: l.domain, status, summary, members, failures, nextStep };
+  return { captainId: l.id, captainName: l.name, domain: l.domain, status, summary, members, failures, nextStep };
 }
 
 // src/vh19/failures.ts
@@ -5292,7 +5354,7 @@ var RUNS_KEY = "vh19.team.runs.v1";
 var CONFIG_KEY = "vh19.team.config.v1";
 var PENDING_KEY = "vh19.team.pending.v1";
 var RUN_CAP = 200;
-function storage5() {
+function storage6() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -5305,7 +5367,7 @@ async function sha256Hex(text) {
 }
 function recordTeamRun(run) {
   const rec = { id: run.id ?? uid("trun"), ts: run.ts ?? (/* @__PURE__ */ new Date()).toISOString(), ...run };
-  const s = storage5();
+  const s = storage6();
   if (s) {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
     all.push(rec);
@@ -5314,7 +5376,7 @@ function recordTeamRun(run) {
   return rec;
 }
 function teamRuns(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return [];
   try {
     const all = JSON.parse(s.getItem(RUNS_KEY) ?? "[]");
@@ -5368,12 +5430,12 @@ async function proposeTeamEvolution(teamId, members, now = () => /* @__PURE__ */
     digest: ""
   };
   proposal.digest = await sha256Hex(JSON.stringify(["vh19-evolution/1", proposal.teamId, proposal.recommendedSpecialists, proposal.sourceRunIds, proposal.createdAt]));
-  const s = storage5();
+  const s = storage6();
   if (s) s.setItem(`${PENDING_KEY}:${teamId}`, JSON.stringify(proposal));
   return { ok: true, proposal };
 }
 function pendingProposal(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${PENDING_KEY}:${teamId}`) ?? "null");
@@ -5382,7 +5444,7 @@ function pendingProposal(teamId) {
   }
 }
 function evolvedConfig(teamId) {
-  const s = storage5();
+  const s = storage6();
   if (!s) return null;
   try {
     return JSON.parse(s.getItem(`${CONFIG_KEY}:${teamId}`) ?? "null");
@@ -5422,7 +5484,7 @@ function responseCanonical(r) {
     selected: r.routed.selected.map((c) => [c.id, c.score]),
     strategy: r.routed.strategy,
     note: r.note ?? null,
-    lead: r.lead ?? null,
+    captain: r.captain ?? null,
     failure: r.failure ?? null
   });
 }
@@ -5432,9 +5494,9 @@ async function askVH19(args, deps = {}) {
   const now = deps.now ?? (() => /* @__PURE__ */ new Date());
   void now;
   const finish = async (r) => {
-    const lead2 = r.lead ?? (r.specialistIds.length > 0 ? buildLeadReport(leadForRoute(r.specialistIds)?.id ?? "", [{ specialistId: r.specialistIds[0], outcome: r.outcome, note: r.note }]) ?? void 0 : void 0);
+    const captain2 = r.captain ?? (r.specialistIds.length > 0 ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? void 0 : void 0);
     const failure = r.failure ?? (r.outcome === "answered" || r.outcome === "peer-delegated" ? void 0 : classifyFailure(r.outcome, r.note));
-    const full = { ...r, lead: lead2, failure };
+    const full = { ...r, captain: captain2, failure };
     return { ...full, provenanceDigest: await sha256Hex2(responseCanonical(full)) };
   };
   const findings = detectInjection(text);
@@ -5544,12 +5606,20 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
     });
   }
   const primary = specialists[0] ?? null;
-  const system = [
+  const composedSystem = [
     primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
     ...memoryBriefing(userId)
   ].join("\n\n");
+  const optimized = optimizeComposedPrompt(composedSystem);
+  const system = optimized.prompt;
   const result = await complete(provider, system, text, { fetchImpl: deps.fetchImpl });
+  recordUsage({
+    promptTokens: optimized.estimatedTokens + estimateTokens(text),
+    replyTokens: estimateTokens(result.ok ? result.text : result.error),
+    optimized: optimized.optimized,
+    savedTokens: optimized.savedTokens
+  });
   if (!result.ok) {
     return finish({
       reply: `The provider call did not complete (${result.kind}): ${result.error}`,
