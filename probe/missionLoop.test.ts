@@ -1,5 +1,5 @@
 /**
- * MJ 12.0 — the MISSION LOOP probe.
+ * VH 12.0 — the MISSION LOOP probe.
  *
  * 12.0 is the ONE-ENGINE release: teams, team self-evolution, the feedback
  * loop, adaptive learning and agent communication are no longer five features
@@ -153,7 +153,7 @@ console.log("all tests pass");
   fs.writeFileSync(path.join(repo, "package.json"), JSON.stringify({ name: "guard", version: "1.0.0", scripts: { test: "node test.js" } }, null, 2));
   sh(["git", "init", "-q", "."], repo);
   sh(["git", "config", "user.email", "mj@mj.desktop"], repo);
-  sh(["git", "config", "user.name", "MJ"], repo);
+  sh(["git", "config", "user.name", "VH"], repo);
   sh(["git", "add", "-A"], repo);
   sh(["git", "commit", "-qm", "initial commit"], repo);
   const baseBranch = sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim() || "master";

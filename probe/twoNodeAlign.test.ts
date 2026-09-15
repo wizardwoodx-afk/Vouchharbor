@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.3 — the two-machine proof probe.
+ * VH 11.14.3 — the two-machine proof probe.
  *
  * The 11.14.2 review's final judgment, executed: Employee A owns the data,
  * Employee B requests a capability, the relay coordinates, A computes

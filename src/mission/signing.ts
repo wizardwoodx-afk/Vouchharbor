@@ -1,19 +1,19 @@
 /**
- * §ISSUER SIGNING — Ed25519 issuer identity for MJ's proof receipts (MJ 11.10.1).
+ * §ISSUER SIGNING — Ed25519 issuer identity for VH's proof receipts (VH 11.10.1).
  *
  * WHY THIS EXISTS
- * Through 11.10, MJ's receipts were tamper-EVIDENT but not issuer-authentic: the HMAC seal
+ * Through 11.10, VH's receipts were tamper-EVIDENT but not issuer-authentic: the HMAC seal
  * uses a published secret, so anyone who knows the secret could have produced the seal.
  * The 2026 industry direction is unambiguous — Ed25519-signed, hash-chained receipts with
  * offline verification against a published key (IETF ACTA signed-receipts, Nobulex,
- * AgenticRail, Provenrail, agentmark) — so 11.10.1 makes MJ's issuer a cryptographic
+ * AgenticRail, Provenrail, agentmark) — so 11.10.1 makes VH's issuer a cryptographic
  * identity: a locally generated Ed25519 keypair signs the receipt chain, and any auditor
- * holding the exported public key can verify MJ issued it, with zero MJ state.
+ * holding the exported public key can verify VH issued it, with zero VH state.
  *
  * THE HONESTY RULES
  *  - The private key lives ONLY on the user's machine: sealed in the OS keychain on the
  *    native (Tauri) desktop, in webview localStorage on the browser edition, in-memory
- *    otherwise. It is never sent anywhere; MJ has no server to send it to.
+ *    otherwise. It is never sent anywhere; VH has no server to send it to.
  *  - When the runtime has no Ed25519 (an older webview), the receipt is NOT faked:
  *    `signature` stays null and `signatureNote` says exactly what happened. The HMAC
  *    seal still applies, so the receipt stays tamper-evident — and says so.
@@ -41,17 +41,17 @@ export interface IssuerSignature {
   sigHex: string;
 }
 
-const STORAGE_KEY = "mj.issuerkey.v1";
+const STORAGE_KEY = "vh.issuerkey.v1";
 
 /**
- * MJ hardening — native hosts seal the issuer key in the OS keychain through MJ's
+ * VH hardening — native hosts seal the issuer key in the OS keychain through VH's
  * secret store (secret_get/secret_set); browser hosts keep the localStorage path, and
  * plain-Node probe runs never see a bridge, so the deterministic localStorage path is
  * what every probe exercises. The dynamic import keeps this module importable where the
  * Tauri IPC surface does not exist, and the keychain write is best-effort: a machine
  * without a working keyring behaves exactly as before (localStorage, or session-only).
  */
-const KEYCHAIN_REF = "mj.issuerkey.v1";
+const KEYCHAIN_REF = "vh.issuerkey.v1";
 
 async function keychainBridge(): Promise<{ get(): Promise<string | null>; set(json: string): Promise<boolean> } | null> {
   try {
@@ -102,7 +102,7 @@ function ed25519Available(): boolean {
 }
 
 /**
- * The MJ issuer identity, generated once per machine. Persistence is best-effort: in a
+ * The VH issuer identity, generated once per machine. Persistence is best-effort: in a
  * browser/desktop with storage the same key survives restarts; under the probe runner it
  * is in-memory for the session, which is all a deterministic test needs.
  */
@@ -187,7 +187,7 @@ export async function signChainHash(chainHashHex: string): Promise<IssuerSignatu
 
 /**
  * Verify an issuer signature with ONLY the message, the signature and the public key —
- * the exact auditor path, no MJ state involved. Returns false on any mismatch; throws on
+ * the exact auditor path, no VH state involved. Returns false on any mismatch; throws on
  * malformed input only when the runtime cannot even attempt Ed25519 (also reported as
  * false by callers that wrap this).
  */
@@ -209,28 +209,28 @@ export async function exportIssuerPublicKeyDocument(mjVersion: string): Promise<
   const holder = await ensureIssuerIdentity();
   if (!holder) return null;
   return [
-    "MJ — Issuer Public Key (Ed25519)",
+    "VH — Issuer Public Key (Ed25519)",
     "================================",
     "",
-    `MJ version : ${mjVersion}`,
+    `VH version : ${mjVersion}`,
     `Key id     : ${holder.identity.keyId}`,
     `Public key : ${holder.identity.publicKeyHex}`,
     `Created    : ${holder.identity.createdAt}`,
     "",
     "What this key verifies",
     "----------------------",
-    "Every mj-proof-receipt/2 issued by this MJ install carries `issuer` + `signature`:",
+    "Every mj-proof-receipt/2 issued by this VH install carries `issuer` + `signature`:",
     "an Ed25519 signature over the receipt's FINAL CHAIN HASH (the `hash` of the last",
-    "chained event). To verify a receipt without MJ:",
+    "chained event). To verify a receipt without VH:",
     "",
     "  1. Re-canonicalize each event body (recursive key sort) and re-hash the chain",
     "     from the 64-zero genesis to recover the final chain hash.",
     "  2. Verify the Ed25519 signature over that hash with the public key above.",
     "  3. Re-check the HMAC seal as before (it still applies).",
     "",
-    "The private key never leaves the machine that issued the receipts; MJ has no server",
+    "The private key never leaves the machine that issued the receipts; VH has no server",
     "it could leave through. Treat this document like a code-signing certificate: anyone",
-    "holding it can verify MJ's receipts; nobody holding it can forge them.",
+    "holding it can verify VH's receipts; nobody holding it can forge them.",
     "",
   ].join("\n");
 }

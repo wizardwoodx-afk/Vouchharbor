@@ -6,7 +6,7 @@
  * §3 findings: unowned assignments, llm writers, self-verification warnings
  * §4 Node-safety of persistence (no localStorage under the probe runner)
  *
- * The requirement under test: MJ ships NOTHING fixed. User 1 with a Claude Code
+ * The requirement under test: VH ships NOTHING fixed. User 1 with a Claude Code
  * subscription and User 2 with only Grok Build both get a valid, complete board.
  */
 import { describe, it } from "node:test";

@@ -1,9 +1,9 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
 // src/version.ts
-var VH_VERSION = "18.8.0";
-var VH_SHORT = "18.8";
-var VH_CODENAME = "Atlas";
+var VH_VERSION = "18.9.0";
+var VH_SHORT = "18.9";
+var VH_CODENAME = "Aurora";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/a2a.ts
@@ -65,9 +65,9 @@ function parseAgentCard(raw, opts = {}) {
 }
 function agentCardForMission(mission2) {
   return {
-    name: `MJ Mission: ${mission2.title}`,
+    name: `VH Mission: ${mission2.title}`,
     description: mission2.description,
-    url: "http://localhost/local-mj",
+    url: "http://localhost/local-vh",
     version: VH_VERSION,
     protocolVersion: "0.3",
     capabilities: { streaming: false, pushNotifications: false },
@@ -77,8 +77,8 @@ function agentCardForMission(mission2) {
       {
         id: mission2.id,
         name: mission2.title,
-        description: `A supervised MJ mission with ${mission2.steps.length} checkpointed steps: ${mission2.steps.map((s) => s.title).join(" \u2192 ")}`,
-        tags: ["mj", "supervised", "local"]
+        description: `A supervised VH mission with ${mission2.steps.length} checkpointed steps: ${mission2.steps.map((s) => s.title).join(" \u2192 ")}`,
+        tags: ["vh", "supervised", "local"]
       }
     ]
   };
@@ -168,7 +168,7 @@ ok("plaintext (non-localhost) urls are rejected", httpCard.ok === false && httpC
 var legacy = parseAgentCard(good, { fromLegacyLocation: true });
 ok("legacy agent.json cards are accepted but labelled", legacy.ok === true && legacy.card.legacyLocation === true);
 ok("garbage is rejected, not crashed on", parseAgentCard("not a card").ok === false && parseAgentCard(null).ok === false);
-section("2. MJ's own card and the draft a human reviews");
+section("2. VH's own card and the draft a human reviews");
 var mission = {
   id: "m-1",
   title: "Refactor store",
@@ -177,8 +177,8 @@ var mission = {
 };
 var card = agentCardForMission(mission);
 ok("mission \u2192 card keeps the mission as a skill", card.skills[0]?.id === "m-1" && card.skills[0]?.name === "Refactor store");
-ok("MJ's card is honest about being local", card.url.startsWith("http://localhost") && card.tags?.every(() => true) !== false);
-ok("MJ's card claims no streaming it does not do", card.capabilities.streaming === false && card.capabilities.pushNotifications === false);
+ok("VH's card is honest about being local", card.url.startsWith("http://localhost") && card.tags?.every(() => true) !== false);
+ok("VH's card claims no streaming it does not do", card.capabilities.streaming === false && card.capabilities.pushNotifications === false);
 process.env.MJ_A2A_ENABLED = "1";
 var draft = remoteAgentToSeatDraft(parsed.ok ? parsed.card : null);
 ok("with the flag on, a draft is produced but is only a draft", draft.ok === true && draft.draft.draft === true);

@@ -1,16 +1,16 @@
 /**
- * §EVIDENCE PACK — one exportable bundle for auditors, compliance and diligence (MJ 11.10.1).
+ * §EVIDENCE PACK — one exportable bundle for auditors, compliance and diligence (VH 11.10.1).
  *
  * WHY THIS EXISTS
  * 11.9.9 built the evidence (receipts + vault), 11.10 built enforcement (the merge gate),
  * and 11.10.1 closes the loop with signature and execution. But enterprises and auditors do
- * not ask for features — they ask for a bundle. The Evidence Pack assembles everything MJ
+ * not ask for features — they ask for a bundle. The Evidence Pack assembles everything VH
  * has on file into ONE JSON document with an explicit control mapping, so "show me the
  * evidence for your agent runs" has a single answer: this file.
  *
  * THE HONESTY RULE
  * The mapping to EU AI Act / ISO 42001 / SOC 2 is a CONVENIENCE CROSSWALK. It says which
- * controls MJ's artifacts are relevant to; it does not say MJ satisfies them — that is a
+ * controls VH's artifacts are relevant to; it does not say VH satisfies them — that is a
  * judgment the customer's own compliance process must make. The pack says so, in writing,
  * inside itself.
  */
@@ -29,7 +29,7 @@ export interface ControlMapping {
   artifact: string;
 }
 
-/** The crosswalk, stated exactly as MJ stands behind it — relevant artifacts, not claims. */
+/** The crosswalk, stated exactly as VH stands behind it — relevant artifacts, not claims. */
 export const EVIDENCE_CONTROL_MAPPINGS: ControlMapping[] = [
   {
     control: "EU AI Act — Art. 12 (record-keeping & logging)",
@@ -40,7 +40,7 @@ export const EVIDENCE_CONTROL_MAPPINGS: ControlMapping[] = [
   {
     control: "EU AI Act — Art. 13 (transparency to deployers)",
     whatItAsksFor: "Instructions and capability information so deployers can interpret outputs.",
-    whatVhProvides: "The one-pager and this pack's manifest: what Vouch Harbor records, how it is verified externally, and what MJ does not claim.",
+    whatVhProvides: "The one-pager and this pack's manifest: what Vouch Harbor records, how it is verified externally, and what VH does not claim.",
     artifact: "onePager, manifest",
   },
   {
@@ -183,7 +183,7 @@ export async function buildEvidencePack(args: { vault: ReceiptVault; mjVersion: 
     issuerPublicKeyDocument: issuerDoc,
     controlMappings: EVIDENCE_CONTROL_MAPPINGS,
     disclaimer:
-      "This pack is machine-verifiable evidence produced by MJ on the user's own machine. The control mappings are a convenience crosswalk prepared by the MJ project to help reviewers locate relevant artifacts; they are NOT a legal opinion, NOT an audit, and NOT a claim that MJ or its outputs satisfy any regulation or standard. MJ is not 'EU AI Act compliant' and is not a compliance product — it is a logging, provenance and evidence mechanism that can SUPPORT compliance work; applicability of any regulation depends on the system and use case. The enclosed provenance statements are MJ-specific provenance (vh-provenance-statement/1), shaped on in-toto conventions — they are NOT SLSA certification. Verification of the enclosed receipts requires no MJ software — see the one-pager's external-verification steps.",
+      "This pack is machine-verifiable evidence produced by VH on the user's own machine. The control mappings are a convenience crosswalk prepared by the VH project to help reviewers locate relevant artifacts; they are NOT a legal opinion, NOT an audit, and NOT a claim that VH or its outputs satisfy any regulation or standard. VH is not 'EU AI Act compliant' and is not a compliance product — it is a logging, provenance and evidence mechanism that can SUPPORT compliance work; applicability of any regulation depends on the system and use case. The enclosed provenance statements are VH-specific provenance (vh-provenance-statement/1), shaped on in-toto conventions — they are NOT SLSA certification. Verification of the enclosed receipts requires no VH software — see the one-pager's external-verification steps.",
   };
 }
 

@@ -1,5 +1,5 @@
 /**
- * §LAYOUT — a real layered (Sugiyama) engine for the MJ canvas (MJ 11.9.8).
+ * §LAYOUT — a real layered (Sugiyama) engine for the VH canvas (VH 11.9.8).
  *
  * Researched grounding: the Eclipse ELK layered algorithm (Cycle Breaking → Layer Assignment →
  * Crossing Minimization → Node Placement → Edge Routing; LAYER_SWEEP = barycenter heuristic,
@@ -7,14 +7,14 @@
  * for deterministic behaviour, connected components arranged separately), and the classic
  * Sugiyama/Tagawa/Murata normalization with dummy vertices for long edges.
  *
- * What MJ ships is the dependency-free, DETERMINISTIC core of that pipeline:
- *   1. cycle breaking — greedy DFS back-edge reversal (MJ graphs are DAGs by construction;
+ * What VH ships is the dependency-free, DETERMINISTIC core of that pipeline:
+ *   1. cycle breaking — greedy DFS back-edge reversal (VH graphs are DAGs by construction;
  *      this is insurance for imported/hostile graphs, and reversed edges are counted, not hidden)
  *   2. layer assignment — longest-path ranking
  *   3. normalization — virtual nodes for edges spanning more than one layer
  *   4. crossing minimization — two-directional barycenter sweeps, fixed count, tie-breaks by
  *      id/position so the same graph ALWAYS lays out the same way
- *   5. coordinate assignment — layer columns left→right (the direction MJ flows), y from the
+ *   5. coordinate assignment — layer columns left→right (the direction VH flows), y from the
  *      minimized ordering with neighbour-centre smoothing that never breaks order or spacing
  *   6. connected components laid out independently and stacked with a gutter
  *
@@ -47,7 +47,7 @@ export interface LayoutResult {
   layers: number;
   /** crossings remaining after minimization (measured, across adjacent layer pairs) */
   crossings: number;
-  /** edges reversed for cycle breaking (honest: MJ DAGs should keep this at 0) */
+  /** edges reversed for cycle breaking (honest: VH DAGs should keep this at 0) */
   reversedEdges: number;
   /** components found (each laid out and stacked) */
   components: number;

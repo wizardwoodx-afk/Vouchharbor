@@ -1,12 +1,12 @@
 /**
- * §MERGE EXECUTOR — the gate becomes a merge (MJ 11.10.1).
+ * §MERGE EXECUTOR — the gate becomes a merge (VH 11.10.1).
  *
  * WHY THIS EXISTS
- * Through 11.10, MJ's merge story ended at the gate: enforceMergeGate said whether a merge
+ * Through 11.10, VH's merge story ended at the gate: enforceMergeGate said whether a merge
  * was PERMITTED, and the Merge Plan said HOW — but no component actually ran the merge.
  * The 11.10.1 Merge Executor closes that loop: it takes the gated plan, executes the real
  * git commands step by step, and records the resulting merge-commit sha — the fact that
- * turns "the gate controls whether a merge is permitted" into "MJ merged, and here is the
+ * turns "the gate controls whether a merge is permitted" into "VH merged, and here is the
  * commit that proves it."
  *
  * THE HONESTY RULES (carried from mergePlan.ts, unchanged)
@@ -110,7 +110,7 @@ export async function executeMergePlan(input: MergeExecutorInput): Promise<Merge
 
   // RULE 1 — the gate is the gate. No override record, no execution.
   if (!input.gate.allowed && !input.overrideRecorded) {
-    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway — MJ will name it in the attestation.`);
+    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway — VH will name it in the attestation.`);
   }
 
   // RULE 2 — a plan is either clean or it is a refusal.
@@ -265,7 +265,7 @@ export function mergeAttestationPayload(a: MergeAttestation): Record<string, unk
 
 /**
  * Turn a merge execution result into a signed attestation. The signature covers the
- * canonicalized payload, so any auditor holding the issuer public key can verify MJ's
+ * canonicalized payload, so any auditor holding the issuer public key can verify VH's
  * claim — including the merge-commit sha — offline.
  */
 export async function buildMergeAttestation(result: MergeExecutionResult, mjVersion: string): Promise<MergeAttestation> {

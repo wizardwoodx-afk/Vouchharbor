@@ -1,5 +1,5 @@
 /**
- * MJ probe suite #40 — the offline verification pack (V11.7.1).
+ * VH probe suite #40 — the offline verification pack (V11.7.1).
  *
  * The 11.7.0 review's one open caveat: "I am not independently certifying the claimed
  * 39/39 runtime test result" — the zip ships no node_modules and its environment could
@@ -19,7 +19,7 @@
  *
  * Run like every suite (see the command at the top of probe/harnesses.test.ts):
  *   esbuild probe/offlinePack.test.ts --bundle --platform=node --format=esm \
- *     --define:MJ_ROOT='"$(pwd)"' --outfile=/tmp/op.mjs --log-level=error && node /tmp/op.mjs
+ *     --define:VH_ROOT='"$(pwd)"' --outfile=/tmp/op.mjs --log-level=error && node /tmp/op.mjs
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -29,8 +29,8 @@ import { execFileSync } from "node:child_process";
 import { buildOfflinePack } from "../tools/build-offline-verify.mjs";
 import { listProbeSuites } from "../tools/probe-list.mjs";
 
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 let pass = 0;
 let fail = 0;
@@ -130,9 +130,9 @@ const buildInfo = fs.readFileSync(path.join(root, "verify", "BUILD-INFO.txt"), "
 ok("BUILD-INFO.txt names the current bundle count (no provenance drift)", buildInfo.includes(`${packed.length} self-contained bundles`), (buildInfo.match(/\d+ self-contained bundles/) ?? ["missing"])[0]);
 ok("BUILD-INFO.txt names the current suite count and a green offline gate", buildInfo.includes(`${packed.length + 1} passed, 0 failed`) && buildInfo.includes(`${packed.length + 1} probe suites`) || buildInfo.includes("42 passed, 0 failed"), (buildInfo.match(/\d+ passed, 0 failed/) ?? ["missing"])[0]);
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")) as { version: string };
-ok(`the manifest names this release and the exact esbuild that built it (MJ ${pkg.version})`,
+ok(`the manifest names this release and the exact esbuild that built it (VH ${pkg.version})`,
   manifest.mjVersion === pkg.version && typeof manifest.esbuild === "string" && manifest.esbuild.length > 0 && manifest.suiteCount === packed.length,
-  `manifest: MJ ${manifest.mjVersion}, esbuild ${manifest.esbuild}, ${manifest.suiteCount} suites`);
+  `manifest: VH ${manifest.mjVersion}, esbuild ${manifest.esbuild}, ${manifest.suiteCount} suites`);
 fs.rmSync(tmp, { recursive: true, force: true });
 
 /* ── 4. executability — the offline runner reproduces the gate ────────────────── */

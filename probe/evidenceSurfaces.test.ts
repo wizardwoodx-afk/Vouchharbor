@@ -1,9 +1,9 @@
 /**
- * MJ 14.0 — EVIDENCE SURFACES probe (suite #80).
+ * VH 14.0 — EVIDENCE SURFACES probe (suite #80).
  *
  * The 14.0 engines (finOps, assuranceScore, incidentDossier) are pure math, pinned by
  * their own suites. This suite pins the PRODUCT side of the contract: the store-reading
- * layer (src/mission/evidenceSurfaces.ts) that the Audit page renders. It seeds MJ's
+ * layer (src/mission/evidenceSurfaces.ts) that the Audit page renders. It seeds VH's
  * REAL stores through their REAL APIs — saveMissionLoopState() for the cycle spine the
  * Mission Loop writes (the missionLoop probe proves real gated runs write these exact
  * records) and globalReceiptVault.issue() for the receipt vault — then asserts the

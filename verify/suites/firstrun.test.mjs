@@ -3813,9 +3813,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "18.8.0";
-var VH_SHORT = "18.8";
-var VH_CODENAME = "Atlas";
+var VH_VERSION = "18.9.0";
+var VH_SHORT = "18.9";
+var VH_CODENAME = "Aurora";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts
@@ -4973,7 +4973,7 @@ var THEME_ALIASES = {
   "nothing-light": "bone",
   paper: "bone"
 };
-var PREFS_KEY = "mj.editor.prefs";
+var PREFS_KEY = "vh.editor.prefs";
 function getEditorPrefs() {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
@@ -5269,7 +5269,7 @@ var useGraphStore = create((set, get) => {
       const seen = /* @__PURE__ */ new Set();
       while (stack.length) {
         const cur = stack.pop();
-        if (cur === sourceNodeId) return "That wire would create a loop \u2014 MJ runs DAGs.";
+        if (cur === sourceNodeId) return "That wire would create a loop \u2014 VH runs DAGs.";
         for (const nx of adj.get(cur) ?? []) {
           if (!seen.has(nx)) {
             seen.add(nx);
@@ -5295,7 +5295,7 @@ var useGraphStore = create((set, get) => {
     }),
     setNodeStatus: (nodeId, status) => {
       runtimeStatus.set(nodeId, status);
-      window.dispatchEvent(new CustomEvent(`mj:status:${nodeId}`));
+      window.dispatchEvent(new CustomEvent(`vh:status:${nodeId}`));
     },
     setViewport: (vp) => {
       set((s) => ({ graph: { ...s.graph, viewport: { ...s.graph.viewport, ...vp } }, dirty: true }));

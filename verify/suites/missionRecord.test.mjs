@@ -2425,9 +2425,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3805,24 +3805,24 @@ var AGENT_CAPABILITIES = {
     install: "Set VOUCH_ACP_BIN to any ACP-compliant agent binary (claude-code-acp bridges Claude Code; gemini --experimental-acp bridges Gemini).",
     prompt: { argv: null, confidence: "docs", source: "ACP spec (agentclientprotocol.com): the prompt travels as session/prompt ContentBlock[], not argv. Conformance exercised by probe/acp.test.ts against a scripted agent." },
     json: { argv: null, kind: "ndjson", confidence: "docs", source: "ACP streams structured session/update events (agent_message_chunk, tool_call, plan) over newline-delimited JSON \u2014 there is no JSON output flag to pass." },
-    readOnly: { argv: null, confidence: "docs", source: "ACP models permissions natively: session/request_permission. MJ's mission policy answers it (default: deny) instead of passing a CLI flag." },
+    readOnly: { argv: null, confidence: "docs", source: "ACP models permissions natively: session/request_permission. VH's mission policy answers it (default: deny) instead of passing a CLI flag." },
     write: { argv: null, confidence: "docs", source: "Writes happen through fs/write_text_file or the agent's own tools, each gated by session/request_permission." },
-    fullAuto: { argv: null, confidence: "unverified", source: "ACP has no skip-permissions primitive and MJ will not emulate one. Autonomy comes from the mission policy, not the wire." },
-    maxTurns: { argv: null, confidence: "docs", source: "No turn-cap in the protocol; MJ's CapLedger enforces the wall clock and MJ cancels via session/cancel." },
+    fullAuto: { argv: null, confidence: "unverified", source: "ACP has no skip-permissions primitive and VH will not emulate one. Autonomy comes from the mission policy, not the wire." },
+    maxTurns: { argv: null, confidence: "docs", source: "No turn-cap in the protocol; VH's CapLedger enforces the wall clock and VH cancels via session/cancel." },
     timeout: { argv: null, confidence: "docs", source: "Protocol-level: client-side request timeout + session/cancel. Verified in probe/acp.test.ts." },
     outputSchema: { argv: null, confidence: "unverified", source: "No schema primitive in ACP v1; structured output is the mission's job, not the transport's." },
-    worktree: { argv: null, confidence: "docs", source: "session/new takes cwd \u2014 MJ points the session at its prepared worktree, as with any CLI." },
+    worktree: { argv: null, confidence: "docs", source: "session/new takes cwd \u2014 VH points the session at its prepared worktree, as with any CLI." },
     cwd: { argv: null, confidence: "docs", source: "session/new { cwd, mcpServers } \u2014 first-class in the protocol, unlike most CLIs." },
     model: { argv: null, confidence: "docs", source: "session/new may return models/modes; session/set_mode switches. Not required for a first turn." },
-    resume: { argv: ["session/load"], confidence: "docs", source: "session/load resumes a session by id \u2014 MJ does not use it yet; every mission seat is a fresh session." },
+    resume: { argv: ["session/load"], confidence: "docs", source: "session/load resumes a session by id \u2014 VH does not use it yet; every mission seat is a fresh session." },
     sessionStart: { argv: null, confidence: "docs", source: "Sessions are created per seat via session/new; there is nothing to pre-create." },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "Update behavior belongs to the agent binary, not the protocol." },
     filters: null,
     cost: null,
     enforcedReadOnly: false,
     gotchas: [
-      "ACP is a protocol, not a binary: what is verified is MJ's client (probe/acp.test.ts), not any particular agent's server. Per-agent verification stays on the Proof page's live-binary ledger.",
-      "Newline-delimited JSON: a chatty stderr is fine, but any agent that prints non-JSON to stdout breaks the stream \u2014 MJ counts such lines as protocol_error events instead of crashing."
+      "ACP is a protocol, not a binary: what is verified is VH's client (probe/acp.test.ts), not any particular agent's server. Per-agent verification stays on the Proof page's live-binary ledger.",
+      "Newline-delimited JSON: a chatty stderr is fine, but any agent that prints non-JSON to stdout breaks the stream \u2014 VH counts such lines as protocol_error events instead of crashing."
     ]
   },
   claude: {
@@ -3843,20 +3843,20 @@ var AGENT_CAPABILITIES = {
     // so the flag is restored at DOCS grade, the old scan is recorded in the source line,
     // and probe §10 pins registry↔policy agreement so the two layers can never split again.
     maxTurns: { argv: ["--max-turns", "$N"], confidence: "docs", source: "code.claude.com CLI reference (2026): print-mode only, no default, exits with an error at the cap. Supersedes the 2.1.197 --help scan that found no match \u2014 the flag is not listed in --help." },
-    timeout: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no timeout flag; MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no timeout flag; VH enforces its own wall clock" },
     outputSchema: { argv: ["--json-schema"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help" },
     worktree: { argv: ["-w"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; -w, --worktree [name]" },
-    cwd: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no cwd flag; MJ sets the child process cwd instead" },
+    cwd: { argv: null, confidence: "binary", source: "VERIFIED ABSENT against the real binary: claude 2.1.197 \u2014 no cwd flag; VH sets the child process cwd instead" },
     model: { argv: ["--model", "$MODEL"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; --model <model>" },
     resume: { argv: ["--resume", "$SESSION"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197; -r, --resume [value]" },
-    sessionStart: { argv: ["--session-id", "$SESSION"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help \u2014 `--session-id <uuid>` CREATES a session under the id you pass, so MJ can pick the id. `--resume` loads one; passing both is a conflict, so MJ emits exactly one per turn." },
+    sessionStart: { argv: ["--session-id", "$SESSION"], confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 --help \u2014 `--session-id <uuid>` CREATES a session under the id you pass, so VH can pick the id. `--resume` loads one; passing both is a conflict, so VH emits exactly one per turn." },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
     filters: { allowFlag: "--allowedTools", denyFlag: "--disallowedTools", confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 \u2014 note --allowedTools PRE-APPROVES, it does not restrict. --tools restricts which tools exist." },
     cost: { kind: "usd", path: "total_cost_usd", confidence: "binary", source: "VERIFIED against the real binary: claude 2.1.197 \u2014 total_cost_usd, num_turns and session_id all present in the shipped executable, and a live run returned them" },
     enforcedReadOnly: true,
     gotchas: [
       '--allowedTools pre-approves (skips the prompt) but does NOT restrict. --tools restricts which tools exist; --tools "" is pure text. Conflating them is the classic bug.',
-      "--max-turns exists in print mode only (docs-graded; --help does not list it). The CapLedger stays the authoritative ceiling \u2014 the CLI-side cap is defence in depth that fails fast. The vendor also documents --max-budget-usd (print-mode spend cap); MJ deliberately does not compose it: the CapLedger is the spend authority.",
+      "--max-turns exists in print mode only (docs-graded; --help does not list it). The CapLedger stays the authoritative ceiling \u2014 the CLI-side cap is defence in depth that fails fast. The vendor also documents --max-budget-usd (print-mode spend cap); VH deliberately does not compose it: the CapLedger is the spend authority.",
       'Without credentials it still exits 0 and returns a full result object with is_error:true and result:"Not logged in \xB7 Please run /login". Exit code alone would read that as success.'
     ]
   },
@@ -3872,20 +3872,20 @@ var AGENT_CAPABILITIES = {
     write: { argv: ["--sandbox", "workspace-write"], confidence: "docs", source: "--full-auto is DEPRECATED; use --sandbox workspace-write" },
     fullAuto: { argv: ["--sandbox", "danger-full-access"], confidence: "docs", source: "the documented escape hatch" },
     maxTurns: { argv: null, confidence: "unverified", source: "no documented turn flag" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: ["--output-schema"], confidence: "docs", source: "codex exec --output-schema" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
     cwd: { argv: ["--cd", "$CWD"], confidence: "docs", source: "alias -C" },
     model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "OpenAI Codex docs" },
-    resume: { argv: ["resume"], confidence: "docs", source: "codex exec resume \u2014 takes no session id, so MJ cannot say WHICH conversation to continue" },
-    sessionStart: { argv: null, confidence: "unverified", source: "codex names its own sessions and there is no documented way to choose the id, so MJ must capture it from the output" },
+    resume: { argv: ["resume"], confidence: "docs", source: "codex exec resume \u2014 takes no session id, so VH cannot say WHICH conversation to continue" },
+    sessionStart: { argv: null, confidence: "unverified", source: "codex names its own sessions and there is no documented way to choose the id, so VH must capture it from the output" },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
     filters: null,
-    cost: { kind: "tokens-only", confidence: "docs", source: "reports tokens but NOT cost. MJ must leave costUsd null rather than guess a price." },
+    cost: { kind: "tokens-only", confidence: "docs", source: "reports tokens but NOT cost. VH must leave costUsd null rather than guess a price." },
     enforcedReadOnly: true,
     gotchas: [
       "--full-auto is DEPRECATED. Use --sandbox workspace-write.",
-      "Reports tokens with no price, so a cost figure for a codex seat would be invented. MJ records tokens and says the spend is unknown."
+      "Reports tokens with no price, so a cost figure for a codex seat would be invented. VH records tokens and says the spend is unknown."
     ]
   },
   opencode: {
@@ -3897,30 +3897,30 @@ var AGENT_CAPABILITIES = {
     json: { argv: ["--format", "json"], kind: "ndjson", confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 choices default|json; json emits NDJSON events step_start/text/tool_use/step_finish" },
     readOnly: { argv: ["--agent", "plan"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 asked to create a file, the plan agent made ZERO tool calls and created nothing, while the default agent created it. Read-only is enforced, not advisory." },
     // The DEFAULT agent is the writing one — proven by a real write. `--agent build` is not what the
-    // binary expects, so MJ emits no agent flag when it wants writes.
+    // binary expects, so VH emits no agent flag when it wants writes.
     write: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 the default agent wrote proof-default.txt. No agent flag is needed to write; do NOT pass --agent build." },
     // There is no --dangerously-skip-permissions in this CLI (0 matches in `run --help`). That flag
     // belongs to Claude Code; the OpenCode equivalent is --auto, which is far more dangerous than it
-    // sounds, so MJ never emits it without an explicit human decision.
+    // sounds, so VH never emits it without an explicit human decision.
     fullAuto: { argv: ["--auto"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--auto  auto-approve permissions that are not explicitly denied (dangerous!)`. --dangerously-skip-permissions does NOT exist here." },
-    maxTurns: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no turn-cap flag exists in `run --help`, so MJ's own CapLedger is the only turn limit" },
-    timeout: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no timeout flag; MJ enforces its own wall clock" },
+    maxTurns: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no turn-cap flag exists in `run --help`, so VH's own CapLedger is the only turn limit" },
+    timeout: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no timeout flag; VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no output-schema flag in `run --help`" },
-    worktree: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no worktree flag; MJ uses git worktree itself" },
+    worktree: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 no worktree flag; VH uses git worktree itself" },
     cwd: { argv: ["--dir", "$CWD"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--dir  directory to run in, path on remote server if attaching`" },
     model: { argv: ["--model", "$MODEL"], confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `-m, --model` in provider/model format" },
     resume: { argv: ["--session", "$SESSION"], confidence: "binary", source: "VERIFIED END-TO-END against the real binary: opencode 1.18.25 \u2014 turn 1 planted a codeword, a FRESH process resumed with --session <id> and recalled it exactly. -c/--continue resumes the latest session; --fork copies before continuing." },
-    sessionStart: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--session <unknown-id>` exits 1 with `Error: Session not found`. It LOADS, it does not create, so MJ must NOT pass a session id on turn one. Run turn one bare, capture the sessionID from the NDJSON, and resume with it afterwards." },
+    sessionStart: { argv: null, confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 `--session <unknown-id>` exits 1 with `Error: Session not found`. It LOADS, it does not create, so VH must NOT pass a session id on turn one. Run turn one bare, capture the sessionID from the NDJSON, and resume with it afterwards." },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented; `opencode upgrade` is a separate command" },
     filters: null,
     cost: { kind: "usd", path: "step_finish.part.cost", confidence: "binary", source: "VERIFIED against the real binary: opencode 1.18.25 \u2014 each step_finish carries .part.cost and .part.tokens{total,input,output,reasoning,cache}. tokens.total is CUMULATIVE (8019 then 8038 across two steps), so take the LAST value; summing would multiply-count." },
     enforcedReadOnly: true,
     gotchas: [
-      "CORRECTION: the widely-quoted issue anomalyco/opencode#13851 claimed non-interactive sessions get a restrictive preset that blocks writes. On the real 1.18.25 binary the DEFAULT agent wrote a file without any flag, so that no longer holds. MJ no longer warns about it \u2014 a stale warning would push every seat to read-only for no reason.",
-      "There is NO --dangerously-skip-permissions here. The escape hatch is --auto, whose own help text says '(dangerous!)' because it approves everything not explicitly denied. MJ treats it as requiring an explicit human decision, never a default.",
-      "Sessions are real and resumable by id: --session <id>, -c/--continue for the latest, --fork to branch without polluting the original. Every NDJSON event carries sessionID, so MJ can capture it from turn one.",
+      "CORRECTION: the widely-quoted issue anomalyco/opencode#13851 claimed non-interactive sessions get a restrictive preset that blocks writes. On the real 1.18.25 binary the DEFAULT agent wrote a file without any flag, so that no longer holds. VH no longer warns about it \u2014 a stale warning would push every seat to read-only for no reason.",
+      "There is NO --dangerously-skip-permissions here. The escape hatch is --auto, whose own help text says '(dangerous!)' because it approves everything not explicitly denied. VH treats it as requiring an explicit human decision, never a default.",
+      "Sessions are real and resumable by id: --session <id>, -c/--continue for the latest, --fork to branch without polluting the original. Every NDJSON event carries sessionID, so VH can capture it from turn one.",
       "opencode ships credential-free models (opencode/mimo-v2.5-free, opencode/nemotron-3.5-lightning-free, opencode/big-pickle and others). With zero credentials configured these still run and report cost 0 \u2014 useful for proving the plumbing before any API key exists.",
-      "opencode.json supports permission: [{permission, pattern, action}] and tools: {write:false, bash:false} \u2014 MJ can write this file into the mission workspace to express its risk class."
+      "opencode.json supports permission: [{permission, pattern, action}] and tools: {write:false, bash:false} \u2014 VH can write this file into the mission workspace to express its risk class."
     ]
   },
   grok: {
@@ -3941,13 +3941,13 @@ var AGENT_CAPABILITIES = {
     // special-cased claude only); it is capability-driven now, so grok seats get their
     // documented turn cap on the policyFor path too.
     maxTurns: { argv: ["--max-turns", "$N"], confidence: "docs", source: "docs.x.ai \u2014 a real flag here; Claude Code documents the same name for print mode (docs-graded, see the claude entry)" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: ["-w", "$NAME"], confidence: "docs", source: "--worktree [NAME], with --ref to choose the base" },
     cwd: { argv: ["--cwd", "$CWD"], confidence: "docs", source: "docs.x.ai" },
     model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "docs.x.ai" },
     resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "-r; -c continues the latest, --fork-session copies context" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented; MJ captures the id from the output instead" },
+    sessionStart: { argv: null, confidence: "unverified", source: "not documented; VH captures the id from the output instead" },
     noAutoUpdate: { argv: ["--no-auto-update"], confidence: "docs", source: "REQUIRED in CI, or a background update check can stall the run" },
     filters: { allowFlag: "--allow", denyFlag: "--deny", confidence: "docs", source: "Bash | Edit | Read | Grep | MCPTool | WebFetch. Deny wins over allow." },
     cost: { kind: "tokens-only", confidence: "unverified", source: "not documented as reporting USD" },
@@ -3972,19 +3972,19 @@ var AGENT_CAPABILITIES = {
     write: { argv: ["--force"], confidence: "docs", source: "--force is what permits writes" },
     fullAuto: { argv: ["--force"], confidence: "docs", source: "same flag; there is no separate bypass" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock \u2014 see the no-exit bug below" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock \u2014 see the no-exit bug below" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
     cwd: { argv: ["--workspace", "$CWD"], confidence: "community", source: "verify with --help" },
     model: { argv: ["--model", "$MODEL"], confidence: "community", source: "-m" },
     resume: { argv: ["--resume", "$SESSION"], confidence: "community", source: "--resume [session_id]" },
-    sessionStart: { argv: null, confidence: "unverified", source: "not documented; MJ captures the id from the output instead" },
+    sessionStart: { argv: null, confidence: "unverified", source: "not documented; VH captures the id from the output instead" },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
     filters: { allowFlag: "", denyFlag: "", confidence: "community", source: 'permissions live in .cursor/cli-config.json as {permissions:{allow:["Shell(git)","Read(*)"],deny:["Read(.env*)"]}}, not on the command line' },
     cost: null,
     enforcedReadOnly: true,
     gotchas: [
-      "KNOWN BUG: under -p the process may not exit after the result is emitted, so CI runs hang until killed. MJ MUST apply a wall-clock timeout and parse the result from the stream rather than waiting for exit. Reported repeatedly on the Cursor forum.",
+      "KNOWN BUG: under -p the process may not exit after the result is emitted, so CI runs hang until killed. VH MUST apply a wall-clock timeout and parse the result from the stream rather than waiting for exit. Reported repeatedly on the Cursor forum.",
       "Reports no cost at all, so a cursor seat's spend is unknown rather than zero."
     ]
   },
@@ -4000,7 +4000,7 @@ var AGENT_CAPABILITIES = {
     fullAuto: { argv: ["-y"], confidence: "docs", source: "-y/--yolo; --auto-approve is the narrower form" },
     // --retries is a consecutive-mistake limit, NOT a turn cap. Treating it as one would silently
     // allow unbounded turns.
-    maxTurns: { argv: null, confidence: "docs", source: "--retries N is a consecutive-mistake limit, not a turn cap, so MJ does not use it as one" },
+    maxTurns: { argv: null, confidence: "docs", source: "--retries N is a consecutive-mistake limit, not a turn cap, so VH does not use it as one" },
     timeout: { argv: ["--timeout", "$SECS"], confidence: "docs", source: "-t/--timeout" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented, but instances are fully isolated so parallel branches are safe" },
@@ -4013,8 +4013,8 @@ var AGENT_CAPABILITIES = {
     cost: { kind: "usd", path: "verbose stats", confidence: "community", source: "-v prints elapsed time, tokens and estimated cost when available \u2014 parse, do not assume" },
     enforcedReadOnly: true,
     gotchas: [
-      "--data-dir <path> uses isolated state instead of ~/.cline/data and AUTOMATICALLY enables sandbox mode. That is the strongest isolation available here, so MJ uses it for untrusted repos.",
-      "--zen/-z returns immediately with no result. MJ must NEVER use it: it looks like a fast success and delivers nothing."
+      "--data-dir <path> uses isolated state instead of ~/.cline/data and AUTOMATICALLY enables sandbox mode. That is the strongest isolation available here, so VH uses it for untrusted repos.",
+      "--zen/-z returns immediately with no result. VH must NEVER use it: it looks like a fast success and delivers nothing."
     ]
   },
   kilo: {
@@ -4024,34 +4024,34 @@ var AGENT_CAPABILITIES = {
     install: "npm install -g kilocode-cli   then   kilo   (kilo.ai)",
     prompt: { argv: ["run", "$PROMPT"], confidence: "docs", source: "kilo run" },
     json: { argv: ["--format", "json"], kind: "ndjson", confidence: "docs", source: "--format json" },
-    // Read-only is per-AGENT only, expressed in .kilo/agents/*.md. There is no flag, so MJ has to
+    // Read-only is per-AGENT only, expressed in .kilo/agents/*.md. There is no flag, so VH has to
     // author the agent file — and cannot claim enforcement it did not verify.
     readOnly: { argv: ["--agent", "vh-readonly"], confidence: "docs", source: "read-only is expressed per agent in .kilo/agents/*.md, not by a flag" },
     write: { argv: ["--auto"], confidence: "docs", source: "--auto approves automatically" },
     fullAuto: { argv: ["--auto"], confidence: "docs", source: "same flag" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "kilo pr <number> checks out a PR branch instead" },
     cwd: { argv: ["--workspace", "$CWD"], confidence: "community", source: "verify with kilo --help" },
     model: { argv: ["--model", "$MODEL"], confidence: "docs", source: "provider/model format, e.g. openai/gpt-5" },
     resume: { argv: ["--continue"], confidence: "docs", source: "-c; also --session, --fork" },
-    sessionStart: { argv: null, confidence: "unverified", source: "--session exists but whether it can create an id MJ chose is not documented; MJ captures the id instead" },
+    sessionStart: { argv: null, confidence: "unverified", source: "--session exists but whether it can create an id VH chose is not documented; VH captures the id instead" },
     noAutoUpdate: { argv: null, confidence: "unverified", source: "not documented" },
     filters: { allowFlag: "", denyFlag: "", confidence: "community", source: "per-agent permission block in the agent markdown" },
     cost: { kind: "tokens-only", confidence: "unverified", source: "not documented as reporting USD" },
-    // Deliberately false: MJ authors the agent file, but has never verified kilo honours it.
+    // Deliberately false: VH authors the agent file, but has never verified kilo honours it.
     enforcedReadOnly: false,
     gotchas: [
-      "Read-only is per-agent ONLY (.kilo/agents/*.md), so MJ authors the file and says the guarantee is advisory until verified. enforcedReadOnly is false on purpose."
+      "Read-only is per-agent ONLY (.kilo/agents/*.md), so VH authors the file and says the guarantee is advisory until verified. enforcedReadOnly is false on purpose."
     ]
   },
   hermes: {
     id: "hermes",
     name: "Hermes Runtime",
     bins: ["hermes"],
-    install: "bundled with MJ; runs as a stdio child process",
-    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "MJ's own runtime" },
+    install: "bundled with VH; runs as a stdio child process",
+    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "VH's own runtime" },
     json: null,
     readOnly: null,
     write: null,
@@ -4092,7 +4092,7 @@ var AGENT_CAPABILITIES = {
     filters: null,
     cost: null,
     enforcedReadOnly: true,
-    gotchas: ["Pass --no-auto-commits so MJ manages worktree commits deterministically."]
+    gotchas: ["Pass --no-auto-commits so VH manages worktree commits deterministically."]
   },
   gemini: {
     id: "gemini",
@@ -4202,10 +4202,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: null, confidence: "unverified", source: "writes via its file tools; no flag to gate them" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "run it from the repo directory (MJ sets cwd on the process)" },
+    cwd: { argv: null, confidence: "unverified", source: "run it from the repo directory (VH sets cwd on the process)" },
     model: { argv: null, confidence: "docs", source: "OPENAI_MODEL / OPENAI_BASE_URL env or /provider profiles \u2014 config is env/profile driven, not argv" },
     resume: { argv: ["--resume", "$SESSION"], confidence: "docs", source: "github README: --resume <id>, --continue for latest" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4216,7 +4216,7 @@ var AGENT_CAPABILITIES = {
     gotchas: [
       "Open-source Claude-Code-shaped CLI for OpenAI-compatible/Gemini/Ollama backends \u2014 no Claude subscription needed.",
       "Config lives in ~/.openclaude and ~/.openclaude-profile.json; it deliberately never reads ~/.claude.",
-      "Background sessions (--bg) return immediately \u2014 MJ needs the synchronous -p shape, so -p is the registered invocation.",
+      "Background sessions (--bg) return immediately \u2014 VH needs the synchronous -p shape, so -p is the registered invocation.",
       "No verified read-only mode: an OpenClaude seat marked no-write is advisory, not enforced."
     ]
   },
@@ -4232,7 +4232,7 @@ var AGENT_CAPABILITIES = {
     write: { argv: ["--allow-tool", "edit"], confidence: "docs", source: "permission patterns: --allow-tool / --deny-tool / --add-dir" },
     fullAuto: { argv: ["--allow-all"], confidence: "docs", source: "--allow-all (tools+paths+urls); the docs themselves call the yolo posture high-risk" },
     maxTurns: { argv: null, confidence: "unverified", source: "no documented turn flag" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
     cwd: { argv: ["-C", "$CWD"], confidence: "docs", source: "-C DIRECTORY changes directory before startup" },
@@ -4263,10 +4263,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: null, confidence: "unverified", source: "not re-verified" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: ["-m", "$MODEL"], confidence: "community", source: "Gemini-lineage -m flag" },
     resume: { argv: null, confidence: "unverified", source: "not re-verified" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4293,10 +4293,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: null, confidence: "unverified", source: "not documented" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: ["--model", "$MODEL"], confidence: "community", source: "model selection reported in amp config rather than argv" },
     resume: { argv: null, confidence: "unverified", source: "not documented" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4320,10 +4320,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: null, confidence: "unverified", source: "not documented" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: ["-m", "$MODEL"], confidence: "community", source: "Charm's config-driven model selection" },
     resume: { argv: null, confidence: "unverified", source: "not documented" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4350,10 +4350,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: null, confidence: "unverified", source: "writes via its own tools inside its runtime" },
     fullAuto: { argv: null, confidence: "unverified", source: "it is autonomous by design; containment is the sandbox config" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented as argv" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "workspace config, not argv" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: null, confidence: "unverified", source: "LLM config file, not argv" },
     resume: { argv: null, confidence: "unverified", source: "not documented as argv" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4363,7 +4363,7 @@ var AGENT_CAPABILITIES = {
     enforcedReadOnly: false,
     gotchas: [
       "Formerly OpenDevin. The open-source autonomous software engineer.",
-      "Containment comes from its runtime sandbox config, not from an argv flag MJ can pass \u2014 treat read-only seats as advisory."
+      "Containment comes from its runtime sandbox config, not from an argv flag VH can pass \u2014 treat read-only seats as advisory."
     ]
   },
   droid: {
@@ -4381,10 +4381,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: ["--auto", "low"], confidence: "docs", source: "'add --auto to enable edits and commands, with risk tiers gating what can run' \u2014 low is the vendor's example tier" },
     fullAuto: { argv: null, confidence: "unverified", source: "tier semantics (--auto low|medium shown in docs) not mapped to a full-auto shape" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "droid has git-worktree machinery but no documented argv flag" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: null, confidence: "unverified", source: "not verified on the exec flag table" },
     resume: { argv: null, confidence: "unverified", source: "stream-json multi-turn sessions exist; no resume-by-id flag documented" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4411,10 +4411,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: [], confidence: "docs", source: "default: prompt mode edits files when the agent decides" },
     fullAuto: { argv: ["--yolo"], confidence: "docs", source: "'--yolo (-y) \u2014 auto-approve regular tool calls; use only in trusted directories'" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process (-w reported in community wrappers)" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process (-w reported in community wrappers)" },
     model: { argv: ["-m", "$MODEL"], confidence: "docs", source: "'--model <model> (-m) \u2014 specify a model alias for this launch'" },
     resume: { argv: ["--session", "$SESSION"], confidence: "docs", source: "'--session [id] (-S) \u2014 resume a session by ID'" },
     sessionStart: { argv: null, confidence: "unverified", source: "no documented create-under-chosen-id flag; Kimi assigns its own session ids" },
@@ -4442,10 +4442,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: [], confidence: "docs", source: "default: print mode edits when the agent decides" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process" },
     model: { argv: ["--model", "$MODEL"], confidence: "community", source: "github/gh-aw's auggie engine appends --model; not on the vendor flag table" },
     resume: { argv: null, confidence: "unverified", source: "not documented" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4473,10 +4473,10 @@ var AGENT_CAPABILITIES = {
     write: { argv: [], confidence: "docs", source: "default: the local agent run can edit" },
     fullAuto: { argv: null, confidence: "unverified", source: "not documented" },
     maxTurns: { argv: null, confidence: "unverified", source: "not documented" },
-    timeout: { argv: null, confidence: "unverified", source: "MJ enforces its own wall clock" },
+    timeout: { argv: null, confidence: "unverified", source: "VH enforces its own wall clock" },
     outputSchema: { argv: null, confidence: "unverified", source: "not documented" },
     worktree: { argv: null, confidence: "unverified", source: "not documented" },
-    cwd: { argv: null, confidence: "unverified", source: "MJ sets cwd on the process (--cwd existed on the 2025 warp surface)" },
+    cwd: { argv: null, confidence: "unverified", source: "VH sets cwd on the process (--cwd existed on the 2025 warp surface)" },
     model: { argv: null, confidence: "unverified", source: "not documented" },
     resume: { argv: null, confidence: "unverified", source: "local runs are one-shot; run-cloud has --attach, not resume-by-id" },
     sessionStart: { argv: null, confidence: "unverified", source: "not documented" },
@@ -4485,17 +4485,17 @@ var AGENT_CAPABILITIES = {
     cost: null,
     enforcedReadOnly: false,
     gotchas: [
-      "MJ spawns LOCAL runs (oz agent run). oz agent run-cloud needs --environment and is deliberately NOT composed.",
+      "VH spawns LOCAL runs (oz agent run). oz agent run-cloud needs --environment and is deliberately NOT composed.",
       "WARP_API_KEY (wk-...) authenticates CI/headless servers; otherwise `oz login`.",
-      "The 2025-era `warp agent run --prompt` surface still exists on the warp binary, and the Linux desktop launcher is warp-terminal \u2014 neither is the agent CLI MJ detects."
+      "The 2025-era `warp agent run --prompt` surface still exists on the warp binary, and the Linux desktop launcher is warp-terminal \u2014 neither is the agent CLI VH detects."
     ]
   },
   llm: {
     id: "llm",
     name: "Direct LLM",
     bins: [],
-    install: "no binary; MJ calls the provider API directly",
-    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "MJ's own call path" },
+    install: "no binary; VH calls the provider API directly",
+    prompt: { argv: ["$PROMPT"], confidence: "docs", source: "VH's own call path" },
     json: null,
     readOnly: null,
     write: null,
@@ -4638,8 +4638,8 @@ var SEAL_SECRET_BY_FORMAT = {
 };
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -4894,7 +4894,7 @@ var SEED_INVARIANTS = [
     rule: "Writing agents must never write directly into the base repository checkout; all edits must be staged in private sibling worktrees.",
     originatingMissionId: "mission-init-01",
     failureObserved: "Base checkout dirty with untracked files before reviewer execution.",
-    verifiedRepairAction: "Allocated dedicated git worktrees per writing seat under mj/<mission>/<seatId>.",
+    verifiedRepairAction: "Allocated dedicated git worktrees per writing seat under vh/<mission>/<seatId>.",
     timesApplied: 34,
     successRate: 1,
     active: true
@@ -4905,7 +4905,7 @@ var SEED_INVARIANTS = [
     rule: "Reviewers must inspect a synthesized merge snapshot branch (--no-ff) containing all writer commits, not the untouched base checkout.",
     originatingMissionId: "mission-init-02",
     failureObserved: "Reviewer passed code without seeing newly written features.",
-    verifiedRepairAction: "Built temporary review snapshot branch mj/<mission>/review before wave 3 review runs.",
+    verifiedRepairAction: "Built temporary review snapshot branch vh/<mission>/review before wave 3 review runs.",
     timesApplied: 28,
     successRate: 1,
     active: true
@@ -4958,7 +4958,7 @@ Action: ${verifiedRepairAction}`,
     const cortexId = `cortex-${Date.now()}`;
     const lines = [
       "# ORGANIZATIONAL MEMORY & LEARNED INVARIANTS",
-      `<!-- Auto-compiled by MJ Memory Cortex for Mission Execution (${(/* @__PURE__ */ new Date()).toISOString()}) -->`,
+      `<!-- Auto-compiled by VH Memory Cortex for Mission Execution (${(/* @__PURE__ */ new Date()).toISOString()}) -->`,
       "",
       "The following architectural invariants were derived from past empirical failures and proven repairs:",
       ""
@@ -5295,7 +5295,7 @@ function policyFor(id, req) {
   if (wantsReadOnly) {
     return {
       argv: readShape ?? ["$PROMPT"],
-      grant: enforced ? "Read-only, enforced by the harness (no file writes, no shell)." : "Read-only requested. This harness has no enforced sandbox, so MJ additionally withholds write permission in the prompt and records that the control is advisory.",
+      grant: enforced ? "Read-only, enforced by the harness (no file writes, no shell)." : "Read-only requested. This harness has no enforced sandbox, so VH additionally withholds write permission in the prompt and records that the control is advisory.",
       canWrite: false,
       readOnly: true,
       refused: null,
@@ -5305,7 +5305,7 @@ function policyFor(id, req) {
   if (!writeShape) {
     return {
       argv: readShape ?? ["$PROMPT"],
-      grant: "Read-only fallback: this harness has no workspace-write mode MJ can request.",
+      grant: "Read-only fallback: this harness has no workspace-write mode VH can request.",
       canWrite: false,
       readOnly: true,
       refused: null,
@@ -5315,7 +5315,7 @@ function policyFor(id, req) {
   const argv = withTurnLimit(id, [...writeShape], req.maxTurns);
   return {
     argv,
-    grant: enforced ? "Write inside the mission workspace only, enforced by the harness sandbox." : "Write requested. This harness has no enforced sandbox; MJ records the control as advisory.",
+    grant: enforced ? "Write inside the mission workspace only, enforced by the harness sandbox." : "Write requested. This harness has no enforced sandbox; VH records the control as advisory.",
     canWrite: true,
     readOnly: false,
     refused: null,
@@ -5377,7 +5377,7 @@ function parseUsage(id, stdout) {
     }
     return {
       costUsd: null,
-      // Codex reports tokens, not dollars; MJ will not convert with a guessed price.
+      // Codex reports tokens, not dollars; VH will not convert with a guessed price.
       tokens,
       source: `codex: ${events.length} NDJSON event(s), tokens=${tokens ?? "n/a"}`,
       text: text || raw
@@ -5516,7 +5516,7 @@ var AcpClient = class {
     const result = await this.request("initialize", {
       protocolVersion: PROTOCOL_VERSION,
       clientCapabilities: { fs: { readTextFile: true, writeTextFile: true } },
-      clientInfo: this.opts.clientInfo ?? { name: "MJ", version: VH_VERSION }
+      clientInfo: this.opts.clientInfo ?? { name: "VH", version: VH_VERSION }
     });
     this.initialized = true;
     const agent = result.agentInfo;
@@ -5603,7 +5603,7 @@ var AcpClient = class {
       return;
     }
     if (msg.id !== void 0) {
-      this.rawSend({ jsonrpc: "2.0", id: msg.id, error: { code: -32601, message: `MJ does not implement ${method}` } });
+      this.rawSend({ jsonrpc: "2.0", id: msg.id, error: { code: -32601, message: `VH does not implement ${method}` } });
     }
   }
   onUpdate(params) {
@@ -5689,12 +5689,12 @@ var AcpClient = class {
       this.emit({
         type: "agent_request_refused",
         method,
-        reason: "no handler attached \u2014 MJ does not grant unconfigured capability"
+        reason: "no handler attached \u2014 VH does not grant unconfigured capability"
       });
       this.rawSend({
         jsonrpc: "2.0",
         id,
-        error: { code: -32601, message: `MJ does not grant ${method} in this session` }
+        error: { code: -32601, message: `VH does not grant ${method} in this session` }
       });
     } catch (e) {
       this.rawSend({
@@ -5707,8 +5707,8 @@ var AcpClient = class {
 };
 function acpInvocation() {
   const env = typeof process !== "undefined" && process.env ? process.env : {};
-  const program = env.VOUCH_ACP_BIN ?? env.MJ_ACP_BIN ?? "claude-code-acp";
-  const args = (env.MJ_ACP_ARGS ?? "--stdio").split(" ").filter(Boolean);
+  const program = env.VOUCH_ACP_BIN ?? env.VH_ACP_BIN ?? env.MJ_ACP_BIN ?? "claude-code-acp";
+  const args = (env.VH_ACP_ARGS ?? env.MJ_ACP_ARGS ?? "--stdio").split(" ").filter(Boolean);
   return { program, args };
 }
 var AcpHarness = class _AcpHarness {
@@ -5886,7 +5886,7 @@ var CliHarness = class {
         exitCode: r.code ?? null,
         latencyMs: Date.now() - started,
         // Real spend when the harness reports it. Null-equivalent 0 with the source recorded,
-        // because MJ does not convert tokens to dollars at a guessed price.
+        // because VH does not convert tokens to dollars at a guessed price.
         costUsd: usage.costUsd ?? 0,
         simulated: false,
         detail: `exit=${r.code ?? "?"} bytes=${text.length}; ${usage.source}; sandbox=${policy.readOnly ? "read-only" : "workspace-write"}`,
@@ -5961,7 +5961,7 @@ var LocalTestHarness = class {
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
         "",
-        "This output was produced by MJ's labelled test double, not by a coding agent.",
+        "This output was produced by VH's labelled test double, not by a coding agent.",
         "It is recorded as simulated and is NOT counted as independently verified."
       ].join("\n"),
       exitCode: 0,
@@ -5984,7 +5984,7 @@ var PROFILES = [
   { id: "grok", name: "Grok CLI", installHint: "Install the xAI Grok CLI and authenticate.", languages: ["TypeScript", "Python"], strengths: ["coding", "research"], canEditFiles: true, canRunTests: false, capabilities: ["coding", "research"] },
   { id: "cline", name: "Cline", installHint: "Install the Cline CLI (the VS Code extension cannot be spawned).", languages: ["TypeScript", "Python"], strengths: ["coding"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review"] },
   { id: "kilo", name: "Kilo Code", installHint: "Install the Kilo Code CLI on PATH.", languages: ["TypeScript", "Python"], strengths: ["coding"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review"] },
-  { id: "hermes", name: "Hermes Agent", installHint: "Install Hermes Agent (Nous) so `hermes` is on PATH, or use the in-process MJ Hermes loop.", languages: ["any"], strengths: ["general", "tool-use"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "research", "review", "testing", "synthesis"] },
+  { id: "hermes", name: "Hermes Agent", installHint: "Install Hermes Agent (Nous) so `hermes` is on PATH, or use the in-process VH Hermes loop.", languages: ["any"], strengths: ["general", "tool-use"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "research", "review", "testing", "synthesis"] },
   // ── V11.6.2: the registry's remaining CLIs, profiled honestly (researched 2026-09) ──
   { id: "openclaude", name: "OpenClaude", installHint: "npm install -g @gitlawb/openclaude@latest, then openclaude /provider.", languages: ["TypeScript", "Python", "Go"], strengths: ["coding", "byok"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review", "testing"] },
   { id: "copilot", name: "GitHub Copilot CLI", installHint: "npm install -g @github/copilot, then copilot login.", languages: ["TypeScript", "Python", "Go"], strengths: ["coding", "review"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review", "testing"] },
@@ -6019,7 +6019,7 @@ init_version();
 init_id();
 
 // src/mission/missionLoop.ts
-var LS_KEY = "mj.missionLoop.v1";
+var LS_KEY = "vh.missionLoop.v1";
 function emptyLoopState() {
   return {
     schemaVersion: 1,
@@ -6062,7 +6062,7 @@ function saveMissionLoopState(next) {
 
 // src/mission/receiptVault.ts
 var VAULT_CAP = 50;
-var STORAGE_KEY2 = "mj.receiptvault.v1";
+var STORAGE_KEY2 = "vh.receiptvault.v1";
 var seq = 0;
 var ReceiptVault = class {
   records = null;
@@ -6139,7 +6139,7 @@ var ReceiptVault = class {
   }
   /**
    * Re-verify EVERY stored receipt's chain and seal. This is the vault's reason to exist:
-   * tamper with a stored receipt and MJ itself names the broken record.
+   * tamper with a stored receipt and VH itself names the broken record.
    */
   async audit() {
     const broken = [];
@@ -6158,9 +6158,9 @@ var ReceiptVault = class {
   siemBundle() {
     const lines = [];
     for (const rec of this.ensure()) {
-      lines.push(JSON.stringify({ type: "mj.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
+      lines.push(JSON.stringify({ type: "vh.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
       for (const e of rec.receipt.events) {
-        lines.push(JSON.stringify({ type: "mj.receipt.event", vaultId: rec.id, event: e }));
+        lines.push(JSON.stringify({ type: "vh.receipt.event", vaultId: rec.id, event: e }));
       }
     }
     return `${lines.join("\n")}
@@ -6168,25 +6168,25 @@ var ReceiptVault = class {
   }
   /**
    * The one-pager: what the evidence layer is, which control it serves, how an auditor
-   * re-verifies it WITHOUT MJ, and — stated just as plainly — what MJ does not claim.
+   * re-verifies it WITHOUT VH, and — stated just as plainly — what VH does not claim.
    */
   onePager(args) {
     const count = this.ensure().length;
     return [
-      `# MJ \u2014 Agent Run Evidence & Compliance One-Pager`,
+      `# VH \u2014 Agent Run Evidence & Compliance One-Pager`,
       ``,
-      `MJ ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
+      `VH ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
       ``,
-      `## What MJ records`,
+      `## What VH records`,
       `Every team mission can issue a **Proof Receipt** (\`mj-proof-receipt/2\`): a SHA-256`,
-      `hash-chained event log of the facts MJ actually measured \u2014 mission status, each seat's`,
+      `hash-chained event log of the facts VH actually measured \u2014 mission status, each seat's`,
       `role/outcome/verification (with a deterministic seat identity digest when the harness is`,
       `known), and the adversarial-gate verdict \u2014 sealed with HMAC-SHA-256 AND, since 11.10.1,`,
       `signed with the local issuer's Ed25519 key over the final chain hash. Events are linked`,
       `(\`prev\` \u2192 \`hash\`), so any edit, insertion or deletion breaks the chain.`,
       ``,
       `## The adversarial verification gate (11.9.9) and merge authority (11.10 \u2192 11.10.1)`,
-      `MJ enforces that a run's output is verified by a **different harness than the one that`,
+      `VH enforces that a run's output is verified by a **different harness than the one that`,
       `wrote it**. Self-verified runs are blocked (STRICT) or marked unverified (ADVISORY), and`,
       `the gate verdict is itself an event in the receipt chain. Since 11.10 the gate decides`,
       `whether a merge is **permitted**; since 11.10.1 the Merge Executor actually runs the gated`,
@@ -6200,15 +6200,15 @@ var ReceiptVault = class {
       `- SOC 2 (CC7/CC8 change management & monitoring): merge attestations name the gate verdict,`,
       `  any recorded override, and the exact commit that landed.`,
       ``,
-      `## External verification (no MJ required)`,
+      `## External verification (no VH required)`,
       `1. Take the receipt JSONL. 2. Re-canonicalize each event body (recursive key sort),`,
       `3. re-hash the chain from the 64-zero genesis, 4. re-compute the HMAC seal with the`,
       `published verification secret, 5. verify the Ed25519 signature over the final chain hash`,
-      `with the exported issuer public key. MJ ships this exact algorithm (verifyProofReceipt)`,
+      `with the exported issuer public key. VH ships this exact algorithm (verifyProofReceipt)`,
       `and any auditor can re-implement it from the format alone.`,
       ``,
-      `## What MJ does NOT claim`,
-      `MJ produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
+      `## What VH does NOT claim`,
+      `VH produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
       `Control mappings above are a convenience crosswalk, not legal advice and not an audit`,
       `opinion. The issuer private key never leaves the machine that issued the receipts.`,
       ``
@@ -6698,7 +6698,7 @@ describe("missionRecord \u2014 one signed file per mission", () => {
     });
     assert.equal(await buildMissionRecord("never-ran"), null);
   });
-  it("\xA74 the standalone CLI verifies with zero MJ state", async () => {
+  it("\xA74 the standalone CLI verifies with zero VH state", async () => {
     saveMissionLoopState({
       schemaVersion: 1,
       createdAt: `${T}0:00.000Z`,

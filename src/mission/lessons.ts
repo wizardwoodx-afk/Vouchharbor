@@ -1,8 +1,8 @@
 /**
- * MJ 11.11 SELF-EVOLVING — inter-task lessons memory.
+ * VH 11.11 SELF-EVOLVING — inter-task lessons memory.
  *
  * The research consensus for 2026 agentic systems is blunt: an agent without a
- * serious memory layer plateaus. MJ's version is measured-only. A lesson is
+ * serious memory layer plateaus. VH's version is measured-only. A lesson is
  * never a vibe — it is derived deterministically from facts a run already
  * produced (failure classifications, repair outcomes, gate verdicts, seat
  * outcomes), carries the evidence that produced it, decays with time unless
@@ -37,7 +37,7 @@ export const LESSON_CAP = 200;
 export const DECAY_PER_DAY = 0.95;
 export const RETRIEVE_K = 3;
 
-const LS_KEY = "mj.lessons.v1";
+const LS_KEY = "vh.lessons.v1";
 
 let seq = 0;
 function nextId(prefix: string, now: number): string {

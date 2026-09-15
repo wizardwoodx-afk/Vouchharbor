@@ -113,7 +113,7 @@ export function buildContract(mission: Mission, definitionId: string, purpose: s
   const { granted } = grantPermissions(mission.boundary, definitionId, requested);
   const isControl = definitionId.startsWith("control.");
   return {
-    identity: def?.rolePrompt?.sections.identity ?? `MJ ${def?.title ?? definitionId}`,
+    identity: def?.rolePrompt?.sections.identity ?? `VH ${def?.title ?? definitionId}`,
     purpose: purpose || def?.defaultPurpose || "Accomplish the assigned task.",
     capabilities: capabilitiesFor(definitionId),
     inputs: def?.inputs.map((p) => `${p.id}:${p.dataType}`) ?? [],

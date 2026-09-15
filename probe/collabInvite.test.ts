@@ -59,20 +59,20 @@ const PASS = "correct-horse-battery";
 
 test("collabInvite — identity is sealed, binding is enforced", async () => {
   console.log("\n── 1. keys at rest ──");
-  check("a short passphrase refuses to mint an identity", (await ensureIdentity("harshen", "tiny")).ok === false);
-  const h = await ensureIdentity("harshen", PASS);
+  check("a short passphrase refuses to mint an identity", (await ensureIdentity("member-a", "tiny")).ok === false);
+  const h = await ensureIdentity("member-a", PASS);
   check("a passphrase mints the identity", h.ok === true && h.created === true);
-  const storedRaw = localStorage.getItem("vh19.collab.key.v2:harshen") ?? "";
+  const storedRaw = localStorage.getItem("vh19.collab.key.v2:member-a") ?? "";
   const priv = (await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"])).privateKey;
   const privJwk = await globalThis.crypto.subtle.exportKey("jwk", priv);
   check("localStorage holds NO private key material", !storedRaw.includes(privJwk.d ?? "absent-sentinel") && !storedRaw.includes('"d":'));
-  check("the public half is exactly what is stored in the open", JSON.stringify(storedPublicJwk("harshen")) === JSON.stringify((h as { publicJwk: JsonWebKey }).publicJwk));
-  forgetIdentity("harshen");
-  const wrong = await ensureIdentity("harshen", "wrong-passphrase-123");
+  check("the public half is exactly what is stored in the open", JSON.stringify(storedPublicJwk("member-a")) === JSON.stringify((h as { publicJwk: JsonWebKey }).publicJwk));
+  forgetIdentity("member-a");
+  const wrong = await ensureIdentity("member-a", "wrong-passphrase-123");
   check("a wrong passphrase refuses — the key stays sealed", wrong.ok === false && !wrong.ok && wrong.error.includes("wrong passphrase"));
-  check("refused unlock leaves the identity locked", identityUnlocked("harshen") === false);
-  await ensureIdentity("harshen", PASS);
-  check("the right passphrase re-unlocks and the public key is unchanged", (await ensureIdentity("harshen", PASS)) && JSON.stringify(storedPublicJwk("harshen")) === JSON.stringify((h as { publicJwk: JsonWebKey }).publicJwk));
+  check("refused unlock leaves the identity locked", identityUnlocked("member-a") === false);
+  await ensureIdentity("member-a", PASS);
+  check("the right passphrase re-unlocks and the public key is unchanged", (await ensureIdentity("member-a", PASS)) && JSON.stringify(storedPublicJwk("member-a")) === JSON.stringify((h as { publicJwk: JsonWebKey }).publicJwk));
 
   console.log("\n── 2. legacy plaintext blobs are purged ──");
   localStorage.setItem("vh19.collab.key.v1:legacyuser", JSON.stringify({ pub: { kty: "EC" }, priv: { kty: "EC", d: "PLAINTEXT" } }));
@@ -82,14 +82,14 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
 
   console.log("\n── 3. invitations ──");
   const q = await ensureIdentity("qwen", PASS);
-  const invR = await createInvitation({ from: "harshen", to: "qwen", scope: "one shared mission", riskCeiling: "safe", durationH: 24, capabilities: [] });
+  const invR = await createInvitation({ from: "member-a", to: "qwen", scope: "one shared mission", riskCeiling: "safe", durationH: 24, capabilities: [] });
   check("an unlocked identity mints a signed invite", "digest" in invR);
   assert.ok("digest" in invR);
   check("scope, ceiling, duration and TOFU model ride in the payload", invR.payload.scope === "one shared mission" && invR.payload.riskCeiling === "safe" && invR.payload.trustModel === "tofu");
-  forgetIdentity("harshen");
-  const lockedMint = await createInvitation({ from: "harshen", to: "qwen", scope: "x", riskCeiling: "safe", durationH: 1, capabilities: [] });
+  forgetIdentity("member-a");
+  const lockedMint = await createInvitation({ from: "member-a", to: "qwen", scope: "x", riskCeiling: "safe", durationH: 1, capabilities: [] });
   check("a LOCKED identity cannot mint invites", lockedMint.ok === false && !lockedMint.ok && lockedMint.error.includes("locked"));
-  await ensureIdentity("harshen", PASS);
+  await ensureIdentity("member-a", PASS);
   const parsed = await parseInvitation(serializeInvitation(invR));
   check("a round-tripped invite verifies", parsed.ok === true);
   const tampered = JSON.parse(JSON.stringify(invR));
@@ -125,44 +125,44 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
   console.log("\n── 5. accepting an invitation binds the issuer ──");
   clearRegistry();
   const accept = await acceptInvitation(parsed.invite, "qwen", true);
-  check("acceptance signs consent AND binds the issuer in one human act", accept !== null && "approval" in accept && listBoundPeers().some((p) => p.memberId === "harshen" && p.source === "invite-acceptance"));
-  unbindPeer("harshen");
-  check("unbinding is a human act and takes effect", listBoundPeers().every((p) => p.memberId !== "harshen"));
+  check("acceptance signs consent AND binds the issuer in one human act", accept !== null && "approval" in accept && listBoundPeers().some((p) => p.memberId === "member-a" && p.source === "invite-acceptance"));
+  unbindPeer("member-a");
+  check("unbinding is a human act and takes effect", listBoundPeers().every((p) => p.memberId !== "member-a"));
   bindPeerIdentity("qwen", (q as { publicJwk: JsonWebKey }).publicJwk, "manual");
-  bindPeerIdentity("harshen", (h as { publicJwk: JsonWebKey }).publicJwk, "manual");
+  bindPeerIdentity("member-a", (h as { publicJwk: JsonWebKey }).publicJwk, "manual");
 
   console.log("\n── 6. teamEvolve verifies against bindings ──");
-  const TEAM = teamIdFor(["harshen", "qwen"]);
+  const TEAM = teamIdFor(["member-a", "qwen"]);
   for (const [task, outcome, specs] of [
     ["t1", "verified", ["code.debugging", "testing.unit"]],
     ["t2", "verified", ["review.code", "security.review"]],
     ["t3", "failed", ["code.typescript"]],
   ] as const) {
-    recordTeamRun({ teamId: TEAM, members: ["harshen", "qwen"], task, outcome, specialists: [...specs] });
+    recordTeamRun({ teamId: TEAM, members: ["member-a", "qwen"], task, outcome, specialists: [...specs] });
   }
-  const prop = await proposeTeamEvolution(TEAM, ["harshen", "qwen"]);
+  const prop = await proposeTeamEvolution(TEAM, ["member-a", "qwen"]);
   assert.ok(prop.ok);
-  const signedH = await signApproval(prop.proposal.digest, "harshen", true);
+  const signedH = await signApproval(prop.proposal.digest, "member-a", true);
   const signedQ = await signApproval(prop.proposal.digest, "qwen", true);
   assert.ok(!("ok" in signedH) && !("ok" in signedQ));
   const adopt = await approveTeamEvolution(
     TEAM,
     prop.proposal.id,
     [
-      { memberId: "harshen", approved: true, at: signedH.at },
+      { memberId: "member-a", approved: true, at: signedH.at },
       { memberId: "qwen", approved: true, at: signedQ.at },
     ],
     undefined,
     [signedH, signedQ],
   );
   check("adoption verifies every signed approval against bindings", adopt.ok === true);
-  const prop2 = await proposeTeamEvolution(TEAM, ["harshen", "qwen"]);
+  const prop2 = await proposeTeamEvolution(TEAM, ["member-a", "qwen"]);
   assert.ok(prop2.ok);
   const stale = await approveTeamEvolution(
     TEAM,
     prop2.proposal.id,
     [
-      { memberId: "harshen", approved: true, at: new Date().toISOString() },
+      { memberId: "member-a", approved: true, at: new Date().toISOString() },
       { memberId: "qwen", approved: true, at: new Date().toISOString() },
     ],
     undefined,
@@ -172,18 +172,18 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
 
   console.log("\n── 7. the stored public key must match the decrypted private key (18.4.0) ──");
   {
-    const rawKey = "vh19.collab.key.v2:harshen";
+    const rawKey = "vh19.collab.key.v2:member-a";
     const before = localStorage.getItem(rawKey)!;
     const rec = JSON.parse(before);
     const other = await globalThis.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
     rec.publicJwk = await globalThis.crypto.subtle.exportKey("jwk", other.publicKey);
     localStorage.setItem(rawKey, JSON.stringify(rec));
-    forgetIdentity("harshen");
-    const tampered = await ensureIdentity("harshen", PASS);
+    forgetIdentity("member-a");
+    const tampered = await ensureIdentity("member-a", PASS);
     check("a tampered metadata row refuses even with the right passphrase", tampered.ok === false && !tampered.ok && tampered.error.includes("tampered"));
-    check("the refused identity stays locked", identityUnlocked("harshen") === false);
+    check("the refused identity stays locked", identityUnlocked("member-a") === false);
     localStorage.setItem(rawKey, before);
-    const healed = await ensureIdentity("harshen", PASS);
+    const healed = await ensureIdentity("member-a", PASS);
     check("restoring the coherent record re-unlocks", healed.ok === true);
   }
 
@@ -209,7 +209,7 @@ test("collabInvite — identity is sealed, binding is enforced", async () => {
     check("an attacker key against an A2A-bound member still refuses", (await verifyApproval({ ...body2, publicJwk: atkJwk2, signatureB64: b642 }, "qwen")).ok === false);
     clearA2AVerifiedPeers();
     bindPeerIdentity("qwen", qPub, "manual");
-    bindPeerIdentity("harshen", storedPublicJwk("harshen")!, "manual");
+    bindPeerIdentity("member-a", storedPublicJwk("member-a")!, "manual");
   }
 
   console.log(`\n${fail === 0 ? "✅" : "❌"} collabInvite probe: ${pass} passed, ${fail} failed\n`);

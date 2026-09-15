@@ -1,7 +1,7 @@
-# MJ — Entering Verticals & Horizontals (how the product line connects)
+# VH — Entering Verticals & Horizontals (how the product line connects)
 
-> How MJ grows without becoming "another agent platform." The rule: **one engine,
-> two directions.** Horizontals are new product lines built from primitives MJ already
+> How VH grows without becoming "another agent platform." The rule: **one engine,
+> two directions.** Horizontals are new product lines built from primitives VH already
 > ships (each = a module + a probe + a surface). Verticals are the SAME engine pointed
 > at one compliance regime and one buyer, with a thin bundle layer on top.
 
@@ -9,7 +9,7 @@
 
 ## 1 · The architecture that makes this cheap
 
-MJ's engine is already layered so horizontals and verticals reuse everything:
+VH's engine is already layered so horizontals and verticals reuse everything:
 
 ```
 ENGINE (unchanged for every entry)
@@ -38,14 +38,14 @@ branding + compliance mapping + pilot collateral) over the same engine.
 
 ## 2 · The four horizontals and how each connects to what exists
 
-| Horizontal | Primitives already in MJ (11.14.7) | Build = connect these | Receipt/shape it adds |
+| Horizontal | Primitives already in VH (11.14.7) | Build = connect these | Receipt/shape it adds |
 |---|---|---|---|
 | **A. Agent Black Box** | `flightRecorder.ts`, `replay.ts`, `checkpoints.ts`, egress ledger, SIEM/OTLP export, Executions/Audit pages | Incident view: receipt → replay → authority timeline → one-click **contain** (revoke + freeze) | `incident-forensics` receipt |
 | **B. MCP Tool Admission** | `McpPage`, `control_mcp.rs`, ACP/MCP bridges, envelope engine, approval queue | Signed tool manifests (hash + description pin), per-tool call budgets, drift = refusal in words | `tool-admission` receipt |
 | **C. Arena Gate (built 11.14.7)** | `arenaGate.ts` attacks custody/capability/egress/verifyGate/ledger | Next layer: prompt-fuzz vectors through live harnesses + pre-flight card on mission planning | gate digest already on the report |
 | **D. Live Agent Registry** | `aibom.ts`, role board, harness registry, receipts | Continuous inventory from receipts + owner-of-record + drift alerts → SIEM/GRC | continuous AIBOM |
 
-Each horizontal becomes a separately pitchable product line (e.g. "MJ Flight Deck"
+Each horizontal becomes a separately pitchable product line (e.g. "VH Flight Deck"
 = A + C) while sharing 100% of the engine — which is exactly the story preseed
 investors understand: one moat, multiple surfaces.
 
@@ -53,7 +53,7 @@ investors understand: one moat, multiple surfaces.
 
 ## 3 · The verticals and the exact entry sequence
 
-| Vertical | Why it connects to MJ's engine today | First horizontal to lead with | First real step (this quarter) |
+| Vertical | Why it connects to VH's engine today | First horizontal to lead with | First real step (this quarter) |
 |---|---|---|---|
 | **Regulated engineering** (fintech/insurance/health-IT) | Evidence packs already map to EU AI Act / ISO 42001 / SOC 2; local-first answers data residency | **C → A** (prove the gate, then the black box) | 3 design partners run real missions on real machines; collect signed receipts as pilot artifacts |
 | **Security teams / agent IR** | CISO pain is quantified (92% no agent-identity visibility); arena + black box answer "what did the agent do?" | **A → D** (forensics first, registry second) | Threat-model one agent workflow; export one incident replay to their SIEM |

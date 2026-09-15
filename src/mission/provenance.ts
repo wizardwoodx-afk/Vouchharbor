@@ -1,5 +1,5 @@
 /**
- * §PROVENANCE STATEMENTS — commit-bound AI authorship evidence (MJ 11.10.5, Verified AI Delivery V1).
+ * §PROVENANCE STATEMENTS — commit-bound AI authorship evidence (VH 11.10.5, Verified AI Delivery V1).
  *
  * THE VERTICAL GAP THIS CLOSES
  * SOC 2 CC8.1 / SOX 404 change-management attestations assume the approver authored (or
@@ -7,7 +7,7 @@
  * are behind: SLSA v1.2 has no AI-authorship category; NIST SP 800-218A does not
  * distinguish human-written from AI-generated source. Expert guidance says provenance
  * must be captured "in the layer that runs the agent, before the commit exists" — and
- * that layer is exactly MJ. So 11.10.5 emits an in-toto-shaped STATEMENT per executed
+ * that layer is exactly VH. So 11.10.5 emits an in-toto-shaped STATEMENT per executed
  * merge: the merge commit is the subject, and the predicate names who wrote it (seat,
  * role, harness, identity digest), what verification it passed (gate tier + snapshot
  * sha + cross-harness reviewers), and how it landed (merge steps, override if any).
@@ -16,8 +16,8 @@
  *  - Statements are only ever built from EXECUTED merges (result.executed === true with a
  *    real mergeCommitSha). A simulated or refused merge produces no provenance — there is
  *    nothing true to say about it.
- *  - Fields MJ cannot measure are absent, not invented: model versions, for example, are
- *    not claimed because CLIs do not report them to MJ.
+ *  - Fields VH cannot measure are absent, not invented: model versions, for example, are
+ *    not claimed because CLIs do not report them to VH.
  *  - The signature is Ed25519 over the canonicalized statement body, verified with the
  *    same issuer public key as receipts and attestations — one key, one audit path.
  */
@@ -48,7 +48,7 @@ export interface ProvenanceStatement {
   predicateType: string;
   predicate: {
     builder: { id: string };
-    buildType: "mj.verified-team-run/v1";
+    buildType: "vh.verified-team-run/v1";
     metadata: { mission: string; teamId: string; mjVersion: string; issuedAt: string };
     materials: ProvenanceMaterial[];
     verification: {
@@ -135,7 +135,7 @@ export async function buildProvenanceStatement(args: {
     predicateType: MJ_PROVENANCE_PREDICATE_TYPE,
     predicate: {
       builder: { id: `vouch-harbor@${args.mjVersion}` },
-      buildType: "mj.verified-team-run/v1",
+      buildType: "vh.verified-team-run/v1",
       metadata: { mission: args.mission, teamId: args.teamId, mjVersion: args.mjVersion, issuedAt: new Date().toISOString() },
       materials,
       verification: {

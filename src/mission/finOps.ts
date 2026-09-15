@@ -1,18 +1,18 @@
 /**
- * §AGENT FINOPS — measured, receipt-backed chargeback for agent work (MJ 14.0).
+ * §AGENT FINOPS — measured, receipt-backed chargeback for agent work (VH 14.0).
  *
  * WHY THIS EXISTS
  * "AI FinOps is now a real job" (2026): enterprises run showback and chargeback for
  * model spend, and regulated buyers ask for audit-ready AI cost reporting. Every FinOps
  * tool in the market derives cost from provider bills and gateway telemetry — someone
- * else's counters, reconstructed after the fact. MJ sits where the money is actually
+ * else's counters, reconstructed after the fact. VH sits where the money is actually
  * committed: the dispatch layer. The budget ledger already RESERVES and SETTLES real
  * seat costs with atomic admission (caps.ts BudgetGate); this module turns those
  * measured settlements into chargeback-grade artifacts a finance team can consume.
  *
  * THE HONESTY RULES
  *  - Measured dollars or nothing: a mission whose seats reported tokens but no USD is
- *    `unmeasured` in the chargeback — MJ never invents a price (the 11.13.1 rule,
+ *    `unmeasured` in the chargeback — VH never invents a price (the 11.13.1 rule,
  *    carried forward). An empty cell in the CSV is spelled `unmeasured`, not `0`,
  *    because finance tools read blank as zero.
  *  - Adherence is measured against the mission's OWN signed budget cap, not a vibe;

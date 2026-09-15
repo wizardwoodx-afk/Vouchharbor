@@ -1,11 +1,11 @@
 ---
 name: ui-motion-language
-description: The MJ motion vocabulary — purposeful, natural-feeling animation rules (timing, easing, reduced-motion, what may animate and what may not) to use whenever adding or tuning animations in MJ's interface.
+description: The VH motion vocabulary — purposeful, natural-feeling animation rules (timing, easing, reduced-motion, what may animate and what may not) to use whenever adding or tuning animations in VH's interface.
 ---
 
 # UI Motion Language — natural, purposeful, quiet
 
-Motion in MJ is communication, not performance. Natural motion follows
+Motion in VH is communication, not performance. Natural motion follows
 acceleration and deceleration: it starts, eases into place, and settles.
 Linear motion feels robotic; springs feel gimmicky when overused. Calm
 products animate less but better.
@@ -54,4 +54,4 @@ products animate less but better.
 ## When this skill applies
 
 Any request containing: "more animations", "smooth transitions", "make it
-feel alive", "better motion", or tuning of MJ entrance/hover/state effects.
+feel alive", "better motion", or tuning of VH entrance/hover/state effects.

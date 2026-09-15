@@ -378,7 +378,7 @@ export async function runWorkflow(graph: WorkflowGraph): Promise<string> {
     ...stats,
   });
   await ipc.executionFinish(execId, status, null, { ...stats });
-  notifyNative("MJ", `${graph.name || "Workflow"} ${status.toLowerCase()} · ${stats.nodesRun} nodes · $${stats.costUsd.toFixed(4)}`);
+  notifyNative("VH", `${graph.name || "Workflow"} ${status.toLowerCase()} · ${stats.nodesRun} nodes · $${stats.costUsd.toFixed(4)}`);
   return execId;
 }
 
@@ -441,7 +441,7 @@ async function runCapability(node: NodeInstance, collected: Record<string, unkno
     return { session: sess, "*": sess };
   }
   if (id === "cap.http") {
-    throw new Error("HTTP capability is host-bound. Use an agent with networkAccess or an MCP server. MJ will not silently fake a 200.");
+    throw new Error("HTTP capability is host-bound. Use an agent with networkAccess or an MCP server. VH will not silently fake a 200.");
   }
   if (id === "cap.vector") {
     const hits = await ipc.memorySearch(String(node.id), String(collected.query ?? ""), Number(node.config.k ?? 5));

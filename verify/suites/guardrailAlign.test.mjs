@@ -68,7 +68,7 @@ ok(
 );
 ok(
   "guardrail 13 \u2014 the privacy budget is durable, per-requester, and tamper-evident (restart resets nothing)",
-  read("src/mission/capability.ts").includes("mj.privacy.ledger") && read("src/mission/capability.ts").includes("verifyPrivacyLedger") && read("src/mission/capability.ts").includes("digest chain is broken")
+  read("src/mission/capability.ts").includes("vh.privacy.ledger") && read("src/mission/capability.ts").includes("verifyPrivacyLedger") && read("src/mission/capability.ts").includes("digest chain is broken")
 );
 ok(
   "guardrail 14 \u2014 the two-machine proof: the coordinator sees identity, request, authorization and receipt \u2014 never rows",

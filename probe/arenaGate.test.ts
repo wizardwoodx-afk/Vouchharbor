@@ -1,8 +1,8 @@
 /**
- * MJ 11.14.7 — the Governance Arena Gate probe.
+ * VH 11.14.7 — the Governance Arena Gate probe.
  *
  * Guardrails-as-code became guardrails-as-executable-battery in 11.14.7:
- * runGovernanceArena attacks MJ's own authority machine (custody, capability,
+ * runGovernanceArena attacks VH's own authority machine (custody, capability,
  * egress, verifyGate, ledger) with hostile inputs and requires every boundary
  * to hold IN WORDS. This suite proves the battery runs, every scenario is
  * defended, a refusal names the reason, and the report digest is stable —

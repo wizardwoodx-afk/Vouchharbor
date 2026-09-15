@@ -14,7 +14,7 @@ web edition if desktop isn't possible in the room). The three beats:
 *(Type into the Teammate door:)*
 
 ```
-Remember: I'm Sree, and my project is Vouch Harbor.
+Remember: I'm the founder, and my project is Vouch Harbor.
 ```
 
 > "It stored that on *this* machine — see the rail. I can read it, delete

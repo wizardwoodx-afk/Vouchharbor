@@ -2,7 +2,7 @@
  * 11.10.5 — Verified AI Delivery V1: commit-bound provenance statements (suite #57).
  *
  * The vertical gap: SOC 2 CC8.1 / SOX 404 attestations assume a human authored what they
- * approved; SLSA v1.2 and NIST SP 800-218A have no AI-authorship category. MJ answers from
+ * approved; SLSA v1.2 and NIST SP 800-218A have no AI-authorship category. VH answers from
  * the layer that runs the agents: an in-toto-shaped, issuer-SIGNED statement whose subject
  * IS the merge commit and whose predicate names the AI authorship + the independent
  * verification it passed. Proved here against a REAL git repository:
@@ -41,7 +41,7 @@ function makeRepoWithBranch(): { repo: string; base: string } {
   fs.writeFileSync(path.join(repo, "app.js"), "1\n");
   execFileSync("git", ["init", "-q", "."], { cwd: repo });
   execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-  execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+  execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
   execFileSync("git", ["add", "-A"], { cwd: repo });
   execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
   const base = git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).out.trim();

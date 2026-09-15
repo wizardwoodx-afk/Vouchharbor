@@ -1,6 +1,6 @@
 ---
 name: node-graph-craft
-description: How to design and evaluate MJ's canvas — node cards, ports and wires as a clear, premium connection language — for any request touching the workflow canvas, node appearance, or wiring UX.
+description: How to design and evaluate VH's canvas — node cards, ports and wires as a clear, premium connection language — for any request touching the workflow canvas, node appearance, or wiring UX.
 ---
 
 # Node Graph Craft — the connection language

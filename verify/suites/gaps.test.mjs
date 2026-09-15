@@ -311,7 +311,7 @@ async function withDeadline(work, timeoutMs, now = Date.now) {
       value: null,
       timedOut: true,
       elapsedMs: now() - t0,
-      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; MJ cannot assume it stopped.`
+      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; VH cannot assume it stopped.`
     };
   }
   return { outcome: "ok", value: winner.v, timedOut: false, elapsedMs: now() - t0, detail: `Finished in ${now() - t0}ms, inside the ${timeoutMs}ms deadline.` };
@@ -1011,7 +1011,7 @@ console.log("\n== GAP (c): cost / turn / wall-clock caps ==\n");
   const slow = await withDeadline(async () => new Promise((res) => setTimeout(() => res("late"), 500)), 50);
   ok(slow.outcome === "timeout" && slow.value === null, "work past the deadline is reported as a timeout");
   ok(slow.timedOut, "and the caller is TOLD to kill the child");
-  ok(/must terminate the child/.test(slow.detail), `because MJ cannot assume it stopped: ${slow.detail.slice(0, 60)}...`);
+  ok(/must terminate the child/.test(slow.detail), `because VH cannot assume it stopped: ${slow.detail.slice(0, 60)}...`);
   const cancelling = await withDeadline(async (signal) => {
     await new Promise((res) => setTimeout(res, 60));
     return signal.cancelled;

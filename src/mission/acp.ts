@@ -1,12 +1,12 @@
 /**
- * §6.1 The ACP adapter — one wire for every coding agent (V11, MJ-11.0-PROPOSAL W1).
+ * §6.1 The ACP adapter — one wire for every coding agent (V11, VH-11.0-PROPOSAL W1).
  *
  * The Agent Client Protocol (Zed Industries, Aug 2025; co-developed with JetBrains) standardizes
- * exactly the seam MJ's nine bespoke CLI parsers hand-roll: JSON-RPC 2.0 over stdin/stdout with
+ * exactly the seam VH's nine bespoke CLI parsers hand-roll: JSON-RPC 2.0 over stdin/stdout with
  * session management, streamed updates, tool-call reporting and bidirectional permission
- * requests. V11 makes MJ an ACP client: any ACP-compliant agent plugs into the mission runtime
+ * requests. V11 makes VH an ACP client: any ACP-compliant agent plugs into the mission runtime
  * through this one adapter, and `session/request_permission` lands in the same approval flow
- * MJ already gated by hand.
+ * VH already gated by hand.
  *
  * Protocol surface used (newline-delimited JSON-RPC, per agentclientprotocol.com):
  *   client → agent   initialize, session/new, session/prompt, session/cancel
@@ -15,7 +15,7 @@
  *
  * Honesty rules this module holds:
  *  - The browser host does not spawn processes, so it refuses up front (same as CliHarness).
- *  - Cost is `unmeasured` unless an agent reports usage; MJ never guesses dollars.
+ *  - Cost is `unmeasured` unless an agent reports usage; VH never guesses dollars.
  *  - Permission requests are DENIED by default; an allow decision needs a decider that was
  *    explicitly attached (the mission approval inbox attaches one).
  *  - fs/terminal requests from the agent are answered with a JSON-RPC error unless a handler
@@ -166,7 +166,7 @@ export class AcpClient {
     const result = await this.request<Record<string, unknown>>("initialize", {
       protocolVersion: PROTOCOL_VERSION,
       clientCapabilities: { fs: { readTextFile: true, writeTextFile: true } },
-      clientInfo: this.opts.clientInfo ?? { name: "MJ", version: VH_VERSION },
+      clientInfo: this.opts.clientInfo ?? { name: "VH", version: VH_VERSION },
     });
     this.initialized = true;
     const agent = result.agentInfo as { name?: string; version?: string } | undefined;
@@ -266,7 +266,7 @@ export class AcpClient {
     }
     // Unknown request with an id: answer with a proper JSON-RPC error so the agent never hangs.
     if (msg.id !== undefined) {
-      this.rawSend({ jsonrpc: "2.0", id: msg.id as RpcId, error: { code: -32601, message: `MJ does not implement ${method}` } });
+      this.rawSend({ jsonrpc: "2.0", id: msg.id as RpcId, error: { code: -32601, message: `VH does not implement ${method}` } });
     }
   }
 
@@ -361,12 +361,12 @@ export class AcpClient {
       this.emit({
         type: "agent_request_refused",
         method,
-        reason: "no handler attached — MJ does not grant unconfigured capability",
+        reason: "no handler attached — VH does not grant unconfigured capability",
       });
       this.rawSend({
         jsonrpc: "2.0",
         id,
-        error: { code: -32601, message: `MJ does not grant ${method} in this session` },
+        error: { code: -32601, message: `VH does not grant ${method} in this session` },
       });
     } catch (e) {
       this.rawSend({
@@ -381,8 +381,8 @@ export class AcpClient {
 /* ------------------------------------------------------------------ harness */
 
 /**
- * The program to spawn. `VOUCH_ACP_BIN` overrides the packaged default (the legacy `MJ_ACP_BIN` is still honored), because ACP front-ends
- * differ per CLI (`claude-code-acp`, `gemini --experimental-acp`, …) and MJ does not pretend
+ * The program to spawn. `VOUCH_ACP_BIN` (or `VH_ACP_BIN`) overrides the packaged default; the legacy `MJ_ACP_BIN`/`MJ_ACP_ARGS` names are still honored so existing environments keep working, because ACP front-ends
+ * differ per CLI (`claude-code-acp`, `gemini --experimental-acp`, …) and VH does not pretend
  * to know the user's machine better than they do.
  */
 export function acpInvocation(): { program: string; args: string[] } {
@@ -390,8 +390,8 @@ export function acpInvocation(): { program: string; args: string[] } {
     typeof process !== "undefined" && process.env
       ? (process.env as Record<string, string | undefined>)
       : {};
-  const program = env.VOUCH_ACP_BIN ?? env.MJ_ACP_BIN ?? "claude-code-acp";
-  const args = (env.MJ_ACP_ARGS ?? "--stdio").split(" ").filter(Boolean);
+  const program = env.VOUCH_ACP_BIN ?? env.VH_ACP_BIN ?? env.MJ_ACP_BIN ?? "claude-code-acp";
+  const args = (env.VH_ACP_ARGS ?? env.MJ_ACP_ARGS ?? "--stdio").split(" ").filter(Boolean);
   return { program, args };
 }
 

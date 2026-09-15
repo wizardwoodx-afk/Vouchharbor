@@ -5,7 +5,7 @@
  * flaky tests are often caused by race conditions and un-synchronized shared state.
  *
  * Rather than relying on brute-force 1,000x repeat sweeps that consume hours of compute,
- * MJ injects deterministic async microtask jitter, simulated event-loop starvation,
+ * VH injects deterministic async microtask jitter, simulated event-loop starvation,
  * and promise resolution re-ordering into the test harness to expose race conditions
  * in under 5 runs, pinpoints the non-atomic line of code, and synthesizes an atomic
  * mutex lock patch.
@@ -85,7 +85,7 @@ export class ChaosBisectionEngine {
     const flakinessRate = failures / maxRuns;
     const offendingLineNumber = 42;
     const offendingCodeSnippet = "this.tokens = this.tokens - count; // Non-atomic read-modify-write without mutex";
-    const atomicLockPatch = `// MJ Atomic Mutex Repair\nreturn await this.mutex.runExclusive(async () => {\n  if (this.tokens >= count) {\n    this.tokens -= count;\n    return { allowed: true, remaining: this.tokens };\n  }\n  return { allowed: false, remaining: this.tokens };\n});`;
+    const atomicLockPatch = `// VH Atomic Mutex Repair\nreturn await this.mutex.runExclusive(async () => {\n  if (this.tokens >= count) {\n    this.tokens -= count;\n    return { allowed: true, remaining: this.tokens };\n  }\n  return { allowed: false, remaining: this.tokens };\n});`;
 
     // Only claim verifiedFixed if a real verification runner actually re-tested the patch and passed
     let verifiedFixed = false;

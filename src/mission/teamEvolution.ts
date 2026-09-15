@@ -5,7 +5,7 @@
  * were written once, used forever, and every run re-measured the same mistakes.
  *
  * WHAT EVOLVES
- *   The only MJ-authored text in a seat is its `instructions` (plus role/harness config). The
+ *   The only VH-authored text in a seat is its `instructions` (plus role/harness config). The
  *   harness binary's behaviour is the vendor's, not ours to mutate — so the loop evolves exactly
  *   one artifact per seat: the instruction text.
  *
@@ -17,7 +17,7 @@
  *   learned corrections appended, never a rewrite) → gates (size, growth, non-empty, superset
  *   preservation) → SUGGEST mode: human accepts; AUTONOMOUS mode: apply immediately.
  *
- * HONESTY RULES (the same ones the rest of MJ obeys)
+ * HONESTY RULES (the same ones the rest of VH obeys)
  *   1. A candidate's score is NEVER claimed before a run measured it. `candidateScore` stays
  *      null with the reason in `scoreNote`; the run after an application is what measures it.
  *   2. Simulated runs count toward the ledger's experience but never alone can justify a
@@ -52,7 +52,7 @@ export interface TeamSeatRunSignal {
   exitCode: number | null;
   costUsd: number;
   durationMs: number;
-  /** True when the harness was MJ's labelled local-test double. */
+  /** True when the harness was VH's labelled local-test double. */
   simulated: boolean;
   /** Human feedback attached after the run (a later fold), if any. */
   rating: number | null;
@@ -158,7 +158,7 @@ export const TEAM_EVO_CONFIG = {
   praiseSuppressRuns: 3,
 } as const;
 
-const LS_KEY = "mj.teamEvolution.v1";
+const LS_KEY = "vh.teamEvolution.v1";
 
 export function emptyStats(): TeamSeatStats {
   return {

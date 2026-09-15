@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1335,8 +1335,8 @@ function beliefsForBriefing(memory, goal, now) {
 }
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1588,7 +1588,7 @@ section("2. R2 \u2014 proof-carrying actions");
     reversible: false,
     now: NOW
   });
-  ok("an issued packet verifies with zero MJ state", (await verifyActionPacket(p)).ok === true);
+  ok("an issued packet verifies with zero VH state", (await verifyActionPacket(p)).ok === true);
   const tampered = { ...p, prediction: "something will surely go right" };
   const tv = await verifyActionPacket(tampered);
   ok("altering a prediction after signing fails verification", tv.ok === false && (tv.reason ?? "").includes("digest"), tv.reason);

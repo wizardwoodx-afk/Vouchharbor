@@ -1,5 +1,5 @@
 /**
- * §ADVERSARIAL VERIFICATION GATE (MJ 11.9.9) — the heart of the verified agent factory.
+ * §ADVERSARIAL VERIFICATION GATE (VH 11.9.9) — the heart of the verified agent factory.
  *
  * THE RESEARCH, IN ONE SENTENCE
  * Every 2026 orchestrator — Zapier's agent mode, n8n's LangChain nodes, VectorShift, the
@@ -7,7 +7,7 @@
  * Their own shared, admitted weakness is that nowhere in the stack does anyone solve
  * PROOF: the writer grades itself, and "it ran" is the only evidence on offer.
  *
- * This gate is MJ's answer, enforced rather than encouraged:
+ * This gate is VH's answer, enforced rather than encouraged:
  *   - a run is not "verified" unless a seat whose job is verification actually RAN
  *   - verification by the SAME harness that wrote the work is self-grading — in STRICT
  *     mode the run is BLOCKED, in ADVISORY mode it is marked FAIL with the reason attached
@@ -95,13 +95,13 @@ export interface GateVerdict {
   evidence: GateEvidence | null;
 }
 
-/** Roles MJ treats as verifiers for gate purposes (matches fleet.ts / receipts). */
+/** Roles VH treats as verifiers for gate purposes (matches fleet.ts / receipts). */
 export const GATE_VERIFIER_ROLES: ReadonlySet<string> = new Set(["reviewer", "security", "tester"]);
 
-/** Roles MJ treats as writers for gate purposes. */
+/** Roles VH treats as writers for gate purposes. */
 export const GATE_WRITER_ROLES: ReadonlySet<string> = new Set(["coder", "debugger"]);
 
-const POLICY_KEY = "mj.gatepolicy.v1";
+const POLICY_KEY = "vh.gatepolicy.v1";
 
 export function loadGatePolicy(): GatePolicy {
   try {

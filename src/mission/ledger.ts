@@ -1,7 +1,7 @@
 /**
- * MJ 11.12.2 — the Ledger: memory typed by the question it answers.
+ * VH 11.12.2 — the Ledger: memory typed by the question it answers.
  *
- * The external review flagged "no typed memory architecture". MJ never stored
+ * The external review flagged "no typed memory architecture". VH never stored
  * one blob — lessons, invariants, strategies and skills already live in
  * separate stores — but the taxonomy and, crucially, the WRITE PERMISSIONS
  * were implicit. 11.12.2 names them (Varkha's cognitive decomposition) and
@@ -59,7 +59,7 @@ export function canWrite(type: LedgerType, writer: Writer): { ok: boolean; reaso
 }
 
 /**
- * MJ 11.12.3 — the matrix is not just policy text: `enforceWrite` is called by
+ * VH 11.12.3 — the matrix is not just policy text: `enforceWrite` is called by
  * every governed store writer (lessons, skills, beliefs, improvement) BEFORE the
  * write lands. Knowing the rule and blocking on the rule are now the same thing:
  * any future writer that bypasses a store save-function is the only way around

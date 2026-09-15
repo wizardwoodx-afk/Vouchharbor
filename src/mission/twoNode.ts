@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.3 — THE TWO-MACHINE PROOF.
+ * VH 11.14.3 — THE TWO-MACHINE PROOF.
  *
  * The 11.14.2 review's final judgment: the next real step is not another
  * feature — it is this experiment. Employee A owns the data. Employee B
@@ -13,7 +13,7 @@
  * so the probe can inspect exactly what the coordinator learned, and prove
  * it learned identity / request / authorization / receipt, and NEVER raw
  * rows. No cloud infrastructure is built here — that is deliberate and
- * stated: MJ remains the endpoint runtime; the relay is a simulation of
+ * stated: VH remains the endpoint runtime; the relay is a simulation of
  * the thin control plane a real deployment would add.
  */
 import {

@@ -28,10 +28,10 @@ import type { ApprovalRequest, Artifact, FlightEvent, Mission, MissionPlan } fro
 
 /* ------------------------------------------------------------------ local persistence */
 
-const LS_KEY = "mj.missions.v1";
+const LS_KEY = "vh.missions.v1";
 /**
  * The key this store used before the naming was aligned with the rest of the app
- * (`mj.theme`, `mj.v3.db`, `mj.teams.v1`, …).
+ * (`vh.theme`, `vh.v3.db`, `vh.teams.v1`, …).
  *
  * Kept because renaming a persistence key is not a cosmetic edit: every user who already has missions
  * saved would open the app and find an empty list, with no error, and no way to tell the difference between

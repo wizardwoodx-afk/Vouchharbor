@@ -1,8 +1,8 @@
 /**
- * MJ 14.0 — the standalone receipt verifier (suite #79).
+ * VH 14.0 — the standalone receipt verifier (suite #79).
  *
- * "Verifiable with zero MJ state" must be a PRODUCT, not a sentence. This suite drives
- * tools/verify-receipt.mjs — a node:-builtins-only file with no MJ imports — against
+ * "Verifiable with zero VH state" must be a PRODUCT, not a sentence. This suite drives
+ * tools/verify-receipt.mjs — a node:-builtins-only file with no VH imports — against
  * receipts produced by src/mission/receipts.ts:
  *   §1 a fresh signed receipt verifies (exit 0, VALID)
  *   §2 a tampered event fails (exit 1, INVALID, reason named)
@@ -13,7 +13,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-declare const MJ_ROOT: string | undefined;
+declare const VH_ROOT: string | undefined;
 
 import { buildProofReceipt, receiptToJsonl, type ProofReceipt } from "../src/mission/receipts";
 import { ensureIssuerIdentity } from "../src/mission/signing";
@@ -35,7 +35,7 @@ function section(name: string): void {
   console.log(`\n== ${name}\n`);
 }
 
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const verifier = path.join(root, "tools", "verify-receipt.mjs");
 
 ok("the standalone verifier exists and imports only node: builtins", fs.existsSync(verifier) &&

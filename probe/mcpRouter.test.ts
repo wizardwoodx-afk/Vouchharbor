@@ -35,8 +35,8 @@ import {
 } from "../src/vouch/engine/vouch";
 import { VH_VERSION } from "../src/version";
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 async function waitFor<T>(fn: () => T | null | undefined, what: string, timeoutMs = 15000): Promise<T> {

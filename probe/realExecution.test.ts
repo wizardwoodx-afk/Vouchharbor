@@ -3,7 +3,7 @@
  *
  * Everything else in the suite injects fakes. This one does not: it creates actual repositories on
  * disk with actual test suites, runs them through the actual executor, and drives them through the
- * actual MissionRuntime. If MJ claims a mission is verified, this is the test that decides whether
+ * actual MissionRuntime. If VH claims a mission is verified, this is the test that decides whether
  * that claim means anything.
  *
  * Skips cleanly (rather than passing vacuously) when python3/pytest or cargo is unavailable, and

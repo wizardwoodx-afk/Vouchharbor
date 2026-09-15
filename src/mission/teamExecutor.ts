@@ -10,7 +10,7 @@
  * 1. NOTHING IS INFERRED THAT COULD BE MEASURED.
  *    Did the agent succeed? Run the repository's own check and look at the exit code. Did it change
  *    anything? Ask git. How much did it cost? Read the number out of the CLI's own output. When a
- *    measurement is not available, MJ says "not measured" — it never substitutes an assumption.
+ *    measurement is not available, VH says "not measured" — it never substitutes an assumption.
  *
  * 2. CONTINUITY IS REAL OR IT IS DECLARED ABSENT.
  *    Each seat keeps a session. Turn 1 creates it, later turns resume it, and the id is captured from
@@ -24,7 +24,7 @@
  * THE REVIEW-VISIBILITY INVARIANT
  *
  * A read-only seat never runs against the base checkout while writers have uncommitted or unmerged
- * work. Before any read-only seat runs, MJ builds a REVIEW SNAPSHOT — the base plus every writer
+ * work. Before any read-only seat runs, VH builds a REVIEW SNAPSHOT — the base plus every writer
  * branch merged — and points the read-only worktrees at that. So a reviewer sees the work it was asked
  * to review, and the base branch stays pristine until a human decides to merge.
  */
@@ -83,13 +83,13 @@ export interface TeamRunnerDeps {
   /**
    * Resolve a harness's bin name to an absolute executable path, or null when it is not installed.
    *
-   * Used for pre-flight so MJ can say up front which seats cannot run, instead of spending three
+   * Used for pre-flight so VH can say up front which seats cannot run, instead of spending three
    * invocations to discover that the reviewer's CLI does not exist.
    */
   resolveBin: (bin: string) => Promise<string | null>;
-  /** Run git. Optional: without it MJ reports that it could not inspect the repository. */
+  /** Run git. Optional: without it VH reports that it could not inspect the repository. */
   git?: GitRunner;
-  /** Write a file. Optional: without it MJ reports the briefing it could not write. */
+  /** Write a file. Optional: without it VH reports the briefing it could not write. */
   writeFile?: (absPath: string, contents: string) => Promise<void>;
   /** The repository's own verification command, run in the seat's working directory. */
   verify?: (cwd: string) => Promise<CliResult>;
@@ -204,7 +204,7 @@ export interface SeatRecord {
   /** Why verification is what it is. "not measured" is a real value here. */
   verificationDetail: string;
   git: GitEvidence;
-  /** What MJ did with the seat's work on its branch. */
+  /** What VH did with the seat's work on its branch. */
   commit: string;
   warnings: string[];
   /** Claims the agent made about itself, kept separate from measured facts. */
@@ -411,7 +411,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
     });
     // 11.13.1 — the report states plainly what a cap does and does not guarantee.
     const budgetNote = budgetGate
-      ? ` Budget authority: $${budgetGate.capUsd.toFixed(2)} cap; ${budgetAccounting.admitted} seat(s) admitted by atomic reservation, ${budgetAccounting.refused} refused${budgetAccounting.overrun > 0 ? `; $${budgetAccounting.overrun.toFixed(4)} measured overrun settled after the fact` : ""}${budgetAccounting.tokensOnly.size > 0 ? `; ${[...budgetAccounting.tokensOnly].join(", ")} reported tokens only, so MJ marks their dollar spend UNKNOWN rather than inventing a price` : ""}.`
+      ? ` Budget authority: $${budgetGate.capUsd.toFixed(2)} cap; ${budgetAccounting.admitted} seat(s) admitted by atomic reservation, ${budgetAccounting.refused} refused${budgetAccounting.overrun > 0 ? `; $${budgetAccounting.overrun.toFixed(4)} measured overrun settled after the fact` : ""}${budgetAccounting.tokensOnly.size > 0 ? `; ${[...budgetAccounting.tokensOnly].join(", ")} reported tokens only, so VH marks their dollar spend UNKNOWN rather than inventing a price` : ""}.`
       : "";
     return {
       seats,
@@ -571,7 +571,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
   // ride into every seat's briefing, budgeted by the adopted strategy version.
   const lessonLines = briefingForMission(req.objective, Date.now());
   if (lessonLines.length > 0) {
-    const lessonsMd = `# Organizational lessons (MJ 11.11)\n\n${lessonLines.map((l) => `- ${l}`).join("\n")}\n`;
+    const lessonsMd = `# Organizational lessons (VH 11.11)\n\n${lessonLines.map((l) => `- ${l}`).join("\n")}\n`;
     for (const seat of req.team.seats) {
       briefingsByHarness.push({
         path: ".vh-brief/ORG_LESSONS.md",
@@ -594,7 +594,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
       continue;
     }
     if (!deps.git) {
-      setup.push({ seatId: w.seatId, path: w.path, ok: false, detail: "MJ has no git runner here, so the worktree was NOT created. This seat would have written into the base checkout, which defeats isolation, so it is blocked instead." });
+      setup.push({ seatId: w.seatId, path: w.path, ok: false, detail: "VH has no git runner here, so the worktree was NOT created. This seat would have written into the base checkout, which defeats isolation, so it is blocked instead." });
       setupFailed.add(w.seatId);
       continue;
     }
@@ -637,10 +637,10 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
       writtenTo,
       excludedFromGit: false,
       detail: writtenTo.length
-        ? `Written into ${writtenTo.length} worktree(s), under ${BRIEF_DIR}/, which MJ adds to .git/info/exclude so it can never be committed.`
+        ? `Written into ${writtenTo.length} worktree(s), under ${BRIEF_DIR}/, which VH adds to .git/info/exclude so it can never be committed.`
         : deps.writeFile
           ? "No writable worktree existed for this briefing."
-          : "MJ has no file writer here, so the briefing was composed but NOT written. The agents will not see it.",
+          : "VH has no file writer here, so the briefing was composed but NOT written. The agents will not see it.",
     });
   }
   // Exclude the briefing directory so a `git add -A` cannot pick it up. The result is recorded per
@@ -654,7 +654,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
   for (const b of briefings) {
     b.excludedFromGit = excludedEverywhere && b.writtenTo.length > 0;
     if (b.writtenTo.length > 0 && !excludedEverywhere) {
-      b.detail = `Written into ${b.writtenTo.length} worktree(s), but MJ could NOT exclude ${BRIEF_DIR}/ from git. Those files will appear as untracked and WILL be picked up by a commit — treat this seat's diff as containing the briefing.`;
+      b.detail = `Written into ${b.writtenTo.length} worktree(s), but VH could NOT exclude ${BRIEF_DIR}/ from git. Those files will appear as untracked and WILL be picked up by a commit — treat this seat's diff as containing the briefing.`;
     }
   }
 
@@ -801,7 +801,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
 
     // 11.13.1 — settle every reservation against the REAL charge: overruns are
     // measured and named (a seat cannot hide outspending its reservation), and
-    // token-only harnesses are recorded as USD-unknown — MJ never invents prices.
+    // token-only harnesses are recorded as USD-unknown — VH never invents prices.
     for (const r of results) {
       const tk = tickets.get(r.seatId);
       if (budgetGate && tk) budgetAccounting.overrun += budgetGate.settle(tk, r.chargedUsd ?? 0).overrunUsd;
@@ -829,7 +829,7 @@ export async function executeTeam(req: TeamRunRequest, deps: TeamRunnerDeps, ses
 
   const spentUsd = seats.reduce((s, r) => s + r.chargedUsd, 0);
   const candidates: MergeCandidate[] = seats
-    .filter((r) => r.branch && r.branch !== req.baseBranch && !r.branch.startsWith(`mj/${req.missionSlug}/review`))
+    .filter((r) => r.branch && r.branch !== req.baseBranch && !r.branch.startsWith(`vh/${req.missionSlug}/review`))
     .map((r) => ({
       seatId: r.seatId,
       branch: r.branch,
@@ -902,7 +902,7 @@ async function buildReviewSnapshot(
 ): Promise<ReviewSnapshotRecord> {
   const plan = reviewSnapshotArgv({ repoRoot: req.repoRoot, baseBranch: req.baseBranch, missionSlug: req.missionSlug, writerBranches: committedBranches });
   if (plan.problem || !deps.git) {
-    return { built: false, branch: plan.snapshotBranch, sha: null, writerBranches: committedBranches, conflicts: [], detail: plan.problem ?? "MJ has no git runner, so the snapshot could not be built." };
+    return { built: false, branch: plan.snapshotBranch, sha: null, writerBranches: committedBranches, conflicts: [], detail: plan.problem ?? "VH has no git runner, so the snapshot could not be built." };
   }
 
   // Pre-flight in memory. merge-tree takes TWO branches; the base is derived from their history.
@@ -1134,7 +1134,7 @@ async function runSeat(
     const durationMs = res ? res.durationMs : enforced.elapsedMs;
 
     if (enforced.outcome === "timeout" || res?.timedOut) {
-      req.ledger.recordCapped(a.seat.id, "timeout", `${caps.name} exceeded its ${timeoutSecs}s deadline on turn ${t.turn}. The child had to be killed; MJ cannot assume it stopped cleanly.`);
+      req.ledger.recordCapped(a.seat.id, "timeout", `${caps.name} exceeded its ${timeoutSecs}s deadline on turn ${t.turn}. The child had to be killed; VH cannot assume it stopped cleanly.`);
       return {
         ...base,
         argv: composed.argv,
@@ -1155,8 +1155,8 @@ async function runSeat(
     }
     last = res;
 
-    // Read the session id back from the CLI's own output. MJ may have chosen it, but the CLI owns the
-    // conversation — and a mismatch means the session did not start the way MJ assumed.
+    // Read the session id back from the CLI's own output. VH may have chosen it, but the CLI owns the
+    // conversation — and a mismatch means the session did not start the way VH assumed.
     const reportedId = parseSessionId(a.seat.harness, res.stdout);
     if (reportedId) continuity = "session";
     sessions.recordTurn(sessionKey, reportedId, t.prompt);
@@ -1216,7 +1216,7 @@ async function runSeat(
         reason:
           res.exitCode !== 0
             ? `${caps.name} exited ${res.exitCode} on turn ${t.turn}. ${res.stderr.trim() ? `It said: ${tail(res.stderr, 500)}` : "It wrote nothing to stderr."}`
-            : `${caps.name} exited 0 but reported an error in its own output, so MJ treats it as a failure rather than a success.`,
+            : `${caps.name} exited 0 but reported an error in its own output, so VH treats it as a failure rather than a success.`,
       };
     }
   }
@@ -1245,7 +1245,7 @@ async function runSeat(
   let commitDetail = readOnly ? "Read-only seat; nothing to commit." : "No git runner, so the work could not be committed.";
   if (deps.git && !readOnly) {
     await git(deps, ["add", "-A"], cwd);
-    const commit = await git(deps, ["-c", "user.email=mj@mj.desktop", "-c", "user.name=MJ", "commit", "-q", "-m", `mj(${a.seat.id}): ${req.missionSlug}`], cwd);
+    const commit = await git(deps, ["-c", "user.email=vh@vouch.harbor", "-c", "user.name=VH", "commit", "-q", "-m", `vh(${a.seat.id}): ${req.missionSlug}`], cwd);
     commitDetail = commit.ok
       ? `Committed on ${branch}.`
       : commit.exitCode === null
@@ -1306,11 +1306,11 @@ async function runSeat(
 /**
  * Ask git what actually changed.
  *
- * `measured:false` is deliberately distinct from "no changes": if git could not run, MJ does not know,
+ * `measured:false` is deliberately distinct from "no changes": if git could not run, VH does not know,
  * and an unknown must not be reported as a clean tree.
  */
 export async function collectGitEvidence(gitRunner: GitRunner | undefined, cwd: string): Promise<GitEvidence> {
-  if (!gitRunner) return { measured: false, detail: "No git runner is available, so MJ cannot say what changed. This is not a clean tree — it is an unmeasured one.", additions: 0, deletions: 0, filesChanged: 0 };
+  if (!gitRunner) return { measured: false, detail: "No git runner is available, so VH cannot say what changed. This is not a clean tree — it is an unmeasured one.", additions: 0, deletions: 0, filesChanged: 0 };
   const api = gitApi(gitRunner);
   const status = await api.status(cwd);
   if (!status.ok) return { measured: false, detail: `git status failed: ${status.reason ?? "unknown reason"}`, additions: 0, deletions: 0, filesChanged: 0 };

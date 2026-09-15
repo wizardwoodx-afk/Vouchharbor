@@ -1,5 +1,5 @@
 /**
- * MJ 6.0 — §39 acceptance run (headless).
+ * VH 6.0 — §39 acceptance run (headless).
  *
  * Executes the twenty-step acceptance test from the spec against the real
  * OrganizationRuntime. Two things are injected, and nothing else:
@@ -14,12 +14,12 @@
  * failure classification, the repair ladder, graph evolution, checkpoints,
  *   rollback, the audit chain, reputation, scoring — runs for real.
  *
- * STATUS: LEGACY (MJ 6.0). This file targets the pre-12.0 tree
+ * STATUS: LEGACY (VH 6.0). This file targets the pre-12.0 tree
  * (src/domain/mission, src/engine/orgRuntime, src/ipc/v6, …) which no longer
  * exists, so it does NOT compile and has no runnable script. The live §39
  * acceptance test is probe/acceptance.test.ts — run it with `npm test`.
  * This file is retained only because tools/make-bundle.mjs inlines it into
- * the historical MJ-Desktop-6.0 archive bundle.
+ * the historical VH-Desktop-6.0 archive bundle.
  */
 type Store = { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void };
 const mem = new Map<string, string>();
@@ -210,7 +210,7 @@ const check = (n: number, label: string, ok: boolean, detail = "") => {
 };
 
 async function main() {
-  console.log("MJ 6.0 — §39 acceptance run\n");
+  console.log("VH 6.0 — §39 acceptance run\n");
 
   // ------------------------------------------------------------- 1 and 2
   const plan = (await import("../src/engine/missionPlanner")).planMission(mission);
@@ -319,7 +319,7 @@ async function main() {
     events.some((e) => e.kind.includes("FAILURE") || e.kind.includes("CLASSIFIED")),
     events.filter((e) => e.kind.includes("FAIL")).map((e) => e.kind)[0] ?? "—",
   );
-  check(9, "MJ selects a repair strategy", snap.repairs.length > 0, `${snap.repairs.length} attempts`);
+  check(9, "VH selects a repair strategy", snap.repairs.length > 0, `${snap.repairs.length} attempts`);
   check(
     10,
     "Repair executed and recorded",

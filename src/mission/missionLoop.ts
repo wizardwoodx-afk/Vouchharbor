@@ -1,11 +1,11 @@
 /**
- * §THE MISSION LOOP — MJ 12.0: ONE engine — one canonical orchestrator over
- * MJ's shared engines of record. (12.0.1 states the model precisely: this
+ * §THE MISSION LOOP — VH 12.0: ONE engine — one canonical orchestrator over
+ * VH's shared engines of record. (12.0.1 states the model precisely: this
  * module does NOT fuse the specialized stores underneath into one physical
  * store; it orchestrates them — one runtime owns the cycle, one ledger
- * (mj.missionLoop.v1) is the cycle spine, one API is the product surface.)
+ * (vh.missionLoop.v1) is the cycle spine, one API is the product surface.)
  *
- * MJ 12.0 is the answer to a review that said it best: 11.14.10 organized the
+ * VH 12.0 is the answer to a review that said it best: 11.14.10 organized the
  * product's shelves, but the features on them were still separate productions
  * — TEAMS, team self-evolution, the feedback loop, adaptive learning and
  * agent communication each had its own store, its own page(s), its own
@@ -166,7 +166,7 @@ export interface CycleHumanFeedback {
   at: string;
 }
 
-const LS_KEY = "mj.missionLoop.v1";
+const LS_KEY = "vh.missionLoop.v1";
 
 function emptyLoopState(): MissionLoopState {
   return {

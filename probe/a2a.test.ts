@@ -58,15 +58,15 @@ const legacy = parseAgentCard(good, { fromLegacyLocation: true });
 ok("legacy agent.json cards are accepted but labelled", legacy.ok === true && legacy.card.legacyLocation === true);
 ok("garbage is rejected, not crashed on", parseAgentCard("not a card").ok === false && parseAgentCard(null).ok === false);
 
-section("2. MJ's own card and the draft a human reviews");
+section("2. VH's own card and the draft a human reviews");
 const mission = {
   id: "m-1", title: "Refactor store", description: "Split the graph store",
   steps: [{ id: "s1", title: "Read", summary: "map the module" }, { id: "s2", title: "Split", summary: "extract slices" }],
 };
 const card = agentCardForMission(mission);
 ok("mission → card keeps the mission as a skill", card.skills[0]?.id === "m-1" && card.skills[0]?.name === "Refactor store");
-ok("MJ's card is honest about being local", card.url.startsWith("http://localhost") && card.tags?.every(() => true) !== false);
-ok("MJ's card claims no streaming it does not do", card.capabilities.streaming === false && card.capabilities.pushNotifications === false);
+ok("VH's card is honest about being local", card.url.startsWith("http://localhost") && card.tags?.every(() => true) !== false);
+ok("VH's card claims no streaming it does not do", card.capabilities.streaming === false && card.capabilities.pushNotifications === false);
 process.env.MJ_A2A_ENABLED = "1";
 const draft = remoteAgentToSeatDraft(parsed.ok ? parsed.card : (null as never));
 ok("with the flag on, a draft is produced but is only a draft", draft.ok === true && (draft as { draft: { draft: boolean } }).draft.draft === true);

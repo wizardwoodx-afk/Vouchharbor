@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "desktop-capability",
-  "description": "Main window desktop capability for MJ 4",
+  "description": "Main window desktop capability for VH 4",
   "windows": [
     "main"
   ],

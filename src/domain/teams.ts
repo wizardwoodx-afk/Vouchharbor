@@ -106,7 +106,7 @@ function rand() {
   return Math.random().toString(36).slice(2, 8);
 }
 
-const LS = "mj.v5.teams";
+const LS = "vh.v5.teams";
 
 export function loadTeamsLocal(): TeamWorkspace[] {
   try {

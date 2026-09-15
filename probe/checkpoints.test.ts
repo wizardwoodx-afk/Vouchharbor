@@ -1,5 +1,5 @@
 /**
- * §Checkpoints probe (MJ 11.9.5) — LangGraph-shaped time travel for the design graph.
+ * §Checkpoints probe (VH 11.9.5) — LangGraph-shaped time travel for the design graph.
  *
  * Pins: snapshots are deep copies, structural equality ignores the viewport, duplicates of the
  * newest state are REFUSED (not stored), the cap holds, restore keeps the human's camera, and

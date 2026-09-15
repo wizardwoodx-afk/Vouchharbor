@@ -215,12 +215,12 @@ function TeamsPanel() {
 function MergePanel() {
   const candidates: MergeCandidate[] = useMemo(
     () => [
-      { seatId: "architect", branch: "mj/demo/architect", worktreePath: "/tmp/wt-arch", role: "architect", dependsOn: [], verified: true, additions: 120, deletions: 4 },
-      { seatId: "coder", branch: "mj/demo/coder", worktreePath: "/tmp/wt-code", role: "coder", dependsOn: ["mj/demo/architect"], verified: true, additions: 340, deletions: 61 },
-      { seatId: "tester", branch: "mj/demo/tester", worktreePath: "/tmp/wt-test", role: "tester", dependsOn: ["mj/demo/coder"], verified: true, additions: 88, deletions: 0 },
+      { seatId: "architect", branch: "vh/demo/architect", worktreePath: "/tmp/wt-arch", role: "architect", dependsOn: [], verified: true, additions: 120, deletions: 4 },
+      { seatId: "coder", branch: "vh/demo/coder", worktreePath: "/tmp/wt-code", role: "coder", dependsOn: ["vh/demo/architect"], verified: true, additions: 340, deletions: 61 },
+      { seatId: "tester", branch: "vh/demo/tester", worktreePath: "/tmp/wt-test", role: "tester", dependsOn: ["vh/demo/coder"], verified: true, additions: 88, deletions: 0 },
       // Included deliberately: a branch that failed its own checks must be excluded, and the plan has
       // to say why rather than quietly dropping it.
-      { seatId: "debugger", branch: "mj/demo/debugger", worktreePath: "/tmp/wt-dbg", role: "debugger", dependsOn: ["mj/demo/coder"], verified: false, additions: 12, deletions: 30 },
+      { seatId: "debugger", branch: "vh/demo/debugger", worktreePath: "/tmp/wt-dbg", role: "debugger", dependsOn: ["vh/demo/coder"], verified: false, additions: 12, deletions: 30 },
     ],
     [],
   );
@@ -569,9 +569,9 @@ function RunProofPanel() {
     >
       <Pre>
         {[
-          "[1] coder     cwd=<repo>-vh-coder              branch=mj/fix-sub/coder",
+          "[1] coder     cwd=<repo>-vh-coder              branch=vh/fix-sub/coder",
           "    committed the fix on an isolated worktree branch (SHA 442a4fdd).",
-          "[2] reviewer  cwd=<repo>-vh-review-reviewer    branch=mj/fix-sub/review (detached at 442a4fdd)",
+          "[2] reviewer  cwd=<repo>-vh-review-reviewer    branch=vh/fix-sub/review (detached at 442a4fdd)",
           "    validated the diff against the snapshot branch and said: CORRECT.",
           "",
           "snapshot = base + every committed writer branch, merged --no-ff (SHA 442a4fdd)",

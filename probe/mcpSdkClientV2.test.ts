@@ -29,8 +29,8 @@ import { after, before, describe, it } from "node:test";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 let client: Client;
 let transport: StdioClientTransport;

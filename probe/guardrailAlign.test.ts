@@ -1,7 +1,7 @@
 /**
- * MJ 11.13.1 — guardrail manifest probe.
+ * VH 11.13.1 — guardrail manifest probe.
  *
- * The pattern MJ adopts from Anthropic's open commerce blueprint: guardrails
+ * The pattern VH adopts from Anthropic's open commerce blueprint: guardrails
  * enforced in CODE, not prompts. This suite proves each line of the Audit
  * page's guardrail manifest is a check that actually runs in the source —
  * not a sentence in a doc.
@@ -17,8 +17,8 @@ function ok(label: string, cond: boolean, detail = ""): void {
   else { failed += 1; failures.push(`${label}${detail ? ` — ${detail}` : ""}`); console.log(`  FAIL ${label}${detail ? ` — ${detail}` : ""}`); }
 }
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 
 const custody = read("src/mission/custody.ts");
@@ -51,7 +51,7 @@ ok("guardrail 11 — capability requests return answers only — aggregate white
 ok("guardrail 12 — aggregates pass the Privacy Guard: minimum cohort, hard query budget, bounded precision",
   read("src/mission/capability.ts").includes("minCohortSize") && read("src/mission/capability.ts").includes("privacy budget exhausted") && read("src/mission/capability.ts").includes("roundTo"));
 ok("guardrail 13 — the privacy budget is durable, per-requester, and tamper-evident (restart resets nothing)",
-  read("src/mission/capability.ts").includes("mj.privacy.ledger") && read("src/mission/capability.ts").includes("verifyPrivacyLedger") && read("src/mission/capability.ts").includes("digest chain is broken"));
+  read("src/mission/capability.ts").includes("vh.privacy.ledger") && read("src/mission/capability.ts").includes("verifyPrivacyLedger") && read("src/mission/capability.ts").includes("digest chain is broken"));
 ok("guardrail 14 — the two-machine proof: the coordinator sees identity, request, authorization and receipt — never rows",
   read("src/mission/twoNode.ts").includes("RelayNode") && read("probe/twoNodeAlign.test.ts").includes("NEVER saw the raw rows"));
 ok("guardrail 15 — every guardrail above is surfaced as a manifest on the Audit page",

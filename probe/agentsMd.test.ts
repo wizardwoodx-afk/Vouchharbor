@@ -79,7 +79,7 @@ try {
   ok("per-task verify commands survive", text.includes("`npm test -- --repeat 5`"));
   ok("provenance names the mission", text.includes("m-probe-1"));
 
-  section("3. the round-trip: MJ reads back what MJ wrote");
+  section("3. the round-trip: VH reads back what VH wrote");
   const reread = collectAgentsContext(ws);
   ok("the generated file is discoverable", reread.docs.length === 1);
   ok("the generated file parses into sections", reread.docs[0].sections.length >= 4, `${reread.docs[0].sections.length} sections`);

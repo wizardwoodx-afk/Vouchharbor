@@ -1,5 +1,5 @@
 /**
- * MJ 11.11.1 SELF-EVOLVING — probe suite.
+ * VH 11.11.1 SELF-EVOLVING — probe suite.
  *
  * Pins the self-evolution spine: reflection is deterministic and measured-only,
  * memory decays/reinforces/retrieves, the strategy loop is a CAUSAL online
@@ -7,7 +7,7 @@
  * parameters, verdicts need minimum measured trials on both arms, adoption
  * needs a strict margin), skills propose ONLY from verified real runs and are
  * described as procedural knowledge, and learning receipts verify from zero
- * MJ state and catch tampering.
+ * VH state and catch tampering.
  */
 import {
   reflectOnMission, mergeLessons, retrieveLessons, lessonsForBriefing, decayedStrength,
@@ -241,7 +241,7 @@ section("6. learning receipts verify from zero state and catch tampering");
   const r = await issueLearningReceipt({ mjVersion: "11.11.1", missionId: "m1", lessons, strategyChange: "strategy-v1 -> strategy-v2", now: NOW });
   ok("receipt digests lessons canonically", r.evidenceDigest.length === 64);
   const v = await verifyLearningReceipt(r);
-  ok("an issued receipt verifies with zero MJ state", v.ok === true, v.reason);
+  ok("an issued receipt verifies with zero VH state", v.ok === true, v.reason);
   ok("runtime signs with Ed25519 when available", !!r.signature || !!r.signatureNote);
   const tampered = { ...r, lessons: [{ ...lessons[0], text: "altered lesson" }] };
   const tv = await verifyLearningReceipt(tampered);

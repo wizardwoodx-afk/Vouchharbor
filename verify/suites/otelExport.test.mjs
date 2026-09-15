@@ -6,9 +6,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "18.8.0";
-var VH_SHORT = "18.8";
-var VH_CODENAME = "Atlas";
+var VH_VERSION = "18.9.0";
+var VH_SHORT = "18.9";
+var VH_CODENAME = "Aurora";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/otel.ts
@@ -70,12 +70,12 @@ function flightToOtlp(events2, opts = {}) {
     timeUnixNano: toNanoNanos(e.ts),
     name: e.kind,
     attributes: [
-      attr("mj.event.seq", e.seq),
-      attr("mj.actor", e.actor),
-      attr("mj.authority", e.authority),
-      attr("mj.policy", e.policy),
-      attr("mj.reason", e.reason),
-      ...e.subjectId ? [attr("mj.subject", e.subjectId)] : []
+      attr("vh.event.seq", e.seq),
+      attr("vh.actor", e.actor),
+      attr("vh.authority", e.authority),
+      attr("vh.policy", e.policy),
+      attr("vh.reason", e.reason),
+      ...e.subjectId ? [attr("vh.subject", e.subjectId)] : []
     ]
   }));
   const root2 = {
@@ -87,11 +87,11 @@ function flightToOtlp(events2, opts = {}) {
     startTimeUnixNano: toNanoNanos(first.ts),
     endTimeUnixNano: toNanoNanos(last.ts),
     attributes: [
-      attr("gen_ai.system", "mj"),
+      attr("gen_ai.system", "vh"),
       attr("gen_ai.agent.name", missionId),
       attr("gen_ai.operation.name", "invoke_agent"),
-      attr("mj.conventions.status", "development"),
-      attr("mj.event.count", events2.length)
+      attr("vh.conventions.status", "development"),
+      attr("vh.event.count", events2.length)
     ],
     events: governanceEvents
   };
@@ -108,14 +108,14 @@ function flightToOtlp(events2, opts = {}) {
       // viewers render it. The recorder is the source of truth for durations, not OTLP.
       endTimeUnixNano: toNanoNanos(e.ts),
       attributes: [
-        attr("gen_ai.system", "mj"),
+        attr("gen_ai.system", "vh"),
         attr("gen_ai.operation.name", spanNameFor(e)?.split(" ")[0] ?? "execute_tool"),
-        attr("mj.event.seq", e.seq),
-        attr("mj.actor", e.actor),
-        attr("mj.authority", e.authority),
-        attr("mj.policy", e.policy),
-        attr("mj.reason", e.reason),
-        ...e.subjectId ? [attr("mj.subject", e.subjectId)] : []
+        attr("vh.event.seq", e.seq),
+        attr("vh.actor", e.actor),
+        attr("vh.authority", e.authority),
+        attr("vh.policy", e.policy),
+        attr("vh.reason", e.reason),
+        ...e.subjectId ? [attr("vh.subject", e.subjectId)] : []
       ],
       events: []
     };
@@ -125,14 +125,14 @@ function flightToOtlp(events2, opts = {}) {
       {
         resource: {
           attributes: [
-            attr("service.name", "mj"),
+            attr("service.name", "vh"),
             attr("service.version", opts.serviceVersion ?? VH_VERSION),
             attr("gen_ai.conventions.status", "development")
           ]
         },
         scopeSpans: [
           {
-            scope: { name: "mj.flight-recorder", version: VH_VERSION },
+            scope: { name: "vh.flight-recorder", version: VH_VERSION },
             spans: [root2, ...children]
           }
         ]
@@ -194,7 +194,7 @@ var spans = trace.resourceSpans[0]?.scopeSpans[0]?.spans ?? [];
 section("0. the document shape is OTLP-JSON");
 ok("resourceSpans exists and carries a resource", trace.resourceSpans.length === 1 && Array.isArray(trace.resourceSpans[0].resource.attributes));
 var svc = trace.resourceSpans[0].resource.attributes.find((a) => a.key === "service.name");
-ok("service.name is mj", svc?.value.stringValue === "mj");
+ok("service.name is vh", svc?.value.stringValue === "vh");
 ok("the conventions status is stated honestly", JSON.stringify(trace).includes("development"));
 section("1. the mission is one invoke_agent root span");
 var root = spans.find((s) => String(s.name).startsWith("invoke_agent"));
@@ -204,7 +204,7 @@ ok("root spans the whole event window", root?.startTimeUnixNano !== root?.endTim
 var rootEvents = root?.events ?? [];
 ok("governance kinds become span events on the root", rootEvents.some((e) => e.name === "APPROVAL_REQUIRED") && rootEvents.some((e) => e.name === "POLICY_DENIED" || e.name === "MISSION_PLANNED"), `${rootEvents.length} events`);
 var granted = rootEvents.find((e) => e.name === "APPROVAL_GRANTED");
-ok("the human approval names its authority", granted?.attributes?.some((a) => a.key === "mj.authority" && a.value.stringValue === "human:opus") === true, JSON.stringify(granted));
+ok("the human approval names its authority", granted?.attributes?.some((a) => a.key === "vh.authority" && a.value.stringValue === "human:opus") === true, JSON.stringify(granted));
 section("2. work becomes child spans");
 ok("agent spawn is a create_agent span", spans.some((s) => String(s.name).startsWith("create_agent coder")));
 ok("task delegation/complete are execute_tool spans", spans.filter((s) => String(s.name).startsWith("execute_tool")).length === 2);

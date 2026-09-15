@@ -22,8 +22,8 @@ var VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -38,7 +38,7 @@ init_id();
 // src/mission/lessons.ts
 var DECAY_PER_DAY = 0.95;
 var RETRIEVE_K = 3;
-var LS_KEY = "mj.lessons.v1";
+var LS_KEY = "vh.lessons.v1";
 function decayedStrength(l, now) {
   const days = Math.max(0, (now - l.createdAt) / 864e5);
   return l.strength * Math.pow(DECAY_PER_DAY, days);
@@ -95,7 +95,7 @@ function loadLessons() {
 }
 
 // src/mission/selfImprove.ts
-var LS_KEY2 = "mj.selfimprove.v1";
+var LS_KEY2 = "vh.selfimprove.v1";
 var BASE_PARAMS = {
   reviewDepth: 1,
   checkBias: 0.5,
@@ -162,7 +162,7 @@ function enforceWrite(type, writer) {
 
 // src/mission/skillEvolution.ts
 var PROPOSAL_CAP = 20;
-var LS_KEY3 = "mj.skills.v1";
+var LS_KEY3 = "vh.skills.v1";
 function mergeProposals(memory2, fresh) {
   const next = [...memory2];
   for (const f of fresh) {
@@ -199,7 +199,7 @@ function saveSkills(memory2, writer = "human") {
 
 // src/mission/knowledgeSkills.ts
 var KNOWLEDGE_TOOL = "vh-knowledge-forge/mechanical-v1";
-var LS_KEY4 = "mj.knowledgeSkills.v1";
+var LS_KEY4 = "vh.knowledgeSkills.v1";
 var RULE_HINTS = /\b(must|never|always|only|when|if|avoid|prefer|before|after)\b/i;
 var ARROW = /→|=>|->|⇒/;
 function extractStructure(content) {
@@ -285,9 +285,9 @@ function classifyEndpoint(baseUrl) {
     if (loopbackHost(host)) {
       return { endpointClass: "local-configured", note: `endpoint override points at loopback (${host}) \u2014 content stays on this machine` };
     }
-    return { endpointClass: "unknown", note: `endpoint override points at a non-loopback host (${host}) \u2014 MJ cannot determine where it terminates` };
+    return { endpointClass: "unknown", note: `endpoint override points at a non-loopback host (${host}) \u2014 VH cannot determine where it terminates` };
   } catch {
-    return { endpointClass: "unknown", note: "endpoint override is not a valid URL \u2014 MJ cannot determine where content goes" };
+    return { endpointClass: "unknown", note: "endpoint override is not a valid URL \u2014 VH cannot determine where content goes" };
   }
 }
 var LLM_PROMPT = (content) => `You are a book-distiller. Extract STRUCTURE, not a summary, from the document below. Reply with ONLY a JSON object: {"title": string, "summary": string (<=2 lines), "procedure": string (compact step guidance), "decisionRules": string[], "knownFailureModes": string[]}. No markdown fences.
@@ -306,7 +306,7 @@ async function proposeKnowledgeSkill(args) {
   }
   const structure = extractStructure(content);
   if (structure.frameworks.length === 0 && structure.decisionRules.length === 0 && structure.chapterHints.length === 0) {
-    return { ok: false, error: "no extractable structure (headings, rules, frameworks) \u2014 MJ distills structure, not summaries; a raw blob is refused" };
+    return { ok: false, error: "no extractable structure (headings, rules, frameworks) \u2014 VH distills structure, not summaries; a raw blob is refused" };
   }
   const nowIso = args.nowIso ?? (/* @__PURE__ */ new Date()).toISOString();
   const sourceName = args.sourceName?.trim() || null;
@@ -331,13 +331,13 @@ async function proposeKnowledgeSkill(args) {
             const vals = await args.llm.deps.readEnv(overrideNames);
             const found = vals.find((v) => typeof v === "string" && v.trim().length > 0);
             if (found === void 0) {
-              endpoint = { endpointClass: "cloud-default", endpointBasis: "detected", note: "no endpoint override visible to MJ \u2014 the harness's default cloud provider" };
+              endpoint = { endpointClass: "cloud-default", endpointBasis: "detected", note: "no endpoint override visible to VH \u2014 the harness's default cloud provider" };
             } else {
               const c = classifyEndpoint(found);
               endpoint = { endpointClass: c.endpointClass, endpointBasis: "detected", note: c.note };
             }
           } catch {
-            endpoint = { endpointClass: "unknown", endpointBasis: "not-visible", note: "MJ could not read the harness's endpoint override" };
+            endpoint = { endpointClass: "unknown", endpointBasis: "not-visible", note: "VH could not read the harness's endpoint override" };
           }
         } else if (args.llm.declaredEndpoint) {
           endpoint = args.llm.declaredEndpoint === "local" ? { endpointClass: "local-configured", endpointBasis: "user-declared", note: "you declared this harness uses a local model endpoint" } : { endpointClass: "cloud-default", endpointBasis: "user-declared", note: "you declared this harness uses its default cloud provider" };
@@ -345,7 +345,7 @@ async function proposeKnowledgeSkill(args) {
           endpoint = {
             endpointClass: "unknown",
             endpointBasis: "not-visible",
-            note: `MJ runs ${args.llm.harness} with your environment and cannot see its endpoint override settings \u2014 the destination is whatever the harness's own configuration decides`
+            note: `VH runs ${args.llm.harness} with your environment and cannot see its endpoint override settings \u2014 the destination is whatever the harness's own configuration decides`
           };
         }
         providerInfo = { vendor, ...endpoint };
@@ -469,7 +469,7 @@ function emptyBandit() {
 }
 
 // src/mission/autonomyStore.ts
-var KEY = "mj.autonomy.v1";
+var KEY = "vh.autonomy.v1";
 var memory = null;
 function loadAutonomy() {
   if (memory) return memory;
@@ -490,7 +490,7 @@ function loadAutonomy() {
 }
 
 // src/mission/belief.ts
-var LS_KEY5 = "mj.beliefs.v1";
+var LS_KEY5 = "vh.beliefs.v1";
 function needsApproval(b) {
   return b.provenance === "agent-inferred" && b.aboutUser && !b.approved;
 }
@@ -524,8 +524,8 @@ function loadBeliefs() {
 
 // src/mission/selfEvolveRuntime.ts
 init_version();
-var RUNS_KEY = "mj.selfimprove.runs.v2";
-var RUNS_KEY_V1 = "mj.selfimprove.runs.v1";
+var RUNS_KEY = "vh.selfimprove.runs.v2";
+var RUNS_KEY_V1 = "vh.selfimprove.runs.v1";
 function loadExperimentRuns() {
   try {
     const raw = localStorage.getItem(RUNS_KEY);
@@ -715,7 +715,7 @@ async function main() {
   const cc2 = classifyEndpoint("http://localhost:11434");
   ok("loopback override \u2192 local-configured with the reason written", cc2.endpointClass === "local-configured" && /loopback/.test(cc2.note));
   const cc3 = classifyEndpoint("https://gateway.corp.example");
-  ok("non-loopback override \u2192 unknown (MJ cannot tell where a proxy terminates)", cc3.endpointClass === "unknown" && /cannot determine/.test(cc3.note));
+  ok("non-loopback override \u2192 unknown (VH cannot tell where a proxy terminates)", cc3.endpointClass === "unknown" && /cannot determine/.test(cc3.note));
   const cc4 = classifyEndpoint("not a url at all");
   ok("invalid override URL \u2192 unknown, never a guess", cc4.endpointClass === "unknown");
   const det = await proposeKnowledgeSkill({ content: DOC, sourceName: "detected.md", llm: { harness: "claude", deps: scriptedDeps({ env: { ANTHROPIC_BASE_URL: "http://127.0.0.1:11434" } }) } });

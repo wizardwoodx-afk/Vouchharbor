@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * MJ probe runner — `npm test`.
+ * VH probe runner — `npm test`.
  *
  * V11.4.1 rewrite. The V11.2 runner shelled out:
  *
- *     execSync(`./node_modules/.bin/esbuild ${fullPath} ... --define:MJ_ROOT="\\"${cwd}\\""`)
+ *     execSync(`./node_modules/.bin/esbuild ${fullPath} ... --define:VH_ROOT="\\"${cwd}\\""`)
  *
  * which breaks three ways, all observed in the wild:
  *   • Windows: `./node_modules/.bin/esbuild` is `esbuild.cmd` — an extensionless path with
@@ -61,7 +61,7 @@ for (const file of files) {
       banner: {
         js: 'import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);',
       },
-      define: { MJ_ROOT: JSON.stringify(root) },
+      define: { VH_ROOT: JSON.stringify(root) },
       outfile: outPath,
       logLevel: "error",
     });

@@ -32,8 +32,8 @@ import { after, before, describe, it } from "node:test";
 import Ajv2020 from "ajv/dist/2020.js";
 import AjvDraft7 from "ajv";
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const FIX = path.join(ROOT, "tools", "mcp-conformance", "fixtures");
 
 /* ── official fixtures, digest-pinned (provenance in PROVENANCE.md) ──────── */

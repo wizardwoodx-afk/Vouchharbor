@@ -152,7 +152,7 @@ function mkSeat(harness: HarnessId, over: Partial<TeamSeat> = {}): TeamSeat {
   if (grokWrite.argv.includes("--max-turns")) {
     ok(grokWrite.argv.includes("30"), "grok does accept --max-turns, and the bound is passed through");
   } else {
-    ok(true, "grok's --max-turns is unverified, so MJ emits nothing rather than a guessed flag");
+    ok(true, "grok's --max-turns is unverified, so VH emits nothing rather than a guessed flag");
   }
   ok(w.claims.readOnlyEnforced === false, "a writing seat does not claim read-only");
 }
@@ -223,7 +223,7 @@ console.log("\n== validating a team ==\n");
 }
 
 {
-  // Single-vendor writing is called out, because that is exactly the blind spot MJ exists to avoid.
+  // Single-vendor writing is called out, because that is exactly the blind spot VH exists to avoid.
   const mono: CliAgentTeam = { ...PREBUILT_TEAMS[0], seats: PREBUILT_TEAMS[0].seats.map((s) => (s.mayWrite ? { ...s, harness: "claude" as HarnessId } : s)) };
   const mono2: CliAgentTeam = { ...PREBUILT_TEAMS[0], seats: PREBUILT_TEAMS[0].seats.map((s) => (s.mayWrite ? { ...s, harness: "claude" as HarnessId } : s)) };
   mono2.seats.push({ ...mono2.seats[2], id: "impl2" }); // two writing seats, one vendor

@@ -489,7 +489,7 @@ async function withDeadline(work, timeoutMs, now = Date.now) {
       value: null,
       timedOut: true,
       elapsedMs: now() - t0,
-      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; MJ cannot assume it stopped.`
+      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; VH cannot assume it stopped.`
     };
   }
   return { outcome: "ok", value: winner.v, timedOut: false, elapsedMs: now() - t0, detail: `Finished in ${now() - t0}ms, inside the ${timeoutMs}ms deadline.` };

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mj-evolution"
 version = "0.4.0"
-description = "MJ self-evolution service — DSPy + GEPA-style reflective prompt/skill optimization (Hermes-inspired). Canonical transport is JSON-lines stdio; the FastAPI server is optional and unused by MJ."
+description = "VH self-evolution service — DSPy + GEPA-style reflective prompt/skill optimization (Hermes-inspired). Canonical transport is JSON-lines stdio; the FastAPI server is optional and unused by VH."
 requires-python = ">=3.10"
 dependencies = [
     # Pinned production optimization infrastructure (no floating versions).

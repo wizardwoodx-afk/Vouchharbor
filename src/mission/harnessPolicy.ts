@@ -1,9 +1,9 @@
 /**
- * §6 + §10 + §33 — translating MJ's risk classes and security boundary into the arguments a
+ * §6 + §10 + §33 — translating VH's risk classes and security boundary into the arguments a
  * real coding CLI actually understands.
  *
  * Why this file exists: a mission boundary that only appears in the UI is a claim, not a
- * control. Every harness here has a real, enforced read-only mode, and MJ uses it:
+ * control. Every harness here has a real, enforced read-only mode, and VH uses it:
  *
  *   Claude Code   --permission-mode plan | acceptEdits      (--tools "" strips tools entirely)
  *   Codex         --sandbox read-only | workspace-write
@@ -12,7 +12,7 @@
  * Research notes that shaped this (checked 2026-08):
  *  - `claude -p` supports `--output-format text|json|stream-json`; **json** returns
  *    `total_cost_usd`, `session_id`, `num_turns` and usage. That is real spend, which is why
- *    MJ no longer derives cost from `chars/4`. `stream-json` additionally requires `--verbose`.
+ *    VH no longer derives cost from `chars/4`. `stream-json` additionally requires `--verbose`.
  *  - `--allowedTools` skips permission prompts; `--tools` restricts which tools exist at all.
  *    They are different flags and only the second one is a real restriction.
  *  - `codex exec` defaults to a **read-only** sandbox; `--full-auto` is deprecated in favour of
@@ -102,7 +102,7 @@ export interface HarnessPolicy {
   readOnly: boolean;
   /** Set when the request was refused rather than downgraded. */
   refused: string | null;
-  /** Which output format MJ will parse for cost and token counts. */
+  /** Which output format VH will parse for cost and token counts. */
   outputFormat: "text" | "json" | "ndjson";
 }
 
@@ -204,7 +204,7 @@ export function policyFor(id: HarnessId, req: HarnessPolicyRequest): HarnessPoli
       argv: readShape ?? ["$PROMPT"],
       grant: enforced
         ? "Read-only, enforced by the harness (no file writes, no shell)."
-        : "Read-only requested. This harness has no enforced sandbox, so MJ additionally withholds write permission in the prompt and records that the control is advisory.",
+        : "Read-only requested. This harness has no enforced sandbox, so VH additionally withholds write permission in the prompt and records that the control is advisory.",
       canWrite: false,
       readOnly: true,
       refused: null,
@@ -215,7 +215,7 @@ export function policyFor(id: HarnessId, req: HarnessPolicyRequest): HarnessPoli
   if (!writeShape) {
     return {
       argv: readShape ?? ["$PROMPT"],
-      grant: "Read-only fallback: this harness has no workspace-write mode MJ can request.",
+      grant: "Read-only fallback: this harness has no workspace-write mode VH can request.",
       canWrite: false,
       readOnly: true,
       refused: null,
@@ -228,7 +228,7 @@ export function policyFor(id: HarnessId, req: HarnessPolicyRequest): HarnessPoli
     argv,
     grant: enforced
       ? "Write inside the mission workspace only, enforced by the harness sandbox."
-      : "Write requested. This harness has no enforced sandbox; MJ records the control as advisory.",
+      : "Write requested. This harness has no enforced sandbox; VH records the control as advisory.",
     canWrite: true,
     readOnly: false,
     refused: null,
@@ -265,7 +265,7 @@ function outputFormatFor(id: HarnessId): "text" | "json" | "ndjson" {
 /* ------------------------------------------------------------------ real usage parsing */
 
 export interface ParsedUsage {
-  /** Null unless the harness actually reported a figure. MJ never estimates spend. */
+  /** Null unless the harness actually reported a figure. VH never estimates spend. */
   costUsd: number | null;
   tokens: number | null;
   /** Free-form text for the flight recorder: what was parsed, or why nothing was. */
@@ -324,7 +324,7 @@ export function parseUsage(id: HarnessId, stdout: string): ParsedUsage {
       }
     }
     return {
-      costUsd: null, // Codex reports tokens, not dollars; MJ will not convert with a guessed price.
+      costUsd: null, // Codex reports tokens, not dollars; VH will not convert with a guessed price.
       tokens,
       source: `codex: ${events.length} NDJSON event(s), tokens=${tokens ?? "n/a"}`,
       text: text || raw,
@@ -395,7 +395,7 @@ function lastJsonObject(raw: string): Record<string, unknown> | null {
 /* ------------------------------------------------------------------ what a mission boundary means in argv */
 
 /**
- * The permission block MJ puts in front of the prompt. It is not the enforcement mechanism for
+ * The permission block VH puts in front of the prompt. It is not the enforcement mechanism for
  * harnesses that have a sandbox — the sandbox is — but for harnesses that do not, and for the
  * agent reading it, it is the stated contract. It is always derived from the *intersection* of
  * the mission boundary and the role's requirements, never from the role alone.

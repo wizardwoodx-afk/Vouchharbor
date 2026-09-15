@@ -1,5 +1,5 @@
 /**
- * §Team power probe (MJ 11.9.4-Major) — elastic seats + bandit router.
+ * §Team power probe (VH 11.9.4-Major) — elastic seats + bandit router.
  *
  * Pins the two autonomy engines to their honesty rules:
  *   elastic: pure decisions from measured signals, hard caps, debugger before

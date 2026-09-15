@@ -13,8 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildSecurityReview, verifySecurityReview, digestOf, securityScope, securityFindings } from "../src/mission/securityReview";
 
-declare const MJ_ROOT: string;
-const root = MJ_ROOT ?? process.cwd();
+declare const VH_ROOT: string;
+const root = VH_ROOT ?? process.cwd();
 
 test("securityReview — the artifact is real, signed and honest about its limits", async () => {
   // 1. the scope is real and evidenced

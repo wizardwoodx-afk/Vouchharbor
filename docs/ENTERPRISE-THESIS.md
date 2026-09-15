@@ -1,6 +1,6 @@
 # Enterprise Thesis — The Cloud Coordinates. The Data Stays Home.
 
-*MJ platform direction, 2026. This document is the validation artifact: what we
+*VH platform direction, 2026. This document is the validation artifact: what we
 believe, why now, what we have already proven, and what must be validated
 before heavy infrastructure is built.*
 
@@ -105,10 +105,10 @@ budgets, and differential-privacy-grade protection for sensitive classes.
 
 The seed enforces the first five mechanically, today:
 
-- **MJ 11.14.2 — the Privacy Guard:** field policy, minimum cohort, hard
+- **VH 11.14.2 — the Privacy Guard:** field policy, minimum cohort, hard
   per-window query budget, bounded precision — each refusal in words, each
   pinned by probe.
-- **MJ 11.14.3 — the two weaknesses the review named, closed:**
+- **VH 11.14.3 — the two weaknesses the review named, closed:**
   (1) the query budget is now DURABLE — an append-only, digest-chained,
   anchor-sealed ledger scoped to dataset + requester + window, re-read on
   every request. Restarting the endpoint resets nothing; doctoring the
@@ -140,9 +140,9 @@ a boundary** — who asked, what was permitted, what exactly left, attested
 cryptographically, recomputable by an auditor who does not trust us.
 
 That evidence layer is the differentiator, and it is the part we have already
-built and probe-pinned inside MJ:
+built and probe-pinned inside VH:
 
-| Platform requirement | Already proven in MJ |
+| Platform requirement | Already proven in VH |
 |---|---|
 | Human authority for any departure | Authority Envelope: human-only principals, scope, expiry, revocation (custody, 31 probe assertions) |
 | Spend/egress limits that hold under concurrency | BudgetGate atomic reservations; Egress Gate + digest-chained receipt ledger (66 live suites) |
@@ -150,11 +150,11 @@ built and probe-pinned inside MJ:
 | Proof-of-work export | Proof Dossier: digest-stamped evidence file |
 | Agents can propose, only humans install | Ledger write-permission matrix |
 
-MJ is the **flagship endpoint workload** of this platform: the runtime that
+VH is the **flagship endpoint workload** of this platform: the runtime that
 demonstrates the platform's guarantees on a single machine, before any cloud
 exists.
 
-## The two-machine proof — run (MJ 11.14.3)
+## The two-machine proof — run (VH 11.14.3)
 
 The 11.14.2 review said the next real step was not another feature but this
 experiment: A owns the data, B requests a capability, the relay coordinates,
@@ -180,8 +180,8 @@ exactly the order this thesis argues for.
 ## Roadmap (deliberately staged)
 
 - **Phase 0 — now (desktop seed):** the Egress Gate and capability requests on
-  one machine. Every departure needs authority + receipt. *Shipped: MJ 11.14.*
-- **Phase 1 — two-node proof:** protocol proven in-repo (MJ 11.14.3);
+  one machine. Every departure needs authority + receipt. *Shipped: VH 11.14.*
+- **Phase 1 — two-node proof:** protocol proven in-repo (VH 11.14.3);
   next: the same messages over an encrypted laptop↔laptop channel, where
   the relay sees coordination and receipts, never payloads.
 - **Phase 2 — control plane:** identity, enrollment, policy, discovery,
@@ -197,7 +197,7 @@ exactly the order this thesis argues for.
    (the whitelist is the product)
 3. **Identity substrate decision:** roll our own enrollment vs ride an
    existing IdP (SSO/SAML/OIDC) — enterprises will demand the latter.
-4. **Willingness to run an agent runtime (MJ) as the endpoint workload** vs
+4. **Willingness to run an agent runtime (VH) as the endpoint workload** vs
    plain file/operation sharing only.
 
 ## What we are NOT claiming

@@ -33,8 +33,8 @@ import os from "node:os";
 import path from "node:path";
 import { spawn, execFileSync, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { createHash } from "node:crypto";
-declare const MJ_ROOT: string;
-const ROOT = MJ_ROOT ?? process.cwd();
+declare const VH_ROOT: string;
+const ROOT = VH_ROOT ?? process.cwd();
 
 import { drillBridgeConfig, makeHarborIdentity, nodeRunnerDeps, startA2ARuntime, type A2ARuntime } from "../src/mission/a2aRuntime";
 import { receiverRiskVerdict, createTeam, addTeammate } from "../src/mission/harborTeams";

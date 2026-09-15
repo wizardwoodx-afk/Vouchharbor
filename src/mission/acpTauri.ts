@@ -8,7 +8,7 @@
  *
  * NOTE (honest, per this tree's rules): the Rust bridge commands were written for V11 and are
  * compiled only when a machine with the GTK/WebKit toolchain runs `cargo check` — see
- * MJ-11.0-UPGRADE.md §"What is not proven".
+ * VH-11.0-UPGRADE.md §"What is not proven".
  */
 import type { AcpTransport } from "./acp";
 

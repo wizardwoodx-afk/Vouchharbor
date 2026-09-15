@@ -13,7 +13,7 @@ import { useState } from "react";
 import { loadSavedTeams, saveTeams, type CliAgentTeam } from "../mission/agentTeam";
 import { currentEdition, trialDaysLeft } from "../mission/licensing";
 
-const LS_ONBOARDED = "mj.onboarded";
+const LS_ONBOARDED = "vh.onboarded";
 
 export function onboardingDone(): boolean {
   try {
@@ -39,7 +39,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const edition = currentEdition();
   const finish = (withSample: boolean) => {
     try {
-      localStorage.setItem("mj.editor.prefs", JSON.stringify({ theme }));
+      localStorage.setItem("vh.editor.prefs", JSON.stringify({ theme }));
       document.documentElement.setAttribute("data-theme", theme);
       if (withSample) {
         const existing = loadSavedTeams();

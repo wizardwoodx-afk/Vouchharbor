@@ -19,8 +19,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-declare const MJ_ROOT: string;
-const root = MJ_ROOT ?? process.cwd();
+declare const VH_ROOT: string;
+const root = VH_ROOT ?? process.cwd();
 const VH_VERSION = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version as string;
 
 const VERSION_RE = /\b(v?16\.\d{1,2}(?:\.\d{1,2})?)\b/g;

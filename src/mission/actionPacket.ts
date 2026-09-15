@@ -1,5 +1,5 @@
 /**
- * MJ 11.12 MOSAIC-Ω alignment — proof-carrying actions.
+ * VH 11.12 MOSAIC-Ω alignment — proof-carrying actions.
  *
  * Every meaningful run travels with a signed Action Packet stating intent, the
  * world-belief it rests on, the plan step, the prediction, the risk, the

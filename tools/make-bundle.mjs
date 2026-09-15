@@ -1,6 +1,6 @@
 /**
  * Build V6.0-Source.md — every source file inlined into one Markdown file,
- * matching the MJ 5.0 single-file bundle convention so it drops into the same
+ * matching the VH 5.0 single-file bundle convention so it drops into the same
  * rebuild workflow.
  *
  *   node tools/make-bundle.mjs
@@ -52,14 +52,14 @@ for (const f of files) {
 }
 
 const out = [];
-out.push("# MJ 6.0 — Complete Source (Single-File Bundle)");
+out.push("# VH 6.0 — Complete Source (Single-File Bundle)");
 out.push("");
-out.push("This is the **complete MJ 6.0 source code** inlined into a single Markdown file.");
-out.push("Every file from the canonical `MJ-Desktop-6.0.zip` is reproduced below, with its");
+out.push("This is the **complete VH 6.0 source code** inlined into a single Markdown file.");
+out.push("Every file from the canonical `VH-Desktop-6.0.zip` is reproduced below, with its");
 out.push("original path shown as a header. Text files appear as fenced code blocks. Binary");
 out.push("files (icons, fonts) are base64-encoded inside fenced blocks.");
 out.push("");
-out.push("**To rebuild MJ 6.0 from this file:**");
+out.push("**To rebuild VH 6.0 from this file:**");
 out.push("");
 out.push("1. Create an empty folder and `cd` into it");
 out.push("2. For each section below, create the file at the path shown in its header and");
@@ -69,7 +69,7 @@ out.push("4. `npm install`, then `cargo check --manifest-path src-tauri/Cargo.to
 out.push("   (the Rust layer has never been compiled — see Still honest in WHAT-CHANGED.md)");
 out.push("5. `npm run tauri:build`");
 out.push("");
-out.push("**MJ 6.0 = MJ 5.0 + a Mission/Organization layer above the graph.**");
+out.push("**VH 6.0 = VH 5.0 + a Mission/Organization layer above the graph.**");
 out.push("V5 architecture is preserved: Hermes, role packs, teams, 35 frameworks, the");
 out.push("harness layer, skills, memory, feedback, evolution, MCP, local CLIs, Tauri, Rust,");
 out.push("SQLite. Nothing was rewritten.");

@@ -50,7 +50,7 @@ function sh(args: string[], cwd: string): { code: number | null; out: string } {
   try {
     // 11.10.5(r1) — hermetic git: no terminal prompts (a prompt in a CI/sandboxed reviewer
     // environment is an invisible hang, which reads as a suite timeout), and no system
-    // templates/hooks that could inject behavior MJ did not ask for.
+    // templates/hooks that could inject behavior VH did not ask for.
     const out = execFileSync(args[0], args.slice(1), {
       cwd,
       encoding: "utf8",
@@ -173,7 +173,7 @@ function makeRepo(): { repo: string; baseBranch: string } {
   fs.writeFileSync(path.join(repo, "package.json"), JSON.stringify({ name: "calc", version: "1.0.0", scripts: { test: "node test.js" } }, null, 2));
   sh(["git", "init", "-q", "."], repo);
   sh(["git", "config", "user.email", "mj@mj.desktop"], repo);
-  sh(["git", "config", "user.name", "MJ"], repo);
+  sh(["git", "config", "user.name", "VH"], repo);
   sh(["git", "add", "-A"], repo);
   sh(["git", "commit", "-qm", "initial commit"], repo);
   const baseBranch = sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim() || "master";
@@ -288,10 +288,10 @@ async function main() {
   ok("the reviewer's own verdict says the code is correct", /correct/i.test(reviewerRec?.selfReport ?? "") && !/wrong/i.test(reviewerRec?.selfReport ?? ""), (reviewerRec?.selfReport ?? "").slice(0, 200));
 
   section("5. the base checkout stayed pristine (no unreviewed work landed)");
-  // MJ must leave the user's checkout where it found it. Building the snapshot switches the base
+  // VH must leave the user's checkout where it found it. Building the snapshot switches the base
   // checkout to the snapshot branch, so it has to be switched back — otherwise the run quietly ends
   // with the user's own working copy on a branch they never asked for.
-  ok("MJ left the base checkout on the BASE branch, not the snapshot", sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim() === baseBranch, sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim());
+  ok("VH left the base checkout on the BASE branch, not the snapshot", sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim() === baseBranch, sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo).out.trim());
   ok("HEAD of the base branch is still the initial commit", sh(["git", "log", "--oneline", "-1", "--format=%s"], repo).out.trim() === "initial commit", sh(["git", "log", "--oneline", "-1", "--format=%s"], repo).out.trim());
   const baseCalc = fs.readFileSync(path.join(repo, "calc.js"), "utf8");
   ok("the base branch still has the ORIGINAL bug — the fix was never merged into it", /function sub\(a, b\) \{ return a \+ b; \}/.test(baseCalc), baseCalc.replace(/\n/g, " | ").slice(0, 160));
@@ -318,7 +318,7 @@ async function main() {
   ok("the briefing was NOT committed into the agent's work", !committedFiles.includes(".vh-brief"), `committed: ${committedFiles.trim().slice(0, 200)}`);
   ok("the briefing record says exclusion actually held", report.briefings.every((b) => b.writtenTo.length === 0 || b.excludedFromGit), JSON.stringify(report.briefings.map((b) => ({ p: b.path, ex: b.excludedFromGit }))));
 
-  section("8. with no writer output there is nothing to review — and MJ says so");
+  section("8. with no writer output there is nothing to review — and VH says so");
   const readOnlyTeam: CliAgentTeam = {
     id: "t.reviewonly",
     name: "Review only",

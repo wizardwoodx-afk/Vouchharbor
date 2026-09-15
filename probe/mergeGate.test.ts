@@ -37,7 +37,7 @@ function makeRepo(): { repo: string; branch: string } {
   fs.writeFileSync(path.join(repo, "package.json"), JSON.stringify({ name: "gate-fixture", version: "1.0.0" }, null, 2));
   sh(["git", "init", "-q", "."], repo);
   sh(["git", "config", "user.email", "mj@mj.desktop"], repo);
-  sh(["git", "config", "user.name", "MJ"], repo);
+  sh(["git", "config", "user.name", "VH"], repo);
   sh(["git", "add", "-A"], repo);
   sh(["git", "commit", "-qm", "initial"], repo);
   const branch = sh(["git", "symbolic-ref", "--short", "HEAD"], repo).out.trim() || "master";

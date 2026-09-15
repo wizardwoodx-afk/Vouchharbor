@@ -1,5 +1,5 @@
 /**
- * MJ 11.12.2 — Custody: Authority Envelopes with hierarchical delegation.
+ * VH 11.12.2 — Custody: Authority Envelopes with hierarchical delegation.
  *
  * The external 11.12.0 review asked: receipts are signed, but WHO authorized
  * the mission, and how does authority flow to sub-agents? 11.12.1 added
@@ -43,7 +43,7 @@ export interface AuthorityEnvelope {
 }
 
 /**
- * MJ 11.12.3 — the human-principal invariant, made mechanical.
+ * VH 11.12.3 — the human-principal invariant, made mechanical.
  * The 11.12.2 review was right: commenting "the principal is a human" is not
  * enforcement. The format IS the policy: a root principal must be a
  * `human:<id>` identifier. Anything else (agent:foo, empty, "HUMAN:x", ids
@@ -146,7 +146,7 @@ export function revoke(e: AuthorityEnvelope, reason: string): AuthorityEnvelope 
 
 /** The mechanical scope/expiry/revocation check, evaluated on every action. */
 /**
- * MJ 11.13.0 — spend authority, enforced. A chain with a budget cap may not
+ * VH 11.13.0 — spend authority, enforced. A chain with a budget cap may not
  * charge beyond it; uncapped chains (budgetUsd === null) report no limit.
  * `budgetCheck` is deliberately separate from scope checks so reports can say
  * exactly which authority stopped the spend.
@@ -161,7 +161,7 @@ export function budgetCheck(e: AuthorityEnvelope, spentUsd: number): { ok: boole
 }
 
 /**
- * MJ 11.13.1 — atomic budget admission (the 9.6/10 review's exact fix).
+ * VH 11.13.1 — atomic budget admission (the 9.6/10 review's exact fix).
  *
  * The 11.13.0 cap was checked per-seat against a SHARED balance read before a
  * concurrent wave dispatched — three seats could each see "$0 spent" and all
@@ -170,7 +170,7 @@ export function budgetCheck(e: AuthorityEnvelope, spentUsd: number): { ok: boole
  * settle against actual charge. JS is single-threaded and `reserve` performs
  * its check-and-commit with no await between them, so concurrent seats can
  * never double-spend the same remainder: committed reservations never exceed
- * the cap at dispatch time, which is the guarantee MJ now makes — with any
+ * the cap at dispatch time, which is the guarantee VH now makes — with any
  * per-seat overrun measured, named and reported at settlement, never hidden.
  */
 export interface BudgetTicket { seatId: string; reservedUsd: number; settled: boolean }

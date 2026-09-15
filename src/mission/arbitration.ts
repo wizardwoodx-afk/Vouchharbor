@@ -254,7 +254,7 @@ export function selectHarness(ctx: ArbitrationContext, ledger: HarnessLedger): A
     rationale.push(`Runner-up ${scores[1].harness} at ${scores[1].score.toFixed(3)} — margin ${(winner.score - scores[1].score).toFixed(3)}.`);
   }
   if (w.simulated) {
-    rationale.push("WARNING: the selected runtime is MJ's labelled simulation. Its output is recorded as simulated and is not independently verified.");
+    rationale.push("WARNING: the selected runtime is VH's labelled simulation. Its output is recorded as simulated and is not independently verified.");
   }
 
   return { chosen: winner.harness, scores, rationale, rejected, usedHistoricalEvidence, simulated: w.simulated };

@@ -4,7 +4,7 @@
  * Traditional agent frameworks either suffer from amnesia (forgetting past bugs)
  * or rely on flat vector RAG that retrieves irrelevant text without causal context.
  *
- * MJ's Organizational Memory Cortex extracts verified failure-to-repair causal
+ * VH's Organizational Memory Cortex extracts verified failure-to-repair causal
  * chains from the Flight Recorder, distills empirical invariants, and automatically
  * compiles them into machine-readable briefings (`.vh-brief/LEARNED_INVARIANTS.md`)
  * and `AGENTS.md` before subsequent missions execute.
@@ -39,7 +39,7 @@ export const SEED_INVARIANTS: CausalInvariant[] = [
     rule: "Writing agents must never write directly into the base repository checkout; all edits must be staged in private sibling worktrees.",
     originatingMissionId: "mission-init-01",
     failureObserved: "Base checkout dirty with untracked files before reviewer execution.",
-    verifiedRepairAction: "Allocated dedicated git worktrees per writing seat under mj/<mission>/<seatId>.",
+    verifiedRepairAction: "Allocated dedicated git worktrees per writing seat under vh/<mission>/<seatId>.",
     timesApplied: 34,
     successRate: 1.0,
     active: true,
@@ -50,7 +50,7 @@ export const SEED_INVARIANTS: CausalInvariant[] = [
     rule: "Reviewers must inspect a synthesized merge snapshot branch (--no-ff) containing all writer commits, not the untouched base checkout.",
     originatingMissionId: "mission-init-02",
     failureObserved: "Reviewer passed code without seeing newly written features.",
-    verifiedRepairAction: "Built temporary review snapshot branch mj/<mission>/review before wave 3 review runs.",
+    verifiedRepairAction: "Built temporary review snapshot branch vh/<mission>/review before wave 3 review runs.",
     timesApplied: 28,
     successRate: 1.0,
     active: true,
@@ -115,7 +115,7 @@ export class OrganizationalMemoryCortex {
 
     const lines: string[] = [
       "# ORGANIZATIONAL MEMORY & LEARNED INVARIANTS",
-      `<!-- Auto-compiled by MJ Memory Cortex for Mission Execution (${new Date().toISOString()}) -->`,
+      `<!-- Auto-compiled by VH Memory Cortex for Mission Execution (${new Date().toISOString()}) -->`,
       "",
       "The following architectural invariants were derived from past empirical failures and proven repairs:",
       "",

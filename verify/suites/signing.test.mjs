@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1107,8 +1107,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1224,28 +1224,28 @@ async function exportIssuerPublicKeyDocument(mjVersion) {
   const holder = await ensureIssuerIdentity();
   if (!holder) return null;
   return [
-    "MJ \u2014 Issuer Public Key (Ed25519)",
+    "VH \u2014 Issuer Public Key (Ed25519)",
     "================================",
     "",
-    `MJ version : ${mjVersion}`,
+    `VH version : ${mjVersion}`,
     `Key id     : ${holder.identity.keyId}`,
     `Public key : ${holder.identity.publicKeyHex}`,
     `Created    : ${holder.identity.createdAt}`,
     "",
     "What this key verifies",
     "----------------------",
-    "Every mj-proof-receipt/2 issued by this MJ install carries `issuer` + `signature`:",
+    "Every mj-proof-receipt/2 issued by this VH install carries `issuer` + `signature`:",
     "an Ed25519 signature over the receipt's FINAL CHAIN HASH (the `hash` of the last",
-    "chained event). To verify a receipt without MJ:",
+    "chained event). To verify a receipt without VH:",
     "",
     "  1. Re-canonicalize each event body (recursive key sort) and re-hash the chain",
     "     from the 64-zero genesis to recover the final chain hash.",
     "  2. Verify the Ed25519 signature over that hash with the public key above.",
     "  3. Re-check the HMAC seal as before (it still applies).",
     "",
-    "The private key never leaves the machine that issued the receipts; MJ has no server",
+    "The private key never leaves the machine that issued the receipts; VH has no server",
     "it could leave through. Treat this document like a code-signing certificate: anyone",
-    "holding it can verify MJ's receipts; nobody holding it can forge them.",
+    "holding it can verify VH's receipts; nobody holding it can forge them.",
     ""
   ].join("\n");
 }

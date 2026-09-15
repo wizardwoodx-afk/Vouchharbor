@@ -1,4 +1,4 @@
-# MJ version channels: external releases vs internal builds
+# VH version channels: external releases vs internal builds
 
 > Why the public tag list skips numbers. Short version: only tagged versions
 > are releases. Everything else was an internal iteration build.
@@ -25,15 +25,15 @@
 | 11.14.4 | Intentionally skipped upstream | stated in 11.14.5 `verify/BUILD-INFO.txt` ("11.14.4 was intentionally skipped — 11.14.5 ships directly after 11.14.3") |
 | 11.14.6 | Intentionally skipped upstream | stated in 11.14.7 `verify/BUILD-INFO.txt` ("11.14.6 was intentionally skipped — 11.14.7 ships directly after 11.14.5") |
 | 11.14.9 | Intentionally skipped upstream | stated in 11.14.10 `verify/BUILD-INFO.txt` ("11.14.9 was intentionally skipped — 11.14.10 ships directly after 11.14.8") |
-| 12.0.2 | Internal iteration, superseded — never tagged | in-tree pointer `docs/history/MJ-12.0.2-POINTER.md` ships with the release; no tag |
-| 12.0.3 | Internal iteration, superseded — never tagged | in-tree pointer `docs/history/MJ-12.0.3-POINTER.md` ships with the release; no tag |
-| 12.1.0 | Internal iteration, superseded — never tagged | zip on record + in-tree pointer `docs/history/MJ-12.1.0-POINTER.md`; no tag |
-| 12.1.1 | Internal iteration, superseded by 12.2.0 — never tagged | zip on record + in-tree pointer `docs/history/MJ-12.1.1-POINTER.md`; 12.2.0 `verify/BUILD-INFO.txt` certifies "what changed over 12.1.1"; no tag |
-| 13.0.0 | Internal iteration, superseded by 13.0.1 — never tagged | zip on record + in-tree pointer `docs/history/MJ-13.0.0-POINTER.md`; 13.0.1 `verify/BUILD-INFO.txt` certifies "what changed over 13.0.0"; no tag |
-| 13.5.0 | Internal iteration, superseded by 13.5.1 — never tagged | zip on record + in-tree pointer `docs/history/MJ-13.5.0-POINTER.md`; 13.5.1 `verify/BUILD-INFO.txt` certifies "what changed over 13.5.0"; no tag |
-| 14.0.0 | Internal iteration, superseded — never tagged | zip on record (`MJ-14.0.0-source.zip`); no tag |
-| 14.0.1 | Internal iteration, superseded — never tagged | zip on record (`MJ-14.0.1-source.zip`); no tag |
-| 14.1.0 | Internal iteration, superseded by 14.1.1 — never tagged | zip on record (`MJ-14.1.0-source.zip`); 14.1.1 line documents the trust-anchor + economics work; no tag |
+| 12.0.2 | Internal iteration, superseded — never tagged | in-tree pointer `docs/history/VH-12.0.2-POINTER.md` ships with the release; no tag |
+| 12.0.3 | Internal iteration, superseded — never tagged | in-tree pointer `docs/history/VH-12.0.3-POINTER.md` ships with the release; no tag |
+| 12.1.0 | Internal iteration, superseded — never tagged | zip on record + in-tree pointer `docs/history/VH-12.1.0-POINTER.md`; no tag |
+| 12.1.1 | Internal iteration, superseded by 12.2.0 — never tagged | zip on record + in-tree pointer `docs/history/VH-12.1.1-POINTER.md`; 12.2.0 `verify/BUILD-INFO.txt` certifies "what changed over 12.1.1"; no tag |
+| 13.0.0 | Internal iteration, superseded by 13.0.1 — never tagged | zip on record + in-tree pointer `docs/history/VH-13.0.0-POINTER.md`; 13.0.1 `verify/BUILD-INFO.txt` certifies "what changed over 13.0.0"; no tag |
+| 13.5.0 | Internal iteration, superseded by 13.5.1 — never tagged | zip on record + in-tree pointer `docs/history/VH-13.5.0-POINTER.md`; 13.5.1 `verify/BUILD-INFO.txt` certifies "what changed over 13.5.0"; no tag |
+| 14.0.0 | Internal iteration, superseded — never tagged | zip on record (`VH-14.0.0-source.zip`); no tag |
+| 14.0.1 | Internal iteration, superseded — never tagged | zip on record (`VH-14.0.1-source.zip`); no tag |
+| 14.1.0 | Internal iteration, superseded by 14.1.1 — never tagged | zip on record (`VH-14.1.0-source.zip`); 14.1.1 line documents the trust-anchor + economics work; no tag |
 | 16.0.0 | Internal iteration, superseded — never tagged | zip on record (`VOUCH-HARBOR-16.0.0-full.zip`); no tag |
 | 16.1.0 | Internal iteration, superseded — never tagged | zip on record (`VOUCH-HARBOR-16.1.0-full.zip`); audited locally (tsc/vite/offline green; live run incomplete at pivot); no tag |
 | 16.7.0 | Internal iteration, superseded — never tagged | zip on record (`VOUCH-HARBOR-16.7.0-full.zip`); no tag |

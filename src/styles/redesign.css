@@ -1,5 +1,5 @@
 /* ===========================================================================
-   MJ 11.9.4 — REDESIGN LAYER ("KILN recut")
+   VH 11.9.4 — REDESIGN LAYER ("KILN recut")
    Loaded AFTER vouch.css's own rules (imported last in vouch.css), so it overrides
    structure — radii, elevation, motion, type — without touching the pinned
    contract selectors (titlebar .logo font, port-anchor halo, wire-hit width,
@@ -462,7 +462,7 @@ input:focus, select:focus, textarea:focus {
 .rb-item:hover { border-color: var(--border-strong); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MJ 13.0.1 — the INK finish: air, hierarchy, restraint.
+   VH 13.0.1 — the INK finish: air, hierarchy, restraint.
    The 13.0 pass swapped colours but kept the cramped instrument frame —
    every surface still shouted in 9px mono. This layer rebuilds the *frame*:
    copy reads in Inter with real sizes, cards breathe, the rail is quiet,
@@ -561,7 +561,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .theme-chip.on { box-shadow: inset 0 0 0 1px var(--accent); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MJ 13.0.1 — node anatomy v2 (the real node redesign)
+   VH 13.0.1 — node anatomy v2 (the real node redesign)
    Nodes now read as instruments, not boxes: a quiet plate, an icon tile that
    wakes with the node's state, and ports that SIT ON the card edge so every
    wire lands visibly on its anchor. State is carried by the border, the tile
@@ -660,7 +660,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sw-signal { position: absolute; right: 4px; bottom: 3px; width: 8px; height: 8px; border-radius: 50%; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MJ 13.5 — the NATURA pass (built from skills/ui-premium-craft +
+   VH 13.5 — the NATURA pass (built from skills/ui-premium-craft +
    skills/ui-motion-language + skills/node-graph-craft)
    Stark minimalism WITH warmth: softer depth, natural easing, quiet
    micro-interactions, and a connection language that reads at a glance.

@@ -19,6 +19,7 @@
 import { uid } from "../app/id";
 import { detectInjection, sanitizeText } from "../security/guardrail";
 import { getSpecialist } from "./registry";
+import { buildSpecialistPrompt } from "./skills";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
@@ -193,7 +194,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
 
   const primary = specialists[0] ?? null;
   const system = [
-    primary ? primary.systemPrompt : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.",
     ...memoryBriefing(userId),
   ].join("\n\n");

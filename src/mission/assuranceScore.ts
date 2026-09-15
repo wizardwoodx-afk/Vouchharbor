@@ -1,12 +1,12 @@
 /**
- * §FLEET ASSURANCE SCORE — a measured trust metric for agent teams (MJ 14.0).
+ * §FLEET ASSURANCE SCORE — a measured trust metric for agent teams (VH 14.0).
  *
  * WHY THIS EXISTS
  * Risk committees and cyber-insurers keep asking the same question about agent fleets:
  * "how much of this team's work is actually EVIDENCED?" Benchmarks answer capability;
  * this answers assurance — how much of what the team did was cross-vendor verified,
  * arena-gated, budget-disciplined, egress-clean and human-rated. Every factor is
- * derived from artifacts MJ already issues (gate verdicts, arena digests, the budget
+ * derived from artifacts VH already issues (gate verdicts, arena digests, the budget
  * ledger, the egress ledger, human feedback), so the score is an audit input with a
  * breakdown, not a badge.
  *

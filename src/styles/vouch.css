@@ -3,7 +3,7 @@
 @import "./atelier.css";
 
 :where(:root) {
-  /* MJ 13.0.1 — the pre-theme fallback IS the ink flagship (black ground,
+  /* VH 13.0.1 — the pre-theme fallback IS the ink flagship (black ground,
      parchment ink, smoked-apricot signal), so the boot flash never shows a
      stale scheme. Theme blocks in themes.css override every token below. */
   --bg: #000000;
@@ -718,7 +718,7 @@ button:active { border-color: var(--amber); }
 *::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 0; }
 *::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
 
-/* ── MOTION SYSTEM (MJ 11.9.4-Fixed) ────────────────────────────────────────
+/* ── MOTION SYSTEM (VH 11.9.4-Fixed) ────────────────────────────────────────
  * Loading, nodes, wires, ports, pages. Transform/opacity only (compositor
  * friendly); every animation below yields to prefers-reduced-motion in the
  * block at the very bottom of this section.
@@ -756,7 +756,7 @@ button:active { border-color: var(--amber); }
 /* page switches: the keyed .stage already re-mounts; give it a better curve */
 .stage { animation: vh-view-in 0.28s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
 
-/* Suspense fallback: a spinning ring beside LOADING — MJ */
+/* Suspense fallback: a spinning ring beside LOADING — VH */
 .stage-fallback { animation: vh-enter-fade 0.3s ease both; }
 .stage-fallback::after {
   content: ""; display: inline-block; width: 10px; height: 10px; margin-left: 10px;

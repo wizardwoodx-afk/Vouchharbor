@@ -287,16 +287,16 @@ var check = (name, cond, detail) => {
   else fail++;
   console.log(`  ${cond ? "\u2705" : "\u274C"} ${name}${cond || detail === void 0 ? "" : ` \u2014 ${JSON.stringify(detail)}`}`);
 };
-var TEAM_A = teamIdFor(["Harshen", "Qwen"]);
+var TEAM_A = teamIdFor(["member-a", "qwen"]);
 test("teamEvolve \u2014 the team itself learns, with every member's consent", async () => {
   console.log("\n\u2500\u2500 1. team identity \u2500\u2500");
-  check("team id is order- and case-independent", teamIdFor(["harshen", "qwen"]) === teamIdFor(["QWEN", "Harshen"]));
+  check("team id is order- and case-independent", teamIdFor(["member-a", "qwen"]) === teamIdFor(["QWEN", "MEMBER-A"]));
   check("duplicate members collapse", teamIdFor(["a", "a", "b"]) === teamIdFor(["b", "a"]));
   console.log("\n\u2500\u2500 2. the joint run ledger \u2500\u2500");
   check("a fresh team has no runs", teamRuns(TEAM_A).length === 0);
-  recordTeamRun({ teamId: TEAM_A, members: ["harshen", "qwen"], task: "fix the parser bug", outcome: "verified", specialists: ["code.debugging", "testing.unit"] });
-  recordTeamRun({ teamId: TEAM_A, members: ["harshen", "qwen"], task: "refactor auth", outcome: "failed", specialists: ["code.typescript"] });
-  recordTeamRun({ teamId: TEAM_A, members: ["harshen", "qwen"], task: "review payment handler", outcome: "verified", specialists: ["review.code", "security.review"] });
+  recordTeamRun({ teamId: TEAM_A, members: ["member-a", "qwen"], task: "fix the parser bug", outcome: "verified", specialists: ["code.debugging", "testing.unit"] });
+  recordTeamRun({ teamId: TEAM_A, members: ["member-a", "qwen"], task: "refactor auth", outcome: "failed", specialists: ["code.typescript"] });
+  recordTeamRun({ teamId: TEAM_A, members: ["member-a", "qwen"], task: "review payment handler", outcome: "verified", specialists: ["review.code", "security.review"] });
   const rep = teamMemoryReport(TEAM_A);
   check("runs are counted honestly", rep.runs === 3 && rep.verified === 2 && rep.failed === 1 && rep.refused === 0, rep);
   check("success rate is computed from real outcomes", Math.abs(rep.successRate - 2 / 3) < 1e-9);
@@ -311,7 +311,7 @@ test("teamEvolve \u2014 the team itself learns, with every member's consent", as
   recordTeamRun({ teamId: neverWon, members: ["doom", "gloom"], task: "t3", outcome: "refused", specialists: ["code.debugging"] });
   const noWins = await proposeTeamEvolution(neverWon, ["doom", "gloom"]);
   check("a team that never succeeded has nothing to evolve from", noWins.ok === false && !noWins.ok && noWins.error.includes("no verified runs"));
-  const prop = await proposeTeamEvolution(TEAM_A, ["harshen", "qwen"]);
+  const prop = await proposeTeamEvolution(TEAM_A, ["member-a", "qwen"]);
   check("with real verified history the proposal lands", prop.ok === true);
   assert.ok(prop.ok);
   check("recommended specialists come from the verified record", prop.proposal.recommendedSpecialists.length >= 2 && prop.proposal.recommendedSpecialists.every((id) => rep.topSpecialists.some((e) => e.id === id)));
@@ -320,33 +320,33 @@ test("teamEvolve \u2014 the team itself learns, with every member's consent", as
   check("the proposal carries a computed digest", /^[0-9a-f]{64}$/.test(prop.proposal.digest));
   check("the proposal is pending until decided", pendingProposal(TEAM_A)?.id === prop.proposal.id);
   console.log("\n\u2500\u2500 4. adoption: EVERY member approves, or it does not exist \u2500\u2500");
-  const partial = await approveTeamEvolution(TEAM_A, prop.proposal.id, [{ memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }]);
+  const partial = await approveTeamEvolution(TEAM_A, prop.proposal.id, [{ memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }]);
   check("partial approval is refused \u2014 User 2's consent is structural", partial.ok === false && !partial.ok && partial.error.includes("missing explicit approval") && partial.error.includes("qwen"));
   const dupe = await approveTeamEvolution(TEAM_A, prop.proposal.id, [
-    { memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
-    { memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }
+    { memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
+    { memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }
   ]);
   check("duplicate approvals are refused \u2014 one voice per member", dupe.ok === false && !dupe.ok && dupe.error.includes("duplicate"));
   const outsider = await approveTeamEvolution(TEAM_A, prop.proposal.id, [
-    { memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
+    { memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
     { memberId: "mallory", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }
   ]);
   check("outsider approvals are refused", outsider.ok === false && !outsider.ok && outsider.error.includes("not a member"));
   const declined = await approveTeamEvolution(TEAM_A, prop.proposal.id, [
-    { memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
+    { memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
     { memberId: "qwen", approved: false, at: (/* @__PURE__ */ new Date()).toISOString() }
   ]);
   check("a single decline blocks adoption", declined.ok === false && !declined.ok && declined.error.includes("declined"));
   check("no config exists while adoption is blocked", evolvedConfig(TEAM_A) === null);
   const adopted = await approveTeamEvolution(TEAM_A, prop.proposal.id, [
-    { memberId: "harshen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
+    { memberId: "member-a", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() },
     { memberId: "qwen", approved: true, at: (/* @__PURE__ */ new Date()).toISOString() }
   ]);
   check("unanimous approval adopts the config", adopted.ok === true && adopted.ok === true && adopted.config.version === 1);
   assert.ok(adopted.ok);
   check("the adopted config records both approvals and its source runs", adopted.config.approvals.length === 2 && adopted.config.sourceRunIds.length === 2 && /^[0-9a-f]{64}$/.test(adopted.config.digest));
   check("the pending proposal is consumed by adoption", pendingProposal(TEAM_A) === null);
-  check("an unknown proposal id cannot be adopted", (await approveTeamEvolution(TEAM_A, "evo-nope", [{ memberId: "harshen", approved: true, at: "" }, { memberId: "qwen", approved: true, at: "" }])).ok === false);
+  check("an unknown proposal id cannot be adopted", (await approveTeamEvolution(TEAM_A, "evo-nope", [{ memberId: "member-a", approved: true, at: "" }, { memberId: "qwen", approved: true, at: "" }])).ok === false);
   console.log("\n\u2500\u2500 5. the evolved config leans on routing \u2014 visibly \u2500\u2500");
   const selected = [
     { id: "code.typescript", score: 9, reasons: ["keyword match"] },

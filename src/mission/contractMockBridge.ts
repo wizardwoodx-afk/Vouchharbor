@@ -5,7 +5,7 @@
  * In Proliferate, when multiple agents work in parallel (e.g. Seat 1 builds UI, Seat 2 builds API),
  * the consumer agent is blocked or hallucinates API responses until the provider agent merges real endpoints.
  *
- * MJ'S ARCHITECTURAL ADVANTAGE:
+ * VH'S ARCHITECTURAL ADVANTAGE:
  * When an agent publishes a TypeScript interface or OpenAPI contract to the Shared Blackboard,
  * the Contract Mock Bridge instantly compiles dynamic mock HTTP handlers, synthetic JSON generators,
  * and client SDK stubs so consumer agents can execute and verify against live endpoints concurrently.

@@ -2409,9 +2409,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3387,7 +3387,7 @@ async function runCheck(spec, repoDir, run, canRun2, exists = existsNative) {
   }
   if (/^(npm|npx|yarn|pnpm)$/.test(spec.command)) {
     if (!await exists(join(repoDir, "node_modules"))) {
-      return finish({ didRun: false, exitCode: null, output: "", reason: "node_modules is absent; MJ will not run an install for you, so this check was not performed" });
+      return finish({ didRun: false, exitCode: null, output: "", reason: "node_modules is absent; VH will not run an install for you, so this check was not performed" });
     }
   }
   try {

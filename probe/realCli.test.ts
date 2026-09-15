@@ -1,14 +1,14 @@
 /**
  * V9 — verification against the REAL Claude Code binary and a REAL git repository.
  *
- * Everything else in this project tests MJ's own logic. This suite tests MJ's logic against the
+ * Everything else in this project tests VH's own logic. This suite tests VH's logic against the
  * outside world, which is the only way to find out whether the capability table is fiction.
  *
  * It skips cleanly when the binary or git is absent, and it never invents a result: a skip is
  * reported as a skip.
  *
  * What it CANNOT do here: complete a real mission. That needs an ANTHROPIC_API_KEY or an OAuth
- * login, and MJ refuses to fake the worker's output. So the invocation ends at "Not logged in" —
+ * login, and VH refuses to fake the worker's output. So the invocation ends at "Not logged in" —
  * which is itself the useful evidence, because it proves the FLAGS PARSED. A flag Claude rejected
  * would produce an argument error, not a JSON result with a session id.
  */
@@ -70,18 +70,18 @@ if (!hasClaude) {
   const help = spawnSync(CLAUDE, ["--help"], { encoding: "utf8" }).stdout || "";
   ok(help.length > 500, `--help produced ${help.length} chars`);
 
-  // The flags MJ actually emits for a Claude seat must exist.
+  // The flags VH actually emits for a Claude seat must exist.
   const caps = AGENT_CAPABILITIES.claude;
   const emitted: string[] = [];
   for (const c of [caps.prompt, caps.json, caps.readOnly, caps.write, caps.model, caps.resume, caps.worktree]) {
     if (c?.argv) emitted.push(...c.argv.filter((a) => a.startsWith("-")));
   }
   for (const flag of emitted) {
-    ok(help.includes(flag), `MJ emits ${flag} and claude --help documents it`);
+    ok(help.includes(flag), `VH emits ${flag} and claude --help documents it`);
   }
   // And the correction: --max-turns must NOT be emitted, because it does not exist.
   ok(!help.includes("--max-turns"), "claude has no --max-turns flag...");
-  ok(caps.maxTurns?.argv === null, "...so MJ's table now says null instead of emitting it");
+  ok(caps.maxTurns?.argv === null, "...so VH's table now says null instead of emitting it");
   const composed = composeSeatArgv(
     { id: "s", role: "coder", harness: "claude", model: null, mayWrite: true, maxRisk: "MEDIUM", maxTurns: 30, timeoutSecs: 600, instructions: "" },
     { prompt: "x", cwd: "/r", readOnly: false },
@@ -89,7 +89,7 @@ if (!hasClaude) {
   ok(!composed.argv.includes("--max-turns"), "and a coder seat with maxTurns=30 no longer emits --max-turns");
 }
 
-console.log("\n== MJ's composed argv, run by the real binary, in a real repo ==\n");
+console.log("\n== VH's composed argv, run by the real binary, in a real repo ==\n");
 
 if (!hasClaude || !hasGit) {
   skip("needs both the claude binary and git");
@@ -98,7 +98,7 @@ if (!hasClaude || !hasGit) {
   const g = (...a: string[]) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   g("init", "-q");
   g("config", "user.email", "mj@test");
-  g("config", "user.name", "MJ");
+  g("config", "user.name", "VH");
   writeFileSync(join(dir, "calc.ts"), "export function add(a: number, b: number) { return a + b; }\n");
   g("add", ".");
   g("commit", "-q", "-m", "init");
@@ -107,7 +107,7 @@ if (!hasClaude || !hasGit) {
   ok(seat.harness === "grok", `the adversarial reviewer seat is grok, got ${seat.harness}`);
   // Use the Claude seat from the balanced crew so the installed binary can run it.
   // The balanced crew's reviewer seat is codex; its CODER seat is claude, which is the binary
-  // installed here. Run that one, in read-only mode, so the argv under test is MJ's real output.
+  // installed here. Run that one, in read-only mode, so the argv under test is VH's real output.
   const claudeSeat = PREBUILT_TEAMS.find((t) => t.id === "team.balanced")!.seats.find((s) => s.harness === "claude")!;
   ok(claudeSeat.harness === "claude", `the seat under test is a claude seat, got ${claudeSeat.harness}`);
   const inv = composeSeatArgv(claudeSeat, { prompt: "Review the diff", cwd: dir, readOnly: true });
@@ -131,22 +131,22 @@ if (!hasClaude || !hasGit) {
     // object carrying a session id.
     ok(typeof parsed.session_id === "string", `a session id came back, so the argv parsed: ${String(parsed.session_id).slice(0, 8)}...`);
     ok(!/unknown option|error: unknown/i.test(out), "and no unknown-option error was raised");
-    // It is NOT logged in here, and MJ must not pretend otherwise.
+    // It is NOT logged in here, and VH must not pretend otherwise.
     ok(parsed.is_error === true, `it reports is_error=true (no credentials here), got ${String(parsed.is_error)}`);
     ok(String(parsed.result).toLowerCase().includes("not logged in"), `and says why: ${String(parsed.result)}`);
     ok(parsed.total_cost_usd === 0, `real cost is 0 because nothing ran, got ${String(parsed.total_cost_usd)}`);
 
-    // Now run MJ's parser over the REAL bytes.
+    // Now run VH's parser over the REAL bytes.
     const u = parseReportedUsage("claude", out);
-    ok(u.costUsd === 0, `MJ's parser reads total_cost_usd=0 from real output, got ${String(u.costUsd)}`);
+    ok(u.costUsd === 0, `VH's parser reads total_cost_usd=0 from real output, got ${String(u.costUsd)}`);
     ok(u.turns === 1, `and num_turns=1, got ${String(u.turns)}`);
     const usage = parsed.usage as Record<string, unknown> | undefined;
     const expectTokens = ((usage?.input_tokens as number) ?? 0) + ((usage?.output_tokens as number) ?? 0);
-    // Nothing ran, so input+output is 0. MJ's parser deliberately returns null for a zero token sum:
+    // Nothing ran, so input+output is 0. VH's parser deliberately returns null for a zero token sum:
     // 0 tokens means "no token data", and reporting 0 would look like a measured zero-cost run.
     ok(u.tokens === null, `and a zero token sum yields null (not a fake 0), got ${String(u.tokens)}`);
     ok(expectTokens === 0, `which is correct because the real usage block sums to ${expectTokens}`);
-    console.log(`  parsed by MJ: cost=${u.costUsd} tokens=${u.tokens} turns=${u.turns} source=${u.source}`);
+    console.log(`  parsed by VH: cost=${u.costUsd} tokens=${u.tokens} turns=${u.turns} source=${u.source}`);
   }
   rmSync(dir, { recursive: true, force: true });
 }
@@ -160,7 +160,7 @@ if (!hasGit) {
   const g = (...a: string[]) => execFileSync("git", a, { cwd: dir, encoding: "utf8" });
   g("init", "-q");
   g("config", "user.email", "mj@test");
-  g("config", "user.name", "MJ");
+  g("config", "user.name", "VH");
   // Plain JS, not TS: the point of this section is that the repository's own test REALLY RUNS, and
   // `node` cannot parse type annotations. A test that cannot execute proves nothing.
   writeFileSync(join(dir, "calc.js"), "module.exports.add = (a, b) => a + b;\n");
@@ -207,7 +207,7 @@ if (!hasGit) {
   ok(d2.summary!.files.length === 2, `the staged diff shows both files, got ${d2.summary!.files.length}`);
   ok(d2.raw.includes("module.exports.sub = (a, b) => a - b"), "and it shows the version that was committed to the index (the correct one)");
   // The REGRESSION lives in the working tree, because only the first version was staged. This is
-  // exactly why MJ must look at the right diff: the staged view still looks correct here.
+  // exactly why VH must look at the right diff: the staged view still looks correct here.
   ok(unstaged.raw.includes("=> a + b"), "the unstaged diff is where the regression appears...");
   ok(/sub = \(a, b\) => a \+ b/.test(unstaged.raw), "...as a sub() that adds instead of subtracting");
   rmSync(dir, { recursive: true, force: true });

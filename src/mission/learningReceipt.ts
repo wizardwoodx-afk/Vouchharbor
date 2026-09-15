@@ -1,13 +1,13 @@
 /**
- * MJ 11.11 SELF-EVOLVING — learning receipts.
+ * VH 11.11 SELF-EVOLVING — learning receipts.
  *
- * MJ's differentiator applied to self-improvement: the organization does not
+ * VH's differentiator applied to self-improvement: the organization does not
  * merely learn, it signs for what it learned. A learning receipt freezes the
  * lessons a mission produced (text, kind, evidence) plus any strategy-version
  * change, digests them with SHA-256 over key-sorted JSON, and carries the
  * issuer's Ed25519 signature when the runtime supports it — otherwise a
  * written signatureNote, never a silent fake. Anyone can re-canonicalize and
- * re-verify with zero MJ state.
+ * re-verify with zero VH state.
  */
 import { signHexDigest, verifyIssuerSignature, signingSupported } from "./signing";
 import type { IssuerSignature } from "./signing";
@@ -33,7 +33,7 @@ export interface LearningReceipt {
 }
 
 export const LEARNING_RECEIPT_CAP = 50;
-const LS_KEY = "mj.learningReceipts.v1";
+const LS_KEY = "vh.learningReceipts.v1";
 
 export function canonicalDigestInput(r: {
   missionId: string;

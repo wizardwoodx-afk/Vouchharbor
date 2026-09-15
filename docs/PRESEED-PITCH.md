@@ -1,4 +1,4 @@
-# MJ — Pre-Seed Pitch Narrative
+# VH — Pre-Seed Pitch Narrative
 
 *Working document for the raise. Keep numbers sourced; update the funding table each
 quarter. Companion docs: [POSITIONING.md](POSITIONING.md), [UNIQUE-FEATURES.md](UNIQUE-FEATURES.md).*
@@ -11,9 +11,9 @@ Enterprises are deploying fleets of AI coding and ops agents, and the #1 blocker
 longer capability — it is **proof**. Auditors, security teams, and (since August 2026)
 the EU AI Act demand evidence of *what the agent did, who authorized it, whether it was
 verified, and that the data stayed put*. Every funded "solution" is a cloud SaaS whose
-answer is *trust our logs*. **MJ is the assurance runtime that runs agent fleets
+answer is *trust our logs*. **VH is the assurance runtime that runs agent fleets
 locally and turns every mission into an Ed25519-signed, hash-chained receipt any third
-party can verify offline — no MJ installed, no vendor trust required.** It already
+party can verify offline — no VH installed, no vendor trust required.** It already
 wraps 25 agent CLIs (Claude, Codex, Gemini, Grok, Cursor, …), enforces OS-level
 sandboxing with canary-verified enforcement, and ships 75 test suites plus an offline
 verification pack — verification is not a feature, it is the culture.
@@ -38,7 +38,7 @@ verification pack — verification is not a feature, it is the culture.
 Evidence that must survive an audit cannot live in the vendor's cloud and cannot be
 produced *after the fact* from logs. It must be **minted at execution time, on the
 customer's machine, signed, and chained** — the way PKI changed "trust this website"
-into "verify this certificate." MJ generalizes that move to agent work: authority
+into "verify this certificate." VH generalizes that move to agent work: authority
 becomes scoped, signed, attenuatable envelopes; actions become hash-chained events;
 missions become issuer-signed receipts. **"Trust me" becomes "verify it yourself."**
 
@@ -55,7 +55,7 @@ missions become issuer-signed receipts. **"Trust me" becomes "verify it yourself
   budget races, tamper, egress violations…) must pass before any seat is invoked; the
   PASS digest rides the receipt.
 - **Proof receipts** — Ed25519-signed, SHA-256-chained, JSONL/SIEM-exportable,
-  verifiable with zero MJ state; Evidence Pack bundles AIBOM + EU-AI-Act/ISO-42001/SOC-2
+  verifiable with zero VH state; Evidence Pack bundles AIBOM + EU-AI-Act/ISO-42001/SOC-2
   crosswalk.
 - **Local-first privacy** — OS keychain secrets, egress gate (nothing leaves without a
   human-signed envelope; every departure digest-chained), capability channel (aggregates
@@ -102,7 +102,7 @@ Raising to convert a proven engine into a counted company: **land 3–5 lighthou
 customers in regulated industries**, ship the verifier CLI + audit binder as public
 artifacts, and hire #2 (distributed systems / Rust) + #3 (design/GTM).
 Milestone for the seed: a public receipt-verification standard with an external auditor
-partnership — the moment "agent receipts" becomes a procurement checkbox, MJ is the
+partnership — the moment "agent receipts" becomes a procurement checkbox, VH is the
 name on it.
 
 ---

@@ -1,5 +1,5 @@
 /**
- * MJ 14.0 — Incident Black Box (suite #78).
+ * VH 14.0 — Incident Black Box (suite #78).
  *
  * §1 build → verify: digest holds, receipts carry LIVE verdicts, timeline is canonical
  * §2 tamper evidence: any edit to the sealed dossier fails verification

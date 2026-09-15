@@ -61,8 +61,8 @@ ok("every harness appears in the capabilities table", Object.values(AGENT_CAPABI
 ok("the verified-binary count is stated", new RegExp(`${binaryVerifiedHarnesses().length} of ${Object.keys(AGENT_CAPABILITIES).length} harnesses verified`).test(text), "count missing");
 ok("unverified claims are surfaced, not hidden", /not verified against the binary/.test(text), "no unverified list");
 ok("every prebuilt team is offered", PREBUILT_TEAMS.every((t) => text.includes(t.name)), "a team is missing");
-ok("the merge plan is rendered", /Merge plan/.test(text) && /mj\/demo\/coder/.test(text), "no merge plan");
-ok("the excluded branch is named with its reason", /excluded mj\/demo\/debugger/.test(text), "exclusion not shown");
+ok("the merge plan is rendered", /Merge plan/.test(text) && /vh\/demo\/coder/.test(text), "no merge plan");
+ok("the excluded branch is named with its reason", /excluded vh\/demo\/debugger/.test(text), "exclusion not shown");
 ok("the caps panel renders", /Cost, turn and wall-clock caps/.test(text), "no caps panel");
 ok("the run proof states the real snapshot SHA", /442a4fdd/.test(text), "no snapshot SHA");
 ok("the run proof states the reviewer's real verdict", /said: CORRECT/.test(text), "no verdict");

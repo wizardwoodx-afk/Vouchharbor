@@ -1,8 +1,8 @@
 /**
- * MJ 11.13.0 — differentiator probe.
+ * VH 11.13.0 — differentiator probe.
  *
- * Pins the features behind MJ's defensible claim (research: coding agents
- * compete on benchmarks and inline UX; MJ COMBINES agent-team authority,
+ * Pins the features behind VH's defensible claim (research: coding agents
+ * compete on benchmarks and inline UX; VH COMBINES agent-team authority,
  * verification, learning evidence and proof export in one local system):
  *   1. Budget authority — hard USD caps carried by authority envelopes,
  *      enforced by the executor, attenuating like every other power.
@@ -34,10 +34,10 @@ if (typeof (globalThis as Record<string, unknown>).localStorage === "undefined")
 }
 
 const NOW = 1_760_000_000_000;
-// Same resolution discipline as palette/versionDrift: packed bundles get MJ_ROOT
+// Same resolution discipline as palette/versionDrift: packed bundles get VH_ROOT
 // injected by esbuild (the runner's cwd = tree root); live runs derive it.
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
 
 section("1. budget authority — spend caps are carried by the envelope and enforced");
 {

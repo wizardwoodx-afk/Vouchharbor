@@ -1,5 +1,5 @@
 /**
- * MJ 14.0 — Agent FinOps chargeback (suite #76).
+ * VH 14.0 — Agent FinOps chargeback (suite #76).
  *
  * §1 measured math — adherence within/over cap, overrun, measured-seat ratio
  * §2 honesty — tokens-only missions are `unmeasured`, never priced; uncapped is `uncapped`

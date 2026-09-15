@@ -1,5 +1,5 @@
 /**
- * MJ 11.12.1 — VARKHA alignment probe.
+ * VH 11.12.1 — VARKHA alignment probe.
  *
  * Pins the four Varkha extracts and the two 11.12.0 review fixes:
  *   1. SCAR before PRECEDENT — failure lessons precede successes in briefings;
@@ -30,8 +30,8 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 const NOW = 1_760_000_000_000;
 

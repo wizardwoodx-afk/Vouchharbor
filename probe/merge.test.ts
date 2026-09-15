@@ -11,18 +11,18 @@
  *      in the control plane, and the bridge writes no storage of its own.
  *   4. The shell join: the face door renders the Vouch page, labeled Vouch.
  *
- * Run: npm test  (esbuild bundle, node --test; MJ_ROOT injected by the runner)
+ * Run: npm test  (esbuild bundle, node --test; VH_ROOT injected by the runner)
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, it } from "node:test";
 import assert from "node:assert";
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const read = (rel: string): string => fs.readFileSync(path.join(ROOT, rel), "utf8");
 
-/* node-safe storage for the MJ engine side: its guarded localStorage reads
+/* node-safe storage for the VH engine side: its guarded localStorage reads
  * need a backing map so crews persist within the probe process. (The Vouch
  * engine carries its own node-safe store and is unaffected.) */
 const probeLS = new Map<string, string>();

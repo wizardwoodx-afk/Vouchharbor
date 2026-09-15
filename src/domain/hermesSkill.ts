@@ -167,7 +167,7 @@ export function runPluginHook(ctx: HookContext): Record<string, unknown> {
   return {
     hook: ctx.hook,
     applied: true,
-    vendor: "mj",
+    vendor: "vh",
     at: new Date().toISOString(),
     nodeKey: ctx.nodeKey ?? null,
     executionId: ctx.executionId ?? null,

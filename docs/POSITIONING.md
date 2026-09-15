@@ -1,14 +1,14 @@
-# MJ — Market Position (researched September 2026)
+# VH — Market Position (researched September 2026)
 
 > This document is the strategic map for the fundraise: where the market is crowded,
-> where the whitespace is, and the one sentence that puts MJ in its own category.
+> where the whitespace is, and the one sentence that puts VH in its own category.
 > Sources are linked inline.
 
 ---
 
 ## 1 · The one-sentence position
 
-**MJ is the proof layer for agent work: a local-first runtime that turns every agent
+**VH is the proof layer for agent work: a local-first runtime that turns every agent
 mission into cryptographically signed, audit-grade evidence — the layer every other
 agent platform is missing when the auditor, the CISO, or the regulator asks "prove it."**
 
@@ -38,7 +38,7 @@ Elevator variants:
 | Microsoft Agent Framework | Consolidated AutoGen + Semantic Kernel, Azure-native |
 | OpenAI / Anthropic Agent SDKs | Vendor-native defaults, production-grade |
 
-**Read:** orchestration is a features war between platform giants. MJ's harness-agnostic
+**Read:** orchestration is a features war between platform giants. VH's harness-agnostic
 design (it orchestrates 25 CLI agents) means it *complements* all of the above instead of
 fighting them. The pitch is never "better orchestrator."
 
@@ -62,9 +62,9 @@ Consolidation confirms strategic value: Palo Alto ≈ **$29B** (CyberArk + Prote
 "identity + observability + model security for agentic AI"), ServiceNow **$11.6B**
 (Armis + Moveworks + Veza), Cisco → Astrix.
 
-**Read:** the investor consensus in mid-2026 is exactly MJ's theme — *"agent-focused
+**Read:** the investor consensus in mid-2026 is exactly VH's theme — *"agent-focused
 governance was the clearest theme, with most deals tied to identity, permissions, audit
-logs, policy enforcement, or runtime visibility."* The category is funded. MJ's angle
+logs, policy enforcement, or runtime visibility."* The category is funded. VH's angle
 within it is differentiated (below).
 
 ### The regulatory forcing function (why now)
@@ -83,19 +83,19 @@ within it is differentiated (below).
   agent took a specific action, what data it used, and what governance policies were
   applied at the moment of execution" — [dev.to](https://dev.to/igorganapolsky/your-compliance-team-will-ask-for-an-ai-agent-audit-trail-before-august-2-heres-the-part-most-h2n).
 
-**That last sentence is a description of MJ's authority envelopes + signed receipts,
+**That last sentence is a description of VH's authority envelopes + signed receipts,
 written by the market.**
 
 ---
 
-## 3 · The whitespace MJ owns (and nobody funded occupies)
+## 3 · The whitespace VH owns (and nobody funded occupies)
 
 Every funded "control plane" is a **cloud SaaS that asks you to trust its logs**.
-MJ is the only player in the category whose evidence is:
+VH is the only player in the category whose evidence is:
 
 1. **Cryptographically verifiable without trusting the vendor** — Ed25519-signed,
-   SHA-256 hash-chained receipts any auditor re-verifies offline with zero MJ state.
-   Competitors export logs; MJ exports *proof*.
+   SHA-256 hash-chained receipts any auditor re-verifies offline with zero VH state.
+   Competitors export logs; VH exports *proof*.
 2. **Local-first by architecture** — execution, secrets (OS keychain), and evidence live
    on the customer's machine; the cloud is a switchboard, never a warehouse. For
    regulated data (finance, healthcare, defense, public sector) this converts the
@@ -110,7 +110,7 @@ Positioning frame for decks:
 ```
         Observability (LangSmith, Braintrust, Arize)   → for engineers: "what happened?"
         Governance SaaS (Credo, OneTrust, WitnessAI)   → for policy teams: "what's allowed?"
-   ───  MJ: Agent Assurance runtime ───                → for everyone with liability:
+   ───  VH: Agent Assurance runtime ───                → for everyone with liability:
         "what happened, provably — signed, local, offline-verifiable"
 ```
 
@@ -122,7 +122,7 @@ Positioning frame for decks:
    (banks, insurers, healthcare IT) — they already run Claude/Codex/Gemini CLIs and
    cannot pass an audit with screenshots.
 2. **Agent consultancies / GSIs** delivering agent programs into regulated clients —
-   MJ is the evidence layer they can resell in every engagement.
+   VH is the evidence layer they can resell in every engagement.
 3. **Public sector / defense-adjacent** — air-gapped, local-first execution with signed
    provenance is a procurement requirement, not a nice-to-have.
 
@@ -131,7 +131,7 @@ Positioning frame for decks:
 ## 5 · Proof points to build before the raise (already coded, needs packaging)
 
 - Live demo: run a mission → open the receipt vault → verify a receipt **on a machine
-  with no MJ installed** (one-command verifier). This demo closes the "so what is it"
+  with no VH installed** (one-command verifier). This demo closes the "so what is it"
   gap in 90 seconds.
 - One-page control crosswalk (already generated by the app: EU AI Act Art. 12/14,
   ISO 42001, SOC 2) annotated by an external compliance reviewer → instant credibility.

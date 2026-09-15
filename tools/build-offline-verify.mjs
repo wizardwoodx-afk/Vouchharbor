@@ -15,7 +15,7 @@
  * Design notes:
  *  - The suite list comes from tools/probe-list.mjs, the SAME module `npm test` uses —
  *    the pack and the dev gate cannot drift apart.
- *  - MJ_ROOT is defined as "." and verify/run.mjs runs each bundle with cwd = the tree
+ *  - VH_ROOT is defined as "." and verify/run.mjs runs each bundle with cwd = the tree
  *    root, so the pack works from any extraction path (the dev runner instead bakes the
  *    absolute checkout path at build time).
  *  - Packages are bundled IN (the dev runner keeps them external for react); the one
@@ -48,7 +48,7 @@ export function offlineBundleOptions(entryPath, outfile) {
     bundle: true,
     platform: "node",
     format: "esm",
-    define: { MJ_ROOT: '"."' },
+    define: { VH_ROOT: '"."' },
     banner: {
       js: 'import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);',
     },
@@ -106,6 +106,6 @@ export function buildOfflinePack({ root, outDir }) {
 const isCli = Boolean(process.argv[1] && path.resolve(process.argv[1]).endsWith("build-offline-verify.mjs"));
 if (isCli) {
   const { manifest } = buildOfflinePack({ root: MODULE_ROOT });
-  console.log(`offline pack: ${manifest.suiteCount} suites -> verify/suites (MJ ${manifest.mjVersion}, esbuild ${manifest.esbuild})`);
+  console.log(`offline pack: ${manifest.suiteCount} suites -> verify/suites (VH ${manifest.mjVersion}, esbuild ${manifest.esbuild})`);
   console.log("run it with:  node verify/run.mjs");
 }

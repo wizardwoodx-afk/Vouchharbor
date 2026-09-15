@@ -1,7 +1,7 @@
 /**
- * MJ 11.13.1 — pattern registry probe.
+ * VH 11.13.1 — pattern registry probe.
  *
- * Pins the adaptive-extraction doctrine: MJ studies capability PATTERNS from
+ * Pins the adaptive-extraction doctrine: VH studies capability PATTERNS from
  * other public agent systems and adopts them independently — never copying
  * code. Provenance is mandatory (observed source + license of the observed
  * project), and adoption flows through the same human-approval pipeline as
@@ -34,7 +34,7 @@ const prop = patternToSkillProposal(PATTERN_REGISTRY[0], 123);
 ok("a pattern becomes a standard skill proposal — status proposed, source observed-pattern",
   prop.status === "proposed" && prop.source === "observed-pattern" && prop.id.startsWith("skill.pattern."));
 ok("the proposal carries the adoption story, so the approver sees what they approve",
-  prop.description.includes("MJ adoption:") && prop.description.includes(PATTERN_REGISTRY[0].observedLicense));
+  prop.description.includes("VH adoption:") && prop.description.includes(PATTERN_REGISTRY[0].observedLicense));
 ok("loadPatternRegistry returns the registry (the UI reads it live)", loadPatternRegistry().length === PATTERN_REGISTRY.length);
 
 console.log(`\n${passed} passed, ${failed} failed`);

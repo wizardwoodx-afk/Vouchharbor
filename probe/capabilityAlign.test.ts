@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.1 — capability channel probe (the enterprise thesis, working).
+ * VH 11.14.1 — capability channel probe (the enterprise thesis, working).
  *
  * Pins "expose a capability without exposing the data": approved operations
  * only, human authority required, computation happens at the owner's machine,
@@ -154,11 +154,11 @@ section("5. durability + filters — the 11.14.2 review's two named weaknesses, 
 
   ok("the privacy ledger is digest-chained and verifies", await verifyPrivacyLedger());
   // simulate the attack honestly: the attacker rewrites the ledger store
-  // directly (not through MJ's save path, which would re-seal the anchor)
+  // directly (not through VH's save path, which would re-seal the anchor)
   const chain = loadPrivacyLedger();
   const dropped = chain.slice(0, -2);
   (globalThis as unknown as { localStorage: { setItem: (k: string, v: string) => void } })
-    .localStorage.setItem("mj.privacy.ledger", JSON.stringify(dropped));
+    .localStorage.setItem("vh.privacy.ledger", JSON.stringify(dropped));
   const tampered = await executeCapability({ request: { ...rq("cap-tam"), requester: "employee:11" }, envelope: env, now: NOW + 23 });
   ok("truncating the ledger is DETECTED — a doctored budget history refuses all computation, in words",
     tampered.result === null && tampered.reason.includes("digest chain is broken"), tampered.reason);

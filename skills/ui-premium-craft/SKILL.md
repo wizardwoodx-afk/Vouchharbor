@@ -1,11 +1,11 @@
 ---
 name: ui-premium-craft
-description: How to make MJ's interface feel premium, natural and professional — visual-system discipline (whitespace, type hierarchy, restraint, color-as-state, warmth on black) to apply whenever restyling MJ's UI, reviewing its design, or adding screens.
+description: How to make VH's interface feel premium, natural and professional — visual-system discipline (whitespace, type hierarchy, restraint, color-as-state, warmth on black) to apply whenever restyling VH's UI, reviewing its design, or adding screens.
 ---
 
-# UI Premium Craft — the MJ design doctrine
+# UI Premium Craft — the VH design doctrine
 
-MJ's premium feel comes from *frame*, not paint: whitespace, type hierarchy,
+VH's premium feel comes from *frame*, not paint: whitespace, type hierarchy,
 restraint and motion rhythm. Research consistently ranks whitespace and type
 as the largest perceived-value signals; color and decoration are last.
 Rule of thumb for every change: remove 30% of what you think is needed, then
@@ -52,4 +52,4 @@ check the hierarchy still speaks.
 ## When this skill applies
 
 Any request containing: "make it premium", "UI redesign", "looks cheap /
-not production", "better visual", "restyle", or design review of MJ screens.
+not production", "better visual", "restyle", or design review of VH screens.

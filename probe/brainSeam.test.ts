@@ -31,7 +31,7 @@ import {
 import { simulatedBrain, type VouchBrain } from "../src/vouch/engine/vouch";
 import { HARNESS_BY_ID, type HarnessId } from "../src/domain/harness";
 
-const root: string = (globalThis as { MJ_ROOT?: string }).MJ_ROOT ?? process.cwd();
+const root: string = (globalThis as { VH_ROOT?: string }).VH_ROOT ?? process.cwd();
 const AUTO = "auto" as const;
 const execFileP = promisify(execFile);
 

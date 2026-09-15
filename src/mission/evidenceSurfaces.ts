@@ -1,11 +1,11 @@
 /**
- * §EVIDENCE SURFACES — the store-reading layer that turns MJ's measured records into
- * the 14.0 evidence products (MJ 14.0).
+ * §EVIDENCE SURFACES — the store-reading layer that turns VH's measured records into
+ * the 14.0 evidence products (VH 14.0).
  *
  * WHY THIS EXISTS
  * 14.0's engines (finOps, assuranceScore, incidentDossier) are PURE: they take explicit
  * inputs so probes can pin their math. This module is the PRODUCT side of that contract:
- * it reads the stores the Mission Loop actually writes (mj.missionLoop.v1 cycle records,
+ * it reads the stores the Mission Loop actually writes (vh.missionLoop.v1 cycle records,
  * the receipt vault, the human-feedback store) and feeds the engines from REAL measured
  * data. No page and no probe may hand synthetic numbers to the engines through this
  * layer — the numbers come from the cycle spine or not at all.
@@ -17,7 +17,7 @@
  *  - Simulation is read from the record itself: a seat whose outcome starts with
  *    "simulated" ran in the labelled simulation (the loop's own definition,
  *    anySeatSimulated()) and is counted as simulated, never measured.
- *  - Egress violations are reported as 0 with a documented reason: MJ's egress ledger is
+ *  - Egress violations are reported as 0 with a documented reason: VH's egress ledger is
  *    append-on-authorized — a refused departure never writes a record and never leaves.
  *    The refusal IS the gate working; there is no violation store to read.
  *  - Old cycle records written before 14.0 lack tokensOnlySeats/budgetUsd; the adapter

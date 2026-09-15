@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Founder-side Pro key issuance (MJ 11.9.4-Commercial).
+ * Founder-side Pro key issuance (VH 11.9.4-Commercial).
  *
  *   node tools/issue-license.mjs --org "Acme" [--days 365|--perpetual] [--max-seats 25]
  *

@@ -1,7 +1,7 @@
 /**
  * 11.10.5 — Verified AI Delivery V1: deployer retention + the upgraded pack (suite #59).
  *
- * EU AI Act Art. 26(6): deployers keep automated logs for AT LEAST six months. MJ's
+ * EU AI Act Art. 26(6): deployers keep automated logs for AT LEAST six months. VH's
  * localStorage vault cannot guarantee storage, so it does the honest thing: a declared
  * retention floor that records and exports honor and NAME. Proven here:
  *
@@ -107,7 +107,7 @@ describe("evidence pack — the deployer bundle grows up", () => {
     fs.writeFileSync(path.join(repo, "app.js"), "1\n");
     execFileSync("git", ["init", "-q", "."], { cwd: repo });
     execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-    execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+    execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
     execFileSync("git", ["add", "-A"], { cwd: repo });
     execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
     const base = git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).out.trim();

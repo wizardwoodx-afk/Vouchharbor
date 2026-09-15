@@ -39,14 +39,14 @@ import {
 } from "../src/vouch/engine/crossHarbor";
 
 /**
- * MJ_ROOT is injected by esbuild at build time (absolute path for the dev
+ * VH_ROOT is injected by esbuild at build time (absolute path for the dev
  * runner, "." for the offline pack — verify/run.mjs sets cwd to the tree
  * root). import.meta.url cannot be used: the packed bundle lives one level
  * deeper (verify/suites/) than the dev bundle (probe/).
  */
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0
-  ? path.resolve(MJ_ROOT)
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0
+  ? path.resolve(VH_ROOT)
   : path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const cli = path.join(root, "tools", "vh-interop.mjs");
 

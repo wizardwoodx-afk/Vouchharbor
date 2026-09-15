@@ -1,6 +1,6 @@
-# Vouch Harbor 18.8.0 — Desktop native install (Windows 11)
+# Vouch Harbor 18.9.0 — Desktop native install (Windows 11)
 
-MJ is a Tauri v2 desktop app for Windows 11. The web preview you see in a browser is the same React app with no
+VH is a Tauri v2 desktop app for Windows 11. The web preview you see in a browser is the same React app with no
 native shell — it cannot spawn coding agents, touch the keyring, or write SQLite. Everything below
 is about getting the **native** build running on your machine. macOS/Linux are not supported by this
 tree (CI is Windows-only; bundle target is nsis only).
@@ -60,11 +60,11 @@ npm run tauri dev        # dev window, hot reload
 npm run tauri:build      # installer: nsis (Win x64)
 ```
 
-The bundle lands in `src-tauri\target\release\bundle\nsis\Vouch Harbor 18.8.0_x64-setup.exe`.
+The bundle lands in `src-tauri\target\release\bundle\nsis\Vouch Harbor 18.9.0_x64-setup.exe`.
 
 ## 5. Install a coding agent
 
-MJ orchestrates real CLIs. Install at least one and log in:
+VH orchestrates real CLIs. Install at least one and log in:
 
 ```bash
 npm i -g @anthropic-ai/claude-code && claude            # Claude Code
@@ -72,11 +72,11 @@ npm i -g @openai/codex && codex login                   # Codex
 npm i -g opencode-ai && opencode auth login             # OpenCode
 ```
 
-Then in MJ: **Providers → Re-scan PATH**. Each harness shows the resolved absolute path and its
-`--version` output. If a CLI works in your terminal but MJ says "not found", click **"Show where MJ
+Then in VH: **Providers → Re-scan PATH**. Each harness shows the resolved absolute path and its
+`--version` output. If a CLI works in your terminal but VH says "not found", click **"Show where VH
 looked"** — the missing directory tells you exactly what to fix (see §7).
 
-### What MJ passes to each CLI
+### What VH passes to each CLI
 
 `src/mission/harnessPolicy.ts` is the single source of truth. It maps the mission's risk class
 (§10) and security boundary (§33) onto real harness sandbox flags:
@@ -88,21 +88,21 @@ looked"** — the missing directory tells you exactly what to fix (see §7).
 | HIGH | as MEDIUM, **after** a human approves at the gate | same | same |
 | CRITICAL | **refused** — escalated to a human, no harness runs it | same | same |
 
-MJ never passes `--dangerously-skip-permissions`, `--yolo`, or `--sandbox danger-full-access`.
+VH never passes `--dangerously-skip-permissions`, `--yolo`, or `--sandbox danger-full-access`.
 
 All three are invoked with their machine-readable output format (`--output-format json`, `--json`,
-`--format json`) so MJ can record **real** cost and token counts instead of estimating them.
+`--format json`) so VH can record **real** cost and token counts instead of estimating them.
 
 ## 6. Provider keys and Ollama
 
 Set locally, never committed: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`. For the local `llm` harness run
 Ollama on `127.0.0.1:11434`. Secrets go to the OS keyring (`src-tauri/src/secrets.rs`); if the
-keyring is unavailable MJ falls back to an in-memory map and says so.
+keyring is unavailable VH falls back to an in-memory map and says so.
 
 ## 7. PATH: the #1 native failure, and what was done about it
 
 A packaged app launched from the Start menu does **not** inherit your shell's PATH. So
-`claude` installed by npm is invisible to MJ even though it works in your terminal.
+`claude` installed by npm is invisible to VH even though it works in your terminal.
 
 `which_bin` in `src-tauri/src/commands.rs` now searches, in order:
 
@@ -117,7 +117,7 @@ If it still misses, the Providers page lists every directory searched.
 
 ## 8. Execution semantics
 
-Until a real CLI is installed, missions run on MJ's labelled `local-test` double. It reports
+Until a real CLI is installed, missions run on VH's labelled `local-test` double. It reports
 `simulated: true` in every event, artifact and UI surface, and `MissionRuntime.finish()` will return
-`BLOCKED` — never `COMPLETED` — for a mission that used it. That is deliberate: MJ does not claim
+`BLOCKED` — never `COMPLETED` — for a mission that used it. That is deliberate: VH does not claim
 verified success it did not earn.

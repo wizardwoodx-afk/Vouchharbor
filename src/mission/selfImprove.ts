@@ -1,5 +1,5 @@
 /**
- * MJ 11.11.1 SELF-EVOLVING — strategy self-improvement as a genuine online experiment.
+ * VH 11.11.1 SELF-EVOLVING — strategy self-improvement as a genuine online experiment.
  *
  * 11.11.0 kept an archive of strategy versions and scored a candidate on the accumulated
  * run log. The 11.11.0 review caught the flaw precisely: the runs in that log were executed
@@ -61,7 +61,7 @@ export const TRIAL_CAP = 8;
 export const ADOPT_MARGIN = 0.05;
 export const ARCHIVE_CAP = 24;
 
-const LS_KEY = "mj.selfimprove.v1";
+const LS_KEY = "vh.selfimprove.v1";
 
 export const BASE_PARAMS: StrategyParams = {
   reviewDepth: 1,

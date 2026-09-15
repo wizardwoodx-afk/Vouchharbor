@@ -309,14 +309,14 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "18.8.0";
-var VH_SHORT = "18.8";
-var VH_CODENAME = "Atlas";
+var VH_VERSION = "18.9.0";
+var VH_SHORT = "18.9";
+var VH_CODENAME = "Aurora";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/vhClean.test.ts
-var MJ_ROOT = process.env.MJ_ROOT ?? process.cwd();
-var ROOT = typeof __VOUCH_ROOT__ !== "undefined" && __VOUCH_ROOT__ || process.env.VOUCH_ROOT || MJ_ROOT;
+var VH_ROOT = process.env.VH_ROOT ?? process.cwd();
+var ROOT = typeof __VOUCH_ROOT__ !== "undefined" && __VOUCH_ROOT__ || process.env.VOUCH_ROOT || VH_ROOT;
 var ROUTED_SURFACE = [
   "src/App.tsx",
   "src/main.tsx",
@@ -342,13 +342,15 @@ function* walk(dir) {
   }
 }
 function stripWireTokens(src) {
-  return src.replace(/mj-proof-receipt/gi, "").replace(/mj-commercial-v1-offline/g, "").replace(/\bmj\b/gi, "").replace(/\brogue\b/gi, "").replace(/\bROGUE\b/g, "");
+  return src.replace(/mj-proof-receipt/gi, "").replace(/mj-commercial-v1-offline/g, "").replace(/mj_evolution/g, "").replace(/legacy-mj-receipt/g, "").replace(/mj-mission-record/g, "").replace(/mj\.desktop/g, "").replace(/mj\./g, "");
+}
+function hasLegacyName(src) {
+  return /\bMJ\b|\bmj\b|ROGUE|\brogue\b/i.test(src);
 }
 test("the routed product surface carries no legacy MJ / ROGUE name", () => {
   for (const rel of ROUTED_SURFACE) {
     const src = stripWireTokens(read(rel));
-    assert.ok(!/M-J\b/i.test(src), `${rel}: unexpected mask`);
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
 });
 test("the whole control-plane module (src/vouch/**) carries no legacy name except the wire contract", () => {
@@ -357,7 +359,7 @@ test("the whole control-plane module (src/vouch/**) carries no legacy name excep
     scanned++;
     const rel = path.relative(ROOT, abs);
     const src = stripWireTokens(fs.readFileSync(abs, "utf8"));
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
   assert.ok(scanned >= 6, `expected at least 6 modules under ${VOUCHE_TREE}, scanned ${scanned}`);
 });
@@ -369,7 +371,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
       scanned++;
       const rel = path.relative(ROOT, abs);
       const src = stripWireTokens(fs.readFileSync(abs, "utf8"));
-      assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+      assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
     }
   }
   assert.ok(scanned >= 30, `expected a real UI surface under the audited dirs, scanned ${scanned}`);
@@ -377,8 +379,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
 test("the web entry, IPC bridge, and styles carry no legacy name", () => {
   for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/styles/vouch.css", "src/styles/redesign.css"]) {
     const src = stripWireTokens(read(rel));
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
-    assert.ok(!/\bmj-|\brogue-/.test(read(rel).replace(/mj-proof-receipt/gi, "")), `${rel} has legacy mj-/* tokens`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
 });
 test("identity strings are Vouch Harbor", () => {

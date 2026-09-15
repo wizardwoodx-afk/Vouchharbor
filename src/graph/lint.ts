@@ -1,9 +1,9 @@
 /**
- * §PREFLIGHT LINT — "ESLint for the graph" (MJ 11.9.5).
+ * §PREFLIGHT LINT — "ESLint for the graph" (VH 11.9.5).
  *
  * Researched grounding: n8n ships FlowLint ("ESLint for automations" — problems BEFORE you run)
  * and the OSS n8n-workflow-validator separates structural checks (missing connections, bad types)
- * from parameter checks, each with a code + severity. Dagster does the same for assets. MJ's run
+ * from parameter checks, each with a code + severity. Dagster does the same for assets. VH's run
  * path used to fail late and vaguely; the linter fails early and specifically.
  *
  * Pure: graph in → issues out. No DOM, no store, fully probe-able offline.
@@ -87,7 +87,7 @@ export function lintGraph(g: WorkflowGraph): LintIssue[] {
     }
   }
   for (const [id] of byId) {
-    if (!seen.has(id)) issues.push({ code: "CYCLE", severity: "error", nodeId: id, message: `"${nameOf(g, id)}" is part of a loop — MJ runs DAGs, not cycles.` });
+    if (!seen.has(id)) issues.push({ code: "CYCLE", severity: "error", nodeId: id, message: `"${nameOf(g, id)}" is part of a loop — VH runs DAGs, not cycles.` });
   }
 
   /* — WARN checks: probably not what the human meant — */

@@ -17,8 +17,8 @@ function ok(label: string, cond: boolean, detail = ""): void {
   else { failed++; failures.push(`${label}${detail ? ` — ${detail}` : ""}`); console.log(`  FAIL ${label}${detail ? ` — ${detail}` : ""}`); }
 }
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const css = fs.readFileSync(path.join(ROOT, "src", "styles", "atelier.css"), "utf8");
 
 ok("the Horizon signature token (Echo Park sage-gray) is the accent", /--patina:\s*#748785/i.test(css), "signature missing");

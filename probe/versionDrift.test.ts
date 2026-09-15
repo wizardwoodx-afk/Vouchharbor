@@ -2,12 +2,12 @@
  * Version drift probe.
  *
  * The V9 review found `package.json` at 9.0.0 while `package-lock.json` still said 6.0.0 and the app's
- * own settings page said "MJ 4.0". Nothing broke, so nothing caught it. This probe makes the same
+ * own settings page said "VH 4.0". Nothing broke, so nothing caught it. This probe makes the same
  * mistake impossible to ship: every manifest and every in-app version string must agree with
  * `src/version.ts`, and any leftover literal release number in the UI layer is a failure.
  *
  * Run: ./node_modules/.bin/esbuild probe/versionDrift.test.ts --bundle --platform=node --format=esm \
- *        --define:MJ_ROOT='"'$(pwd)'"' --outfile=/tmp/vd.mjs --log-level=error && node /tmp/vd.mjs
+ *        --define:VH_ROOT='"'$(pwd)'"' --outfile=/tmp/vd.mjs --log-level=error && node /tmp/vd.mjs
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -38,18 +38,18 @@ function section(name: string): void {
  * This cannot be derived from `import.meta.dirname`: esbuild does not define it in the bundle, so it
  * is `undefined` and `path.resolve(undefined ?? ".", "..")` silently resolves to `/` — the probe then
  * crashes trying to read `/package.json`, which looks like a missing file rather than a broken probe.
- * esbuild injects `MJ_ROOT` at build time instead (see the command at the top of this file), with a
+ * esbuild injects `VH_ROOT` at build time instead (see the command at the top of this file), with a
  * cwd-based fallback for anyone running it unbundled, and the result is verified below rather than
  * trusted.
  */
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0
-  ? MJ_ROOT
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0
+  ? VH_ROOT
   : path.resolve(process.cwd(), "package.json").startsWith("/home/user/mj") || fs.existsSync(path.join(process.cwd(), "package.json"))
     ? process.cwd()
     : path.resolve(__dirname ?? process.cwd(), "..");
 if (!fs.existsSync(path.join(root, "package.json"))) {
-  console.error(`versionDrift: cannot find the project root (looked in ${root}). Rebuild with --define:MJ_ROOT='"'$(pwd)'"'.`);
+  console.error(`versionDrift: cannot find the project root (looked in ${root}). Rebuild with --define:VH_ROOT='"'$(pwd)'"'.`);
   process.exit(2);
 }
 console.log(`project root: ${root}`);
@@ -92,18 +92,18 @@ const settings = read("src/pages/SettingsPage.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
 ok("SettingsPage imports VH_VERSION", /from "\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
-ok("no hardcoded release string survives in SettingsPage", !/MJ \d+\.\d+/.test(settings), (settings.match(/MJ \d+\.\d+/) ?? [""])[0]);
+ok("no hardcoded release string survives in SettingsPage", !/VH \d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+/) ?? [""])[0]);
 
 section("3. the shipped documents name the current release");
 const OPERATIONAL_DOCS = ["README.md", "BUILD-NATIVE.md", "DESKTOP-NATIVE.md", "INSTALL-ON-LAPTOP.md", "DEPLOY-VERCEL.md", "docs/PLATFORM-LIMITS.md"];
 const docs = [...OPERATIONAL_DOCS];
 for (const doc of docs) {
   const firstLine = read(doc).split("\n")[0] ?? "";
-  // 11.14.11 — the title check is now PATCH-aware. It used to compare only the MJ X.Y short
-  // form, so "MJ 11.14.1" passed while the release was 11.14.11: DESKTOP-NATIVE.md and
+  // 11.14.11 — the title check is now PATCH-aware. It used to compare only the VH X.Y short
+  // form, so "VH 11.14.1" passed while the release was 11.14.11: DESKTOP-NATIVE.md and
   // INSTALL-ON-LAPTOP.md shipped titles three releases old with versionDrift still green.
-  const stale = firstLine.match(/MJ (\d+\.\d+)/);
-  const staleFull = firstLine.match(/MJ (\d+\.\d+\.\d+)/);
+  const stale = firstLine.match(/VH (\d+\.\d+)/);
+  const staleFull = firstLine.match(/VH (\d+\.\d+\.\d+)/);
   ok(`${doc} title does not name a stale release`, stale === null || stale[1] === VH_SHORT, firstLine.slice(0, 70));
   ok(`${doc} title carries the exact release patch (${VH_VERSION})`,
     staleFull === null || staleFull[1] === VH_VERSION,
@@ -117,14 +117,14 @@ for (const doc of docs) {
 for (const doc of OPERATIONAL_DOCS) {
   let body = read(doc)
     // mask pointers to history/upgrade files: their filenames legitimately carry old versions
-    .replace(/docs\/history\/(MJ|VH)-[0-9.]+[-A-Za-z0-9_]*\.md/g, "")
-    .replace(/\b(MJ|VH)-[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9-]*\.md\b/g, "");
-  // 16.10.2 (external review): the scan only matched "MJ <version>" tokens, so
+    .replace(/docs\/history\/(VH|VH)-[0-9.]+[-A-Za-z0-9_]*\.md/g, "")
+    .replace(/\b(VH|VH)-[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9-]*\.md\b/g, "");
+  // 16.10.2 (external review): the scan only matched "VH <version>" tokens, so
   // "Vouch Harbor_16.0.0_x64-setup.exe" sailed through in BUILD-NATIVE.md.
-  // The net now catches every product-named version token: MJ/VH/Vouch Harbor
+  // The net now catches every product-named version token: VH/VH/Vouch Harbor
   // prefixes AND bare artifact names (`<version>_x64-setup`).
   const staleTokens = [...new Set(
-    [...body.matchAll(/(?:MJ|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)]
+    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)]
       .map((m) => (m[1] ?? m[2] ?? "").trim())
       .filter((v) => v.length > 0 && v !== VH_VERSION),
   )];
@@ -136,7 +136,7 @@ section("4. the archive name the user is given matches the release");
 const upgradeDoc = `VH-${VH_SHORT}-UPGRADE.md`;
 ok(`${upgradeDoc} exists`, fs.existsSync(path.join(root, upgradeDoc)) || fs.existsSync(path.join(root, "docs", "history", upgradeDoc)), "missing — the release notes for this version were never written");
 
-/* ── 5. CI can still allocate a runner (MJ 11.8.5) ────────────────────────────
+/* ── 5. CI can still allocate a runner (VH 11.8.5) ────────────────────────────
  *
  * A workflow that cannot allocate a runner verifies nothing, and a CI badge nobody can
  * reproduce is decoration. Runner images retire on a published schedule and nothing else in
@@ -188,7 +188,7 @@ ok(
   "release.yml still gates on a hand-picked subset",
 );
 
-/* ── 6. README counts match the code (MJ 11.9.4-fix) ─────────────────────────
+/* ── 6. README counts match the code (VH 11.9.4-fix) ─────────────────────────
  *
  * The 11.9.4 audit found the README layout comment naming "92 Tauri commands"
  * while src-tauri/ actually shipped 94 `#[tauri::command]`s. Nothing broke, so

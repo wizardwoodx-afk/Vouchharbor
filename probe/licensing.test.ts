@@ -1,5 +1,5 @@
 /**
- * §Commercial licensing probe (MJ 11.9.4-Commercial, suite added with the gate).
+ * §Commercial licensing probe (VH 11.9.4-Commercial, suite added with the gate).
  *
  * Pins the licensing contract: keys are HMAC-signed and tamper-evident,
  * expiry is enforced, the trial clock is pure and probe-friendly, and the
@@ -31,11 +31,11 @@ const ok = (label: string, cond: boolean, detail = "") => {
 };
 const section = (s: string) => console.log(`\n== ${s}`);
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 function declareRootCheck(): void {
   if (!fs.existsSync(path.join(ROOT, "package.json"))) {
-    console.error("licensing: project root not found; rebuild with --define:MJ_ROOT");
+    console.error("licensing: project root not found; rebuild with --define:VH_ROOT");
     process.exit(2);
   }
 }

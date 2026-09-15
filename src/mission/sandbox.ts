@@ -1,7 +1,7 @@
 /**
- * §10.1 OS-level sandboxing for agent seats (V11, MJ-11.0-PROPOSAL W3).
+ * §10.1 OS-level sandboxing for agent seats (V11, VH-11.0-PROPOSAL W3).
  *
- * Risk classes tell MJ what an action *is*; sandboxes make the dangerous ones *impossible*.
+ * Risk classes tell VH what an action *is*; sandboxes make the dangerous ones *impossible*.
  * The 2026 baseline (Claude Code's /sandbox via Seatbelt/bubblewrap, Codex CLI's default
  * Landlock+seccomp) is now table stakes, so V11 wraps every spawned agent in a platform
  * sandbox chosen by the mission's risk tier:

@@ -1,5 +1,5 @@
 /**
- * §AUTONOMY RUNTIME — the engines join the real execution path (MJ 11.9.4-Major+).
+ * §AUTONOMY RUNTIME — the engines join the real execution path (VH 11.9.4-Major+).
  *
  * The 11.9.4(Major) review was right: three tested engines that no production
  * call site consumed are validated prototypes, not features. This module is

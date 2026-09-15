@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.0 — egress gate probe (the enterprise seed).
+ * VH 11.14.0 — egress gate probe (the enterprise seed).
  *
  * Company data stays on the laptop; the cloud is a switchboard, never a
  * warehouse. Pins: nothing leaves without a human-signed envelope; expired /

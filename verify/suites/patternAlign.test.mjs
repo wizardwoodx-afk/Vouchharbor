@@ -8,7 +8,7 @@ var PATTERN_REGISTRY = [
     observedIn: "OpenHands (MIT), SWE-agent (MIT) \u2014 public event-stream / ACI designs",
     observedLicense: "MIT (reference only \u2014 no code copied)",
     capability: "A planner delegates isolated subtasks to specialist workers and merges their results.",
-    mjAdoption: "MJ runs heterogeneous seats in worktrees with role-based delegation and gated merge \u2014 and MEASURES team shapes against single-agent arms in the strategy experiment instead of assuming which wins.",
+    mjAdoption: "VH runs heterogeneous seats in worktrees with role-based delegation and gated merge \u2014 and MEASURES team shapes against single-agent arms in the strategy experiment instead of assuming which wins.",
     status: "native"
   },
   {
@@ -17,7 +17,7 @@ var PATTERN_REGISTRY = [
     observedIn: "Goose (Apache 2.0) \u2014 70+ MCP extensions; the MCP ecosystem at large",
     observedLicense: "Apache 2.0 (reference only \u2014 no code copied)",
     capability: "One calling convention lets any tool join an agent without bespoke glue.",
-    mjAdoption: "MJ's harness registry + vendor MCP servers: harnesses are wrapped as seats with composed argv; capabilities join through the same typed command table, never by forking the caller.",
+    mjAdoption: "VH's harness registry + vendor MCP servers: harnesses are wrapped as seats with composed argv; capabilities join through the same typed command table, never by forking the caller.",
     status: "native"
   },
   {
@@ -26,7 +26,7 @@ var PATTERN_REGISTRY = [
     observedIn: "Anthropic Claude Commerce Agents (Apache 2.0, Sept 2026)",
     observedLicense: "Apache 2.0 (reference only \u2014 no code copied)",
     capability: "One agent instance loads skills on demand instead of spawning a sub-agent per capability.",
-    mjAdoption: "MJ keeps BOTH options and lets evidence decide: approved skills ride in every briefing (the loading pattern), while seat splits stay available \u2014 the strategy experiment measures which shape wins per mission class.",
+    mjAdoption: "VH keeps BOTH options and lets evidence decide: approved skills ride in every briefing (the loading pattern), while seat splits stay available \u2014 the strategy experiment measures which shape wins per mission class.",
     status: "native"
   },
   {
@@ -35,7 +35,7 @@ var PATTERN_REGISTRY = [
     observedIn: "Anthropic Claude Commerce Agents (Apache 2.0) \u2014 payment/sourcing/approval rules enforced at code level",
     observedLicense: "Apache 2.0 (reference only \u2014 no code copied)",
     capability: "Safety rules survive prompt injection because the code refuses, not the model.",
-    mjAdoption: "MJ's oldest doctrine, surfaced as a guardrail manifest on the Audit page: human-only principals, scope subsets, expiry, revocation, budget reservation, DOCTRINE write rule, approval-before-install, verifier-not-author \u2014 each enforced by a check that runs, pinned by probes.",
+    mjAdoption: "VH's oldest doctrine, surfaced as a guardrail manifest on the Audit page: human-only principals, scope subsets, expiry, revocation, budget reservation, DOCTRINE write rule, approval-before-install, verifier-not-author \u2014 each enforced by a check that runs, pinned by probes.",
     status: "native"
   },
   {
@@ -44,7 +44,7 @@ var PATTERN_REGISTRY = [
     observedIn: "Anthropic Claude Commerce Agents (Apache 2.0) \u2014 merchant agent drafts, humans approve",
     observedLicense: "Apache 2.0 (reference only \u2014 no code copied)",
     capability: "The agent may draft anything; nothing applies without an explicit human decision.",
-    mjAdoption: "MJ's unified approval queue: skill proposals and inferred beliefs wait for a human click; DOCTRINE and RECOURSE writes pass the ledger matrix before persisting.",
+    mjAdoption: "VH's unified approval queue: skill proposals and inferred beliefs wait for a human click; DOCTRINE and RECOURSE writes pass the ledger matrix before persisting.",
     status: "native"
   },
   {
@@ -53,7 +53,7 @@ var PATTERN_REGISTRY = [
     observedIn: "Codex CLI / OpenCode (Apache 2.0 / MIT) \u2014 token reporting varies by provider",
     observedLicense: "Apache 2.0 / MIT (reference only \u2014 no code copied)",
     capability: "Spend accounting must distinguish 'reported dollars' from 'tokens only'.",
-    mjAdoption: "MJ enforces caps on REPORTED USD only; token-only seats are marked dollar-UNKNOWN in the run report \u2014 MJ never invents a price. Stated in the budget note of every capped run.",
+    mjAdoption: "VH enforces caps on REPORTED USD only; token-only seats are marked dollar-UNKNOWN in the run report \u2014 VH never invents a price. Stated in the budget note of every capped run.",
     status: "native"
   }
 ];
@@ -64,7 +64,7 @@ function patternToSkillProposal(p, now) {
   return {
     id: `skill.pattern.${p.id}`,
     name: p.name,
-    description: `Adopted pattern from ${p.observedIn} (${p.observedLicense}). ${p.capability} MJ adoption: ${p.mjAdoption}`,
+    description: `Adopted pattern from ${p.observedIn} (${p.observedLicense}). ${p.capability} VH adoption: ${p.mjAdoption}`,
     source: "observed-pattern",
     sourceMissionId: p.id,
     status: "proposed",
@@ -114,7 +114,7 @@ ok(
 );
 ok(
   "the proposal carries the adoption story, so the approver sees what they approve",
-  prop.description.includes("MJ adoption:") && prop.description.includes(PATTERN_REGISTRY[0].observedLicense)
+  prop.description.includes("VH adoption:") && prop.description.includes(PATTERN_REGISTRY[0].observedLicense)
 );
 ok("loadPatternRegistry returns the registry (the UI reads it live)", loadPatternRegistry().length === PATTERN_REGISTRY.length);
 console.log(`

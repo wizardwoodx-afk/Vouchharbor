@@ -13,7 +13,7 @@ export function SettingsPage() {
   const [info, setInfo] = useState<Record<string, unknown>>({});
   const [size, setSize] = useState<number>(0);
   const [mode, setMode] = useState<Occupancy>(() => {
-    try { return (localStorage.getItem("mj.occupancy") as Occupancy) || "individual"; } catch { return "individual"; }
+    try { return (localStorage.getItem("vh.occupancy") as Occupancy) || "individual"; } catch { return "individual"; }
   });
   const [licKey, setLicKey] = useState("");
   const [licMsg, setLicMsg] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export function SettingsPage() {
 
   const setOccupancy = (m: Occupancy) => {
     setMode(m);
-    try { localStorage.setItem("mj.occupancy", m); } catch { /* */ }
+    try { localStorage.setItem("vh.occupancy", m); } catch { /* */ }
     toast(m === "enterprise" ? "Enterprise: org skills stay token-gated" : "Individual: local skill store");
   };
 
@@ -138,7 +138,7 @@ export function SettingsPage() {
       <div className="card" style={{ borderLeft: "3px solid var(--amber)" }}>
         <div className="card-title">License &amp; Copyright</div>
         <div className="muted" style={{ fontSize: 12, lineHeight: 1.6 }}>
-          Vouch Harbor v{VH_VERSION} — Copyright © 2024-2026 Sree Harshen / Vouch Harbor. All rights reserved.
+          Vouch Harbor v{VH_VERSION} — Copyright © 2024-2026 the Vouch Harbor team / Vouch Harbor. All rights reserved.
           <br /><br />
           This software is <strong>proprietary</strong> and protected by copyright, trademark, and trade secret laws. No license is granted to copy, modify, redistribute, or use this software for commercial purposes or AI/ML training without express written permission from the Owner.
           <br /><br />
@@ -146,7 +146,7 @@ export function SettingsPage() {
         </div>
         <div className="row" style={{ marginTop: 10 }}>
           <button onClick={() => {
-            const licenseText = `Vouch Harbor v${VH_VERSION}\nCopyright (c) 2024-2026 Sree Harshen / Vouch Harbor. All Rights Reserved.\n\nThis software is PROPRIETARY. No license is granted to copy, modify, redistribute, or use for commercial purposes or AI/ML training without express written permission. See LICENSE file for full terms.`;
+            const licenseText = `Vouch Harbor v${VH_VERSION}\nCopyright (c) 2024-2026 the Vouch Harbor team / Vouch Harbor. All Rights Reserved.\n\nThis software is PROPRIETARY. No license is granted to copy, modify, redistribute, or use for commercial purposes or AI/ML training without express written permission. See LICENSE file for full terms.`;
             navigator.clipboard?.writeText(licenseText);
             toast("License notice copied to clipboard");
           }}>Copy License Notice</button>

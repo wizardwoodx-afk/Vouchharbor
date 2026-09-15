@@ -69,18 +69,18 @@ describe("evidence pack — assembly and honesty", () => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "mjep-"));
     fs.writeFileSync(path.join(repo, "app.js"), "1\n");
     execFileSync("git", ["init", "-q", "."], { cwd: repo });
-    execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-    execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+    execFileSync("git", ["config", "user.email", "vh@vouch.harbor"], { cwd: repo });
+    execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
     execFileSync("git", ["add", "-A"], { cwd: repo });
     execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
     const base = git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).out.trim();
-    git(repo, ["checkout", "-q", "-b", "mj/coder"]);
+    git(repo, ["checkout", "-q", "-b", "vh/coder"]);
     fs.writeFileSync(path.join(repo, "feature.js"), "2\n");
     git(repo, ["add", "-A"]);
     git(repo, ["commit", "-q", "-m", "feature"]);
     git(repo, ["checkout", "-q", base]);
     const plan = planMerge(
-      [{ seatId: "coder", branch: "mj/coder", worktreePath: "/tmp/wt", role: "coder", dependsOn: [], verified: true, additions: 1, deletions: 0 }],
+      [{ seatId: "coder", branch: "vh/coder", worktreePath: "/tmp/wt", role: "coder", dependsOn: [], verified: true, additions: 1, deletions: 0 }],
       { baseBranch: base, repoRoot: repo },
     );
     const res = await executeMergePlan({
@@ -107,7 +107,7 @@ describe("evidence pack — assembly and honesty", () => {
     const packed = pack.mergeAttestations[0].attestation as { mergeCommitSha: string | null };
     assert.equal(packed.mergeCommitSha, res.mergeCommitSha, "the packed attestation carries the merge-commit sha");
 
-    assert.ok(pack.siemBundle.includes("mj.receipt.event"), "SIEM bundle present");
+    assert.ok(pack.siemBundle.includes("vh.receipt.event"), "SIEM bundle present");
     assert.match(pack.onePager, /Ed25519/);
     assert.match(pack.onePager, /merge-commit sha/i);
     assert.ok(pack.issuerPublicKeyDocument, "issuer public key document must be included");

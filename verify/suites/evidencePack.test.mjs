@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1106,8 +1106,8 @@ var SEAL_SECRET_BY_FORMAT = {
 };
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1223,28 +1223,28 @@ async function exportIssuerPublicKeyDocument(mjVersion) {
   const holder = await ensureIssuerIdentity();
   if (!holder) return null;
   return [
-    "MJ \u2014 Issuer Public Key (Ed25519)",
+    "VH \u2014 Issuer Public Key (Ed25519)",
     "================================",
     "",
-    `MJ version : ${mjVersion}`,
+    `VH version : ${mjVersion}`,
     `Key id     : ${holder.identity.keyId}`,
     `Public key : ${holder.identity.publicKeyHex}`,
     `Created    : ${holder.identity.createdAt}`,
     "",
     "What this key verifies",
     "----------------------",
-    "Every mj-proof-receipt/2 issued by this MJ install carries `issuer` + `signature`:",
+    "Every mj-proof-receipt/2 issued by this VH install carries `issuer` + `signature`:",
     "an Ed25519 signature over the receipt's FINAL CHAIN HASH (the `hash` of the last",
-    "chained event). To verify a receipt without MJ:",
+    "chained event). To verify a receipt without VH:",
     "",
     "  1. Re-canonicalize each event body (recursive key sort) and re-hash the chain",
     "     from the 64-zero genesis to recover the final chain hash.",
     "  2. Verify the Ed25519 signature over that hash with the public key above.",
     "  3. Re-check the HMAC seal as before (it still applies).",
     "",
-    "The private key never leaves the machine that issued the receipts; MJ has no server",
+    "The private key never leaves the machine that issued the receipts; VH has no server",
     "it could leave through. Treat this document like a code-signing certificate: anyone",
-    "holding it can verify MJ's receipts; nobody holding it can forge them.",
+    "holding it can verify VH's receipts; nobody holding it can forge them.",
     ""
   ].join("\n");
 }
@@ -1388,8 +1388,8 @@ function receiptToJsonl(rc) {
 
 // src/mission/receiptVault.ts
 var VAULT_CAP = 50;
-var STORAGE_KEY2 = "mj.receiptvault.v1";
-var RETENTION_KEY = "mj.retention.v1";
+var STORAGE_KEY2 = "vh.receiptvault.v1";
+var RETENTION_KEY = "vh.retention.v1";
 var RETENTION_DEFAULT_MONTHS = 6;
 var RETENTION_OPTIONS = [6, 12, 24];
 function loadRetentionPolicy() {
@@ -1477,7 +1477,7 @@ var ReceiptVault = class {
   }
   /**
    * Re-verify EVERY stored receipt's chain and seal. This is the vault's reason to exist:
-   * tamper with a stored receipt and MJ itself names the broken record.
+   * tamper with a stored receipt and VH itself names the broken record.
    */
   async audit() {
     const broken = [];
@@ -1496,9 +1496,9 @@ var ReceiptVault = class {
   siemBundle() {
     const lines = [];
     for (const rec of this.ensure()) {
-      lines.push(JSON.stringify({ type: "mj.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
+      lines.push(JSON.stringify({ type: "vh.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
       for (const e of rec.receipt.events) {
-        lines.push(JSON.stringify({ type: "mj.receipt.event", vaultId: rec.id, event: e }));
+        lines.push(JSON.stringify({ type: "vh.receipt.event", vaultId: rec.id, event: e }));
       }
     }
     return `${lines.join("\n")}
@@ -1506,25 +1506,25 @@ var ReceiptVault = class {
   }
   /**
    * The one-pager: what the evidence layer is, which control it serves, how an auditor
-   * re-verifies it WITHOUT MJ, and — stated just as plainly — what MJ does not claim.
+   * re-verifies it WITHOUT VH, and — stated just as plainly — what VH does not claim.
    */
   onePager(args) {
     const count = this.ensure().length;
     return [
-      `# MJ \u2014 Agent Run Evidence & Compliance One-Pager`,
+      `# VH \u2014 Agent Run Evidence & Compliance One-Pager`,
       ``,
-      `MJ ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
+      `VH ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
       ``,
-      `## What MJ records`,
+      `## What VH records`,
       `Every team mission can issue a **Proof Receipt** (\`mj-proof-receipt/2\`): a SHA-256`,
-      `hash-chained event log of the facts MJ actually measured \u2014 mission status, each seat's`,
+      `hash-chained event log of the facts VH actually measured \u2014 mission status, each seat's`,
       `role/outcome/verification (with a deterministic seat identity digest when the harness is`,
       `known), and the adversarial-gate verdict \u2014 sealed with HMAC-SHA-256 AND, since 11.10.1,`,
       `signed with the local issuer's Ed25519 key over the final chain hash. Events are linked`,
       `(\`prev\` \u2192 \`hash\`), so any edit, insertion or deletion breaks the chain.`,
       ``,
       `## The adversarial verification gate (11.9.9) and merge authority (11.10 \u2192 11.10.1)`,
-      `MJ enforces that a run's output is verified by a **different harness than the one that`,
+      `VH enforces that a run's output is verified by a **different harness than the one that`,
       `wrote it**. Self-verified runs are blocked (STRICT) or marked unverified (ADVISORY), and`,
       `the gate verdict is itself an event in the receipt chain. Since 11.10 the gate decides`,
       `whether a merge is **permitted**; since 11.10.1 the Merge Executor actually runs the gated`,
@@ -1538,15 +1538,15 @@ var ReceiptVault = class {
       `- SOC 2 (CC7/CC8 change management & monitoring): merge attestations name the gate verdict,`,
       `  any recorded override, and the exact commit that landed.`,
       ``,
-      `## External verification (no MJ required)`,
+      `## External verification (no VH required)`,
       `1. Take the receipt JSONL. 2. Re-canonicalize each event body (recursive key sort),`,
       `3. re-hash the chain from the 64-zero genesis, 4. re-compute the HMAC seal with the`,
       `published verification secret, 5. verify the Ed25519 signature over the final chain hash`,
-      `with the exported issuer public key. MJ ships this exact algorithm (verifyProofReceipt)`,
+      `with the exported issuer public key. VH ships this exact algorithm (verifyProofReceipt)`,
       `and any auditor can re-implement it from the format alone.`,
       ``,
-      `## What MJ does NOT claim`,
-      `MJ produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
+      `## What VH does NOT claim`,
+      `VH produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
       `Control mappings above are a convenience crosswalk, not legal advice and not an audit`,
       `opinion. The issuer private key never leaves the machine that issued the receipts.`,
       ``
@@ -1568,7 +1568,7 @@ function buildAibom(args) {
         entry = {
           component: harness,
           type: "ai-coding-agent",
-          version: "not measured (CLIs do not report model versions to MJ)",
+          version: "not measured (CLIs do not report model versions to VH)",
           identifier: harness,
           roles: [],
           missions: 0,
@@ -1619,7 +1619,7 @@ var EVIDENCE_CONTROL_MAPPINGS = [
   {
     control: "EU AI Act \u2014 Art. 13 (transparency to deployers)",
     whatItAsksFor: "Instructions and capability information so deployers can interpret outputs.",
-    whatVhProvides: "The one-pager and this pack's manifest: what Vouch Harbor records, how it is verified externally, and what MJ does not claim.",
+    whatVhProvides: "The one-pager and this pack's manifest: what Vouch Harbor records, how it is verified externally, and what VH does not claim.",
     artifact: "onePager, manifest"
   },
   {
@@ -1700,7 +1700,7 @@ async function buildEvidencePack(args) {
     onePager: args.vault.onePager({ mjVersion: args.mjVersion, edition: args.edition }),
     issuerPublicKeyDocument: issuerDoc,
     controlMappings: EVIDENCE_CONTROL_MAPPINGS,
-    disclaimer: "This pack is machine-verifiable evidence produced by MJ on the user's own machine. The control mappings are a convenience crosswalk prepared by the MJ project to help reviewers locate relevant artifacts; they are NOT a legal opinion, NOT an audit, and NOT a claim that MJ or its outputs satisfy any regulation or standard. MJ is not 'EU AI Act compliant' and is not a compliance product \u2014 it is a logging, provenance and evidence mechanism that can SUPPORT compliance work; applicability of any regulation depends on the system and use case. The enclosed provenance statements are MJ-specific provenance (vh-provenance-statement/1), shaped on in-toto conventions \u2014 they are NOT SLSA certification. Verification of the enclosed receipts requires no MJ software \u2014 see the one-pager's external-verification steps."
+    disclaimer: "This pack is machine-verifiable evidence produced by VH on the user's own machine. The control mappings are a convenience crosswalk prepared by the VH project to help reviewers locate relevant artifacts; they are NOT a legal opinion, NOT an audit, and NOT a claim that VH or its outputs satisfy any regulation or standard. VH is not 'EU AI Act compliant' and is not a compliance product \u2014 it is a logging, provenance and evidence mechanism that can SUPPORT compliance work; applicability of any regulation depends on the system and use case. The enclosed provenance statements are VH-specific provenance (vh-provenance-statement/1), shaped on in-toto conventions \u2014 they are NOT SLSA certification. Verification of the enclosed receipts requires no VH software \u2014 see the one-pager's external-verification steps."
   };
 }
 function evidencePackToJson(pack) {
@@ -1760,7 +1760,7 @@ function planMerge(candidates, opts) {
     mergeable.push(c);
   }
   const { ordered, cycles } = orderBranches(mergeable);
-  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug \u2014 MJ will not guess an order.`);
+  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug \u2014 VH will not guess an order.`);
   const steps = ordered.map((c, i) => ({
     order: i + 1,
     branch: c.branch,
@@ -1821,7 +1821,7 @@ function interpretMergeTree(exitCode, stdout) {
   return {
     clean: false,
     conflicted: [],
-    error: exitCode === null ? "git merge-tree did not run at all." : exitCode === 129 ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is MJ's mistake in how it called git, NOT a conflict between the branches." : `git merge-tree exited ${exitCode}, which is neither clean (0) nor conflict (1).`
+    error: exitCode === null ? "git merge-tree did not run at all." : exitCode === 129 ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is VH's mistake in how it called git, NOT a conflict between the branches." : `git merge-tree exited ${exitCode}, which is neither clean (0) nor conflict (1).`
   };
 }
 
@@ -1851,7 +1851,7 @@ async function executeMergePlan(input) {
     ...extra
   });
   if (!input.gate.allowed && !input.overrideRecorded) {
-    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway \u2014 MJ will name it in the attestation.`);
+    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway \u2014 VH will name it in the attestation.`);
   }
   if (input.plan.problems.length > 0) {
     return base(`Merge REFUSED: the plan itself reports problems: ${input.plan.problems.join(" ")}`);
@@ -2028,18 +2028,18 @@ describe("evidence pack \u2014 assembly and honesty", () => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "mjep-"));
     fs.writeFileSync(path.join(repo, "app.js"), "1\n");
     execFileSync("git", ["init", "-q", "."], { cwd: repo });
-    execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-    execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+    execFileSync("git", ["config", "user.email", "vh@vouch.harbor"], { cwd: repo });
+    execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
     execFileSync("git", ["add", "-A"], { cwd: repo });
     execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
     const base = git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).out.trim();
-    git(repo, ["checkout", "-q", "-b", "mj/coder"]);
+    git(repo, ["checkout", "-q", "-b", "vh/coder"]);
     fs.writeFileSync(path.join(repo, "feature.js"), "2\n");
     git(repo, ["add", "-A"]);
     git(repo, ["commit", "-q", "-m", "feature"]);
     git(repo, ["checkout", "-q", base]);
     const plan = planMerge(
-      [{ seatId: "coder", branch: "mj/coder", worktreePath: "/tmp/wt", role: "coder", dependsOn: [], verified: true, additions: 1, deletions: 0 }],
+      [{ seatId: "coder", branch: "vh/coder", worktreePath: "/tmp/wt", role: "coder", dependsOn: [], verified: true, additions: 1, deletions: 0 }],
       { baseBranch: base, repoRoot: repo }
     );
     const res = await executeMergePlan({
@@ -2063,7 +2063,7 @@ describe("evidence pack \u2014 assembly and honesty", () => {
     assert.equal(pack.mergeAttestations.length, 1);
     const packed = pack.mergeAttestations[0].attestation;
     assert.equal(packed.mergeCommitSha, res.mergeCommitSha, "the packed attestation carries the merge-commit sha");
-    assert.ok(pack.siemBundle.includes("mj.receipt.event"), "SIEM bundle present");
+    assert.ok(pack.siemBundle.includes("vh.receipt.event"), "SIEM bundle present");
     assert.match(pack.onePager, /Ed25519/);
     assert.match(pack.onePager, /merge-commit sha/i);
     assert.ok(pack.issuerPublicKeyDocument, "issuer public key document must be included");

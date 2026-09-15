@@ -140,7 +140,7 @@ export function planMerge(
   }
 
   const { ordered, cycles } = orderBranches(mergeable);
-  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug — MJ will not guess an order.`);
+  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug — VH will not guess an order.`);
 
   const steps: MergeStep[] = ordered.map((c, i) => ({
     order: i + 1,
@@ -200,7 +200,7 @@ export function planMerge(
   return { steps, excluded, preflight, postMergeCheck: opts.testCommand ?? [], cleanup, problems };
 }
 
-/** Render the plan so a human can approve it before MJ touches the repository. */
+/** Render the plan so a human can approve it before VH touches the repository. */
 export function renderMergePlan(plan: MergePlan, baseBranch: string): string {
   const lines: string[] = [];
   lines.push(`MERGE PLAN -> ${baseBranch}`);
@@ -266,7 +266,7 @@ export function interpretMergeTree(exitCode: number | null, stdout: string): { c
       exitCode === null
         ? "git merge-tree did not run at all."
         : exitCode === 129
-          ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is MJ's mistake in how it called git, NOT a conflict between the branches."
+          ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is VH's mistake in how it called git, NOT a conflict between the branches."
           : `git merge-tree exited ${exitCode}, which is neither clean (0) nor conflict (1).`,
   };
 }

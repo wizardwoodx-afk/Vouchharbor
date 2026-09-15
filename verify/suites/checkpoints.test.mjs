@@ -27,7 +27,7 @@ function restoreGraph(current, cp2) {
   g2.viewport = structuredClone(current.viewport);
   return g2;
 }
-var LS_KEY = "mj.checkpoints.v1";
+var LS_KEY = "vh.checkpoints.v1";
 var memory = [];
 function loadCheckpoints() {
   try {

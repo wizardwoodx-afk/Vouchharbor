@@ -1,10 +1,10 @@
 /**
- * MJ 14.1 — THE MISSION RECORD (suite #81).
+ * VH 14.1 — THE MISSION RECORD (suite #81).
  *
  * The crown artifact: one signed, verifiable file per mission assembled from the REAL
  * stores (loop ledger, receipt vault). §1 seal→verify; §2 tamper evidence (economics
  * edit, forged signature, flipped evidence mark); §3 the empty-store refusal; §4 the
- * standalone CLI (tools/verify-mission-record.mjs) verifies with zero MJ state.
+ * standalone CLI (tools/verify-mission-record.mjs) verifies with zero VH state.
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -54,7 +54,7 @@ const receipt = async (): Promise<ReturnType<typeof buildProofReceipt>> =>
     },
   });
 
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const cli = path.join(root, "tools", "verify-mission-record.mjs");
 
 function runCli(file: string, extra: string[] = []): { code: number; out: string } {
@@ -137,7 +137,7 @@ describe("missionRecord — one signed file per mission", () => {
     assert.equal(await buildMissionRecord("never-ran"), null);
   });
 
-  it("§4 the standalone CLI verifies with zero MJ state", async () => {
+  it("§4 the standalone CLI verifies with zero VH state", async () => {
     saveMissionLoopState({
       schemaVersion: 1, createdAt: `${T}0:00.000Z`, updatedAt: `${T}9:00.000Z`, running: false,
       currentPhase: "adapt", cycles: [cycle], feedbackByCycle: {}, lastError: null,

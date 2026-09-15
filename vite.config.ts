@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 const host = process.env.TAURI_DEV_HOST;
 
 /**
- * MJ 11.8.5 — how the Node builtins used by `src/mission/*` reach the WebView.
+ * VH 11.8.5 — how the Node builtins used by `src/mission/*` reach the WebView.
  *
  * `agentsMd`, `sandbox` and `teamExecutor` import `node:fs` / `node:os` / `node:path` because the
  * probe suites run them directly under Node, and they must test the real modules — never a double.

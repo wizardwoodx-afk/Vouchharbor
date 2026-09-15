@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.8 — the Arena Gate WIRED probe.
+ * VH 11.14.8 — the Arena Gate WIRED probe.
  *
  * 11.14.7 proved the battery runs against the real governance modules; this
  * suite proves the battery is MECHANICALLY INVOKED on the mission path:

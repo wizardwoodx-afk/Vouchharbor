@@ -1,5 +1,5 @@
 /**
- * §AUTONOMY STORE — one persisted state for the autonomy engines (MJ 11.9.4-Major+).
+ * §AUTONOMY STORE — one persisted state for the autonomy engines (VH 11.9.4-Major+).
  *
  * Before Major+, the bandit and elastic policy lived as page-local useState in
  * the Evolution page, so real runs could not update them (the 11.9.4(Major)
@@ -32,7 +32,7 @@ export interface AutonomyState {
   recentFailed: string[];
 }
 
-const KEY = "mj.autonomy.v1";
+const KEY = "vh.autonomy.v1";
 let memory: AutonomyState | null = null;
 
 export function loadAutonomy(): AutonomyState {

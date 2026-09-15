@@ -10,7 +10,7 @@ import { join } from "node:path";
 function fail(reason) {
   return { ok: false, stdout: "", stderr: "", exitCode: null, reason };
 }
-var NO_GIT = async () => fail("No git runner is available in this environment, so MJ cannot read the repository. Nothing was inspected and no diff is shown.");
+var NO_GIT = async () => fail("No git runner is available in this environment, so VH cannot read the repository. Nothing was inspected and no diff is shown.");
 function parseStatusPorcelainZ(raw) {
   if (!raw) return [];
   const fields = raw.split("\0");
@@ -194,7 +194,7 @@ function makeRepo(tag) {
   const g = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8", timeout: 3e4, killSignal: "SIGKILL" });
   g("init", "-q");
   g("config", "user.email", "mj@test");
-  g("config", "user.name", "MJ");
+  g("config", "user.name", "VH");
   writeFileSync(join(dir, "app.ts"), "export const a = 1;\nexport const b = 2;\nexport const c = 3;\n");
   writeFileSync(join(dir, "old name.ts"), "keep me\n");
   g("add", ".");

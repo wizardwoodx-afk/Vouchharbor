@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * verify-receipt — the standalone, zero-dependency verifier for MJ proof receipts
- * (MJ 14.1.1 — now with an EXTERNAL trust anchor).
+ * verify-receipt — the standalone, zero-dependency verifier for VH proof receipts
+ * (VH 14.1.1 — now with an EXTERNAL trust anchor).
  *
  *   node verify-receipt.mjs <receipt.jsonl | receipt.json | -> [--issuer-key <hex64 | @path>]
  *
  * THE TRUST MODEL (fixed in 14.1.1)
  * A signed receipt carries its own issuer public key; signature math alone can never
- * prove that key belongs to MJ — a forger can self-sign. Authenticity requires the
- * issuer key pinned OUT OF BAND: exchange MJ's issuer fingerprint once, then pin it
+ * prove that key belongs to VH — a forger can self-sign. Authenticity requires the
+ * issuer key pinned OUT OF BAND: exchange VH's issuer fingerprint once, then pin it
  * at every verification with --issuer-key. A v1 (seal-only) receipt makes no issuer
  * claim at all — it is tamper-EVIDENT by the published-constant seal, and says so.
  *

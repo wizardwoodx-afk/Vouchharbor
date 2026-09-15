@@ -137,7 +137,7 @@ const art1: Artifact = {
 
 const manifest = buildProvenanceManifest([art1], { "art-1": art1 }, {
   missionId: "mis-test",
-  generator: { name: "MJ Desktop", version: "11.1.0", harnesses: ["claude"] },
+  generator: { name: "VH Desktop", version: "11.1.0", harnesses: ["claude"] },
   ledger: { head: "abc123", entries: 1, verified: true },
   generatedAt: "2026-08-31T00:00:00.000Z",
 });

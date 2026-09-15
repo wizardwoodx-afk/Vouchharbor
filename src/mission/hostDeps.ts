@@ -1,5 +1,5 @@
 /**
- * §HOST RUNNER DEPS — the Loop page's execution deps (MJ 12.0).
+ * §HOST RUNNER DEPS — the Loop page's execution deps (VH 12.0).
  *
  * Native (Tauri) hosts run real CLIs through the Rust shell; browser hosts get
  * the same high-fidelity multi-turn simulation TeamsPage used (same canned

@@ -1,10 +1,10 @@
 /**
- * §CHECKPOINTS — named time-travel for the graph (MJ 11.9.5).
+ * §CHECKPOINTS — named time-travel for the graph (VH 11.9.5).
  *
  * Researched grounding: LangGraph's checkpointer is the production reference — graph state is
  * saved at a point in time, organised by thread, and any checkpoint can be restored to replay
  * or recover (zylos.ai durable-execution survey 2026: Temporal/Inngest/LangGraph all expose
- * checkpoint+replay as the durability primitive). MJ applies the same idea to the DESIGN graph:
+ * checkpoint+replay as the durability primitive). VH applies the same idea to the DESIGN graph:
  * name a moment, keep its exact node/wire state, restore it later — and restoration rides the
  * existing undo stack, so even a restore can be undone.
  *
@@ -59,7 +59,7 @@ export function restoreGraph(current: WorkflowGraph, cp: GraphCheckpoint): Workf
 }
 
 /* --- persistence (LS with memory fallback, same honesty as autonomyStore) --- */
-const LS_KEY = "mj.checkpoints.v1";
+const LS_KEY = "vh.checkpoints.v1";
 const memory: GraphCheckpoint[] = [];
 
 export function loadCheckpoints(): GraphCheckpoint[] {

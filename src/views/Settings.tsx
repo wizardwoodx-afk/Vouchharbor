@@ -91,7 +91,7 @@ export const Settings: React.FC = () => {
 
       <div className="card" style={{ padding: '4px 18px 8px', marginTop: 14 }}>
         <div className="eyebrow" style={{ marginTop: 14 }}>About</div>
-        <Row title="Version" sub="Local-first · PolyForm Noncommercial · © Sree Harshen (MJ Project)">
+        <Row title="Version" sub="Local-first · proprietary · © The Vouch Harbor Project">
           <span className="chip">{VH_VERSION}</span>
         </Row>
       </div>

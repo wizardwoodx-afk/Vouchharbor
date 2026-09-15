@@ -48,7 +48,7 @@ async function invokeOne(hid: string, prompt: string, timeout: number, cwd?: str
   const installHint = custom ? "Teams -> Connect -> your custom harness" : spec!.install;
   if (detectHost() !== "tauri") {
     throw new Error(
-      `${label} cannot run in a browser preview. Build the native MJ app (see INSTALL-ON-LAPTOP.md), install ${label} (${installHint}), then Run.`,
+      `${label} cannot run in a browser preview. Build the native VH app (see INSTALL-ON-LAPTOP.md), install ${label} (${installHint}), then Run.`,
     );
   }
   if (custom) {
@@ -66,7 +66,7 @@ async function invokeOne(hid: string, prompt: string, timeout: number, cwd?: str
     const detected = await ipc.cliProvidersDetect();
     const hit = detected.find((d) => d.id === hid || spec!.bins.includes(d.invocation) || spec!.bins.includes(d.id));
     if (!hit?.installed) {
-      throw new Error(`${spec!.name} is not on PATH. Install it locally, then restart MJ.\n${spec!.install}`);
+      throw new Error(`${spec!.name} is not on PATH. Install it locally, then restart VH.\n${spec!.install}`);
     }
   }
   const r = (await ipc.cliInvoke(hid, prompt, cwd, timeout)) as { stdout?: string; stderr?: string; code?: number | null };

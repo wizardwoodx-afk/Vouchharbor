@@ -1,7 +1,7 @@
 /**
  * 11.10.1 — the Merge Executor (suite #55).
  *
- * 11.10's reviewer said it exactly: MJ had a merge AUTHORITY, not a merge engine — "the
+ * 11.10's reviewer said it exactly: VH had a merge AUTHORITY, not a merge engine — "the
  * gate controls whether a merge is permitted" was the honest wording, because nothing ran
  * the plan. This suite proves the loop is closed against a REAL git repository:
  *
@@ -36,7 +36,7 @@ function makeRepo(): string {
   fs.writeFileSync(path.join(repo, "app.js"), "module.exports = { v: 1 };\n");
   execFileSync("git", ["init", "-q", "."], { cwd: repo });
   execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-  execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+  execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
   execFileSync("git", ["add", "-A"], { cwd: repo });
   execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
   return repo;

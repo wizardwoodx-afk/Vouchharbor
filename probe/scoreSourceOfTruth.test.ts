@@ -34,8 +34,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-declare const MJ_ROOT: string;
-const root = MJ_ROOT ?? process.cwd();
+declare const VH_ROOT: string;
+const root = VH_ROOT ?? process.cwd();
 
 /* The only files allowed to take part in producing an assurance figure. */
 const SANCTIONED = new Set([

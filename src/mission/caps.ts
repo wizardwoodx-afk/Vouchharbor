@@ -10,7 +10,7 @@
  * THE ONE RULE
  *
  * Cost is read out of the CLI's own output, or it is recorded as unknown. Never estimated. A token
- * count multiplied by a price MJ guessed is a fabricated metric dressed up as accounting, and a
+ * count multiplied by a price VH guessed is a fabricated metric dressed up as accounting, and a
  * budget built on it is theatre. So `costUsd` stays `null` for CLIs that report tokens only, and the
  * ledger says so out loud instead of quietly charging zero.
  *
@@ -24,7 +24,7 @@ export type CapOutcome = "ok" | "timeout" | "cost_cap" | "turn_cap" | "mission_c
 export interface InvocationCaps {
   /** Wall-clock ceiling for one invocation. */
   timeoutMs: number;
-  /** How many agent turns MJ will pay for. 0 disables. */
+  /** How many agent turns VH will pay for. 0 disables. */
   maxTurns: number;
   /** Per-invocation cost ceiling in USD. 0 disables. */
   maxCostUsd: number;
@@ -169,7 +169,7 @@ export interface EnforcedResult<T> {
 /**
  * Race work against a wall clock.
  *
- * The honest part: when the deadline wins, MJ cannot promise the child stopped. Killing a process is
+ * The honest part: when the deadline wins, VH cannot promise the child stopped. Killing a process is
  * the caller's job and is not always possible, so the detail says the caller must terminate it rather
  * than implying the deadline was enforced on the child.
  */
@@ -199,7 +199,7 @@ export async function withDeadline<T>(
       value: null,
       timedOut: true,
       elapsedMs: now() - t0,
-      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; MJ cannot assume it stopped.`,
+      detail: `Deadline of ${timeoutMs}ms reached. The caller must terminate the child process; VH cannot assume it stopped.`,
     };
   }
   return { outcome: "ok", value: (winner as { v: T }).v, timedOut: false, elapsedMs: now() - t0, detail: `Finished in ${now() - t0}ms, inside the ${timeoutMs}ms deadline.` };
@@ -211,14 +211,14 @@ export interface TurnAccount {
   used: number;
   cap?: number;
   limit?: number;
-  /** Turns the CLI itself reported, which may differ from MJ's count. */
+  /** Turns the CLI itself reported, which may differ from VH's count. */
   reported?: number | null;
 }
 
 export function mayRunTurn(account: TurnAccount): { allowed: boolean; reason: string } {
   const cap = account.cap ?? account.limit ?? 0;
   if (cap <= 0) return { allowed: true, reason: "No turn limit is set (cap 0 means no cap)." };
-  // When the CLI reports its own turn count, that is the better number: MJ counts invocations, the
+  // When the CLI reports its own turn count, that is the better number: VH counts invocations, the
   // CLI counts its internal reasoning steps, and the internal one is what costs money.
   const effective = account.reported !== null && account.reported !== undefined ? Math.max(account.used, account.reported) : account.used;
   if (effective >= cap) {
@@ -352,7 +352,7 @@ function sumTokens(obj: Record<string, unknown>): number | null {
  * Turn a seat's declared limits into enforced ones.
  *
  * A limit too small to be usable is refused rather than honoured: a 5-second timeout on a coding
- * agent is not a cap, it is a guaranteed failure, and MJ says so instead of quietly running something
+ * agent is not a cap, it is a guaranteed failure, and VH says so instead of quietly running something
  * that cannot finish.
  */
 export function capsForSeat(seat: { timeoutSecs: number; maxTurns: number | null }, costUsd: number | null): { caps: InvocationCaps; warnings: string[] } {

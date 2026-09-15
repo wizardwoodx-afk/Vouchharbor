@@ -47,7 +47,7 @@ export interface AgentSession {
   updatedAt: string;
   /** Last thing this session was asked, kept so a retry does not silently repeat it. */
   lastPromptHash: string | null;
-  /** Set when the CLI reported it could not resume, so MJ starts fresh instead of looping. */
+  /** Set when the CLI reported it could not resume, so VH starts fresh instead of looping. */
   resumeFailedAt: string | null;
 }
 
@@ -60,7 +60,7 @@ export function sessionKeyString(k: SessionKey): string {
  * A deterministic id for a seat's conversation.
  *
  * Derived rather than random, so the same seat on the same mission in the same worktree always maps to
- * the same session — which lets MJ resume after a restart without a database round trip. Not
+ * the same session — which lets VH resume after a restart without a database round trip. Not
  * cryptographic; this is a lookup handle, not a secret.
  */
 export function deriveSessionId(seed: string): string {
@@ -90,8 +90,8 @@ export class SessionStore {
   /**
    * Get the session for a seat, creating it on first use.
    *
-   * `confirmed` starts false: MJ has asked for a session, but the CLI has not yet said it exists. That
-   * distinction is what stops MJ resuming a conversation that never started.
+   * `confirmed` starts false: VH has asked for a session, but the CLI has not yet said it exists. That
+   * distinction is what stops VH resuming a conversation that never started.
    */
   obtain(key: SessionKey, now = new Date().toISOString()): AgentSession {
     const k = sessionKeyString(key);
@@ -114,7 +114,7 @@ export class SessionStore {
   /**
    * Record that a turn happened, and confirm the session if the CLI reported an id.
    *
-   * `reportedId` is what the CLI printed. When it differs from the id MJ asked for, the CLI's word
+   * `reportedId` is what the CLI printed. When it differs from the id VH asked for, the CLI's word
    * wins — it owns the conversation — and the session is re-keyed so the next resume works.
    */
   recordTurn(key: SessionKey, reportedId: string | null, prompt: string, now = new Date().toISOString()): AgentSession {
@@ -160,8 +160,8 @@ export type TurnKind = "first" | "follow-up";
 /**
  * Who owns the session id.
  *
- *   vh-chosen    MJ generated it and the CLI will create a session under it (Claude's --session-id).
- *   cli-chosen   The CLI invents its own id (OpenCode's `ses_...`). MJ must NOT pass one on turn one;
+ *   vh-chosen    VH generated it and the CLI will create a session under it (Claude's --session-id).
+ *   cli-chosen   The CLI invents its own id (OpenCode's `ses_...`). VH must NOT pass one on turn one;
  *                passing an unknown id is a hard error, not a no-op.
  */
 export type SessionIdKind = "vh-chosen" | "cli-chosen";
@@ -219,14 +219,14 @@ export function sessionArgv(
     return {
       argv: [],
       continuity: "none",
-      warning: `${caps.name}'s resume form takes no session id, so MJ cannot say which conversation to continue and will not guess. This turn starts from scratch and the prompt restates the context.`,
+      warning: `${caps.name}'s resume form takes no session id, so VH cannot say which conversation to continue and will not guess. This turn starts from scratch and the prompt restates the context.`,
     };
   }
 
   return { argv: resume.argv.map((a) => (a === "$SESSION" ? opts.sessionId : a)), continuity: "session", warning: null };
 }
 
-/** Does this CLI let MJ choose the session id, or does it assign its own? */
+/** Does this CLI let VH choose the session id, or does it assign its own? */
 export function sessionIdKind(harness: HarnessId | string): SessionIdKind {
   // V11.6.3: through the resolver — a custom harness never names its own session id.
   const rc = resolveCaps(harness);
@@ -286,8 +286,8 @@ export function detectResumeFailure(raw: string): string | null {
 /**
  * Build a follow-up prompt.
  *
- * With continuity, the agent already has the previous turns, so MJ sends only what is new. Without it,
- * MJ has to restate the context — and must say that it is restating, because an agent that believes it
+ * With continuity, the agent already has the previous turns, so VH sends only what is new. Without it,
+ * VH has to restate the context — and must say that it is restating, because an agent that believes it
  * remembers something it does not is worse than one that knows it is starting over.
  */
 export function followUpPrompt(opts: {

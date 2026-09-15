@@ -1,5 +1,5 @@
 /**
- * §Web evidence probe (MJ 11.9.4-Major, suite added with the feature).
+ * §Web evidence probe (VH 11.9.4-Major, suite added with the feature).
  *
  * Holds the Web Evidence contract: the pure core (plan / normalize / score /
  * dedupe / triples) is exercised offline with fixtures, the orchestrator is

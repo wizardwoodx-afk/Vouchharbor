@@ -1,7 +1,7 @@
 /**
- * MJ 11.14.3 — the code-hygiene floor (external hardening pass).
+ * VH 11.14.3 — the code-hygiene floor (external hardening pass).
  *
- * MJ's guardrail philosophy applied to the source itself: the tree already
+ * VH's guardrail philosophy applied to the source itself: the tree already
  * ships zero TODO markers, zero `as any`, zero `@ts-ignore` and zero stray
  * console output — but until now those were FACTS, not GATES. This suite
  * makes them mechanical, the same way guardrailAlign makes governance
@@ -11,7 +11,7 @@
  *
  * Also pinned here: the one eval surface in the product (the expression
  * sandbox in src/engine/expression.ts) stays the ONLY one, and the desktop
- * CSP keeps allowing exactly the web-evidence providers MJ's Researcher is
+ * CSP keeps allowing exactly the web-evidence providers VH's Researcher is
  * documented to fetch from the renderer (webSearch.ts) — so a future CSP
  * tightening cannot silently break live search in the packaged app.
  */
@@ -26,8 +26,8 @@ function ok(label: string, cond: boolean, detail = ""): void {
   else { failed += 1; failures.push(`${label}${detail ? ` — ${detail}` : ""}`); console.log(`  FAIL ${label}${detail ? ` — ${detail}` : ""}`); }
 }
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : path.resolve(import.meta.dirname ?? ".", "..");
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 
 /** All source files under a dir with the given extensions, deepest-first, sorted. */

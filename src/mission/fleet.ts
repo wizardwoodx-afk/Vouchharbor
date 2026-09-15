@@ -1,5 +1,5 @@
 /**
- * §FLEET BOARD — Mission Control's measured state (MJ 11.9.9).
+ * §FLEET BOARD — Mission Control's measured state (VH 11.9.9).
  *
  * Mission Control is not a dashboard painted over promises; it is a projection of the same
  * measured facts the receipts chain. Every seat transition the team runner observes becomes
@@ -9,7 +9,7 @@
  * THE COST LEDGER HONESTY RULE (from harnessPolicy.parseUsage, kept intact here):
  * figures are only ever what the CLI itself reported. A harness that reports tokens but not
  * dollars contributes tokens and `costUsd: 0` with an honest "tokens-only" flag at the UI
- * layer — MJ never converts with a guessed price.
+ * layer — VH never converts with a guessed price.
  *
  * Node-import-safe: storage guarded; time is a parameter (selectors take `now`), so probes
  * can test stagnation without waiting for real minutes to pass.
@@ -78,7 +78,7 @@ export interface FleetTotals {
 }
 
 const EVENTS_CAP = 800;
-const STORAGE_KEY = "mj.fleet.v1";
+const STORAGE_KEY = "vh.fleet.v1";
 /** A running seat with no event for this long is stagnant, not merely busy. */
 export const DEFAULT_STAGNANT_AFTER_MS = 15 * 60 * 1000;
 

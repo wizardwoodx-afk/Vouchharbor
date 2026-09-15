@@ -1,24 +1,24 @@
 /**
- * MJ 12.1.0 — KNOWLEDGE FORGE: books → human-approved skills.
+ * VH 12.1.0 — KNOWLEDGE FORGE: books → human-approved skills.
  *
  * The idea (user, 2026): the OSS "book-to-skill" world proved that a good
  * technical book distilled into a structured skill beats dumping the book in
- * context — MJ gets the same capability natively, with its own honesty rules.
+ * context — VH gets the same capability natively, with its own honesty rules.
  *
  * What this module is:
  *   - A LOCAL converter: document content (markdown / plain text / html, or a
  *     standard Agent-Skills SKILL.md document) is distilled into a compact,
  *     structured skill (frameworks, decision rules, patterns, failure modes)
  *     by a deterministic MECHANICAL extractor, optionally enhanced by an LLM
- *     pass that runs through MJ's OWN installed harness CLIs (claude, codex,
- *     opencode, …) — same local-first boundary as seats: no MJ-side API
- *     keys and no MJ network layer. The harness CLI's OWN provider terms
+ *     pass that runs through VH's OWN installed harness CLIs (claude, codex,
+ *     opencode, …) — same local-first boundary as seats: no VH-side API
+ *     keys and no VH network layer. The harness CLI's OWN provider terms
  *     govern where its prompts go (cloud provider, or a local model the
  *     user configured) — see DATA HANDLING below.
  *   - An honest knowledge channel: the result is a PROPOSAL of origin
  *     "knowledge" that NEVER claims measured effect (it was not learned from
  *     a verified mission). A human approves or discards it; only approved
- *     proposals mirror into the shared skill memory (mj.skills.v1) as
+ *     proposals mirror into the shared skill memory (vh.skills.v1) as
  *     approved RECOURSE (governed write, human), and only then do they ride
  *     every future mission briefing via approvedSkillDefs — the SAME path
  *     verified-mission skills use.
@@ -39,12 +39,12 @@
  *                     configurable…). Honest label: defaults can be
  *                     overridden by the user's own configuration.
  *     endpointClass — cloud-default | local-configured | unknown
- *     endpointBasis — how MJ knows: "detected" (an override was visible to
- *                     MJ), "user-declared" (you told MJ), or "not-visible"
- *                     (MJ runs the CLI with your environment and cannot
+ *     endpointBasis — how VH knows: "detected" (an override was visible to
+ *                     VH), "user-declared" (you told VH), or "not-visible"
+ *                     (VH runs the CLI with your environment and cannot
  *                     see the harness's own override settings — it says
  *                     "unknown" rather than guessing).
- *   MJ never guesses an endpoint: from the renderer the harness's override
+ *   VH never guesses an endpoint: from the renderer the harness's override
  *   environment is normally NOT visible, so the truthful default is
  *   endpointClass "unknown" with the reason written — unless you declare it
  *   or a host integration supplies the override (probes do).
@@ -72,7 +72,7 @@ import { uid } from "../app/id";
 import { loadSkills, mergeProposals, saveSkills, type SkillProposal } from "./skillEvolution";
 
 export const KNOWLEDGE_TOOL = "vh-knowledge-forge/mechanical-v1";
-const LS_KEY = "mj.knowledgeSkills.v1";
+const LS_KEY = "vh.knowledgeSkills.v1";
 
 export interface KnowledgeProvenance {
   sourceName: string | null;
@@ -168,7 +168,7 @@ export function extractStructure(content: string): ExtractStructure {
   return { frameworks, decisionRules, codePatterns, chapterHints };
 }
 
-/** REAL SHA-256 (WebCrypto — same primitive MJ's receipt chain uses; works in
+/** REAL SHA-256 (WebCrypto — same primitive VH's receipt chain uses; works in
  *  the browser build and under node >= 20). Provenance must be honest. */
 export async function sha256Hex(content: string): Promise<string> {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(content));
@@ -216,8 +216,8 @@ const HARNESS_DEFAULT_VENDOR: Record<string, string> = {
   openclaude: "configurable",
   cursor: "configurable (Cursor's model picker)",
 };
-/** Well-known endpoint override vars MJ can look for when a host exposes
- *  environment reads. Only vars MJ is confident about are listed — an
+/** Well-known endpoint override vars VH can look for when a host exposes
+ *  environment reads. Only vars VH is confident about are listed — an
  *  unlisted override still means "unknown", never a guess. */
 const HARNESS_ENV_OVERRIDES: Record<string, string[]> = {
   claude: ["ANTHROPIC_BASE_URL"],
@@ -244,9 +244,9 @@ export function classifyEndpoint(baseUrl: string | null | undefined): { endpoint
     if (loopbackHost(host)) {
       return { endpointClass: "local-configured", note: `endpoint override points at loopback (${host}) — content stays on this machine` };
     }
-    return { endpointClass: "unknown", note: `endpoint override points at a non-loopback host (${host}) — MJ cannot determine where it terminates` };
+    return { endpointClass: "unknown", note: `endpoint override points at a non-loopback host (${host}) — VH cannot determine where it terminates` };
   } catch {
-    return { endpointClass: "unknown", note: "endpoint override is not a valid URL — MJ cannot determine where content goes" };
+    return { endpointClass: "unknown", note: "endpoint override is not a valid URL — VH cannot determine where content goes" };
   }
 }
 
@@ -262,7 +262,7 @@ export interface ForgeDeps {
   resolveBin?: (bin: string) => Promise<string | null>;
   cliInvoke?: LlmInvoke;
   /** Optional environment read (native hosts may supply it later). When
-   *  absent, MJ records endpointClass "unknown / not-visible" instead of
+   *  absent, VH records endpointClass "unknown / not-visible" instead of
    *  guessing. Probes inject scripted readers to exercise detection. */
   readEnv?: (names: string[]) => Promise<Array<string | null>>;
 }
@@ -275,7 +275,7 @@ export interface ProposeArgs {
   content: string;
   /** Optional human-facing source name (file/book/chapter title). */
   sourceName?: string | null;
-  /** Optional LLM enhancement through an MJ harness CLI (local). */
+  /** Optional LLM enhancement through an VH harness CLI (local). */
   llm?: { harness: string; deps: ForgeDeps; declaredEndpoint?: "cloud" | "local" | null } | null;
   nowIso?: string;
 }
@@ -297,7 +297,7 @@ export async function proposeKnowledgeSkill(args: ProposeArgs): Promise<ProposeR
   }
   const structure = extractStructure(content);
   if (structure.frameworks.length === 0 && structure.decisionRules.length === 0 && structure.chapterHints.length === 0) {
-    return { ok: false, error: "no extractable structure (headings, rules, frameworks) — MJ distills structure, not summaries; a raw blob is refused" };
+    return { ok: false, error: "no extractable structure (headings, rules, frameworks) — VH distills structure, not summaries; a raw blob is refused" };
   }
   const nowIso = args.nowIso ?? new Date().toISOString();
   const sourceName = args.sourceName?.trim() || null;
@@ -320,7 +320,7 @@ export async function proposeKnowledgeSkill(args: ProposeArgs): Promise<ProposeR
       } else {
         dataHandling = "provider"; // content is about to go to the harness's model provider
         // 12.2.0 — provider precision: vendor (default) + endpoint class by
-        // what MJ can actually see; never a guess.
+        // what VH can actually see; never a guess.
         const vendor = defaultVendorFor(args.llm.harness);
         const overrideNames = HARNESS_ENV_OVERRIDES[args.llm.harness] ?? [];
         let endpoint: { endpointClass: EndpointClass; endpointBasis: EndpointBasis; note: string };
@@ -329,13 +329,13 @@ export async function proposeKnowledgeSkill(args: ProposeArgs): Promise<ProposeR
             const vals = await args.llm.deps.readEnv(overrideNames);
             const found = vals.find((v): v is string => typeof v === "string" && v.trim().length > 0);
             if (found === undefined) {
-              endpoint = { endpointClass: "cloud-default", endpointBasis: "detected", note: "no endpoint override visible to MJ — the harness's default cloud provider" };
+              endpoint = { endpointClass: "cloud-default", endpointBasis: "detected", note: "no endpoint override visible to VH — the harness's default cloud provider" };
             } else {
               const c = classifyEndpoint(found);
               endpoint = { endpointClass: c.endpointClass, endpointBasis: "detected", note: c.note };
             }
           } catch {
-            endpoint = { endpointClass: "unknown", endpointBasis: "not-visible", note: "MJ could not read the harness's endpoint override" };
+            endpoint = { endpointClass: "unknown", endpointBasis: "not-visible", note: "VH could not read the harness's endpoint override" };
           }
         } else if (args.llm.declaredEndpoint) {
           endpoint =
@@ -346,7 +346,7 @@ export async function proposeKnowledgeSkill(args: ProposeArgs): Promise<ProposeR
           endpoint = {
             endpointClass: "unknown",
             endpointBasis: "not-visible",
-            note: `MJ runs ${args.llm.harness} with your environment and cannot see its endpoint override settings — the destination is whatever the harness's own configuration decides`,
+            note: `VH runs ${args.llm.harness} with your environment and cannot see its endpoint override settings — the destination is whatever the harness's own configuration decides`,
           };
         }
         providerInfo = { vendor, ...endpoint };

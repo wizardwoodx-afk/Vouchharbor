@@ -35,7 +35,7 @@ asset; the fix addresses the cause instead.
 ## 3 · Dev-machine leftovers removed
 
 - `src-tauri/src/commands.rs`:
-  - `browser_dir()` default is now portable (`%LOCALAPPDATA%\MJ\mj-browser` on Windows,
+  - `browser_dir()` default is now portable (`%LOCALAPPDATA%\VH\mj-browser` on Windows,
     `~/.local/share/mj/mj-browser` elsewhere; `MJ_BROWSER_DIR` still wins).
   - Dropped `D:\Node24\node.exe` / `D:\Node.js\node.exe` from the Node-runtime search
     (standard Program Files paths remain).
@@ -65,4 +65,4 @@ asset; the fix addresses the cause instead.
 ## Not changed (deliberate)
 
 - `runs-on` labels (versionDrift pins them), `npm test` gate shape, suite/bundle counts,
-  LICENSE, version numbers. The offline pack rebuild keeps 74 bundles / MJ 13.5.1.
+  LICENSE, version numbers. The offline pack rebuild keeps 74 bundles / VH 13.5.1.

@@ -1,9 +1,9 @@
 /**
- * MJ 11.12 MOSAIC-Ω alignment — belief-state tracking.
+ * VH 11.12 MOSAIC-Ω alignment — belief-state tracking.
  *
- * The MOSAIC-Ω audit (docs/MOSAIC-OMEGA-COMPAT.md) found MJ's one epistemic gap:
+ * The MOSAIC-Ω audit (docs/MOSAIC-OMEGA-COMPAT.md) found VH's one epistemic gap:
  * observations arrive with confidence scores (web triples, seat outcomes) but
- * nothing tracks what MJ *believes* vs what it has *verified*, and contradicted
+ * nothing tracks what VH *believes* vs what it has *verified*, and contradicted
  * claims silently coexist. Agent-BRACE-style, belief about the world is kept
  * separate from the action policy.
  *
@@ -43,7 +43,7 @@ export interface Belief {
 }
 
 export const BELIEF_CAP = 100;
-const LS_KEY = "mj.beliefs.v1";
+const LS_KEY = "vh.beliefs.v1";
 
 let seq = 0;
 function nextId(now: number): string {

@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1102,8 +1102,8 @@ var SEAL_SECRET_BY_FORMAT = {
 };
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;

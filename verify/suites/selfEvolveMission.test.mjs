@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1409,8 +1409,8 @@ function lessonsForBriefing(memory, goal, now) {
 }
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1781,7 +1781,7 @@ section("6. learning receipts verify from zero state and catch tampering");
   const r = await issueLearningReceipt({ mjVersion: "11.11.1", missionId: "m1", lessons, strategyChange: "strategy-v1 -> strategy-v2", now: NOW });
   ok("receipt digests lessons canonically", r.evidenceDigest.length === 64);
   const v = await verifyLearningReceipt(r);
-  ok("an issued receipt verifies with zero MJ state", v.ok === true, v.reason);
+  ok("an issued receipt verifies with zero VH state", v.ok === true, v.reason);
   ok("runtime signs with Ed25519 when available", !!r.signature || !!r.signatureNote);
   const tampered = { ...r, lessons: [{ ...lessons[0], text: "altered lesson" }] };
   const tv = await verifyLearningReceipt(tampered);

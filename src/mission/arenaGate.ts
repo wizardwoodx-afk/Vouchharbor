@@ -1,9 +1,9 @@
 /**
- * MJ 11.14.7 — the Governance Arena Gate (Play C of the differentiator roadmap).
+ * VH 11.14.7 — the Governance Arena Gate (Play C of the differentiator roadmap).
  *
  * 2026 enterprise practice: adversarial batteries gate deployments (Lakera,
- * Promptfoo, PyRIT, Giskard — see docs/DIFFERENTIATOR-ROADMAP.md). MJ's answer
- * is not another LLM red-teaming SaaS — it is a battery that attacks MJ's OWN
+ * Promptfoo, PyRIT, Giskard — see docs/DIFFERENTIATOR-ROADMAP.md). VH's answer
+ * is not another LLM red-teaming SaaS — it is a battery that attacks VH's OWN
  * governance machine with the same hostile intent, and refuses to bless a
  * mission until every scenario is DEFENDED in words.
  *
@@ -74,7 +74,7 @@ async function scenario(
     // A thrown refusal counts as defended ONLY when the error text says so;
     // an unexpected exception is a breach (the boundary did not answer in words).
     const msg = err instanceof Error ? err.message : String(err);
-    // A thrown error counts as defended ONLY when it is one of MJ's own typed,
+    // A thrown error counts as defended ONLY when it is one of VH's own typed,
     // module-prefixed refusals (custody:/ledger:/capability:/egress:) — never
     // because an unrelated exception happened to contain a guardrail word.
     const typedRefusal =
@@ -98,7 +98,7 @@ export async function arenaGateDigest(results: ArenaScenarioResult[]): Promise<s
 }
 
 /**
- * Runs the full hostile battery against MJ's own governance modules.
+ * Runs the full hostile battery against VH's own governance modules.
  *
  *   gate "PASS"    → every scenario defended, in words. The mission/team is
  *                    fit to run against real harnesses.

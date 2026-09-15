@@ -1,9 +1,9 @@
 /**
- * §ELASTIC SEATS — teams that scale to the work, under a cap (MJ 11.9.4-Major).
+ * §ELASTIC SEATS — teams that scale to the work, under a cap (VH 11.9.4-Major).
  *
  * The 2026 orchestration consensus (Deloitte TMT predictions, orchestration
  * guides) is "human-on-the-loop": the platform scales and routes, the human
- * keeps the telemetry and the veto. MJ's teams were fixed at composition
+ * keeps the telemetry and the veto. VH's teams were fixed at composition
  * time — a run that produced six writer artifacts for zero reviewers still
  * shipped with zero reviewers. Elastic seats lets the runtime propose (and,
  * when the team's evolve mode allows, perform) seat scaling with the same

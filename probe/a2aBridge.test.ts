@@ -29,8 +29,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-declare const MJ_ROOT: string;
-const ROOT = MJ_ROOT ?? process.cwd();
+declare const VH_ROOT: string;
+const ROOT = VH_ROOT ?? process.cwd();
 import { execFileSync } from "node:child_process";
 import { runInboundDelegation, type BridgeConfig } from "../src/mission/a2aBridge";
 import { addTeammate, createTeam, handleInboundDelegation, type Teammate } from "../src/mission/harborTeams";

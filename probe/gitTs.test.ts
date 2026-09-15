@@ -56,7 +56,7 @@ function makeRepo(tag: string): string {
   const g = (...a: string[]) => execFileSync("git", a, { cwd: dir, encoding: "utf8", timeout: 30_000, killSignal: "SIGKILL" });
   g("init", "-q");
   g("config", "user.email", "mj@test");
-  g("config", "user.name", "MJ");
+  g("config", "user.name", "VH");
   writeFileSync(join(dir, "app.ts"), "export const a = 1;\nexport const b = 2;\nexport const c = 3;\n");
   writeFileSync(join(dir, "old name.ts"), "keep me\n");
   g("add", ".");

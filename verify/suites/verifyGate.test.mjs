@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 // src/mission/verifyGate.ts
 var GATE_VERIFIER_ROLES = /* @__PURE__ */ new Set(["reviewer", "security", "tester"]);
 var GATE_WRITER_ROLES = /* @__PURE__ */ new Set(["coder", "debugger"]);
-var POLICY_KEY = "mj.gatepolicy.v1";
+var POLICY_KEY = "vh.gatepolicy.v1";
 function loadGatePolicy() {
   try {
     const raw = globalThis.localStorage?.getItem(POLICY_KEY);

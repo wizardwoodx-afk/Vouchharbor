@@ -105,7 +105,7 @@ class CliHarness implements CodingAgentHarness {
     const spec = HARNESS_BY_ID.get(this.id);
     const program = spec?.bins[0] ?? this.id;
     const policy = policyFor(this.id, policyRequestFor(task));
-    // The UI shows exactly what will be executed, sandbox flags included. If MJ cannot say what
+    // The UI shows exactly what will be executed, sandbox flags included. If VH cannot say what
     // it is about to run, the user cannot consent to it.
     return { program, args: policy.argv.map((a) => (a === "$PROMPT" ? task.prompt : a)) };
   }
@@ -177,7 +177,7 @@ class CliHarness implements CodingAgentHarness {
         exitCode: r.code ?? null,
         latencyMs: Date.now() - started,
         // Real spend when the harness reports it. Null-equivalent 0 with the source recorded,
-        // because MJ does not convert tokens to dollars at a guessed price.
+        // because VH does not convert tokens to dollars at a guessed price.
         costUsd: usage.costUsd ?? 0,
         simulated: false,
         detail: `exit=${r.code ?? "?"} bytes=${text.length}; ${usage.source}; sandbox=${policy.readOnly ? "read-only" : "workspace-write"}`,
@@ -274,7 +274,7 @@ export class LocalTestHarness implements CodingAgentHarness {
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
         "",
-        "This output was produced by MJ's labelled test double, not by a coding agent.",
+        "This output was produced by VH's labelled test double, not by a coding agent.",
         "It is recorded as simulated and is NOT counted as independently verified.",
       ].join("\n"),
       exitCode: 0,
@@ -311,7 +311,7 @@ const PROFILES: Array<Omit<CliHarness, "simulated" | "supports" | "prepare" | "i
   { id: "grok", name: "Grok CLI", installHint: "Install the xAI Grok CLI and authenticate.", languages: ["TypeScript", "Python"], strengths: ["coding", "research"], canEditFiles: true, canRunTests: false, capabilities: ["coding", "research"] },
   { id: "cline", name: "Cline", installHint: "Install the Cline CLI (the VS Code extension cannot be spawned).", languages: ["TypeScript", "Python"], strengths: ["coding"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review"] },
   { id: "kilo", name: "Kilo Code", installHint: "Install the Kilo Code CLI on PATH.", languages: ["TypeScript", "Python"], strengths: ["coding"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review"] },
-  { id: "hermes", name: "Hermes Agent", installHint: "Install Hermes Agent (Nous) so `hermes` is on PATH, or use the in-process MJ Hermes loop.", languages: ["any"], strengths: ["general", "tool-use"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "research", "review", "testing", "synthesis"] },
+  { id: "hermes", name: "Hermes Agent", installHint: "Install Hermes Agent (Nous) so `hermes` is on PATH, or use the in-process VH Hermes loop.", languages: ["any"], strengths: ["general", "tool-use"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "research", "review", "testing", "synthesis"] },
   // ── V11.6.2: the registry's remaining CLIs, profiled honestly (researched 2026-09) ──
   { id: "openclaude", name: "OpenClaude", installHint: "npm install -g @gitlawb/openclaude@latest, then openclaude /provider.", languages: ["TypeScript", "Python", "Go"], strengths: ["coding", "byok"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review", "testing"] },
   { id: "copilot", name: "GitHub Copilot CLI", installHint: "npm install -g @github/copilot, then copilot login.", languages: ["TypeScript", "Python", "Go"], strengths: ["coding", "review"], canEditFiles: true, canRunTests: true, capabilities: ["coding", "review", "testing"] },

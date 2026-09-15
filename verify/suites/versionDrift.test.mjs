@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "18.8.0";
-var VH_SHORT = "18.8";
-var VH_CODENAME = "Atlas";
+var VH_VERSION = "18.9.0";
+var VH_SHORT = "18.9";
+var VH_CODENAME = "Aurora";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/versionDrift.test.ts
@@ -30,7 +30,7 @@ function section(name) {
 }
 var root = ".".length > 0 ? "." : path.resolve(process.cwd(), "package.json").startsWith("/home/user/mj") || fs.existsSync(path.join(process.cwd(), "package.json")) ? process.cwd() : path.resolve(__dirname ?? process.cwd(), "..");
 if (!fs.existsSync(path.join(root, "package.json"))) {
-  console.error(`versionDrift: cannot find the project root (looked in ${root}). Rebuild with --define:MJ_ROOT='"'$(pwd)'"'.`);
+  console.error(`versionDrift: cannot find the project root (looked in ${root}). Rebuild with --define:VH_ROOT='"'$(pwd)'"'.`);
   process.exit(2);
 }
 console.log(`project root: ${root}`);
@@ -67,14 +67,14 @@ var settings = read("src/pages/SettingsPage.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
 ok("SettingsPage imports VH_VERSION", /from "\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
-ok("no hardcoded release string survives in SettingsPage", !/MJ \d+\.\d+/.test(settings), (settings.match(/MJ \d+\.\d+/) ?? [""])[0]);
+ok("no hardcoded release string survives in SettingsPage", !/VH \d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+/) ?? [""])[0]);
 section("3. the shipped documents name the current release");
 var OPERATIONAL_DOCS = ["README.md", "BUILD-NATIVE.md", "DESKTOP-NATIVE.md", "INSTALL-ON-LAPTOP.md", "DEPLOY-VERCEL.md", "docs/PLATFORM-LIMITS.md"];
 var docs = [...OPERATIONAL_DOCS];
 for (const doc of docs) {
   const firstLine = read(doc).split("\n")[0] ?? "";
-  const stale = firstLine.match(/MJ (\d+\.\d+)/);
-  const staleFull = firstLine.match(/MJ (\d+\.\d+\.\d+)/);
+  const stale = firstLine.match(/VH (\d+\.\d+)/);
+  const staleFull = firstLine.match(/VH (\d+\.\d+\.\d+)/);
   ok(`${doc} title does not name a stale release`, stale === null || stale[1] === VH_SHORT, firstLine.slice(0, 70));
   ok(
     `${doc} title carries the exact release patch (${VH_VERSION})`,
@@ -83,9 +83,9 @@ for (const doc of docs) {
   );
 }
 for (const doc of OPERATIONAL_DOCS) {
-  let body = read(doc).replace(/docs\/history\/(MJ|VH)-[0-9.]+[-A-Za-z0-9_]*\.md/g, "").replace(/\b(MJ|VH)-[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9-]*\.md\b/g, "");
+  let body = read(doc).replace(/docs\/history\/(VH|VH)-[0-9.]+[-A-Za-z0-9_]*\.md/g, "").replace(/\b(VH|VH)-[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9-]*\.md\b/g, "");
   const staleTokens = [...new Set(
-    [...body.matchAll(/(?:MJ|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)].map((m) => (m[1] ?? m[2] ?? "").trim()).filter((v) => v.length > 0 && v !== VH_VERSION)
+    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)].map((m) => (m[1] ?? m[2] ?? "").trim()).filter((v) => v.length > 0 && v !== VH_VERSION)
   )];
   ok(
     `${doc} names no release other than ${VH_VERSION} in its body`,

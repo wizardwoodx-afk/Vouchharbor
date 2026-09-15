@@ -524,7 +524,7 @@ export interface Counterfactual {
  * State what a different choice would have needed, without inventing what it would have produced.
  *
  * The temptation here is to score the alternative and show a number. That number would be fiction: the
- * alternative harness was never run on this task, so there is no evidence about it. MJ's rule is that
+ * alternative harness was never run on this task, so there is no evidence about it. VH's rule is that
  * metrics come from what actually happened, so a counterfactual reports its own ignorance and lists what
  * a real test would require.
  */

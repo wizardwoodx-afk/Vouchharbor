@@ -1,5 +1,5 @@
 /**
- * MJ 6.0 — unit tests for the pure engine logic.
+ * VH 6.0 — unit tests for the pure engine logic.
  *
  * Run:  npm run unit   (bundled by tools/run-unit.mjs)
  *
@@ -211,7 +211,7 @@ check("every FailureClass has a label", () => {
   }
 });
 
-// ── the two MAST classes MJ used to be blind to ──────────────────────────────
+// ── the two MAST classes VH used to be blind to ──────────────────────────────
 
 check("STEP_REPETITION fires when an agent repeats its own output", () => {
   const h = hashString("the same answer, twice");
@@ -322,7 +322,7 @@ function artifact(id: string, over: Partial<Artifact> = {}): Artifact {
 }
 
 const LEDGER = { head: "abc123", entries: 10, verified: true };
-const GENERATOR = { name: "MJ Desktop", version: "6.0.0", harnesses: ["hermes"] };
+const GENERATOR = { name: "VH Desktop", version: "6.0.0", harnesses: ["hermes"] };
 
 function manifest(artifacts: Artifact[], byId: Record<string, Artifact> = {}) {
   return buildProvenanceManifest(artifacts, { ...Object.fromEntries(artifacts.map((a) => [a.id, a])), ...byId }, {

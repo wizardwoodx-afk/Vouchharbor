@@ -98,8 +98,8 @@ describe("receiptVault — SIEM export", () => {
     vault.issue({ mission: "m1", teamId: "t", gateStatus: "n/a", gateTier: "n/a", receipt: r1 });
     vault.issue({ mission: "m2", teamId: "t", gateStatus: "PASS", gateTier: "cross-vendor", receipt: r2 });
     const lines = vault.siemBundle().trim().split("\n").map((l) => JSON.parse(l) as Record<string, unknown>);
-    const headers = lines.filter((l) => l.type === "mj.receipt.header");
-    const events = lines.filter((l) => l.type === "mj.receipt.event");
+    const headers = lines.filter((l) => l.type === "vh.receipt.header");
+    const events = lines.filter((l) => l.type === "vh.receipt.event");
     assert.equal(headers.length, 2);
     assert.equal(events.length, r1.events.length + r2.events.length);
     // Chain preservation: the emitted event bodies are byte-identical to the receipt's.

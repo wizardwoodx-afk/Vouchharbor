@@ -1,15 +1,15 @@
 /**
- * MJ 11.13.0 — the Proof Dossier (differentiator: policy-to-proof, in one click).
+ * VH 11.13.0 — the Proof Dossier (differentiator: policy-to-proof, in one click).
  *
  * 2026 market research is unambiguous: coding agents compete on benchmarks and
  * inline UX, while enterprises say off-the-shelf copilots lack "reliability,
  * auditability and policy control", and governance vendors sell "policy-to-proof
- * management" as their headline. MJ already holds every underlying artifact —
+ * management" as their headline. VH already holds every underlying artifact —
  * receipts, envelopes, the ledger, the measured experiment. The dossier packs
- * them into ONE exportable, digest-stamped file: what MJ did, what it remembers,
- * what it believes, and the evidence that it improved — without MJ running.
+ * them into ONE exportable, digest-stamped file: what VH did, what it remembers,
+ * what it believes, and the evidence that it improved — without VH running.
  *
- * Honesty rules, as everywhere in MJ:
+ * Honesty rules, as everywhere in VH:
  *  - every number is read live from the local stores at export time — nothing
  *    is claimed that the stores do not hold;
  *  - the digest covers the payload exactly as exported; re-hashing the payload
@@ -31,14 +31,14 @@ export interface ProofDossier {
   format: "vh-dossier/1";
   mjVersion: string;
   generatedAt: string;
-  /** typed memory: what MJ remembers, by ledger type */
+  /** typed memory: what VH remembers, by ledger type */
   memory: {
     scars: number;
     precedents: number;
     scarFirst: true;
     newestLesson: string | null;
   };
-  /** beliefs MJ holds about the user, and how many still need human approval */
+  /** beliefs VH holds about the user, and how many still need human approval */
   beliefs: { total: number; pendingApproval: number };
   /** learned skills: proposed evidence vs human-approved procedure */
   skills: { proposed: number; approved: number };

@@ -2,12 +2,12 @@
  * 11.10.5 — Verified AI Delivery V1: the AI Bill of Materials (suite #58).
  *
  * Auditors now ask: which AI components touched the codebase, where, and are they
- * approved? MJ MEASURES this in its receipts, so the AIBOM is measurement, not
+ * approved? VH MEASURES this in its receipts, so the AIBOM is measurement, not
  * self-report. Proven here:
  *
  * §1 components observed in receipts become entries with roles, missions, identity digests
  * §2 approval status comes from the user's OWN Role Board declaration — owned = approved,
- *    observed-but-undeclared = not-declared (MJ never invents an approval policy)
+ *    observed-but-undeclared = not-declared (VH never invents an approval policy)
  * §3 the honesty rules: version is "not measured", empty vault = empty inventory,
  *    markdown export renders
  */
@@ -109,7 +109,7 @@ describe("AIBOM — the inventory auditors ask for", () => {
     });
     vault.issue({ mission: "m-v", teamId: "t-v", gateStatus: "PASS", gateTier: "cross-vendor", receipt: rc });
     const bom = buildAibom({ records: vault.list(), ownedHarnesses: [], mjVersion: "11.10.5" });
-    assert.match(bom.entries[0].version, /not measured/i, "MJ must not invent a model version it cannot measure");
+    assert.match(bom.entries[0].version, /not measured/i, "VH must not invent a model version it cannot measure");
     assert.match(bom.disclaimer, /not claimed/i);
 
     const empty = buildAibom({ records: [], ownedHarnesses: ["claude-code"], mjVersion: "11.10.5" });

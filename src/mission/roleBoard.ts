@@ -1,13 +1,13 @@
 /**
- * §ROLE BOARD — your harnesses, your roles (MJ 11.9.9).
+ * §ROLE BOARD — your harnesses, your roles (VH 11.9.9).
  *
  * THE REQUIREMENT THIS EXISTS FOR
- * MJ used to ship teams with fixed vendor assignments: Claude plans, Codex reviews, Grok
+ * VH used to ship teams with fixed vendor assignments: Claude plans, Codex reviews, Grok
  * synthesizes. That is a demo configuration, not a product — User 1 has a Claude Code
  * subscription and no Codex; User 2 has Grok Build and nothing else. Both are right. So the
  * role board flips the model: the USER declares which harnesses they actually have
  * (their subscriptions, their installed CLIs, their custom binaries) and the USER decides
- * which harness plays which role. MJ never picks a vendor for them; it only warns when a
+ * which harness plays which role. VH never picks a vendor for them; it only warns when a
  * choice weakens the adversarial posture (see verifyGate.ts).
  *
  * HONESTY RULES
@@ -62,7 +62,7 @@ export function emptyBoard(): RoleBoard {
   return { version: 1, owned: [], assignments: {}, updatedAt: new Date(0).toISOString() };
 }
 
-const STORAGE_KEY = "mj.roleboard.v1";
+const STORAGE_KEY = "vh.roleboard.v1";
 
 export function loadRoleBoard(): RoleBoard {
   try {

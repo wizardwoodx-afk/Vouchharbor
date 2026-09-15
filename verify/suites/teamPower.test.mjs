@@ -153,7 +153,7 @@ function uid(prefix) {
 }
 
 // src/mission/autonomyStore.ts
-var KEY = "mj.autonomy.v1";
+var KEY = "vh.autonomy.v1";
 var memory = null;
 function loadAutonomy() {
   if (memory) return memory;
@@ -183,8 +183,8 @@ function saveAutonomy(next) {
 // src/mission/licensing.ts
 var VERIFY_SECRET = "vh-commercial-v1-offline";
 var TRIAL_DAYS = 14;
-var LS_LICENSE = "mj.license.v1";
-var LS_TRIAL = "mj.trial.start";
+var LS_LICENSE = "vh.license.v1";
+var LS_TRIAL = "vh.trial.start";
 var b64u = (bytes) => {
   let bin = "";
   for (const b2 of bytes) bin += String.fromCharCode(b2);

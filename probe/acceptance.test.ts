@@ -6,7 +6,7 @@
  * checkpoints, the approval gate, rollback and mission memory.
  *
  * Execution uses the labelled `local-test` harness because no coding CLI is installed here.
- * That is a test double for the *worker*; every MJ subsystem under test is the real one. The
+ * That is a test double for the *worker*; every VH subsystem under test is the real one. The
  * runtime is explicitly told execution was simulated, and criterion 17 checks that it
  * therefore refuses to claim a verified completion (§38: no fake success).
  */
@@ -57,7 +57,7 @@ function makeMission(objective: string): Mission {
 }
 
 async function main() {
-  console.log("\n=== MJ 6.0 §39 ACCEPTANCE TEST ===\n");
+  console.log("\n=== VH 6.0 §39 ACCEPTANCE TEST ===\n");
 
   // ---- 1. User creates a Mission -------------------------------------------
   const mission = makeMission("Build a production-ready SaaS billing feature in TypeScript");
@@ -175,7 +175,7 @@ async function main() {
     console.log(`       classified kinds: ${[...kinds].join(", ")}`);
   });
 
-  await criterion(9, "MJ selects a repair strategy, with a stated rationale", () => {
+  await criterion(9, "VH selects a repair strategy, with a stated rationale", () => {
     const repairs = rt.getRepairs();
     ok(repairs.length >= 1, "no repair was attempted");
     ok(repairs.every((r) => r.rationale.length > 0), "a repair has no rationale");

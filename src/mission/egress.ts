@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.0 — the Egress Gate (the enterprise seed).
+ * VH 11.14.0 — the Egress Gate (the enterprise seed).
  *
  * The enterprise thesis, made mechanical: company data lives on the laptop;
  * the cloud is a switchboard, never a warehouse; and NOTHING leaves the
@@ -17,7 +17,7 @@
  *
  * The ledger itself is digest-chained per record: verifyEgressLedger
  * recomputes each record's digest, so any edit to what-left-the-machine is
- * detectable — the CISO's audit trail, not MJ's word.
+ * detectable — the CISO's audit trail, not VH's word.
  */
 import { sha256Hex } from "./learningReceipt";
 import { checkEnvelope, isHumanPrincipal, type AuthorityEnvelope } from "./custody";
@@ -44,7 +44,7 @@ export interface EgressRecord {
   digest: string;
 }
 
-const LS_KEY = "mj.egress.ledger";
+const LS_KEY = "vh.egress.ledger";
 
 export function egressCanonical(r: Omit<EgressRecord, "digest">): string {
   return JSON.stringify([r.id, r.at, r.principal, r.item.kind, r.item.name, r.item.sha256, r.recipient, r.envelopeId]);

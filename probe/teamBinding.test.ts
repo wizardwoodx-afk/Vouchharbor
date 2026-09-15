@@ -3,7 +3,7 @@
  *
  * `agentTeam.test.ts` proves the team model in isolation. This proves the other half: that a saved
  * crew actually changes what a real MissionRuntime plans. A team that only lives in the Teams page
- * would be decoration, and MJ does not ship decoration.
+ * would be decoration, and VH does not ship decoration.
  *
  * Planning here is real. Execution is not run — nothing in this test needs a CLI.
  */

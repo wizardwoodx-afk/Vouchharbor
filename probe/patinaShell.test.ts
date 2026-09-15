@@ -11,13 +11,13 @@
  *
  * Run via esbuild + jsdom in CI (see package.json "test") or directly via:
  *   npx esbuild probe/patinaShell.test.ts --bundle --platform=node --format=esm \
- *     --define:MJ_ROOT='"'$(pwd)'"' --outfile=/tmp/ps.mjs && node /tmp/ps.mjs
+ *     --define:VH_ROOT='"'$(pwd)'"' --outfile=/tmp/ps.mjs && node /tmp/ps.mjs
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 let passed = 0;
 let failed = 0;

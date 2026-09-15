@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v18.8.0 · September 2026*
+*Vouch Harbor Labs · v18.9.0 · September 2026*
 *Companion to `PRESEED-PITCH.md` (the enterprise thesis) — this page is the brand layer and the product story as shipped.*
 
 ---
@@ -26,7 +26,7 @@ bots are not a security boundary — their own docs say so.*
 **Nobody owns the quadrant: a teammate you can talk to, running on YOUR
 machine, that signs what it did.**
 
-## The product (shipped, v18.8.0 — this tree)
+## The product (shipped, v18.9.0 — this tree)
 
 One local-first app (Tauri v2 desktop + browser edition), one engine, six
 doors:
@@ -142,8 +142,8 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
 
 ## Traction & stage (honest)
 
-- Complete, working product — v18.8.0, 30+ tagged releases, **113 probe
-  suites / 112 offline verification bundles**, byte-pinned offline
+- Complete, working product — v18.9.0, 30+ tagged releases, **113 probe
+  suites / 113 offline verification bundles**, byte-pinned offline
   verification pack (runs in ~2.5 min with zero network), CI on the
   Windows pre-seed platform (Node 22, the supported runtime) plus
   certification under both Node v22.23.2 and v20.20.2 on the Linux build
@@ -156,7 +156,7 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
   issuance sealed into the OS keychain, dev-machine leftovers removed).
   **Honesty note: the signed audit report and a reproducible external
   verification artifact are planned public deliverables — they are not
-  claimed today.** An external review tracked the MJ × ROGUE → Vouch Harbor
+  claimed today.** An external review tracked the VH × ROGUE → Vouch Harbor
   lineage and ranked v16.5.0 the strongest build to date.
 - Not yet: lighthouse customers (that's what the raise buys). The open-core
   personal tier + verifier CLI are the adoption engine; the waitlist starts

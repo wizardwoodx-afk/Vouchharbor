@@ -1,14 +1,14 @@
 /**
- * §COMMERCIAL LICENSING — the founder's product gate (MJ 11.9.4-Commercial).
+ * §COMMERCIAL LICENSING — the founder's product gate (VH 11.9.4-Commercial).
  *
  * Editions
- *   personal — free forever, noncommercial (the PolyForm heritage tier)
+ *   personal — free forever, noncommercial (the heritage free tier)
  *   trial    — 14 days of Pro from first launch, no card, no email (PLG rule:
  *              never gate first value; time-to-value beats signup friction)
  *   pro      — HMAC-signed key issued by founder tooling (tools/issue-license.mjs),
  *              verified OFFLINE so local-first stays local-first
  *
- * HONESTY RULES (same standard as the rest of MJ)
+ * HONESTY RULES (same standard as the rest of VH)
  *   1. This is a SOFT gate by design: verification is client-side HMAC, which a
  *      determined attacker can bypass. Hard enforcement (signed native builds +
  *      server attestation) is on the commercial roadmap; the soft gate is what
@@ -18,7 +18,7 @@
  *      session; deleting storage resets it and the UI says "trial (fresh)"
  *      rather than pretending to know.
  *   3. Gating is narrow and declared: Pro unlocks AUTONOMOUS evolution and
- *      elastic caps above 5 seats. Everything that makes MJ MJ — canvas,
+ *      elastic caps above 5 seats. Everything that makes VH VH — canvas,
  *      harnesses, verification, SUGGEST-mode evolution — is free forever.
  */
 
@@ -48,8 +48,8 @@ export const SEAL_SECRET_BY_FORMAT = {
 } as const;
 export const TRIAL_DAYS = 14;
 
-const LS_LICENSE = "mj.license.v1";
-const LS_TRIAL = "mj.trial.start";
+const LS_LICENSE = "vh.license.v1";
+const LS_TRIAL = "vh.trial.start";
 
 const b64u = (bytes: Uint8Array): string => {
   let bin = "";

@@ -1,7 +1,7 @@
 /**
- * MJ 11.12.1 (Varkha extract) — escalation signals, measured not vibes.
+ * VH 11.12.1 (Varkha extract) — escalation signals, measured not vibes.
  *
- * The only escalation input MJ trusts here is a mechanical pattern: identical
+ * The only escalation input VH trusts here is a mechanical pattern: identical
  * consecutive turn signatures (MAST's "step repetition", ~15.7% of documented
  * multi-agent failures). `repetitionDepth` returns the longest run of
  * identical signatures. The executor records it per seat; the UI may SUGGEST

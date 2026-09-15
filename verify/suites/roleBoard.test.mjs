@@ -20,7 +20,7 @@ var VERIFIER_ROLES = /* @__PURE__ */ new Set(["reviewer", "security", "tester"])
 function emptyBoard() {
   return { version: 1, owned: [], assignments: {}, updatedAt: (/* @__PURE__ */ new Date(0)).toISOString() };
 }
-var STORAGE_KEY = "mj.roleboard.v1";
+var STORAGE_KEY = "vh.roleboard.v1";
 function loadRoleBoard() {
   try {
     const raw = globalThis.localStorage?.getItem(STORAGE_KEY);

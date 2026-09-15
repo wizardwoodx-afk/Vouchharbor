@@ -73,7 +73,7 @@ var section = (s) => console.log(`
 var ROOT = ".".length > 0 ? "." : process.cwd();
 function declareRootCheck() {
   if (!fs.existsSync(path.join(ROOT, "package.json"))) {
-    console.error("licensing: project root not found; rebuild with --define:MJ_ROOT");
+    console.error("licensing: project root not found; rebuild with --define:VH_ROOT");
     process.exit(2);
   }
 }

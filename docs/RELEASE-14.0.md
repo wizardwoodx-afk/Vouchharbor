@@ -1,4 +1,4 @@
-# MJ 14.0.0 — The Assurance Release · fix & features file
+# VH 14.0.0 — The Assurance Release · fix & features file
 
 > This is the packaging record for 14.0: the market research behind each new feature,
 > what ships, the honesty rules it obeys, and every fix folded in. Positioning rule for
@@ -10,15 +10,15 @@
 ## 1 · Why 14.0 exists
 
 13.x proved the thesis technically (75 suites, receipts, arena, gates). What it lacked
-was **customer-shaped surfaces**: an auditor who will never install MJ, a CFO who thinks
+was **customer-shaped surfaces**: an auditor who will never install VH, a CFO who thinks
 in chargeback rows, a risk committee that thinks in scores, an incident responder who
 thinks in black boxes. The 2026 market named all four jobs — research below — so 14.0
 implements them on top of the existing, tested engine. Nothing here is a wrapper around
-someone else's dashboard; everything is derived from artifacts MJ already measures.
+someone else's dashboard; everything is derived from artifacts VH already measures.
 
 ---
 
-## 2 · The researched features (what makes MJ stand apart)
+## 2 · The researched features (what makes VH stand apart)
 
 ### 2.0 · Product surfaces — the Audit page consumes the stores (the integration pass)
 
@@ -50,11 +50,11 @@ through their real APIs and asserts the derived outputs, including the refusal c
   traceability a third party can check.
 - **What ships:** a one-file, zero-dependency verifier (node: builtins only — the probe
   pins its import list) that recomputes the hash chain, the HMAC seal, and the Ed25519
-  issuer signature of any MJ receipt, from a file or stdin. Exit 0 = VALID with the
+  issuer signature of any VH receipt, from a file or stdin. Exit 0 = VALID with the
   exact break point named on failure.
 - **Why it differentiates:** every competitor's audit story ends at "export our logs."
-  MJ's ends at "run this file on an air-gapped laptop." That is the open-standard wedge:
-  if agent receipts become a procurement checkbox, MJ owns the verifier.
+  VH's ends at "run this file on an air-gapped laptop." That is the open-standard wedge:
+  if agent receipts become a procurement checkbox, VH owns the verifier.
 - **Probe:** `probe/verifierTool.test.ts` — fresh receipt VALID, tamper INVALID at the
   exact seq, v1 seal-only receipts still verify, stdin path works.
 
@@ -65,7 +65,7 @@ through their real APIs and asserts the derived outputs, including the refusal c
   chargeback/showback — all derived from provider bills and gateway telemetry, i.e.
   *after the fact, someone else's counters*. Regulated buyers ask for "audit-ready AI
   cost reporting" (Amnic's 2026 tool guide).
-- **What ships:** chargeback rows computed where spend is actually committed — MJ's
+- **What ships:** chargeback rows computed where spend is actually committed — VH's
   budget ledger reserves and settles real seat costs atomically at dispatch. Digest-
   stamped (`verifyChargebackDigest`), RFC-4180 CSV export with fixed columns.
 - **Honesty rules (probe-pinned):** tokens-only seats are `unmeasured`, never priced;
@@ -84,7 +84,7 @@ through their real APIs and asserts the derived outputs, including the refusal c
 - **What ships:** a 0–100 score with a named factor breakdown — verification mix 35
   (cross-vendor verified ratio is the strong form; same-vendor capped), governance arena
   20, budget discipline 20, egress integrity 15, human feedback 10 — computed only from
-  artifacts MJ already issues (gate verdicts, arena digests, the budget ledger, the
+  artifacts VH already issues (gate verdicts, arena digests, the budget ledger, the
   egress ledger, human ratings).
 - **Honesty rules (probe-pinned):** zero measured runs → `unevaluated` (the bandit's
   settlement rule, applied to scores); simulated runs **dilute** via evidence coverage
@@ -108,7 +108,7 @@ through their real APIs and asserts the derived outputs, including the refusal c
   digest covers the mark (the dossier cannot look healthier than its evidence); flipping
   a verdict after sealing fails verification; the timeline must be in canonical order.
 - **Why it differentiates:** vendor flight recorders ask you to trust their cloud;
-  MJ's black box is a file on your machine whose integrity any third party re-computes
+  VH's black box is a file on your machine whose integrity any third party re-computes
   with the 14.0 verifier.
 
 ---
@@ -119,7 +119,7 @@ through their real APIs and asserts the derived outputs, including the refusal c
 |---|---|
 | CI probe watchdog 120s → 300s default; `MJ_PROBE_TIMEOUT_MS` set in CI; `set -o pipefail` + always-on `probe-run.log` artifact upload; runner git identity before probes | `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `tools/run-all-probes.mjs` |
 | Receipt-issuer Ed25519 key seals to the **OS keychain** on native desktop (new typed `secret_get` IPC); browser keeps localStorage; probes keep the deterministic path | `src/mission/signing.ts`, `src/ipc/client.ts`, `src-tauri/src/commands.rs`, `src-tauri/src/lib.rs` |
-| Portable browser-service paths (`%LOCALAPPDATA%\MJ\mj-browser`, `~/.local/share/mj/mj-browser`); dev-machine `D:\` paths removed from code, Node search, and user-facing messages | `src-tauri/src/commands.rs` |
+| Portable browser-service paths (`%LOCALAPPDATA%\VH\mj-browser`, `~/.local/share/mj/mj-browser`); dev-machine `D:\` paths removed from code, Node search, and user-facing messages | `src-tauri/src/commands.rs` |
 | README duplicated header repaired; positioning banner added | `README.md` |
 
 ---

@@ -42,8 +42,8 @@ import {
   verifyVouchReceipt,
 } from "../src/vouch/engine/vouch";
 
-declare const MJ_ROOT: string | undefined;
-const ROOT = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 

@@ -1,7 +1,7 @@
 /**
- * MJ 11.11 SELF-EVOLVING — skill evolution.
+ * VH 11.11 SELF-EVOLVING — skill evolution.
  *
- * Self-evolving agents grow their own toolsets; MJ does it the provable way.
+ * Self-evolving agents grow their own toolsets; VH does it the provable way.
  * A skill is proposed ONLY from a verified, non-simulated mission, names the
  * mission it was learned from, and never installs itself — a human approves
  * it on the Evolve page, and only then does it surface in the node library as
@@ -17,7 +17,7 @@ export interface SkillProposal {
   id: string;
   name: string;
   description: string;
-  /** 11.13.1 — "observed-pattern": a capability pattern MJ studied in another public agent system (patterns, never code).
+  /** 11.13.1 — "observed-pattern": a capability pattern VH studied in another public agent system (patterns, never code).
    *  12.1.0 — "knowledge": a human-approved distillation of an external document (book/chapter/SKILL.md). It
    *  is approved HUMAN knowledge — never a claim of measured effect; it rides briefings as [knowledge]. */
   source: "verified-mission" | "repeated-failure" | "observed-pattern" | "knowledge";
@@ -27,7 +27,7 @@ export interface SkillProposal {
 }
 
 export const PROPOSAL_CAP = 20;
-const LS_KEY = "mj.skills.v1";
+const LS_KEY = "vh.skills.v1";
 
 let seq = 0;
 

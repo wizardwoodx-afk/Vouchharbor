@@ -1,7 +1,7 @@
 /**
- * MJ 12.1.0 — the KNOWLEDGE FORGE probe.
+ * VH 12.1.0 — the KNOWLEDGE FORGE probe.
  *
- * Books → skills, done MJ's way: documents are distilled locally into
+ * Books → skills, done VH's way: documents are distilled locally into
  * structured knowledge PROPOSALS (mechanical extractor core, optional LLM
  * pass through the machine's own harness CLIs), and nothing installs without
  * a human decision. Guardlines pinned here:
@@ -188,7 +188,7 @@ async function main(): Promise<void> {
   const cc2 = classifyEndpoint("http://localhost:11434");
   ok("loopback override → local-configured with the reason written", cc2.endpointClass === "local-configured" && /loopback/.test(cc2.note));
   const cc3 = classifyEndpoint("https://gateway.corp.example");
-  ok("non-loopback override → unknown (MJ cannot tell where a proxy terminates)", cc3.endpointClass === "unknown" && /cannot determine/.test(cc3.note));
+  ok("non-loopback override → unknown (VH cannot tell where a proxy terminates)", cc3.endpointClass === "unknown" && /cannot determine/.test(cc3.note));
   const cc4 = classifyEndpoint("not a url at all");
   ok("invalid override URL → unknown, never a guess", cc4.endpointClass === "unknown");
   const det = await proposeKnowledgeSkill({ content: DOC, sourceName: "detected.md", llm: { harness: "claude", deps: scriptedDeps({ env: { ANTHROPIC_BASE_URL: "http://127.0.0.1:11434" } }) } });

@@ -1,10 +1,10 @@
 /**
- * §INCIDENT BLACK BOX — the forensics dossier for agent missions (MJ 14.0).
+ * §INCIDENT BLACK BOX — the forensics dossier for agent missions (VH 14.0).
  *
  * WHY THIS EXISTS
  * The market just named this category (Microsoft's AgentRx replay diagnostics, March
  * 2026; Vorlon's "AI Agent Flight Recorder" at RSAC 2026 — both capture telemetry into
- * someone else's cloud and ask you to trust their immutability). MJ's version is local
+ * someone else's cloud and ask you to trust their immutability). VH's version is local
  * and cryptographic: ONE digest-stamped JSON that bundles the mission timeline, every
  * proof receipt RE-VERIFIED at export time, and a SIEM-shaped JSONL projection. When an
  * agent incident happens, the investigator gets a black box, not log archaeology.

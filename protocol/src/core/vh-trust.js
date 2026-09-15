@@ -157,7 +157,7 @@ export function findAuthorization(fp, action, links, now = Date.now(), { grantPo
  *                  → recent actions contribute more than old ones
  *   lastSeen     : timestamp of the most recent action of that type
  *
- * Example for MJ:
+ * Example for VH:
  *   byCapability = {
  *     execute_trade:     { count: 47, decayedWeight: 31.2, lastSeen: <ts> },
  *     read_market_data:  { count: 203, decayedWeight: 108.1, lastSeen: <ts> },

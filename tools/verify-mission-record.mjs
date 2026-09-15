@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * verify-mission-record — standalone, zero-dependency verifier for MJ Mission Records
- * (MJ 14.1.1 — now with an EXTERNAL trust anchor).
+ * verify-mission-record — standalone, zero-dependency verifier for VH Mission Records
+ * (VH 14.1.1 — now with an EXTERNAL trust anchor).
  *
  *   node verify-mission-record.mjs <record.json | -> [--issuer-key <hex64 | @path>]
  *
  * THE TRUST MODEL (fixed in 14.1.1 — the reviewer's forgery attack, closed)
  * A record carries its own issuer public key; signature math alone can NEVER prove
- * that key belongs to MJ — a forger can self-sign with their own key. Authenticity
- * therefore requires the issuer key to be PINNED OUT OF BAND: exchange MJ's issuer
+ * that key belongs to VH — a forger can self-sign with their own key. Authenticity
+ * therefore requires the issuer key to be PINNED OUT OF BAND: exchange VH's issuer
  * fingerprint once (the app shows it; this verifier prints it), then pin it at every
  * verification with --issuer-key.
  *
@@ -173,7 +173,7 @@ function main() {
     console.log(`INVALID: the record's issuer key does NOT match the trusted issuer.`);
     console.log(`  record key fingerprint:  ${recordedFp ?? "(none)"}…`);
     console.log(`  trusted key fingerprint: ${keyFingerprint(trusted)}…`);
-    console.log("Do not trust this record. Exchange fingerprints out-of-band and retry, or obtain the record from a genuine MJ issuer.");
+    console.log("Do not trust this record. Exchange fingerprints out-of-band and retry, or obtain the record from a genuine VH issuer.");
     process.exit(1);
   }
 

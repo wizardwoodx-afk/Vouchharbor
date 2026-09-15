@@ -1,5 +1,5 @@
 /**
- * §WEB EVIDENCE — the Researcher grows a real web-search layer (MJ 11.9.4-Major).
+ * §WEB EVIDENCE — the Researcher grows a real web-search layer (VH 11.9.4-Major).
  *
  * WHY
  *   The Researcher's contract says "gather sources you can point at, return
@@ -17,7 +17,7 @@
  *   first-party), search endpoints are META (indexes over the web). The
  *   Researcher reports the kind instead of pretending everything is primary.
  *
- * HONESTY RULES (the same ones the rest of MJ obeys)
+ * HONESTY RULES (the same ones the rest of VH obeys)
  *   1. A provider that fails (timeout, CORS, HTTP error, not configured) is
  *      reported in `providers` with the reason — never silently dropped.
  *   2. Confidence is computed from measured overlap + recency, bucketed

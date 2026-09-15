@@ -742,7 +742,7 @@ export class MissionRuntime {
       } else if (realTest) {
         checks.push(unmeasuredCheck(`Test run: ${cmd}`, "TEST_RUN", `the repository's own test command could not be run: ${realTest.reason}`));
       } else if (outcome.simulated) {
-        checks.push(unmeasuredCheck(`Test run: ${cmd}`, "TEST_RUN", "the runtime was MJ's labelled simulation, so no real command was executed"));
+        checks.push(unmeasuredCheck(`Test run: ${cmd}`, "TEST_RUN", "the runtime was VH's labelled simulation, so no real command was executed"));
       } else {
         checks.push(testRunCheck(cmd, outcome.text, outcome.ok ? 0 : 1));
       }
@@ -1580,7 +1580,7 @@ export function emptyGraph(mission: Mission): WorkflowGraph {
  *
  * Every step becomes exactly one node. Required inputs are wired deliberately, never by
  * "first port to first port": a wire that does not satisfy the type system is worse than no
- * wire at all, because the validator then reports a graph MJ itself produced as broken.
+ * wire at all, because the validator then reports a graph VH itself produced as broken.
  */
 export function graphFromSteps(mission: Mission, steps: PlanStep[]): WorkflowGraph {
   const graph = emptyGraph(mission);
@@ -1681,7 +1681,7 @@ function taskForNode(rt: MissionRuntime, nodeId: string): string {
 
 function buildIncompleteReason(artifacts: Artifact[], simulatedUsed: boolean): string {
   const parts: string[] = [];
-  if (simulatedUsed) parts.push("execution used MJ's labelled simulation, so nothing was really built");
+  if (simulatedUsed) parts.push("execution used VH's labelled simulation, so nothing was really built");
   const unverified = artifacts.filter((a) => a.evaluation && (!a.evaluation.passed || !a.evaluation.fullyMeasured));
   if (unverified.length) {
     parts.push(

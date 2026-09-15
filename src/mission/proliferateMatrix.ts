@@ -1,7 +1,7 @@
 /**
- * Architectural Matrix: MJ vs Standard Multi-Agent IDEs & Workspaces.
+ * Architectural Matrix: VH vs Standard Multi-Agent IDEs & Workspaces.
  *
- * Details the structural and algorithmic capabilities in MJ that address
+ * Details the structural and algorithmic capabilities in VH that address
  * key bottlenecks in agent orchestration, parallel development, and verification.
  */
 

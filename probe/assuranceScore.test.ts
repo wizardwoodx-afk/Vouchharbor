@@ -1,5 +1,5 @@
 /**
- * MJ 14.0 — Fleet Assurance Score (suite #77).
+ * VH 14.0 — Fleet Assurance Score (suite #77).
  *
  * §1 the refusal: no measured runs → unevaluated (simulated runs teach nothing)
  * §2 the ceiling: perfect measured evidence scores 100/A and the factor maxes sum to 100

@@ -1,5 +1,5 @@
 /**
- * MJ 11.14.1 — the Capability Channel (the enterprise thesis, working).
+ * VH 11.14.1 — the Capability Channel (the enterprise thesis, working).
  *
  * The upgrade from "share a file" to "expose a capability without exposing
  * the data": Employee 2 does not receive Employee 1's dataset. Employee 2
@@ -15,7 +15,7 @@
  *    principal are each refused in words;
  *  - the result is digest-stamped, so the receipt proves WHICH answer left;
  *  - the demo dataset stands in for "company data on this laptop" and is
- *    labelled as such — MJ does not pretend to see a real corporate store.
+ *    labelled as such — VH does not pretend to see a real corporate store.
  */
 import { sha256Hex } from "./learningReceipt";
 import { checkEnvelope, isHumanPrincipal, type AuthorityEnvelope } from "./custody";
@@ -26,7 +26,7 @@ export interface CapabilityRequest {
    *  colleague exhausting their budget never spends another's */
   requester: string;
   /**
-   * MJ 11.14.3 — optional equality predicates applied BEFORE aggregation
+   * VH 11.14.3 — optional equality predicates applied BEFORE aggregation
    * (e.g. `{ region: "APAC" }`). The minimum-cohort guard applies to the
    * FILTERED subset — that is exactly where reconstruction attacks live.
    */
@@ -53,7 +53,7 @@ export interface CapabilityResult {
 export const CAPABILITY_OPS: CapabilityRequest["op"][] = ["count", "sum", "avg", "max"];
 
 /**
- * MJ 11.14.2 — the Privacy Guard (the 9.9/10 review's serious problem, faced
+ * VH 11.14.2 — the Privacy Guard (the 9.9/10 review's serious problem, faced
  * honestly: aggregate-only does NOT automatically mean privacy-safe — narrow
  * or repeated aggregate queries can reconstruct rows). The production answer
  * is dataset-level policy enforced BEFORE any computation:
@@ -79,7 +79,7 @@ export interface DatasetPolicy {
 
 
 /**
- * MJ 11.14.3 — the privacy budget is DURABLE. The 11.14.2 review named the
+ * VH 11.14.3 — the privacy budget is DURABLE. The 11.14.2 review named the
  * in-memory budget as the biggest remaining weakness: restart the process,
  * budget gone, reconstruction attack resumes. The budget now lives in an
  * append-only, digest-chained ledger (same discipline as the egress ledger):
@@ -104,7 +104,7 @@ export interface PrivacyLedgerEntry {
   digest: string;
 }
 
-const LS_PRIVACY = "mj.privacy.ledger";
+const LS_PRIVACY = "vh.privacy.ledger";
 
 export function privacyCanonical(e: Omit<PrivacyLedgerEntry, "digest">): string {
   return JSON.stringify([e.id, e.dataset, e.requester, e.op, e.field, e.filtered, e.countedAt, e.prev]);
@@ -121,7 +121,7 @@ export function loadPrivacyLedger(): PrivacyLedgerEntry[] {
   return [];
 }
 
-const LS_PRIVACY_ANCHOR = "mj.privacy.ledger.anchor";
+const LS_PRIVACY_ANCHOR = "vh.privacy.ledger.anchor";
 
 export function savePrivacyLedger(entries: PrivacyLedgerEntry[]): void {
   try {

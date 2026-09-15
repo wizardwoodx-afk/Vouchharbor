@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 
 // src/mission/fleet.ts
 var EVENTS_CAP = 800;
-var STORAGE_KEY = "mj.fleet.v1";
+var STORAGE_KEY = "vh.fleet.v1";
 var DEFAULT_STAGNANT_AFTER_MS = 15 * 60 * 1e3;
 var FleetBoard = class {
   events = null;

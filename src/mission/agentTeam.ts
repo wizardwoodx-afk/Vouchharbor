@@ -4,7 +4,7 @@
  * THE MODELLING DECISION THAT MATTERS
  *
  * A seat is a role — planner, coder, reviewer — not an agent. Binding a harness to a seat is a
- * separate step, which is what lets MJ re-arbitrate when a CLI fails without rewriting the plan, and
+ * separate step, which is what lets VH re-arbitrate when a CLI fails without rewriting the plan, and
  * what lets the same team run on Claude today and Codex tomorrow.
  *
  * THE SAFETY RULE
@@ -32,7 +32,7 @@ export interface TeamSeat {
   maxRisk?: RiskClass;
   /** Wall-clock ceiling for one invocation, in seconds. */
   timeoutSecs: number;
-  /** Turn ceiling, or null when the CLI has no such control and MJ's ledger is the only limit. */
+  /** Turn ceiling, or null when the CLI has no such control and VH's ledger is the only limit. */
   maxTurns: number | null;
   instructions: string;
 }
@@ -155,9 +155,9 @@ export interface ComposedInvocation {
   argv: string[];
   /** Env vars the CLI needs, e.g. Cline's command permissions. */
   env: Record<string, string>;
-  /** Files MJ must write into the workspace before running, e.g. Cursor's cli-config.json. */
+  /** Files VH must write into the workspace before running, e.g. Cursor's cli-config.json. */
   files: Array<{ path: string; contents: string }>;
-  /** What MJ can honestly claim about this invocation. */
+  /** What VH can honestly claim about this invocation. */
   claims: {
     readOnlyEnforced: boolean;
     /** "usd" only when the CLI reports real dollars. "tokens-only" means DO NOT convert at a guessed price. */
@@ -205,7 +205,7 @@ export function composeSeatArgv(
     $SECS: String(teamSeat.timeoutSecs),
     $SESSION: ctx.sessionId ?? "",
     $REVIEWER: "vh-readonly",
-    $NAME: `mj-${teamSeat.id}`,
+    $NAME: `vh-${teamSeat.id}`,
   };
 
   const argv: string[] = [];
@@ -271,13 +271,13 @@ export function composeSeatArgv(
         2,
       ),
     });
-    warnings.push("Cursor's -p mode has a reported bug where the process does not exit after emitting the result. MJ applies a wall-clock timeout and parses the stream rather than waiting for exit.");
+    warnings.push("Cursor's -p mode has a reported bug where the process does not exit after emitting the result. VH applies a wall-clock timeout and parses the stream rather than waiting for exit.");
   }
   if (teamSeat.harness === "kilo" && wantsReadOnly) {
-    // Kilo expresses read-only per agent, so MJ has to author the agent file.
+    // Kilo expresses read-only per agent, so VH has to author the agent file.
     files.push({
       path: ".kilo/agents/vh-readonly.md",
-      contents: `---\ndescription: MJ read-only reviewer\nmode: subagent\npermission:\n  edit: deny\n  bash: deny\n---\n\n${teamSeat.instructions || "Review only. Do not modify files."}\n`,
+      contents: `---\ndescription: VH read-only reviewer\nmode: subagent\npermission:\n  edit: deny\n  bash: deny\n---\n\n${teamSeat.instructions || "Review only. Do not modify files."}\n`,
     });
     warnings.push("Kilo read-only depends on the generated .kilo/agents/vh-readonly.md being picked up; verify with kilo --help.");
   }
@@ -287,7 +287,7 @@ export function composeSeatArgv(
 
   for (const claim of unverifiedClaims(teamSeat.harness)) warnings.push(`Unverified flag — ${claim}`);
 
-  // Filter out any flag MJ resolved to an empty string, so a missing $MODEL cannot leave a bare
+  // Filter out any flag VH resolved to an empty string, so a missing $MODEL cannot leave a bare
   // `--model` behind and swallow the next argument.
   const cleanFlags = flags.filter((f) => f.length > 0);
 
@@ -398,11 +398,11 @@ export function parseTeam(raw: string): ParseResult {
   }
   const env = parsed as Partial<SerializedTeam>;
   if (!env || typeof env !== "object" || !env.team) {
-    const err = "Missing the `team` object. MJ exports { schemaVersion, team }.";
+    const err = "Missing the `team` object. VH exports { schemaVersion, team }.";
     return { ok: false, team: null, error: err, errors: [err], findings: [] };
   }
   if (env.schemaVersion !== SCHEMA_VERSION) {
-    const err = `Schema version ${String(env.schemaVersion)} is not supported (expected ${SCHEMA_VERSION}); MJ will not guess how to migrate it.`;
+    const err = `Schema version ${String(env.schemaVersion)} is not supported (expected ${SCHEMA_VERSION}); VH will not guess how to migrate it.`;
     return { ok: false, team: null, error: err, errors: [err], findings: [] };
   }
   const t = env.team;
@@ -427,7 +427,7 @@ export function parseTeam(raw: string): ParseResult {
   return { ok: true, team: t as CliAgentTeam, error: null, errors: [], findings };
 }
 
-const STORAGE_KEY = "mj.teams.v1";
+const STORAGE_KEY = "vh.teams.v1";
 
 export function loadSavedTeams(): CliAgentTeam[] {
   try {
@@ -471,7 +471,7 @@ const RISK_LEVELS: Record<RiskClass, number> = {
  * Which seat should run a task of this kind and risk.
  *
  * CRITICAL is refused outright. No sandbox mapping makes an irreversible action safe to hand to an
- * agent, so MJ escalates to a human instead of picking a seat and hoping.
+ * agent, so VH escalates to a human instead of picking a seat and hoping.
  */
 export function seatForTask(team: CliAgentTeam, role: TeamRole, risk: RiskClass): { seat: TeamSeat | null; reason: string | null } {
   if (risk === "CRITICAL") {
@@ -523,7 +523,7 @@ export interface BindResult {
  * Bind a team to a plan's steps.
  *
  * `unbound` does not mean failure — it means the arbitrator still decides at runtime. Keeping that
- * distinct from `refused` (MJ will not assign this at all) is what stops a plan looking fully bound
+ * distinct from `refused` (VH will not assign this at all) is what stops a plan looking fully bound
  * when half of it is undecided.
  */
 export function bindTeamToPlan(team: CliAgentTeam, steps: Array<{ id: string; kind: string; risk: RiskClass }>): BindResult {

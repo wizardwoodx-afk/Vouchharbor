@@ -1,16 +1,16 @@
 /**
- * §7 Agent-to-Agent discovery for MJ (V11, MJ-11.0-PROPOSAL W7). FENCED: OFF by default.
+ * §7 Agent-to-Agent discovery for VH (V11, VH-11.0-PROPOSAL W7). FENCED: OFF by default.
  *
  * The 2026 state of agent interoperability: A2A v0.3 is a Linux Foundation project with real
  * adoption (50+ partners), but it describes *task* exchange between self-standing agents, not
- * the local, human-supervised seats MJ runs. V11 therefore ships only the discovery + contract
+ * the local, human-supervised seats VH runs. V11 therefore ships only the discovery + contract
  * half — reading and validating Agent Cards — behind an explicit opt-in flag. Nothing in V11
  * *calls* a remote agent: that would move authority across a network boundary the governance
  * model cannot see, and would be a lie about supervision. What this file does:
  *
  *   • `parseAgentCard(json)` — validate a card from https://host/.well-known/agent-card.json
  *     (the v0.3 location; the legacy /.well-known/agent.json is accepted and labelled).
- *   • `agentCardForMission(mission)` — emit MJ's own card for a mission, so the local runtime
+ *   • `agentCardForMission(mission)` — emit VH's own card for a mission, so the local runtime
  *     can be *described* in A2A terms the day federation is proven.
  *   • `remoteAgentToSeatDraft(card)` — turn a validated card into a DRAFT seat descriptor the
  *     human must confirm before anything runs. Drafts never execute; they are documentation
@@ -113,12 +113,12 @@ export async function discoverAgentCard(host: string): Promise<{ ok: true; card:
   }
 }
 
-/** MJ's own card, in A2A terms. Local documentation — nothing serves it over the network. */
+/** VH's own card, in A2A terms. Local documentation — nothing serves it over the network. */
 export function agentCardForMission(mission: { id: string; title: string; description: string; steps: Array<{ id: string; title: string; summary: string }> }): AgentCard {
   return {
-    name: `MJ Mission: ${mission.title}`,
+    name: `VH Mission: ${mission.title}`,
     description: mission.description,
-    url: "http://localhost/local-mj",
+    url: "http://localhost/local-vh",
     version: VH_VERSION,
     protocolVersion: "0.3",
     capabilities: { streaming: false, pushNotifications: false },
@@ -128,8 +128,8 @@ export function agentCardForMission(mission: { id: string; title: string; descri
       {
         id: mission.id,
         name: mission.title,
-        description: `A supervised MJ mission with ${mission.steps.length} checkpointed steps: ${mission.steps.map((s) => s.title).join(" → ")}`,
-        tags: ["mj", "supervised", "local"],
+        description: `A supervised VH mission with ${mission.steps.length} checkpointed steps: ${mission.steps.map((s) => s.title).join(" → ")}`,
+        tags: ["vh", "supervised", "local"],
       },
     ],
   };

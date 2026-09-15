@@ -50,7 +50,7 @@ const THEME_ALIASES: Record<string, ThemeId> = {
   travertine: "bone", "nothing-light": "bone", paper: "bone",
 };
 
-const PREFS_KEY = "mj.editor.prefs";
+const PREFS_KEY = "vh.editor.prefs";
 export function getEditorPrefs(): EditorPrefs {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
@@ -467,7 +467,7 @@ export const useGraphStore = create<GraphState>((set, get) => {
       const seen = new Set<string>();
       while (stack.length) {
         const cur = stack.pop()!;
-        if (cur === sourceNodeId) return "That wire would create a loop — MJ runs DAGs.";
+        if (cur === sourceNodeId) return "That wire would create a loop — VH runs DAGs.";
         for (const nx of adj.get(cur) ?? []) {
           if (!seen.has(nx)) {
             seen.add(nx);
@@ -500,7 +500,7 @@ export const useGraphStore = create<GraphState>((set, get) => {
 
     setNodeStatus: (nodeId: string, status: string) => {
       runtimeStatus.set(nodeId, status);
-      window.dispatchEvent(new CustomEvent(`mj:status:${nodeId}`));
+      window.dispatchEvent(new CustomEvent(`vh:status:${nodeId}`));
     },
 
     setViewport: (vp) => {
@@ -655,7 +655,7 @@ export function getNodeRuntimeStatus(nodeId: string): string {
 
 export function setNodeRuntimeOutput(nodeId: string, text: string) {
   runtimeOutput.set(nodeId, text);
-  window.dispatchEvent(new CustomEvent(`mj:out:${nodeId}`));
+  window.dispatchEvent(new CustomEvent(`vh:out:${nodeId}`));
 }
 
 export function getNodeRuntimeOutput(nodeId: string): string {
@@ -666,8 +666,8 @@ export function useNodeRuntimeStatus(nodeId: string): string {
   return useSyncExternalStore(
     (cb) => {
       const handler = () => cb();
-      window.addEventListener(`mj:status:${nodeId}`, handler);
-      return () => window.removeEventListener(`mj:status:${nodeId}`, handler);
+      window.addEventListener(`vh:status:${nodeId}`, handler);
+      return () => window.removeEventListener(`vh:status:${nodeId}`, handler);
     },
     () => runtimeStatus.get(nodeId) ?? "",
   );
@@ -677,8 +677,8 @@ export function useNodeRuntimeOutput(nodeId: string): string {
   return useSyncExternalStore(
     (cb) => {
       const handler = () => cb();
-      window.addEventListener(`mj:out:${nodeId}`, handler);
-      return () => window.removeEventListener(`mj:out:${nodeId}`, handler);
+      window.addEventListener(`vh:out:${nodeId}`, handler);
+      return () => window.removeEventListener(`vh:out:${nodeId}`, handler);
     },
     () => runtimeOutput.get(nodeId) ?? "",
   );

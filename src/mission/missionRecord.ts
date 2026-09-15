@@ -1,17 +1,17 @@
 /**
- * §THE MISSION RECORD — one signed file per mission (MJ 14.1).
+ * §THE MISSION RECORD — one signed file per mission (VH 14.1).
  *
  * WHY THIS EXISTS
- * MJ's evidence was complete but distributed: the authority story lived in the arena
+ * VH's evidence was complete but distributed: the authority story lived in the arena
  * stamps, execution in the loop ledger, verification in the gate tiers, cost in the
  * budget ledger, proof in the receipt vault, the finance view in the chargeback, the
  * risk view in the assurance score, the incident view in the black box. Each was real;
  * together they read like sub-features. The Mission Record is the container that makes
  * them ONE product: for any mission, ONE canonical, hash-digested, Ed25519-signed file
  * that a finance team, an auditor, a risk committee, and an incident responder each
- * read their own way — and anyone can verify with zero MJ state.
+ * read their own way — and anyone can verify with zero VH state.
  *
- *   One mission. One record. Zero MJ state required — the issuer public key is the
+ *   One mission. One record. Zero VH state required — the issuer public key is the
  *   trust anchor: exchange its fingerprint out-of-band once, pin it at verify time.
  *
  * THE HONESTY RULES
@@ -24,7 +24,7 @@
  *    and the record can never disagree.
  *  - Receipts are re-verified at seal time and at verify time; a broken receipt is
  *    carried WITH its mark. The record cannot look healthier than its evidence.
- *  - Ed25519 signature over the record digest via MJ's issuer key. When the runtime
+ *  - Ed25519 signature over the record digest via VH's issuer key. When the runtime
  *    cannot sign, signature stays null with signatureNote — the digest still
  *    attests integrity, and the record says so.
  */

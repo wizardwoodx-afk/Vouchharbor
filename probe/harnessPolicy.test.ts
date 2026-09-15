@@ -4,7 +4,7 @@
  *
  * The fixtures below are shaped like real CLI output (Claude Code `--output-format json`,
  * Codex `--json` NDJSON, OpenCode `--format json` events). If a harness changes its schema this
- * test goes red, which is the point: MJ would otherwise silently stop measuring spend.
+ * test goes red, which is the point: VH would otherwise silently stop measuring spend.
  */
 
 import { ENFORCED_SANDBOX, parseUsage, permissionPreamble, policyFor, type HarnessPolicyRequest } from "../src/mission/harnessPolicy";
@@ -130,7 +130,7 @@ console.log("\n== real usage parsing ==\n");
   ].join("\n");
   const u = parseUsage("codex", codexOut);
   eq(u.tokens, 10500, "codex tokens must come from the turn.completed usage");
-  eq(u.costUsd, null, "codex does not report dollars — MJ must not guess a price");
+  eq(u.costUsd, null, "codex does not report dollars — VH must not guess a price");
   ok(/4 NDJSON event/.test(u.source), `source must count events, got ${u.source}`);
 }
 {

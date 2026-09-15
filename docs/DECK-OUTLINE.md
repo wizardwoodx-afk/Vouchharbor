@@ -57,7 +57,7 @@ item**, not a dev-tool line item.
 The receipt protocol ships open — the standard is the moat.
 
 **S8 — Traction & engineering as signal (honest slide)**
-Shipped: v18.8.0, 30+ releases, 113 probe suites + 112 offline bundles, byte-pinned offline
+Shipped: v18.9.0, 30+ releases, 114 probe suites + 113 offline bundles, byte-pinned offline
 verification pack, cross-platform CI, independent Sep-2026 audit of the
 receipt cryptography (zero integrity failures under deliberate tampering).
 Honest gaps (this is the roadmap, not a secret): lighthouse customers,
@@ -65,7 +65,7 @@ two-machine transport, real FS/terminal tools behind the gate.
 *We ship like we audit: every claim in this deck has a gate behind it.*
 
 **S9 — The team**
-Sree Harshen — founder/engineer: shipped the agent-work engine solo across 30+
+the Vouch Harbor team — founder/engineer: shipped the agent-work engine solo across 30+
 certified releases (v9→v15), the receipt protocol, the offline verification
 culture. (Add co-founder line when #2 signs — the hire is in the ask.)
 Why us: the founder's edge — "evidence must be minted at execution time, on

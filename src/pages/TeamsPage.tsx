@@ -472,7 +472,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
       sender: { seatId: coder.id, role: coder.role, harness: coder.harness, name: HARNESS_BADGES[coder.harness]?.label ?? coder.id },
       mentions: [`@${architect.id}`, `@${reviewer.id}`],
       intent: "handoff",
-      content: `Implementation completed in private worktree \`mj/rate-limiter/${coder.id}\`. Added \`TokenBucketMiddleware\`, test suites, and strict boundary tests. Ready for snapshot merge and review!`,
+      content: `Implementation completed in private worktree \`vh/rate-limiter/${coder.id}\`. Added \`TokenBucketMiddleware\`, test suites, and strict boundary tests. Ready for snapshot merge and review!`,
     });
 
     await new Promise((r) => setTimeout(r, 600));
@@ -483,7 +483,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
       sender: { seatId: reviewer.id, role: reviewer.role, harness: reviewer.harness, name: HARNESS_BADGES[reviewer.harness]?.label ?? reviewer.id },
       mentions: [`@${coder.id}`, `@${synth.id}`],
       intent: "verification",
-      content: `VERDICT: CORRECT. Reviewed diff against merged snapshot \`mj/rate-limiter/review\`. All 8 unit tests passed with exit code 0. No memory leaks detected on high burst simulation.`,
+      content: `VERDICT: CORRECT. Reviewed diff against merged snapshot \`vh/rate-limiter/review\`. All 8 unit tests passed with exit code 0. No memory leaks detected on high burst simulation.`,
     });
 
     globalAgentBus.writeBlackboard(
@@ -551,8 +551,8 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
     const branch2Code = `import { Request, Response } from "express";\nimport { auditLogger } from "./logger";\n\nexport interface AppConfig {\n  port: number;\n  enableAuditLogs: boolean;\n}\n\nexport function auditLogMiddleware(req: Request, res: Response) {\n  auditLogger.log(req.path);\n}\n\nexport function createApp() {\n  return { ok: true };\n}\n`;
 
     const res = synthesizeAstMerge("src/app.ts", baseCode, [
-      { seatId: "claude_seat", branch: "mj/rate-limiter/claude", content: branch1Code },
-      { seatId: "codex_seat", branch: "mj/rate-limiter/codex", content: branch2Code },
+      { seatId: "claude_seat", branch: "vh/rate-limiter/claude", content: branch1Code },
+      { seatId: "codex_seat", branch: "vh/rate-limiter/codex", content: branch2Code },
     ]);
     setAstMergeResult(res);
     toast("Synthesized structural 3-way merge.");
@@ -561,9 +561,9 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
   // Run Multi-Agent Consensus Simulation
   const handleRunConsensus = () => {
     const votes: ReviewVote[] = [
-      { seatId: "claude_reviewer", harness: "claude", verdict: "APPROVE", confidence: 0.95, rationale: "All 12 unit tests pass; structural interface union verified without regressions.", diffRef: "mj/rate-limiter/review", timestamp: new Date().toISOString() },
-      { seatId: "codex_security", harness: "codex", verdict: "APPROVE", confidence: 0.90, rationale: "Token bucket mutex correctly prevents race conditions under burst simulation.", diffRef: "mj/rate-limiter/review", timestamp: new Date().toISOString() },
-      { seatId: "grok_fuzzer", harness: "grok", verdict: "APPROVE", confidence: 0.85, rationale: "Fuzzing vectors (null inputs, boundary overflow) rejected safely.", diffRef: "mj/rate-limiter/review", timestamp: new Date().toISOString() },
+      { seatId: "claude_reviewer", harness: "claude", verdict: "APPROVE", confidence: 0.95, rationale: "All 12 unit tests pass; structural interface union verified without regressions.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
+      { seatId: "codex_security", harness: "codex", verdict: "APPROVE", confidence: 0.90, rationale: "Token bucket mutex correctly prevents race conditions under burst simulation.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
+      { seatId: "grok_fuzzer", harness: "grok", verdict: "APPROVE", confidence: 0.85, rationale: "Fuzzing vectors (null inputs, boundary overflow) rejected safely.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
     ];
     const res = evaluateConsensus(runnerObjective, votes);
     setConsensusResult(res);
@@ -617,7 +617,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
     const mockArtifact = {
       id: "art-001",
       missionId: "mission-demo",
-      orgId: "org-mj",
+      orgId: "org-vh",
       lineageId: "line-001",
       version: 1,
       name: "rateLimitMiddleware.ts",
@@ -641,7 +641,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
     };
     const manifest = buildProvenanceManifest([mockArtifact], { "art-001": mockArtifact }, {
       missionId: "mission-demo",
-      orgId: "org-mj",
+      orgId: "org-vh",
       generator: { name: "Vouch Harbor", version: VH_VERSION, harnesses: ["claude", "codex"] },
       ledger: { head: "art-001", entries: 1, verified: true },
       generatedAt: new Date().toISOString(),

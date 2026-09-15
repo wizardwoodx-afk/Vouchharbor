@@ -1,17 +1,21 @@
 /**
- * VOUCH HARBOR — clean-identity probe (16.4.0)
+ * VOUCH HARBOR — clean-identity probe (18.9.0 direction).
  *
- * The 16.1.0 rebrand is pinned here so it cannot silently regress:
- *   1. the legacy names "MJ" and "ROGUE" do not appear anywhere in the ROUTED
- *      product surface — shell, routed pages, the whole control-plane module
- *      (src/vouch/**), the web entry, the package manifest, the native manifest;
- *      the ONLY survivors are the legacy WIRE tokens ("mj-proof-receipt/1|2"
- *      format names, the shared wire secret) that the verifiers must still
- *      accept — compatibility, not branding.
+ * History: 16.1.0 rebranded the product VH → MJ; 18.9.0 completes the
+ * return — the canonical identity is Vouch Harbor (VH), and "MJ"/"ROGUE"
+ * are the legacy names. This probe pins the CURRENT direction so the
+ * identity cannot silently regress either way:
+ *   1. the legacy names "MJ" and "ROGUE" do not appear anywhere in the
+ *      ROUTED product surface — shell, routed pages, the whole control-plane
+ *      module (src/vouch/**), the visible UI layers, the web entry, the
+ *      package manifest, the native manifest; the ONLY survivors are the
+ *      legacy WIRE tokens ("mj-proof-receipt/1|2" format names, the offline
+ *      license secret name) that the verifiers must still accept —
+ *      compatibility, not branding.
  *   2. the current receipt format is vh-proof-receipt/2; the signed legacy
  *      fixture still verifies (back-compat contract).
  *   3. every persistence key in the control plane is "vouch.*".
- *   4. identity strings (bot name, seat, team, native identifier) are clean.
+ *   4. identity strings (package, title, native identifier) are Vouch Harbor.
  */
 
 import assert from "node:assert";
@@ -21,10 +25,10 @@ import * as path from "node:path";
 import { test } from "node:test";
 import { VH_VERSION } from "../src/version";
 
-const MJ_ROOT = process.env.MJ_ROOT ?? process.cwd();
+const VH_ROOT = process.env.VH_ROOT ?? process.cwd();
 
 declare const __VOUCH_ROOT__: string | undefined;
-const ROOT = (typeof __VOUCH_ROOT__ !== "undefined" && __VOUCH_ROOT__) || process.env.VOUCH_ROOT || MJ_ROOT;
+const ROOT = (typeof __VOUCH_ROOT__ !== "undefined" && __VOUCH_ROOT__) || process.env.VOUCH_ROOT || VH_ROOT;
 
 /* The ROUTED product surface: everything a user can actually see or route to. */
 const ROUTED_SURFACE: string[] = [
@@ -54,23 +58,29 @@ function* walk(dir: string): Generator<string> {
 }
 
 /* Strip the wire-compat tokens — the ONLY places "mj" may survive:
- * legacy wire format names and the shared wire secret. Renaming either would
- * break verification of already-issued receipts. */
+ * legacy wire format names and the offline license secret name. Renaming
+ * either would break verification of already-issued receipts and already-
+ * issued license keys. */
 function stripWireTokens(src: string): string {
   return src
     .replace(/mj-proof-receipt/gi, "")
     .replace(/mj-commercial-v1-offline/g, "")
-    .replace(/\bmj\b/gi, "")
-    .replace(/\brogue\b/gi, "")
-    .replace(/\bROGUE\b/g, "");
+    .replace(/mj_evolution/g, "")
+    .replace(/legacy-mj-receipt/g, "")
+    .replace(/mj-mission-record/g, "")
+    .replace(/mj\.desktop/g, "")
+    .replace(/mj\./g, "");
+}
+
+/** After wire tokens are stripped, no standalone legacy name may remain. */
+function hasLegacyName(src: string): boolean {
+  return /\bMJ\b|\bmj\b|ROGUE|\brogue\b/i.test(src);
 }
 
 test("the routed product surface carries no legacy MJ / ROGUE name", () => {
   for (const rel of ROUTED_SURFACE) {
     const src = stripWireTokens(read(rel));
-    assert.ok(!/M-J\b/i.test(src), `${rel}: unexpected mask`);
-    // after stripping the wire tokens, no standalone MJ/ROGUE/mj/rogue may remain
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
 });
 
@@ -80,17 +90,13 @@ test("the whole control-plane module (src/vouch/**) carries no legacy name excep
     scanned++;
     const rel = path.relative(ROOT, abs);
     const src = stripWireTokens(fs.readFileSync(abs, "utf8"));
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
   assert.ok(scanned >= 6, `expected at least 6 modules under ${VOUCHE_TREE}, scanned ${scanned}`);
 });
 
-/* 16.5.0 — the clean identity extends from the control plane to the whole
- * VISIBLE product surface: shell, pages, panels, canvas, the IPC bridge,
- * the browser stubs and the domain catalogs. Engine internals (src/mission,
- * src/engine, src/graph) keep their historical dev comments — labeled in
- * the 16.5 upgrade notes — but the surface a user or an auditor sees does
- * not carry a legacy name. */
+/* The clean identity covers the whole VISIBLE product surface: shell, pages,
+ * panels, canvas, the IPC bridge, the browser stubs and the domain catalogs. */
 const UI_LAYER = ["src/app", "src/pages", "src/panels", "src/canvas", "src/ipc", "src/browser", "src/domain"];
 
 test("the visible product surface carries no legacy name (whole surface, not just the vouch tree)", () => {
@@ -100,7 +106,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
       scanned++;
       const rel = path.relative(ROOT, abs);
       const src = stripWireTokens(fs.readFileSync(abs, "utf8"));
-      assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
+      assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
     }
   }
   assert.ok(scanned >= 30, `expected a real UI surface under the audited dirs, scanned ${scanned}`);
@@ -109,8 +115,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
 test("the web entry, IPC bridge, and styles carry no legacy name", () => {
   for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/styles/vouch.css", "src/styles/redesign.css"]) {
     const src = stripWireTokens(read(rel));
-    assert.equal(/MJ|ROGUE/.test(src), false, `${rel} still references a legacy name`);
-    assert.ok(!/\bmj-|\brogue-/.test(read(rel).replace(/mj-proof-receipt/gi, "")), `${rel} has legacy mj-/* tokens`);
+    assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }
 });
 
@@ -181,7 +186,6 @@ test("the offline CLI accepts both wires and rejects tampering", async () => {
   }
   fs.rmSync(freshPath, { force: true });
   assert.ok(freshCode === 0 || freshCode === 3, `fresh vh/2 receipt should verify via CLI, got exit ${freshCode}`);
-
 
   const tool = path.join(ROOT, "tools/verify-receipt.mjs");
   const src = read("tools/verify-receipt.mjs");

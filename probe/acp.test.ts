@@ -3,7 +3,7 @@
  *
  * A protocol adapter is exactly the kind of code that type-checks perfectly and then never
  * works over a real wire. So this probe spawns a REAL child process — a scripted ACP agent
- * speaking newline-delimited JSON-RPC over stdio — and drives MJ's client through the full
+ * speaking newline-delimited JSON-RPC over stdio — and drives VH's client through the full
  * lifecycle: initialize handshake, session/new, a streamed turn (message chunks, tool_call
  * events), a permission request answered both ways, and the stop reason. Then the failure
  * paths: a crashing agent, and garbage on the wire.

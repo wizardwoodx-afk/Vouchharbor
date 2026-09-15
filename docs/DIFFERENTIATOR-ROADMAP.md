@@ -1,7 +1,7 @@
-# MJ — Differentiator Roadmap (researched 2026-09-07)
+# VH — Differentiator Roadmap (researched 2026-09-07)
 
-> How MJ becomes a *different* product, not a *more featured* one. Every play below is
-> grounded in fresh market research and mapped against what already exists in MJ's tree —
+> How VH becomes a *different* product, not a *more featured* one. Every play below is
+> grounded in fresh market research and mapped against what already exists in VH's tree —
 > so the recommendation is "productize what you already proved," not "invent more."
 
 ---
@@ -35,48 +35,48 @@ of local agent work with an adversarial gate**.
 
 ---
 
-## 2 · Four feature plays (each: market → MJ-fit → build → verdict)
+## 2 · Four feature plays (each: market → VH-fit → build → verdict)
 
 ### PLAY A — "Agent Black Box": incident forensics & replay for local agent work ⭐ best fit
 - **Market:** Vorlon proved demand at RSAC 2026; regulators expect *evidence-quality audit
   trails* (EU AI Act high-risk enforcement, Aug 2026); only 17% monitor agent-to-agent.
-- **Already in MJ:** `flightRecorder.ts` (governance-tagged event stream), `replay.ts`,
+- **Already in VH:** `flightRecorder.ts` (governance-tagged event stream), `replay.ts`,
   `checkpoints.ts` (restore any moment), Ed25519 receipts, egress ledger, SIEM/OTLP
   exports, Executions + Observability + Audit pages.
 - **To build (productization, ~medium):** an **Incident view** — pick any receipt/mission →
   replay the exact event chain → show who authorized what, what left the machine, and a
   one-click **"contain"** (revoke envelope + rotate keys + freeze the machine's capabilities).
-- **Differentiator vs Vorlon:** theirs is a cloud-SaaS watcher; MJ records *inside* the
-  machine with signed authority + receipts — evidence an auditor can verify with zero MJ
+- **Differentiator vs Vorlon:** theirs is a cloud-SaaS watcher; VH records *inside* the
+  machine with signed authority + receipts — evidence an auditor can verify with zero VH
   state. Nobody else pairs replay-with-receipts.
 
 ### PLAY B — MCP & tool supply-chain gate: admission, pinning, call budgets
 - **Market:** OWASP #3/#8/#9; documented rug pulls; the #1 P2 mitigation list is: admission
   review for new servers, tool-description pinning, per-tool call budgets.
-- **Already in MJ:** `McpPage`, `control_mcp.rs` (server validation, tool wiring), ACP/MCP
+- **Already in VH:** `McpPage`, `control_mcp.rs` (server validation, tool wiring), ACP/MCP
   bridges, harnessPolicy + per-seat argv, envelope machinery, `vendor/` MCP servers.
 - **To build (~medium):** **Tool Admission** — every new MCP server/tool enters a signed
   manifest (hash + description pin), runs through the human-approval queue, gets a per-tool
   call budget, and any post-admission drift *refuses in words*. Receipts extend to
   tool calls.
-- **Differentiator:** MJ is the only tool that already has policy envelopes + receipts —
+- **Differentiator:** VH is the only tool that already has policy envelopes + receipts —
   tool vetting becomes another scope of the same engine, not a bolt-on.
 
 ### PLAY C — "The Arena as a gate": hostile-scenario battery before real runs
 - **Market:** adversarial eval sets in CI are the emerging best practice (security consultancies
   now ship 50–100 hostile cases per deploy); Galileo sells "eval-to-guardrail."
-- **Already in MJ:** `adversarialArena.ts` (STANDARD_ATTACK_VECTORS, duels, hardening
+- **Already in VH:** `adversarialArena.ts` (STANDARD_ATTACK_VECTORS, duels, hardening
   reports), `chaosBisection.ts`, `evals.ts`, the adversarial verification gate.
 - **To build (~small-medium):** surface the arena in the UI: a mission is **blocked from
   real execution until its team passes the arena** (injection, exfiltration-attempt,
   scope-escape scenarios); the hardening report joins the receipt.
-- **Differentiator:** verification already exists as MJ's spine — this makes security
+- **Differentiator:** verification already exists as VH's spine — this makes security
   verification *part of the run*, not a separate dashboard.
 
 ### PLAY D — Live Agent Registry (continuous AIBOM with drift alerts)
 - **Market:** CSA: inventories are "the artifact an organization presents to regulators";
   92% visibility gap; "shadow AI agents" found in 82% of orgs.
-- **Already in MJ:** `aibom.ts` builds a bill of materials from receipts; role board;
+- **Already in VH:** `aibom.ts` builds a bill of materials from receipts; role board;
   harness registry.
 - **To build (~medium):** continuous inventory (every approved harness/seat/MCP → one
   owner-of-record), **drift detection** (a new harness/MCP/server appeared → notify + log),
@@ -87,10 +87,10 @@ of local agent work with an adversarial gate**.
 
 ## 3 · Vertical options (where to aim the wedge)
 
-| Vertical | Why it fits MJ | Risk |
+| Vertical | Why it fits VH | Risk |
 |---|---|---|
 | **Regulated engineering** (fintech, insurance, health-IT) | Evidence packs map to EU AI Act / SOC 2 / ISO 42001 already; local-first answers data-residency (DPDP in India, EU) | Long sales cycles — needs design partners, not cold sales |
-| **Security teams running agent IR** | Play A/C map to CISO pain; 92% visibility gap | Vorlon/others are converging on the *cloud* story — MJ must lead with "local execution evidence" |
+| **Security teams running agent IR** | Play A/C map to CISO pain; 92% visibility gap | Vorlon/others are converging on the *cloud* story — VH must lead with "local execution evidence" |
 | **Gov/defence-adjacent & air-gapped** | Tauri local-first + offline verification pack + no-phoning-home is a *feature* | Access/sales motion is hard for a solo founder |
 | **Indian enterprise (DPDP tailwind)** | Data-residency narrative + Chennai/India presence | Market smaller ticket sizes; good for pilots |
 
@@ -109,7 +109,7 @@ the "auditable local agent work" story — not another agent platform.
 ---
 
 ## 5 · The recommended product line (one sentence each)
-1. **"MJ Flight Deck"** = Play A + C: adversarial arena gates every run; every mission ends
+1. **"VH Flight Deck"** = Play A + C: adversarial arena gates every run; every mission ends
    in a replayable, receipt-verified black box with one-click containment. *(the flagship)*
 2. **"Tool Admission"** = Play B: signed, human-approved MCP/tool manifests with call
    budgets and drift refusal. *(the security hook)*
@@ -120,6 +120,6 @@ the "auditable local agent work" story — not another agent platform.
 proven; the encrypted laptop-to-laptop channel is the milestone that turns "simulation"
 into "product").
 
-**Final note (echoing the external review):** the next evidence MJ needs is not feature 71.
+**Final note (echoing the external review):** the next evidence VH needs is not feature 71.
 Freeze 11.14.5 (done — re-certified under Node 22.23.2), pick one pilot persona, run real
 missions on real machines, and let the Flight Deck story earn the preseed.

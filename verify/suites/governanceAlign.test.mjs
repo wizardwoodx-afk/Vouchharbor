@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1093,8 +1093,8 @@ var init_client = __esm({
 });
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1316,7 +1316,7 @@ async function verifyEnvelope(e) {
 }
 
 // src/mission/lessons.ts
-var LS_KEY = "mj.lessons.v1";
+var LS_KEY = "vh.lessons.v1";
 function saveLessons(memory, writer = "agent") {
   for (const l of memory) enforceWrite(l.kind === "failure" ? "SCAR" : "PRECEDENT", writer);
   try {
@@ -1326,7 +1326,7 @@ function saveLessons(memory, writer = "agent") {
 }
 
 // src/mission/skillEvolution.ts
-var LS_KEY2 = "mj.skills.v1";
+var LS_KEY2 = "vh.skills.v1";
 function saveSkills(memory, writer = "human") {
   for (const m of memory) if (m.status === "approved") enforceWrite("RECOURSE", writer);
   try {
@@ -1355,7 +1355,7 @@ function enforceWrite(type, writer) {
 }
 
 // src/mission/belief.ts
-var LS_KEY3 = "mj.beliefs.v1";
+var LS_KEY3 = "vh.beliefs.v1";
 function saveBeliefs(memory, writer = "agent") {
   for (const _ of memory) enforceWrite("STANCE", writer);
   try {

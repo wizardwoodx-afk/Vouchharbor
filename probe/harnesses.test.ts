@@ -260,7 +260,7 @@ function makeRepo(): { repo: string; branch: string } {
   fs.writeFileSync(path.join(repo, "package.json"), JSON.stringify({ name: "calc", version: "1.0.0" }, null, 2));
   sh(["git", "init", "-q", "."], repo);
   sh(["git", "config", "user.email", "mj@mj.desktop"], repo);
-  sh(["git", "config", "user.name", "MJ"], repo);
+  sh(["git", "config", "user.name", "VH"], repo);
   sh(["git", "add", "-A"], repo);
   sh(["git", "commit", "-qm", "initial"], repo);
   const branch = sh(["git", "symbolic-ref", "--short", "HEAD"], repo).out.trim() || "master";
@@ -397,12 +397,12 @@ ok(`the registry is 25 ids (23 CLIs + hermes + llm) — 21 until V11.7.1 grew it
   // V11.6/V11.7 release records may keep their 21s only as MARKED history (each such
   // line names V11.7.1 as the release that grew the count); and the original miscount
   // rule still stands — every "22" mention must be the marked historical explanation.
-  const doc = read("MJ-11.6-UPGRADE.md");
+  const doc = read("VH-11.6-UPGRADE.md");
   const stale22 = doc.split("\n").map((l, i) => [i + 1, l] as const).filter(([, l]) => l.includes("22 ids") || l.includes("22 registry"));
   ok(`every '22' mention in the V11.6 record is a MARKED historical miscount (${stale22.length} line(s))`,
     stale22.length > 0 && stale22.every(([, l]) => l.includes("miscount")),
     stale22.map(([n, l]) => `line ${n}: ${l.slice(0, 70)}`).join(" | "));
-  for (const name of ["MJ-11.6-UPGRADE.md", "MJ-11.7-UPGRADE.md"]) {
+  for (const name of ["VH-11.6-UPGRADE.md", "VH-11.7-UPGRADE.md"]) {
     const rec = read(name);
     const lines21 = rec.split("\n").map((l, i) => [i + 1, l] as const).filter(([, l]) => l.includes("21 ids") || l.includes("all 21 registry") || l.includes("**21**") || l.includes("21 harnesses"));
     ok(`every '21' mention in ${name} is MARKED as superseded history (${lines21.length} line(s))`,
@@ -413,7 +413,7 @@ ok(`the registry is 25 ids (23 CLIs + hermes + llm) — 21 until V11.7.1 grew it
   ok("the README's CURRENT registry claims say 25",
     (readme.includes("**25** ids") && readme.includes("23 spawnable")) || (readme.includes("25 harnesses") && readme.includes("23 CLIs")),
     "a README current claim does not say 25");
-  const rec71 = read("MJ-11.7.1-UPGRADE.md");
+  const rec71 = read("VH-11.7.1-UPGRADE.md");
   ok("the V11.7.1 record claims 25 (growth line, seat dropdowns, probe description)",
     rec71.includes("grew from 21 to **25** ids") && rec71.includes("all 25 registry harnesses") && rec71.includes("well-formedness (25 ids,"),
     "a V11.7.1 current claim does not say 25");
@@ -438,7 +438,7 @@ ok(`the registry is 25 ids (23 CLIs + hermes + llm) — 21 until V11.7.1 grew it
    Researched 2026-09, every prompt shape below is VENDOR-documented (docs.factory.ai,
    kimi.ai/moonshotai, docs.augmentcode.com, docs.warp.dev) — no community-graded flags
    in any base argv, which no earlier registry growth could claim. droid is the
-   interesting one: its headless mode defaults to read-only (spec mode), so MJ's
+   interesting one: its headless mode defaults to read-only (spec mode), so VH's
    write policy composes the documented --auto tier instead of a permission flag. */
 section("9. the V11.7.1 additions: droid / kimi / auggie / warp (vendor-documented)");
 

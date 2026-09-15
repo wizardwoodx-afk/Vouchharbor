@@ -360,7 +360,7 @@ const PapersPanel: React.FC = () => {
         </p>
         <div className="hr"/>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', lineHeight: 2 }}>
-          <div>License    PolyForm Noncommercial 1.0.0</div>
+          <div>License    Proprietary · © The Vouch Harbor Project</div>
           <div>Edition    personal</div>
           <div>Build      tauri + vite + react</div>
           <div>Engine     missionLoop v1 · vouch v2</div>

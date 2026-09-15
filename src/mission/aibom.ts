@@ -1,18 +1,18 @@
 /**
- * §AIBOM — the AI Bill of Materials auditors now ask for (MJ 11.10.5, Verified AI Delivery V1).
+ * §AIBOM — the AI Bill of Materials auditors now ask for (VH 11.10.5, Verified AI Delivery V1).
  *
  * THE AUDITOR QUESTION (2026, per CISA/G7 minimum-element guidance and Codacy's auditor
  * survey): which AI tools/models touched the codebase, where, and are they approved?
- * MJ is unusually well-placed to answer, because MJ MEASURES this: every receipt records
+ * VH is unusually well-placed to answer, because VH MEASURES this: every receipt records
  * seat outcomes with harness + identity digest. The AIBOM is that measurement, folded
  * into the inventory shape auditors expect.
  *
  * THE HONESTY RULES
- *  - version is "not measured" — CLIs do not report model versions to MJ, and MJ will
+ *  - version is "not measured" — CLIs do not report model versions to VH, and VH will
  *    not guess one. An honest unknown beats a confident invention in an audit document.
  *  - approvalStatus comes from the user's OWN Role Board declaration (the harnesses they
  *    said they own): owned → "approved", observed-but-not-declared → "not-declared".
- *    MJ does not decide approval policy; it reports the declaration.
+ *    VH does not decide approval policy; it reports the declaration.
  *  - Only harnesses OBSERVED IN RECEIPTS appear. No speculation about tools that might
  *    be installed.
  */
@@ -22,8 +22,8 @@ export interface AibomEntry {
   /** The AI component (agent harness) observed producing or reviewing work. */
   component: string;
   type: "ai-coding-agent";
-  /** CISA/G7 minimum elements ask for a version. MJ cannot measure it, and says so. */
-  version: "not measured (CLIs do not report model versions to MJ)";
+  /** CISA/G7 minimum elements ask for a version. VH cannot measure it, and says so. */
+  version: "not measured (CLIs do not report model versions to VH)";
   identifier: string;
   roles: string[];
   missions: number;
@@ -57,7 +57,7 @@ export function buildAibom(args: { records: VaultRecord[]; ownedHarnesses: strin
         entry = {
           component: harness,
           type: "ai-coding-agent",
-          version: "not measured (CLIs do not report model versions to MJ)",
+          version: "not measured (CLIs do not report model versions to VH)",
           identifier: harness,
           roles: [],
           missions: 0,

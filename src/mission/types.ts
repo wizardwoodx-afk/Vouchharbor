@@ -1,5 +1,5 @@
 /**
- * MJ 6.0 — Mission & Organization types.
+ * VH 6.0 — Mission & Organization types.
  *
  * V6 adds a layer ON TOP of V5. Nothing here replaces the V5 graph: the graph remains the
  * authoritative execution structure, and the organization is a projection of it (§30).

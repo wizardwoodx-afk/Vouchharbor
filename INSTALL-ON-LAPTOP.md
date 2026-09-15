@@ -1,6 +1,6 @@
-# Install Vouch Harbor 18.8.0 on your laptop (Windows 11) — the only supported install
+# Install Vouch Harbor 18.9.0 on your laptop (Windows 11) — the only supported install
 
-This zip is **native desktop source**, not a website. MJ is a **Tauri v2** app: the UI is React,
+This zip is **native desktop source**, not a website. VH is a **Tauri v2** app: the UI is React,
 the engine is Rust, and everything real (SQLite, the keyring, agent processes, sandboxes) happens
 in the native shell. There is no hosted version and no `localhost` install — you compile it once
 on this laptop and run the installer it produces.
@@ -32,7 +32,7 @@ know the source you received is the source that was tested):
 
 ```bat
 for %f in (versionDrift acceptance harnessPolicy checkRunner engine replayEvals theme assist acp agentsMd otelExport controlPlane stubLedger sandbox a2a) do (
-  .\node_modules\.bin\esbuild probe\%f.test.ts --bundle --platform=node --format=esm --define:MJ_ROOT="%cd%" --outfile=probe\.run.mjs --log-level=error && node probe\.run.mjs || exit /b 1
+  .\node_modules\.bin\esbuild probe\%f.test.ts --bundle --platform=node --format=esm --define:VH_ROOT="%cd%" --outfile=probe\.run.mjs --log-level=error && node probe\.run.mjs || exit /b 1
 )
 ```
 
@@ -57,16 +57,16 @@ npm run tauri build
 When it finishes, the installer is at:
 
 ```
-src-tauri\target\release\bundle\nsis\Vouch Harbor 18.8.0_x64-setup.exe
+src-tauri\target\release\bundle\nsis\Vouch Harbor 18.9.0_x64-setup.exe
 ```
 
-Run it — MJ installs per-user, gets a Start-menu entry, and launches as a desktop
+Run it — VH installs per-user, gets a Start-menu entry, and launches as a desktop
 app. First launch creates its SQLite store under `%APPDATA%\com.mj.desktop`; nothing is
 written outside that.
 
 ## 5. First run — sanity checklist
 
-1. The header says **Vouch Harbor 18.8.0** (Help → About must agree — `probe/versionDrift` enforces this).
+1. The header says **Vouch Harbor 18.9.0** (Help → About must agree — `probe/versionDrift` enforces this).
 2. Settings → **Themes**: try `ink` (true-black flagship), `pitch`, `slag`, `fern`, `ivory`, `travertine`.
 3. Settings → MCP: the control server advertises **5 tools** and implements **5 tools** — the
    counts must match; that equality is the whole W2 story.

@@ -62,7 +62,7 @@ const spans = (trace.resourceSpans[0]?.scopeSpans[0]?.spans ?? []) as Array<Reco
 section("0. the document shape is OTLP-JSON");
 ok("resourceSpans exists and carries a resource", trace.resourceSpans.length === 1 && Array.isArray(trace.resourceSpans[0].resource.attributes));
 const svc = (trace.resourceSpans[0].resource.attributes as Array<{ key: string; value: { stringValue?: string } }>).find((a) => a.key === "service.name");
-ok("service.name is mj", svc?.value.stringValue === "mj");
+ok("service.name is vh", svc?.value.stringValue === "vh");
 ok("the conventions status is stated honestly", JSON.stringify(trace).includes("development"));
 
 section("1. the mission is one invoke_agent root span");
@@ -73,7 +73,7 @@ ok("root spans the whole event window", root?.startTimeUnixNano !== root?.endTim
 const rootEvents = (root?.events ?? []) as Array<{ name?: string }>;
 ok("governance kinds become span events on the root", rootEvents.some((e) => e.name === "APPROVAL_REQUIRED") && rootEvents.some((e) => e.name === "POLICY_DENIED" || e.name === "MISSION_PLANNED"), `${rootEvents.length} events`);
 const granted = rootEvents.find((e) => e.name === "APPROVAL_GRANTED") as { attributes?: Array<{ key: string; value: { stringValue?: string } }> } | undefined;
-ok("the human approval names its authority", granted?.attributes?.some((a) => a.key === "mj.authority" && a.value.stringValue === "human:opus") === true, JSON.stringify(granted));
+ok("the human approval names its authority", granted?.attributes?.some((a) => a.key === "vh.authority" && a.value.stringValue === "human:opus") === true, JSON.stringify(granted));
 
 section("2. work becomes child spans");
 ok("agent spawn is a create_agent span", spans.some((s) => String(s.name).startsWith("create_agent coder")));

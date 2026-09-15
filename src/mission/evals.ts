@@ -1,7 +1,7 @@
 /**
  * Harness evaluation suites: how good is each coding CLI *at this project's actual work*?
  *
- * MJ already scores a single mission (`scoreMission`) and verifies a single artifact
+ * VH already scores a single mission (`scoreMission`) and verifies a single artifact
  * (`evaluateArtifact`). Neither answers the question that comes next: *"which harness should I put on
  * the coder seat for this repository?"* Answering it from vendor benchmarks is useless — a model that
  * wins a public benchmark may still fail this project's test command. So this module runs a named set

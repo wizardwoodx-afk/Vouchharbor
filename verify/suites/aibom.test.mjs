@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1106,8 +1106,8 @@ var SEAL_SECRET_BY_FORMAT = {
 };
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1347,7 +1347,7 @@ async function verifyProofReceipt(rc) {
 
 // src/mission/receiptVault.ts
 var VAULT_CAP = 50;
-var STORAGE_KEY2 = "mj.receiptvault.v1";
+var STORAGE_KEY2 = "vh.receiptvault.v1";
 var seq = 0;
 var ReceiptVault = class {
   records = null;
@@ -1424,7 +1424,7 @@ var ReceiptVault = class {
   }
   /**
    * Re-verify EVERY stored receipt's chain and seal. This is the vault's reason to exist:
-   * tamper with a stored receipt and MJ itself names the broken record.
+   * tamper with a stored receipt and VH itself names the broken record.
    */
   async audit() {
     const broken = [];
@@ -1443,9 +1443,9 @@ var ReceiptVault = class {
   siemBundle() {
     const lines = [];
     for (const rec of this.ensure()) {
-      lines.push(JSON.stringify({ type: "mj.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
+      lines.push(JSON.stringify({ type: "vh.receipt.header", vaultId: rec.id, gateStatus: rec.gateStatus, gateTier: rec.gateTier, format: rec.receipt.format, header: rec.receipt.header, seal: rec.receipt.seal }));
       for (const e of rec.receipt.events) {
-        lines.push(JSON.stringify({ type: "mj.receipt.event", vaultId: rec.id, event: e }));
+        lines.push(JSON.stringify({ type: "vh.receipt.event", vaultId: rec.id, event: e }));
       }
     }
     return `${lines.join("\n")}
@@ -1453,25 +1453,25 @@ var ReceiptVault = class {
   }
   /**
    * The one-pager: what the evidence layer is, which control it serves, how an auditor
-   * re-verifies it WITHOUT MJ, and — stated just as plainly — what MJ does not claim.
+   * re-verifies it WITHOUT VH, and — stated just as plainly — what VH does not claim.
    */
   onePager(args) {
     const count = this.ensure().length;
     return [
-      `# MJ \u2014 Agent Run Evidence & Compliance One-Pager`,
+      `# VH \u2014 Agent Run Evidence & Compliance One-Pager`,
       ``,
-      `MJ ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
+      `VH ${args.mjVersion} \xB7 edition: ${args.edition} \xB7 generated ${(/* @__PURE__ */ new Date()).toISOString()} \xB7 receipts on file: ${count}`,
       ``,
-      `## What MJ records`,
+      `## What VH records`,
       `Every team mission can issue a **Proof Receipt** (\`mj-proof-receipt/2\`): a SHA-256`,
-      `hash-chained event log of the facts MJ actually measured \u2014 mission status, each seat's`,
+      `hash-chained event log of the facts VH actually measured \u2014 mission status, each seat's`,
       `role/outcome/verification (with a deterministic seat identity digest when the harness is`,
       `known), and the adversarial-gate verdict \u2014 sealed with HMAC-SHA-256 AND, since 11.10.1,`,
       `signed with the local issuer's Ed25519 key over the final chain hash. Events are linked`,
       `(\`prev\` \u2192 \`hash\`), so any edit, insertion or deletion breaks the chain.`,
       ``,
       `## The adversarial verification gate (11.9.9) and merge authority (11.10 \u2192 11.10.1)`,
-      `MJ enforces that a run's output is verified by a **different harness than the one that`,
+      `VH enforces that a run's output is verified by a **different harness than the one that`,
       `wrote it**. Self-verified runs are blocked (STRICT) or marked unverified (ADVISORY), and`,
       `the gate verdict is itself an event in the receipt chain. Since 11.10 the gate decides`,
       `whether a merge is **permitted**; since 11.10.1 the Merge Executor actually runs the gated`,
@@ -1485,15 +1485,15 @@ var ReceiptVault = class {
       `- SOC 2 (CC7/CC8 change management & monitoring): merge attestations name the gate verdict,`,
       `  any recorded override, and the exact commit that landed.`,
       ``,
-      `## External verification (no MJ required)`,
+      `## External verification (no VH required)`,
       `1. Take the receipt JSONL. 2. Re-canonicalize each event body (recursive key sort),`,
       `3. re-hash the chain from the 64-zero genesis, 4. re-compute the HMAC seal with the`,
       `published verification secret, 5. verify the Ed25519 signature over the final chain hash`,
-      `with the exported issuer public key. MJ ships this exact algorithm (verifyProofReceipt)`,
+      `with the exported issuer public key. VH ships this exact algorithm (verifyProofReceipt)`,
       `and any auditor can re-implement it from the format alone.`,
       ``,
-      `## What MJ does NOT claim`,
-      `MJ produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
+      `## What VH does NOT claim`,
+      `VH produces tamper-evident, issuer-signed evidence; it is not a certification body.`,
       `Control mappings above are a convenience crosswalk, not legal advice and not an audit`,
       `opinion. The issuer private key never leaves the machine that issued the receipts.`,
       ``
@@ -1515,7 +1515,7 @@ function buildAibom(args) {
         entry = {
           component: harness,
           type: "ai-coding-agent",
-          version: "not measured (CLIs do not report model versions to MJ)",
+          version: "not measured (CLIs do not report model versions to VH)",
           identifier: harness,
           roles: [],
           missions: 0,
@@ -1663,7 +1663,7 @@ describe("AIBOM \u2014 the inventory auditors ask for", () => {
     });
     vault.issue({ mission: "m-v", teamId: "t-v", gateStatus: "PASS", gateTier: "cross-vendor", receipt: rc });
     const bom = buildAibom({ records: vault.list(), ownedHarnesses: [], mjVersion: "11.10.5" });
-    assert.match(bom.entries[0].version, /not measured/i, "MJ must not invent a model version it cannot measure");
+    assert.match(bom.entries[0].version, /not measured/i, "VH must not invent a model version it cannot measure");
     assert.match(bom.disclaimer, /not claimed/i);
     const empty2 = buildAibom({ records: [], ownedHarnesses: ["claude-code"], mjVersion: "11.10.5" });
     assert.equal(empty2.entries.length, 0, "no receipts \u2192 no components; never speculative");

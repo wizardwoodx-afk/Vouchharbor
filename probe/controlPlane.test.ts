@@ -31,8 +31,8 @@ function section(name: string): void {
   console.log(`\n== ${name}`);
 }
 
-declare const MJ_ROOT: string | undefined;
-const root = typeof MJ_ROOT === "string" && MJ_ROOT.length > 0 ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string | undefined;
+const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const read = (p: string): string => fs.readFileSync(path.join(root, p), "utf8");
 
 const cm = read("src-tauri/src/control_mcp.rs");

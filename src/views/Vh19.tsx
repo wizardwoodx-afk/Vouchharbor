@@ -103,7 +103,7 @@ export const Vh19: React.FC = () => {
 
   const refreshSelf = () => { setSelfList(selfProposals()); };
 
-  const localMember = 'harshen';
+  const localMember = 'member-a';
   const teamMembers = [localMember, teamPeer.trim() || 'peer'].map((m) => m.toLowerCase());
   const teamId = teamIdFor(teamMembers);
 

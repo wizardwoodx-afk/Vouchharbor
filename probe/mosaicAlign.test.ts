@@ -1,5 +1,5 @@
 /**
- * MJ 11.12 MOSAIC-Ω alignment — probe suite.
+ * VH 11.12 MOSAIC-Ω alignment — probe suite.
  *
  * Pins the two audit rules and the new mechanisms:
  *   R1 predictions are not evidence — external claims cap at "probably",
@@ -68,7 +68,7 @@ section("2. R2 — proof-carrying actions");
     permission: "allowed", rollback: "worktrees isolated", verification: "gate verdict",
     reversible: false, now: NOW,
   });
-  ok("an issued packet verifies with zero MJ state", (await verifyActionPacket(p)).ok === true);
+  ok("an issued packet verifies with zero VH state", (await verifyActionPacket(p)).ok === true);
   const tampered = { ...p, prediction: "something will surely go right" };
   const tv = await verifyActionPacket(tampered);
   ok("altering a prediction after signing fails verification", tv.ok === false && (tv.reason ?? "").includes("digest"), tv.reason);

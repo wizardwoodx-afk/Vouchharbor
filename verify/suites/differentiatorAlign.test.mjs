@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1207,8 +1207,8 @@ var STORAGE_KEY, KEYCHAIN_REF, cached;
 var init_signing = __esm({
   "src/mission/signing.ts"() {
     "use strict";
-    STORAGE_KEY = "mj.issuerkey.v1";
-    KEYCHAIN_REF = "mj.issuerkey.v1";
+    STORAGE_KEY = "vh.issuerkey.v1";
+    KEYCHAIN_REF = "vh.issuerkey.v1";
     cached = null;
   }
 });
@@ -1234,7 +1234,7 @@ var init_learningReceipt = __esm({
   "src/mission/learningReceipt.ts"() {
     "use strict";
     init_signing();
-    LS_KEY = "mj.learningReceipts.v1";
+    LS_KEY = "vh.learningReceipts.v1";
   }
 });
 
@@ -1415,7 +1415,7 @@ init_version();
 init_learningReceipt();
 
 // src/mission/lessons.ts
-var LS_KEY2 = "mj.lessons.v1";
+var LS_KEY2 = "vh.lessons.v1";
 function loadLessons() {
   try {
     const raw = localStorage.getItem(LS_KEY2);
@@ -1429,7 +1429,7 @@ function loadLessons() {
 }
 
 // src/mission/selfImprove.ts
-var LS_KEY3 = "mj.selfimprove.v1";
+var LS_KEY3 = "vh.selfimprove.v1";
 var BASE_PARAMS = {
   reviewDepth: 1,
   checkBias: 0.5,
@@ -1467,7 +1467,7 @@ function adoptedVersion(s) {
 }
 
 // src/mission/skillEvolution.ts
-var LS_KEY4 = "mj.skills.v1";
+var LS_KEY4 = "vh.skills.v1";
 function loadSkills() {
   try {
     const raw = localStorage.getItem(LS_KEY4);
@@ -1514,7 +1514,7 @@ function ledgerSummary(_now) {
 }
 
 // src/mission/belief.ts
-var LS_KEY5 = "mj.beliefs.v1";
+var LS_KEY5 = "vh.beliefs.v1";
 function needsApproval(b) {
   return b.provenance === "agent-inferred" && b.aboutUser && !b.approved;
 }
@@ -1533,8 +1533,8 @@ function loadBeliefs() {
 // src/mission/selfEvolveRuntime.ts
 init_learningReceipt();
 init_version();
-var RUNS_KEY = "mj.selfimprove.runs.v2";
-var RUNS_KEY_V1 = "mj.selfimprove.runs.v1";
+var RUNS_KEY = "vh.selfimprove.runs.v2";
+var RUNS_KEY_V1 = "vh.selfimprove.runs.v1";
 function loadExperimentRuns() {
   try {
     const raw = localStorage.getItem(RUNS_KEY);

@@ -1,4 +1,4 @@
-# MJ — The Story (one spine, one artifact, four readers)
+# VH — The Story (one spine, one artifact, four readers)
 
 > This is the narrative document every pitch, demo, and page should align to.
 > If a feature cannot be told as a chapter of THIS story, it does not go in the deck.
@@ -7,7 +7,7 @@
 
 ## The one sentence
 
-**MJ is the assurance runtime for autonomous software work: it authorizes, bounds,
+**VH is the assurance runtime for autonomous software work: it authorizes, bounds,
 verifies, and measures every agent mission — and seals each one into a single signed
 record that finance, audit, risk, and incident response can each read their own way,
 verifiable by anyone with one command.**
@@ -25,14 +25,14 @@ AUTHORIZE → EXECUTE → VERIFY → MEASURE → PROVE
 ```
 
 Every competitor stops at some link of this chain — and asks you to trust their cloud
-for it. MJ owns the whole chain **on the customer's machine** and ends it in an artifact
+for it. VH owns the whole chain **on the customer's machine** and ends it in an artifact
 whose integrity anyone can re-compute:
 
-> **One mission. One record. Zero MJ state required** — trust is anchored in the issuer public key: exchange its fingerprint out-of-band once, then pin it at every verification (`--issuer-key`).
+> **One mission. One record. Zero VH state required** — trust is anchored in the issuer public key: exchange its fingerprint out-of-band once, then pin it at every verification (`--issuer-key`).
 
 ## The one artifact — the Mission Record (14.1)
 
-`mj-mission-record/1` — a single JSON file per mission, sealed by MJ's Ed25519 issuer key:
+`mj-mission-record/1` — a single JSON file per mission, sealed by VH's Ed25519 issuer key:
 
 | Reader | What they look at inside the record |
 |---|---|
@@ -42,7 +42,7 @@ whose integrity anyone can re-compute:
 | **Incident response** | `timeline` + re-verified receipt marks — the black box, already sealed |
 
 Verify it anywhere: `node tools/verify-mission-record.mjs record.json` — zero
-dependencies, zero MJ state, exit-code honesty. (Receipts verify with
+dependencies, zero VH state, exit-code honesty. (Receipts verify with
 `tools/verify-receipt.mjs`; dossiers with `verifyIncidentDossier`.)
 
 ## Why this is not a feature list
@@ -87,10 +87,10 @@ FinOps, Assurance Score, Black Box, receipts, vault, egress ledger — these are
 ## Language discipline (say it exactly this way)
 
 - ✅ "evidence / assurance score" — ❌ "safety guarantee" or "trust score"
-- ✅ "MJ-governed artifacts leave through an auditable egress path" — ❌ "nothing can
-  leave the laptop except through MJ"
+- ✅ "VH-governed artifacts leave through an auditable egress path" — ❌ "nothing can
+  leave the laptop except through VH"
 - ✅ "measured" / "unmeasured" — ❌ estimated numbers presented as fact
-- ✅ "verifiable without MJ" — ❌ "unhackable", "tamper-proof"
+- ✅ "verifiable without VH" — ❌ "unhackable", "tamper-proof"
 - Simulated is always labeled simulated; it teaches nothing and is never charged.
 - ✅ "issuer key pinned out-of-band" — ❌ "zero trust required" (signature math alone cannot
   authenticate a self-reported key; the pin is the anchor).
@@ -98,6 +98,6 @@ FinOps, Assurance Score, Black Box, receipts, vault, egress ledger — these are
 ## Position (researched Sept 2026 — see POSITIONING.md)
 
 Orchestration is a giants' war (LangGraph ≈38% share). Governance is the funded theme
-($34M seed / $30M A's) — but every funded control plane is cloud-trust-me. MJ owns the
+($34M seed / $30M A's) — but every funded control plane is cloud-trust-me. VH owns the
 empty quadrant: **local-first, cryptographically verifiable agent assurance**, with the
 EU AI Act (enforced Aug 2026) as the forcing function.

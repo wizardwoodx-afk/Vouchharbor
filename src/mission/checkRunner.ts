@@ -2,13 +2,13 @@
  * §18/§38 — REAL verification.
  *
  * Before V7, `TEST_RUN` and `STATIC_CHECK` were structurally incapable of being measured: the
- * coding harness either ran for real (and MJ parsed its prose) or was the labelled simulation, in
+ * coding harness either ran for real (and VH parsed its prose) or was the labelled simulation, in
  * which case every check came back `measured: false`. A mission could therefore never honestly
  * reach COMPLETED. That is a hole in the middle of the product.
  *
  * This module closes it by running the *target repository's own* verification commands — its
  * typecheck, its test suite, its linter — and turning the exit code and output into a measured
- * check. MJ does not invent a test runner and does not guess a result: it asks the project how it
+ * check. VH does not invent a test runner and does not guess a result: it asks the project how it
  * verifies itself, runs exactly that, and reports what happened.
  *
  * Two rules that matter more than the feature:
@@ -54,7 +54,7 @@ const join = (dir: string, name: string) => (dir.endsWith("/") || dir.endsWith("
 
 /**
  * Work out how this repository verifies itself. Returns nothing invented: every check points at
- * the manifest entry it was derived from, so the UI can show *why* MJ decided to run it.
+ * the manifest entry it was derived from, so the UI can show *why* VH decided to run it.
  */
 export async function discoverChecks(repoDir: string, read: ReadFn, exists: ExistsFn = (p) => existsViaRead(p, read)): Promise<CheckSpec[]> {
   const out: CheckSpec[] = [];
@@ -127,7 +127,7 @@ async function existsViaRead(path: string, read: ReadFn): Promise<boolean> {
 }
 
 /**
- * Run one check. `didRun: false` means MJ never executed anything — the reason says why, and the
+ * Run one check. `didRun: false` means VH never executed anything — the reason says why, and the
  * caller must record that as unmeasured rather than as a failure.
  */
 export async function runCheck(spec: CheckSpec, repoDir: string, run: RunFn, canRun: () => Promise<boolean>, exists: ExistsFn = existsNative): Promise<CheckResult> {
@@ -142,7 +142,7 @@ export async function runCheck(spec: CheckSpec, repoDir: string, run: RunFn, can
   // misleading message, which would be recorded as a test failure that never happened.
   if (/^(npm|npx|yarn|pnpm)$/.test(spec.command)) {
     if (!(await exists(join(repoDir, "node_modules")))) {
-      return finish({ didRun: false, exitCode: null, output: "", reason: "node_modules is absent; MJ will not run an install for you, so this check was not performed" });
+      return finish({ didRun: false, exitCode: null, output: "", reason: "node_modules is absent; VH will not run an install for you, so this check was not performed" });
     }
   }
 
@@ -161,7 +161,7 @@ export async function runCheck(spec: CheckSpec, repoDir: string, run: RunFn, can
 }
 
 /**
- * Environment detection. In the browser there is no filesystem and no process, so MJ says so
+ * Environment detection. In the browser there is no filesystem and no process, so VH says so
  * rather than pretending. In the Tauri shell everything goes through IPC. Under node — the probes,
  * or a headless run — it uses node's own fs and child_process.
  */

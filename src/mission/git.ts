@@ -4,7 +4,7 @@
  * WHY THIS IS SEPARATE FROM THE AGENTS
  *
  * An agent's account of its own work is a claim. A diff is a measurement. Every "the agent changed X"
- * statement in MJ comes from here, never from parsing what the agent said.
+ * statement in VH comes from here, never from parsing what the agent said.
  *
  * THREE STATES, NOT TWO
  *
@@ -65,7 +65,7 @@ function fail(reason: string): GitResult {
 }
 
 /** A runner for environments with no git access. Every call fails honestly. */
-export const NO_GIT: GitRunner = async () => fail("No git runner is available in this environment, so MJ cannot read the repository. Nothing was inspected and no diff is shown.");
+export const NO_GIT: GitRunner = async () => fail("No git runner is available in this environment, so VH cannot read the repository. Nothing was inspected and no diff is shown.");
 
 /**
  * Parse `git status --porcelain=v1 -z`.

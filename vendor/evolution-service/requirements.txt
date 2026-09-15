@@ -1,4 +1,4 @@
-# MJ evolution sidecar — pinned dependencies (production infrastructure).
+# VH evolution sidecar — pinned dependencies (production infrastructure).
 # Install in a dedicated venv. Requires an LLM provider key at runtime.
 dspy==2.5.43
 dspy-gepa==0.1.4

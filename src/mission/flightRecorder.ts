@@ -1,7 +1,7 @@
 /**
  * §32 Governance + §14 Flight Recorder.
  *
- * Every autonomous action in MJ 6.0 is recorded here with actor, authority, policy, reason
+ * Every autonomous action in VH 6.0 is recorded here with actor, authority, policy, reason
  * and evidence. There is no code path in the mission runtime that mutates state without
  * going through `record`.
  *

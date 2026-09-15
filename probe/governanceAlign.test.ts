@@ -1,5 +1,5 @@
 /**
- * MJ 11.12.2 — governance alignment probe (external-review fixes).
+ * VH 11.12.2 — governance alignment probe (external-review fixes).
  *
  * Pins the Authority Envelope mechanics (principal, attenuation subset rule,
  * expiry, revocation, scope check, signature) and the Ledger write-permission

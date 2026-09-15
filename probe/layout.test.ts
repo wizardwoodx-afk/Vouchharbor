@@ -1,5 +1,5 @@
 /**
- * §Layout probe (MJ 11.9.8) — the real layered (Sugiyama) engine.
+ * §Layout probe (VH 11.9.8) — the real layered (Sugiyama) engine.
  *
  * Pins: layers flow left→right, crossing minimization is measured (not claimed), long edges are
  * normalized, cycles are insurance-handled (never crashed on), the output is deterministic,

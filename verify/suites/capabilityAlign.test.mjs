@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1093,8 +1093,8 @@ var init_client = __esm({
 });
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1261,7 +1261,7 @@ function checkEnvelope(e, action, now) {
 
 // src/mission/capability.ts
 var CAPABILITY_OPS = ["count", "sum", "avg", "max"];
-var LS_PRIVACY = "mj.privacy.ledger";
+var LS_PRIVACY = "vh.privacy.ledger";
 function privacyCanonical(e) {
   return JSON.stringify([e.id, e.dataset, e.requester, e.op, e.field, e.filtered, e.countedAt, e.prev]);
 }
@@ -1276,7 +1276,7 @@ function loadPrivacyLedger() {
   }
   return [];
 }
-var LS_PRIVACY_ANCHOR = "mj.privacy.ledger.anchor";
+var LS_PRIVACY_ANCHOR = "vh.privacy.ledger.anchor";
 function savePrivacyLedger(entries) {
   try {
     localStorage.setItem(LS_PRIVACY, JSON.stringify(entries));
@@ -1396,7 +1396,7 @@ async function executeCapability(args) {
 }
 
 // src/mission/egress.ts
-var LS_KEY = "mj.egress.ledger";
+var LS_KEY = "vh.egress.ledger";
 function egressCanonical(r) {
   return JSON.stringify([r.id, r.at, r.principal, r.item.kind, r.item.name, r.item.sha256, r.recipient, r.envelopeId]);
 }
@@ -1626,7 +1626,7 @@ section("5. durability + filters \u2014 the 11.14.2 review's two named weaknesse
   ok("the privacy ledger is digest-chained and verifies", await verifyPrivacyLedger());
   const chain = loadPrivacyLedger();
   const dropped = chain.slice(0, -2);
-  globalThis.localStorage.setItem("mj.privacy.ledger", JSON.stringify(dropped));
+  globalThis.localStorage.setItem("vh.privacy.ledger", JSON.stringify(dropped));
   const tampered = await executeCapability({ request: { ...rq("cap-tam"), requester: "employee:11" }, envelope: env, now: NOW + 23 });
   ok(
     "truncating the ledger is DETECTED \u2014 a doctored budget history refuses all computation, in words",

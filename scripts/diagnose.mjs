@@ -1,11 +1,11 @@
-// MJ headless diagnostics: attaches to the app's WebView2 via CDP and reports
+// VH headless diagnostics: attaches to the app's WebView2 via CDP and reports
 // runtime errors, console output, and whether node cards exist in the DOM.
 // Usage: node scripts/diagnose.mjs [--fix]
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const PORT = 9223;
-const EXE = String.raw`D:\MJ\src-tauri\target\release\mj-desktop.exe`;
+const EXE = String.raw`D:\VH\src-tauri\target\release\mj-desktop.exe`;
 
 async function getJson(url) {
   const res = await fetch(url);

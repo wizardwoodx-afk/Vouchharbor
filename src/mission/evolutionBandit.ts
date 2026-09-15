@@ -1,11 +1,11 @@
 /**
- * §BANDIT-ROUTED EVOLUTION — the evolve loop learns WHERE to search (MJ 11.9.4-Major).
+ * §BANDIT-ROUTED EVOLUTION — the evolve loop learns WHERE to search (VH 11.9.4-Major).
  *
  * RecHarness (2026) showed the winning shape for self-evolving systems under
  * limited trial budgets: a bandit router allocates trials across structured
  * edit dimensions, and the LLM reasons *inside* the chosen direction; AEL
  * (2026) showed a Thompson-style bandit over retrieval policies plus a
- * stagnation "jump" arm beats free-form self-mutation. MJ's team evolution
+ * stagnation "jump" arm beats free-form self-mutation. VH's team evolution
  * already evolves seat instructions with honest gates — what it lacked was a
  * router: every candidate edit searched the same dimensions in the same way.
  *

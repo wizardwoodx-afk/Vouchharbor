@@ -1,17 +1,18 @@
-# Vouch Harbor 18.8.0 "Atlas" — release verification record
+# Vouch Harbor 18.9.0 "Aurora" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
-`sh VERIFY.sh` runs the one truly zero-dependency gate: the 111-suite
-offline pack. The protocol selftest needs `cd protocol && npm install`.)
+`sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
+offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.)
 
-## The 18.8.0 record (252-specialist catalog + regenerated web build)
+## The 18.9.0 record (identity cleanse + skill layer + 300 specialists)
 
-18.8.0 grows the bench 147 → 252 individually specified real specialists
-across the ten domains (honest risk tiers; critical work stays gate-always)
-and regenerates the packaged web build from the gated tree. Protocol
-v0.10.7; suites 113/112.
+18.9.0 removes every personal/predecessor identity string and the
+noncommercial license from the shipped tree, binds Agent-Skills-style
+playbooks into all 300 specialists (composed at run time), and grows the
+bench 252 → 300 with the AI-engineering cluster. Protocol v0.10.7;
+suites 114/113.
 
 | Gate | Command | Result |
 |---|---|---|
@@ -21,15 +22,27 @@ v0.10.7; suites 113/112.
 | Theme (Horizon) | `node tools/run-one-probe.mjs theme` | 10/10 |
 | Collab identity | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
 | Goals + session rules | `node tools/run-one-probe.mjs goals` | 26/26 |
+| Skills | `node tools/run-one-probe.mjs skills` | 16/16 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
 | VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 28/28 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
-| Offline pack | `node verify/run.mjs` | 112 passed, 0 failed |
+| Offline pack | `node verify/run.mjs` | 113 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
-| Live fleet | `npm test` | 113/113 suites green |
+| Live fleet | `npm test` | 114/114 suites green |
+
+---
+
+# 18.8.0 "Atlas" — release verification record (standing depth record)
+
+Catalog 147 → 252 + regenerated web build. All 18.8.0 gates were green at
+ship time: tsc 0 · protocol 171 · unit 20 · theme 10 · collabInvite 29 ·
+goals 26 · selfEvolve 18 · selfEvolveMission 52 · teamEvolve 35 · vh19 81 ·
+vh19Door 28 · versionDrift 41 · offline 112 · live 113 · VERIFY.sh green.
+See VH-18.8-UPGRADE.md for the full record. (Superseded identity-wise by
+18.9.0: the 18.8.0 archive still carried predecessor-product strings.)
 
 ---
 

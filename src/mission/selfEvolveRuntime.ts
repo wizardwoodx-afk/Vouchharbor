@@ -1,5 +1,5 @@
 /**
- * MJ 11.11.1 SELF-EVOLVING — settlement orchestrator.
+ * VH 11.11.1 SELF-EVOLVING — settlement orchestrator.
  *
  * Called once per finished team run with the SAME measured report the other
  * engines settle on. Runs the full loop: reflect lessons → merge into org
@@ -63,8 +63,8 @@ export interface SelfEvolveSummary {
   learningReceiptId: string | null;
 }
 
-const RUNS_KEY = "mj.selfimprove.runs.v2";
-const RUNS_KEY_V1 = "mj.selfimprove.runs.v1";
+const RUNS_KEY = "vh.selfimprove.runs.v2";
+const RUNS_KEY_V1 = "vh.selfimprove.runs.v1";
 
 /**
  * Load the attributed run log. Pre-11.11.1 entries (v1, no strategyId) migrate

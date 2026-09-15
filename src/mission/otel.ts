@@ -1,7 +1,7 @@
 /**
- * §32.1 OpenTelemetry GenAI export (V11, MJ-11.0-PROPOSAL W4).
+ * §32.1 OpenTelemetry GenAI export (V11, VH-11.0-PROPOSAL W4).
  *
- * The flight recorder is MJ's authoritative "why" trail; OTLP export makes that trail
+ * The flight recorder is VH's authoritative "why" trail; OTLP export makes that trail
  * readable in every OTel backend (Datadog, Jaeger, Langfuse, …) without inventing a vendor
  * format. Spans follow the OTel GenAI semantic conventions — which, stated plainly, are
  * still **Development** status: attribute names can change, and the Proof page says so.
@@ -17,7 +17,7 @@
  *
  * Local-first rule: nothing is exported anywhere by default. `exportOtlpToFile` writes a
  * file; `postOtlp` sends to a user-configured endpoint and only when the caller explicitly
- * asks. MJ has no telemetry endpoint of its own and never will.
+ * asks. VH has no telemetry endpoint of its own and never will.
  */
 
 import type { FlightEvent } from "./types";
@@ -103,7 +103,7 @@ export interface OtlpTrace {
  *
  * Deterministic: identical events produce byte-identical output, because ids are derived
  * from content, not from a random generator. That matters — this trace must mean the same
- * thing in an external viewer as the recorder means in MJ.
+ * thing in an external viewer as the recorder means in VH.
  */
 export function flightToOtlp(events: FlightEvent[], opts: { serviceVersion?: string } = {}): OtlpTrace {
   if (events.length === 0) {
@@ -121,12 +121,12 @@ export function flightToOtlp(events: FlightEvent[], opts: { serviceVersion?: str
       timeUnixNano: toNanoNanos(e.ts),
       name: e.kind,
       attributes: [
-        attr("mj.event.seq", e.seq),
-        attr("mj.actor", e.actor),
-        attr("mj.authority", e.authority),
-        attr("mj.policy", e.policy),
-        attr("mj.reason", e.reason),
-        ...(e.subjectId ? [attr("mj.subject", e.subjectId)] : []),
+        attr("vh.event.seq", e.seq),
+        attr("vh.actor", e.actor),
+        attr("vh.authority", e.authority),
+        attr("vh.policy", e.policy),
+        attr("vh.reason", e.reason),
+        ...(e.subjectId ? [attr("vh.subject", e.subjectId)] : []),
       ],
     }));
 
@@ -139,11 +139,11 @@ export function flightToOtlp(events: FlightEvent[], opts: { serviceVersion?: str
     startTimeUnixNano: toNanoNanos(first.ts),
     endTimeUnixNano: toNanoNanos(last.ts),
     attributes: [
-      attr("gen_ai.system", "mj"),
+      attr("gen_ai.system", "vh"),
       attr("gen_ai.agent.name", missionId),
       attr("gen_ai.operation.name", "invoke_agent"),
-      attr("mj.conventions.status", "development"),
-      attr("mj.event.count", events.length),
+      attr("vh.conventions.status", "development"),
+      attr("vh.event.count", events.length),
     ],
     events: governanceEvents,
   };
@@ -163,14 +163,14 @@ export function flightToOtlp(events: FlightEvent[], opts: { serviceVersion?: str
         // viewers render it. The recorder is the source of truth for durations, not OTLP.
         endTimeUnixNano: toNanoNanos(e.ts) as unknown as string,
         attributes: [
-          attr("gen_ai.system", "mj"),
+          attr("gen_ai.system", "vh"),
           attr("gen_ai.operation.name", spanNameFor(e)?.split(" ")[0] ?? "execute_tool"),
-          attr("mj.event.seq", e.seq),
-          attr("mj.actor", e.actor),
-          attr("mj.authority", e.authority),
-          attr("mj.policy", e.policy),
-          attr("mj.reason", e.reason),
-          ...(e.subjectId ? [attr("mj.subject", e.subjectId)] : []),
+          attr("vh.event.seq", e.seq),
+          attr("vh.actor", e.actor),
+          attr("vh.authority", e.authority),
+          attr("vh.policy", e.policy),
+          attr("vh.reason", e.reason),
+          ...(e.subjectId ? [attr("vh.subject", e.subjectId)] : []),
         ],
         events: [] as unknown[],
       };
@@ -182,14 +182,14 @@ export function flightToOtlp(events: FlightEvent[], opts: { serviceVersion?: str
       {
         resource: {
           attributes: [
-            attr("service.name", "mj"),
+            attr("service.name", "vh"),
             attr("service.version", opts.serviceVersion ?? VH_VERSION),
             attr("gen_ai.conventions.status", "development"),
           ],
         },
         scopeSpans: [
           {
-            scope: { name: "mj.flight-recorder", version: VH_VERSION },
+            scope: { name: "vh.flight-recorder", version: VH_VERSION },
             spans: [root, ...children],
           },
         ],

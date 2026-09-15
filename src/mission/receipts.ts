@@ -1,16 +1,16 @@
 /**
- * §PROOF RECEIPTS — cryptographically attestable run evidence (MJ 11.9.4-Redesign).
+ * §PROOF RECEIPTS — cryptographically attestable run evidence (VH 11.9.4-Redesign).
  *
  * THE DIFFERENTIATOR. Every orchestrator can *claim* a run happened. In 2026,
  * regulation and enterprise diligence demand receipts: the EU AI Act's
  * tamper-evident-logging enforcement (Art. 12, Aug 2026) and the IETF AAT/SCITT
  * receipt work all converge on hash-chained, externally verifiable action
- * logs. MJ is uniquely placed to issue them, because MJ never infers what it
+ * logs. VH is uniquely placed to issue them, because VH never infers what it
  * can measure: exit codes, artifact branches, review-snapshot shas, costs read
  * from the CLI's own output — the receipt chains exactly those facts.
  *
  * SHAPE (JSONL-friendly, auditor-readable)
- *   header   — mission, team, started/finished, MJ version, license edition
+ *   header   — mission, team, started/finished, VH version, license edition
  *   events   — one per measured fact; each carries `prev` + `hash`,
  *              hash = SHA-256( canonical(prev ‖ event-without-hash) )
  *   seal     — HMAC-SHA-256 over the final chain hash with the published
@@ -18,7 +18,7 @@
  *              seal, externally re-computable; hardware/Ed25519 signing is on
  *              the enterprise roadmap and the schema already has room for it)
  *
- * VERIFY needs no MJ state: re-canonicalize, re-hash the chain, re-check the
+ * VERIFY needs no VH state: re-canonicalize, re-hash the chain, re-check the
  * seal. "We have logs" becomes evidence a third party can re-run.
  */
 import { VERIFY_SECRET, SEAL_SECRET_BY_FORMAT } from "./licensing";
@@ -132,7 +132,7 @@ export async function buildProofReceipt(args: {
   }
   // 11.14.8 — the governance-arena preflight joins the chain when (and only when)
   // the run was admitted through the arena: the receipt then proves not just that
-  // the work was verified, but that MJ's own hostile battery PASSED before any
+  // the work was verified, but that VH's own hostile battery PASSED before any
   // seat was invoked — digest + refusal evidence, in the sealed chain.
   if (report.arenaGate) {
     raw.push({
@@ -196,7 +196,7 @@ export async function buildProofReceipt(args: {
 }
 
 /**
- * External verification: no MJ state, just the receipt and public constants.
+ * External verification: no VH state, just the receipt and public constants.
  * Accepts the current vh-proof-receipt/2 and the legacy mj-proof-receipt/1|2 — older receipts verify exactly as
  * before; v2 adds the issuer-signature check when a signature is present. A null
  * signature with an accompanying signatureNote is HONEST (no Ed25519 in the runtime)
@@ -224,7 +224,7 @@ export async function verifyProofReceipt(rc: ProofReceipt): Promise<{ ok: true; 
 }
 
 /**
- * MJ 15.0.0 — the generic chained-receipt builder. The Mission Loop path keeps
+ * VH 15.0.0 — the generic chained-receipt builder. The Mission Loop path keeps
  * `buildProofReceipt` (summary-driven, probe-pinned); the Teammate door mints
  * receipts from an explicit event list instead — same shape, same chain, same
  * seal, same honest null-signature posture. One protocol, two minters.

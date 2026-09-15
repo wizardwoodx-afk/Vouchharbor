@@ -1,13 +1,13 @@
 /**
  * VOUCH 16.0 — the Vouch control-plane probe, now living in the MERGED
- * product: Vouch governs, MJ executes, one mission ID, one receipt chain.
+ * product: Vouch governs, VH executes, one mission ID, one receipt chain.
  *
  * The rules, made mechanical (same spirit as navAlign / receipts):
  *   1. The Vouch page imports ONLY the vouch engine module — no fragment
  *      stores, no direct missionLoop/receipts import: a page that does is a fork.
  *   2. The vouch module is the one place that reaches the proof layer and the
  *      web-evidence layer — through their APIs. The mission engine is a SEAM,
- *      NOW CONNECTED: exactly one file (bridge.ts) reaches MJ's mission loop;
+ *      NOW CONNECTED: exactly one file (bridge.ts) reaches VH's mission loop;
  *      the dispatch test drives the REAL loop and vouches its events.
  *      (16.0 merge — Step 3 of the Vouch Harbor plan.)
  *   3. Risky actions are approval-gated, and the gate is real: a run PAUSES
@@ -91,7 +91,7 @@ import {
   type ProofReceipt,
 } from "../src/vouch/engine/proof";
 
-/* node-safe storage for the MJ engine side: its guarded localStorage reads
+/* node-safe storage for the VH engine side: its guarded localStorage reads
  * need a backing map so crews persist within the probe process. (The Vouch
  * engine carries its own node-safe store and is unaffected.) */
 const probeLS = new Map<string, string>();
@@ -132,20 +132,20 @@ async function verifyDirect(rc: ProofReceipt): Promise<{ ok: boolean; events?: n
   return r.ok ? { ok: true, events: r.events } : { ok: false, reason: r.reason };
 }
 
-describe("vouch — the merged product: Vouch governs, MJ executes, one chain (16.0 merge)", () => {
-  it("the merge seam is isolated: the MJ engine is reached EXACTLY ONCE, through bridge.ts", () => {
+describe("vouch — the merged product: Vouch governs, VH executes, one chain (16.0 merge)", () => {
+  it("the merge seam is isolated: the VH engine is reached EXACTLY ONCE, through bridge.ts", () => {
     // The control plane never imports the execution plane directly — one seam,
     // so the merge can never fork into a second engine.
     assert.ok(!/from "\.\/missionLoop"/.test(moduleSrc), "vouch.ts does not import the mission loop directly");
-    assert.ok(!/from "\.\/licensing"/.test(moduleSrc), "no MJ licensing import in the control plane");
-    assert.ok(!/from "\.\/autonomyRuntime"/.test(moduleSrc), "no MJ runtime import in the control plane");
+    assert.ok(!/from "\.\/licensing"/.test(moduleSrc), "no VH licensing import in the control plane");
+    assert.ok(!/from "\.\/autonomyRuntime"/.test(moduleSrc), "no VH runtime import in the control plane");
     assert.ok(bridgeSrc.includes("../mission/missionLoop"), "bridge.ts is the seam: it imports the real mission loop");
     assert.ok(bridgeSrc.includes("runMissionLoopCycle"), "the seam runs the REAL loop cycle, not a re-implementation");
     assert.ok(!pageSrc.includes("nav"), "the page has no host-app nav of its own (the shell routes it)");
     assert.ok(moduleSrc.includes('"vouch.session.v1"') && moduleSrc.includes('"vouch.workspace.v1"'), "own storage keys");
   });
 
-  it("exactly ONE file in the Vouch tree reaches the MJ engine (static scan)", () => {
+  it("exactly ONE file in the Vouch tree reaches the VH engine (static scan)", () => {
     const files: string[] = [];
     const walk = (rel: string): void => {
       for (const e of fs.readdirSync(path.join(ROOT, rel), { withFileTypes: true })) {
@@ -159,10 +159,10 @@ describe("vouch — the merged product: Vouch governs, MJ executes, one chain (1
       const src = fs.readFileSync(path.join(ROOT, f), "utf8");
       return new RegExp('from "((\\.\\./|\\./)*)mission/').test(src) && f !== "src/vouch/engine/bridge.ts";
     });
-    assert.deepEqual(offenders, [], `only bridge.ts may reach the MJ engine — offenders: ${offenders.join(", ")}`);
+    assert.deepEqual(offenders, [], `only bridge.ts may reach the VH engine — offenders: ${offenders.join(", ")}`);
   });
 
-  it("ONE THROAT (16.6.0): across ALL of src/, exactly three files touch runMissionLoopCycle — the definition, the Vouch bridge, the original MJ engine page", () => {
+  it("ONE THROAT (16.6.0): across ALL of src/, exactly three files touch runMissionLoopCycle — the definition, the Vouch bridge, the original VH engine page", () => {
     const files: string[] = [];
     const walk = (rel: string): void => {
       for (const e of fs.readdirSync(path.join(ROOT, rel), { withFileTypes: true })) {
@@ -176,11 +176,11 @@ describe("vouch — the merged product: Vouch governs, MJ executes, one chain (1
       fs.readFileSync(path.join(ROOT, f), "utf8").includes("runMissionLoopCycle"),
     );
     // the engine's own module (definition + internals), the Vouch throat
-    // (bridge.ts), and the original MJ engine page (the live "Mission Loop"
+    // (bridge.ts), and the original VH engine page (the live "Mission Loop"
     // nav face — the product's engine screen, not a Vouch-tree path).
     const allowed = new Set(["src/mission/missionLoop.ts", "src/vouch/engine/bridge.ts", "src/pages/LoopPage.tsx"]);
     const offenders = callSites.filter((f) => !allowed.has(f));
-    assert.deepEqual(offenders, [], `a NEW path to the mission loop engine — the 15.x teammate path was deleted for exactly this; route execution through bridge.ts (Vouch) or LoopPage (the MJ engine face): ${offenders.join(", ")}`);
+    assert.deepEqual(offenders, [], `a NEW path to the mission loop engine — the 15.x teammate path was deleted for exactly this; route execution through bridge.ts (Vouch) or LoopPage (the VH engine face): ${offenders.join(", ")}`);
     // and the 15.x prototype stays deleted:
     assert.ok(!fs.existsSync(path.join(ROOT, "src/mission/teammate.ts")), "src/mission/teammate.ts must stay deleted (15.x legacy path)");
     assert.ok(!fs.existsSync(path.join(ROOT, "src/pages/TeammatePage.tsx")), "src/pages/TeammatePage.tsx must stay deleted (unrouted 15.x prototype)");
@@ -325,7 +325,7 @@ describe("vouch — the run loop (node-safe e2e)", () => {
     assert.ok(actionEvent && actionEvent.data.approved === false && actionEvent.data.ok === false, "the receipt records the denial honestly");
   });
 
-  it("dispatch drives the REAL MJ mission loop end-to-end, honestly, and vouches it", { timeout: 20000 }, async () => {
+  it("dispatch drives the REAL VH mission loop end-to-end, honestly, and vouches it", { timeout: 20000 }, async () => {
     // Seed a crew, inject deterministic runner deps (node probe: no host CLI),
     // then let the full Vouch Cycle run the real engine.
     const team = {
@@ -396,7 +396,7 @@ describe("vouch — the run loop (node-safe e2e)", () => {
   });
 
   it("stopVouch aborts an in-flight run cleanly", async () => {
-    const run = sendVouchMessage("Tell me about the agent funding landscape and the EU AI Act and Tauri and Chennai and MJ and receipts");
+    const run = sendVouchMessage("Tell me about the agent funding landscape and the EU AI Act and Tauri and Chennai and VH and receipts");
     await sleep(60);
     stopVouch();
     await run;

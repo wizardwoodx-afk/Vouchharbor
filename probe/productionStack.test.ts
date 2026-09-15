@@ -27,8 +27,8 @@ import { TriggerEngine, type TriggerSpec } from "../src/mission/triggers";
 import { buildCatalog, importFromCatalog, sha256hex } from "../src/vouch/engine/skillStore";
 import { ReceiptedBrowser, fetchModeDeps } from "../src/browser/receipted";
 
-declare const MJ_ROOT: string;
-const root = typeof MJ_ROOT !== "undefined" ? MJ_ROOT : process.cwd();
+declare const VH_ROOT: string;
+const root = typeof VH_ROOT !== "undefined" ? VH_ROOT : process.cwd();
 
 const store = (): Map<string, string> => new Map();
 

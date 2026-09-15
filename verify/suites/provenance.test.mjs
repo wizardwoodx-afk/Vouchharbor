@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "18.8.0";
-    VH_SHORT = "18.8";
-    VH_CODENAME = "Atlas";
+    VH_VERSION = "18.9.0";
+    VH_SHORT = "18.9";
+    VH_CODENAME = "Aurora";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1154,7 +1154,7 @@ function planMerge(candidates, opts) {
     mergeable.push(c);
   }
   const { ordered, cycles } = orderBranches(mergeable);
-  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug \u2014 MJ will not guess an order.`);
+  for (const cyc of cycles) problems.push(`Dependency cycle: ${cyc}. Two branches each claim to depend on the other, which is a decomposition bug \u2014 VH will not guess an order.`);
   const steps = ordered.map((c, i) => ({
     order: i + 1,
     branch: c.branch,
@@ -1215,13 +1215,13 @@ function interpretMergeTree(exitCode, stdout) {
   return {
     clean: false,
     conflicted: [],
-    error: exitCode === null ? "git merge-tree did not run at all." : exitCode === 129 ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is MJ's mistake in how it called git, NOT a conflict between the branches." : `git merge-tree exited ${exitCode}, which is neither clean (0) nor conflict (1).`
+    error: exitCode === null ? "git merge-tree did not run at all." : exitCode === 129 ? "git merge-tree rejected its arguments (exit 129 is a usage error). This is VH's mistake in how it called git, NOT a conflict between the branches." : `git merge-tree exited ${exitCode}, which is neither clean (0) nor conflict (1).`
   };
 }
 
 // src/mission/signing.ts
-var STORAGE_KEY = "mj.issuerkey.v1";
-var KEYCHAIN_REF = "mj.issuerkey.v1";
+var STORAGE_KEY = "vh.issuerkey.v1";
+var KEYCHAIN_REF = "vh.issuerkey.v1";
 async function keychainBridge() {
   try {
     const native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -1348,7 +1348,7 @@ async function executeMergePlan(input) {
     ...extra
   });
   if (!input.gate.allowed && !input.overrideRecorded) {
-    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway \u2014 MJ will name it in the attestation.`);
+    return base(`Merge REFUSED by the verification gate (${input.gate.status}, tier ${input.gate.tier}): ${input.gate.reason}. Nothing was merged. Record an explicit override to proceed anyway \u2014 VH will name it in the attestation.`);
   }
   if (input.plan.problems.length > 0) {
     return base(`Merge REFUSED: the plan itself reports problems: ${input.plan.problems.join(" ")}`);
@@ -1484,7 +1484,7 @@ async function buildProvenanceStatement(args) {
     predicateType: MJ_PROVENANCE_PREDICATE_TYPE,
     predicate: {
       builder: { id: `vouch-harbor@${args.mjVersion}` },
-      buildType: "mj.verified-team-run/v1",
+      buildType: "vh.verified-team-run/v1",
       metadata: { mission: args.mission, teamId: args.teamId, mjVersion: args.mjVersion, issuedAt: (/* @__PURE__ */ new Date()).toISOString() },
       materials,
       verification: {
@@ -1550,7 +1550,7 @@ function makeRepoWithBranch() {
   fs.writeFileSync(path.join(repo, "app.js"), "1\n");
   execFileSync("git", ["init", "-q", "."], { cwd: repo });
   execFileSync("git", ["config", "user.email", "mj@mj.desktop"], { cwd: repo });
-  execFileSync("git", ["config", "user.name", "MJ"], { cwd: repo });
+  execFileSync("git", ["config", "user.name", "VH"], { cwd: repo });
   execFileSync("git", ["add", "-A"], { cwd: repo });
   execFileSync("git", ["commit", "-q", "-m", "base"], { cwd: repo });
   const base = git(repo, ["rev-parse", "--abbrev-ref", "HEAD"]).out.trim();
