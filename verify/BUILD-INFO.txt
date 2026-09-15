@@ -1,13 +1,13 @@
-Vouch Harbor 18.4.0 Zenith
-built: 18.4.0 Zenith
+Vouch Harbor 18.5.0 Apex
+built: 18.5.0 Apex
 ts:   2026-09-14T19:40:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-111 self-contained bundles in verify/suites (every probe suite except the pack's
+112 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 112 probe
-suites; the offline pack reproduces 111 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 113 probe
+suites; the offline pack reproduces 112 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-112 passed, 0 failed across 112 probe suites (node verify/run.mjs → 111 passed,
+113 passed, 0 failed across 113 probe suites (node verify/run.mjs → 112 passed,
 0 failed for the offline-only subset).

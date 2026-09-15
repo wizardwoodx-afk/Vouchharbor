@@ -117,7 +117,7 @@ test("vh19 — registry, router, providers, memory, exam, generalist", async () 
   const envCfg = providerFromEnv({ VH_OPENAI_API_KEY: " sk-env-key-123 ", VH_OPENAI_BASE_URL: "https://gateway.example.com/v1/" });
   check("env config is picked up, trimmed, slash-normalized", envCfg?.apiKey === "sk-env-key-123" && envCfg?.baseUrl === "https://gateway.example.com/v1");
   check("no env keys ⇒ null, never a half-config", providerFromEnv({}) === null);
-  check("documented default base URLs are the providers' real endpoints", PROVIDER_DEFAULTS["openai-compatible"] === "https://api.openai.com/v1" && PROVIDER_DEFAULTS.anthropic === "https://api.anthropic.com" && PROVIDER_DEFAULTS.gemini === "https://generativelanguage.googleapis.com/v1beta");
+  check("documented default base URLs are the providers' real endpoints", PROVIDER_DEFAULTS["openai-compatible"] === "https://api.openai.com/v1" && PROVIDER_DEFAULTS.anthropic === "https://api.anthropic.com" && PROVIDER_DEFAULTS.gemini === "https://generativelanguage.googleapis.com/v1");
   const noKey = await complete(null, "s", "u");
   check("no provider ⇒ honest no-key refusal, never a fake completion", noKey.ok === false && !noKey.ok && noKey.kind === "no-key");
   const ssrf = await complete({ ...testProvider, baseUrl: "http://169.254.169.254/latest" }, "s", "u");

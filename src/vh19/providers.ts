@@ -26,7 +26,7 @@ import type { ProviderConfig, ProviderResult } from "./types";
 export const PROVIDER_DEFAULTS: Record<ProviderConfig["kind"], string> = {
   "openai-compatible": "https://api.openai.com/v1",
   anthropic: "https://api.anthropic.com",
-  gemini: "https://generativelanguage.googleapis.com/v1beta",
+  gemini: "https://generativelanguage.googleapis.com/v1", // 18.5.0: stable v1 line (review note); the OpenAI-compat path stays v1beta/openai/
 };
 
 export const DEFAULT_TIMEOUT_MS = 30_000;

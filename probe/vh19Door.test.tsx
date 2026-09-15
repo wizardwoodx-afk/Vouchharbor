@@ -88,6 +88,8 @@ ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes
 ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution · tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
 ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
 ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
+ok("the door offers goal mode (18.5.0)", /Assignments · goal mode/.test(html) && /createGoal/.test(doorSrc) && /settleStep/.test(doorSrc) && /resumeGoal/.test(doorSrc));
+ok("the gate answers with session Auto-Review rules, critical excluded", /answerGateWithRules/.test(doorSrc) && /allowCategoryForSession/.test(doorSrc) && /riskTier === 'risky'/.test(doorSrc));
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

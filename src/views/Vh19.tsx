@@ -22,7 +22,10 @@ import type { KnownIdentityRow } from '../vh19/collabRegistry';
 import type { SignedInvitation } from '../vh19/collabInvite';
 import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChange, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
 import type { SelfProposal } from '../vh19/selfEvolve';
-import { effectiveRiskTier } from '../vh19/registry';
+import { effectiveRiskTier, getSpecialist } from '../vh19/registry';
+import { allowCategoryForSession, answerGateWithRules, listSessionRules, revokeSessionRule } from '../vh19/gateRules';
+import { createGoal, goalProgress, loadGoals, nextPendingStep, resumeGoal, settleStep } from '../vh19/goals';
+import type { Goal, StepOutcome } from '../vh19/goals';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
@@ -88,6 +91,9 @@ export const Vh19: React.FC = () => {
   const [parseErr, setParseErr] = useState<string | null>(null);
   const [approvalOut, setApprovalOut] = useState<string | null>(null);
   const [selfList, setSelfList] = useState<SelfProposal[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalText, setGoalText] = useState('');
+  const [sessionRules, setSessionRules] = useState<string[]>([]);
   const [selfNote, setSelfNote] = useState<string | null>(null);
   const seq = useRef(0);
 
@@ -126,7 +132,11 @@ export const Vh19: React.FC = () => {
     setMessages((m) => [...m, userMsg]);
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
-      gate: (ask) => new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); }),
+      gate: (ask) => {
+        const ruled = answerGateWithRules(ask);
+        if (ruled) return Promise.resolve(ruled); // a human-standing rule answers; logged in gateRules
+        return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
+      },
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario }]);
@@ -487,6 +497,56 @@ export const Vh19: React.FC = () => {
         )}
       </div>
 
+      {/* ── assignments — goal mode (18.5.0) ── */}
+      <div className="card mt-16" style={{ padding: 14 }}>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setGoals(loadGoals()); setSessionRules(listSessionRules()); }}>↻ Assignments · goal mode</button>
+        <div style={{ marginTop: 12 }}>
+          <div style={{ display: 'flex', gap: 6 }} className="mb-16">
+            <input className="input" placeholder="hand VH a goal — it decomposes with its own router and checkpoints every step" value={goalText} onChange={(e) => setGoalText(e.target.value)} />
+            <button className="btn btn-primary btn-sm" onClick={() => { if (goalText.trim()) { createGoal(USER, goalText.trim()); setGoalText(''); setGoals(loadGoals()); } }}>Assign</button>
+          </div>
+          {sessionRules.length > 0 && (
+            <div className="row-sub mb-16" style={{ fontSize: 11 }}>session auto-review rules (forgotten on restart): {sessionRules.map((c) => (
+              <span key={c} className="chip" style={{ marginRight: 4 }}>{c} <button className="btn btn-ghost btn-sm" style={{ padding: 0, marginLeft: 4 }} onClick={() => { revokeSessionRule(c); setSessionRules(listSessionRules()); }}>×</button></span>
+            ))}</div>
+          )}
+          {goals.slice(-4).reverse().map((g) => (
+            <div key={g.id} className="row" style={{ padding: '10px 12px', background: 'var(--bg)', marginBottom: 8, display: 'block' }}>
+              <div className="row-title" style={{ fontSize: 12 }}>{g.text} <span className="chip">{goalProgress(g)}%</span> <span className="chip">{g.state}</span></div>
+              {g.steps.map((s) => (
+                <div key={s.id} className="row-sub" style={{ fontSize: 11, marginTop: 3 }}>· [{s.status}] {s.title}{s.note ? ` — ${s.note}` : ''}</div>
+              ))}
+              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                {g.state !== 'done' && <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => {
+                  const step = nextPendingStep(g); if (!step) return;
+                  setBusy(true);
+                  const resp = await askVH19({ text: `${g.text} — step: ${step.title}`, userId: USER, team: { id: teamId, members: teamMembers } }, {
+                    provider,
+                    gate: (ask) => {
+                      const ruled = answerGateWithRules(ask);
+                      if (ruled) return Promise.resolve(ruled);
+                      return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
+                    },
+                  });
+                  const outcome: StepOutcome =
+                    resp.outcome === 'answered' || resp.outcome === 'peer-delegated'
+                      ? { status: 'done', receiptDigest: resp.provenanceDigest, note: resp.reply.slice(0, 120) }
+                      : resp.outcome === 'planned'
+                        ? { status: 'planned', note: 'no provider key — delivered as a plan, honestly' }
+                        : resp.outcome === 'gated-out'
+                          ? { status: 'refused', note: 'denied at the human gate' }
+                          : { status: 'refused', note: resp.outcome };
+                  settleStep(g.id, step.id, outcome);
+                  setGoals(loadGoals());
+                  setBusy(false);
+                }}>Run next step</button>}
+                {g.state === 'paused' && <button className="btn btn-ghost btn-sm" onClick={() => { resumeGoal(g.id); setGoals(loadGoals()); }}>Resume</button>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── bench management ── */}
       {showBench && (
         <div className="card mt-16" style={{ padding: 14 }}>
@@ -516,6 +576,15 @@ export const Vh19: React.FC = () => {
             <div className="row-title mb-16">{gateAsk.ask.action}</div>
             {gateAsk.ask.summary && <div className="row-sub mb-16">{gateAsk.ask.summary}</div>}
             <input className="input mb-16" placeholder="reason if denying" value={denyReason} onChange={(e) => setDenyReason(e.target.value)} />
+            {gateAsk.ask.riskTier === 'risky' && (
+              <button className="btn btn-ghost btn-sm mb-16" onClick={() => {
+                const cats = Array.from(new Set(gateAsk.ask.specialistIds.map((id) => getSpecialist(id)?.category).filter(Boolean))) as string[];
+                cats.forEach(allowCategoryForSession);
+                setSessionRules(listSessionRules());
+                gateAsk.resolve(answerGateWithRules(gateAsk.ask) ?? { approved: true });
+                setGateAsk(null);
+              }}>Allow {Array.from(new Set(gateAsk.ask.specialistIds.map((id) => getSpecialist(id)?.category).filter(Boolean))).join(', ')} for this session</button>
+            )}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button className="btn btn-ghost btn-sm" onClick={() => { gateAsk.resolve({ approved: false, reason: denyReason || 'denied at the gate' }); setGateAsk(null); }}>Deny</button>
               <button className="btn btn-primary btn-sm" onClick={() => { gateAsk.resolve({ approved: true }); setGateAsk(null); }}>Approve</button>

@@ -9217,14 +9217,14 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           return 1 << getBitLength(id) - 1;
         }
         var clz32 = Math.clz32 ? Math.clz32 : clz32Fallback;
-        var log = Math.log;
+        var log2 = Math.log;
         var LN2 = Math.LN2;
         function clz32Fallback(x) {
           var asUint = x >>> 0;
           if (asUint === 0) {
             return 32;
           }
-          return 31 - (log(asUint) / LN2 | 0) | 0;
+          return 31 - (log2(asUint) / LN2 | 0) | 0;
         }
         function is(x, y) {
           return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
@@ -14696,14 +14696,14 @@ var require_react_dom_server_node_development = __commonJS({
           return 1 << getBitLength(id) - 1;
         }
         var clz32 = Math.clz32 ? Math.clz32 : clz32Fallback;
-        var log = Math.log;
+        var log2 = Math.log;
         var LN2 = Math.LN2;
         function clz32Fallback(x) {
           var asUint = x >>> 0;
           if (asUint === 0) {
             return 32;
           }
-          return 31 - (log(asUint) / LN2 | 0) | 0;
+          return 31 - (log2(asUint) / LN2 | 0) | 0;
         }
         function is(x, y) {
           return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
@@ -18909,7 +18909,8 @@ Request: ${request}`;
 var PROVIDER_DEFAULTS = {
   "openai-compatible": "https://api.openai.com/v1",
   anthropic: "https://api.anthropic.com",
-  gemini: "https://generativelanguage.googleapis.com/v1beta"
+  gemini: "https://generativelanguage.googleapis.com/v1"
+  // 18.5.0: stable v1 line (review note); the OpenAI-compat path stays v1beta/openai/
 };
 var DEFAULT_TIMEOUT_MS = 3e4;
 function redactSecrets(text, known = []) {
@@ -20016,6 +20017,119 @@ function revertAppliedChange(entryId) {
   return ovr;
 }
 
+// src/vh19/gateRules.ts
+var rules = /* @__PURE__ */ new Map();
+var log = [];
+function allowCategoryForSession(category) {
+  rules.set(category, true);
+}
+function revokeSessionRule(category) {
+  rules.delete(category);
+}
+function listSessionRules() {
+  return Array.from(rules.keys());
+}
+function answerGateWithRules(ask, now = () => /* @__PURE__ */ new Date()) {
+  if (ask.riskTier === "critical") return null;
+  if (ask.riskTier !== "risky") return null;
+  const categories = ask.specialistIds.map((id) => getSpecialist(id)?.category ?? null);
+  if (categories.length === 0 || categories.some((c) => c === null)) return null;
+  for (const c of categories) {
+    if (!rules.has(c)) return null;
+  }
+  const category = categories[0];
+  log.push({ category, action: ask.summary || ask.action, riskTier: ask.riskTier, at: now().toISOString() });
+  if (log.length > 200) log.splice(0, log.length - 200);
+  return { approved: true };
+}
+
+// src/vh19/goals.ts
+var GOALS_KEY = "vh19.goals.v1";
+var GOAL_CAP = 50;
+var MAX_STEPS = 5;
+function storage9() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function loadGoals() {
+  const raw = storage9()?.getItem(GOALS_KEY) ?? null;
+  if (!raw) return [];
+  try {
+    const g = JSON.parse(raw);
+    return Array.isArray(g) ? g : [];
+  } catch {
+    return [];
+  }
+}
+function save3(goals) {
+  storage9()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
+}
+function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
+  const route = routeDeterministic(text);
+  const picked = route.selected.slice(0, MAX_STEPS);
+  const steps = picked.length > 0 ? picked.map((c, i) => {
+    const s = getSpecialist(c.id);
+    return {
+      id: `st-${i}`,
+      specialistId: c.id,
+      title: `${s?.name ?? c.id}: ${(s?.capabilities[0] ?? "apply this specialty").toLowerCase()}`,
+      status: "pending"
+    };
+  }) : [{ id: "st-0", specialistId: null, title: "generalist pass: plan the whole goal in words", status: "pending" }];
+  const goal = {
+    id: `goal-${now().getTime().toString(36)}`,
+    user,
+    text,
+    steps,
+    state: "active",
+    createdAt: now().toISOString(),
+    updatedAt: now().toISOString()
+  };
+  save3([...loadGoals(), goal]);
+  return goal;
+}
+function nextPendingStep(goal) {
+  return goal.steps.find((s) => s.status === "pending" || s.status === "gated") ?? null;
+}
+function settleStep(goalId, stepId, outcome, now = () => /* @__PURE__ */ new Date()) {
+  const goals = loadGoals();
+  const goal = goals.find((g) => g.id === goalId);
+  if (!goal) return null;
+  const step = goal.steps.find((s) => s.id === stepId);
+  if (!step) return null;
+  if (step.status === "done" || step.status === "refused") return goal;
+  step.status = outcome.status;
+  step.note = "note" in outcome ? outcome.note : void 0;
+  step.receiptDigest = "receiptDigest" in outcome ? outcome.receiptDigest : void 0;
+  if (step.status === "gated") goal.state = "paused";
+  if (goal.steps.every((s) => s.status === "done" || s.status === "planned" || s.status === "refused")) {
+    goal.state = "done";
+  } else if (step.status !== "gated") {
+    goal.state = "active";
+  }
+  goal.updatedAt = now().toISOString();
+  save3(goals);
+  return goal;
+}
+function resumeGoal(goalId, now = () => /* @__PURE__ */ new Date()) {
+  const goals = loadGoals();
+  const goal = goals.find((g) => g.id === goalId);
+  if (!goal) return null;
+  for (const s of goal.steps) if (s.status === "gated") s.status = "pending";
+  goal.state = "active";
+  goal.updatedAt = now().toISOString();
+  save3(goals);
+  return goal;
+}
+function goalProgress(goal) {
+  if (goal.steps.length === 0) return 0;
+  const settled = goal.steps.filter((s) => s.status !== "pending" && s.status !== "gated").length;
+  return Math.round(settled / goal.steps.length * 100);
+}
+
 // src/views/Vh19.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var USER = "local";
@@ -20067,6 +20181,9 @@ var Vh19 = () => {
   const [parseErr, setParseErr] = (0, import_react.useState)(null);
   const [approvalOut, setApprovalOut] = (0, import_react.useState)(null);
   const [selfList, setSelfList] = (0, import_react.useState)([]);
+  const [goals, setGoals] = (0, import_react.useState)([]);
+  const [goalText, setGoalText] = (0, import_react.useState)("");
+  const [sessionRules, setSessionRules] = (0, import_react.useState)([]);
   const [selfNote, setSelfNote] = (0, import_react.useState)(null);
   const seq = (0, import_react.useRef)(0);
   const refreshSelf = () => {
@@ -20100,10 +20217,14 @@ var Vh19 = () => {
     setMessages((m) => [...m, userMsg]);
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, {
       provider,
-      gate: (ask) => new Promise((resolve) => {
-        setDenyReason("");
-        setGateAsk({ ask, resolve });
-      })
+      gate: (ask) => {
+        const ruled = answerGateWithRules(ask);
+        if (ruled) return Promise.resolve(ruled);
+        return new Promise((resolve) => {
+          setDenyReason("");
+          setGateAsk({ ask, resolve });
+        });
+      }
     });
     seq.current += 1;
     setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario }]);
@@ -20631,6 +20752,80 @@ var Vh19 = () => {
         ] }, h.id))
       ] })
     ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+        setGoals(loadGoals());
+        setSessionRules(listSessionRules());
+      }, children: "\u21BB Assignments \xB7 goal mode" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, className: "mb-16", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input", placeholder: "hand VH a goal \u2014 it decomposes with its own router and checkpoints every step", value: goalText, onChange: (e) => setGoalText(e.target.value) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", onClick: () => {
+            if (goalText.trim()) {
+              createGoal(USER, goalText.trim());
+              setGoalText("");
+              setGoals(loadGoals());
+            }
+          }, children: "Assign" })
+        ] }),
+        sessionRules.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub mb-16", style: { fontSize: 11 }, children: [
+          "session auto-review rules (forgotten on restart): ",
+          sessionRules.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip", style: { marginRight: 4 }, children: [
+            c,
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", style: { padding: 0, marginLeft: 4 }, onClick: () => {
+              revokeSessionRule(c);
+              setSessionRules(listSessionRules());
+            }, children: "\xD7" })
+          ] }, c))
+        ] }),
+        goals.slice(-4).reverse().map((g) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { padding: "10px 12px", background: "var(--bg)", marginBottom: 8, display: "block" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-title", style: { fontSize: 12 }, children: [
+            g.text,
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "chip", children: [
+              goalProgress(g),
+              "%"
+            ] }),
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "chip", children: g.state })
+          ] }),
+          g.steps.map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row-sub", style: { fontSize: 11, marginTop: 3 }, children: [
+            "\xB7 [",
+            s.status,
+            "] ",
+            s.title,
+            s.note ? ` \u2014 ${s.note}` : ""
+          ] }, s.id)),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6, marginTop: 8 }, children: [
+            g.state !== "done" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-primary btn-sm", disabled: busy, onClick: async () => {
+              const step = nextPendingStep(g);
+              if (!step) return;
+              setBusy(true);
+              const resp = await askVH19({ text: `${g.text} \u2014 step: ${step.title}`, userId: USER, team: { id: teamId, members: teamMembers } }, {
+                provider,
+                gate: (ask) => {
+                  const ruled = answerGateWithRules(ask);
+                  if (ruled) return Promise.resolve(ruled);
+                  return new Promise((resolve) => {
+                    setDenyReason("");
+                    setGateAsk({ ask, resolve });
+                  });
+                }
+              });
+              const outcome = resp.outcome === "answered" || resp.outcome === "peer-delegated" ? { status: "done", receiptDigest: resp.provenanceDigest, note: resp.reply.slice(0, 120) } : resp.outcome === "planned" ? { status: "planned", note: "no provider key \u2014 delivered as a plan, honestly" } : resp.outcome === "gated-out" ? { status: "refused", note: "denied at the human gate" } : { status: "refused", note: resp.outcome };
+              settleStep(g.id, step.id, outcome);
+              setGoals(loadGoals());
+              setBusy(false);
+            }, children: "Run next step" }),
+            g.state === "paused" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
+              resumeGoal(g.id);
+              setGoals(loadGoals());
+            }, children: "Resume" })
+          ] })
+        ] }, g.id))
+      ] })
+    ] }),
     showBench && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt-16", style: { padding: 14 }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "eyebrow mb-16", children: [
         "Specialist bench \xB7 ",
@@ -20666,6 +20861,17 @@ var Vh19 = () => {
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-title mb-16", children: gateAsk.ask.action }),
       gateAsk.ask.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "row-sub mb-16", children: gateAsk.ask.summary }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "input mb-16", placeholder: "reason if denying", value: denyReason, onChange: (e) => setDenyReason(e.target.value) }),
+      gateAsk.ask.riskTier === "risky" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "btn btn-ghost btn-sm mb-16", onClick: () => {
+        const cats = Array.from(new Set(gateAsk.ask.specialistIds.map((id) => getSpecialist(id)?.category).filter(Boolean)));
+        cats.forEach(allowCategoryForSession);
+        setSessionRules(listSessionRules());
+        gateAsk.resolve(answerGateWithRules(gateAsk.ask) ?? { approved: true });
+        setGateAsk(null);
+      }, children: [
+        "Allow ",
+        Array.from(new Set(gateAsk.ask.specialistIds.map((id) => getSpecialist(id)?.category).filter(Boolean))).join(", "),
+        " for this session"
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, justifyContent: "flex-end" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-ghost btn-sm", onClick: () => {
           gateAsk.resolve({ approved: false, reason: denyReason || "denied at the gate" });
@@ -20758,6 +20964,8 @@ ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes
 ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution \xB7 tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
 ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
 ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
+ok("the door offers goal mode (18.5.0)", /Assignments · goal mode/.test(html) && /createGoal/.test(doorSrc) && /settleStep/.test(doorSrc) && /resumeGoal/.test(doorSrc));
+ok("the gate answers with session Auto-Review rules, critical excluded", /answerGateWithRules/.test(doorSrc) && /allowCategoryForSession/.test(doorSrc) && /riskTier === 'risky'/.test(doorSrc));
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));
