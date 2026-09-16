@@ -38,6 +38,7 @@ import { getSpecialist } from "./registry";
 import { importSkillMd, removeImportedSkill, importedSkills } from "./skillsImport";
 import type { ProviderConfig } from "./types";
 import { complete } from "./providers";
+import { draftContract, validateChangeContract, type ChangeContract, type MeasurementEvidence, sealMeasurement } from "./rsirals";
 
 export const RSI_FLOOR = [
   "the human gate and its risk tiers",
@@ -89,6 +90,9 @@ export interface RsiDraft {
   state: "pending" | "applied" | "rejected" | "reverted";
   /** Which rung of the verifier hierarchy applies — stated, not implied. */
   verifierNote: string;
+  /** 19.4.4: every draft carries a STRUCTURED change contract — the
+      primary governance check is structural, not string-based. */
+  contract: ChangeContract;
   category?: string;
   at: string;
 }
@@ -195,6 +199,11 @@ export async function runRsiCycle(userId: string, opts: { provider?: ProviderCon
       } catch { /* deterministic draft stands — honesty over polish */ }
     }
     const name = `rsi.${t.source}.${t.id.split(".").pop()}`;
+    /* Structural governance first: every draft is born with a change
+       contract; a contract that cannot validate is never even drafted. */
+    const contract = draftContract(t.subject);
+    const cv = validateChangeContract(contract);
+    if (!cv.allowed) continue;
     st.drafts.push({
       id: `draft.${t.id}`,
       topicId: t.id,
@@ -205,6 +214,7 @@ export async function runRsiCycle(userId: string, opts: { provider?: ProviderCon
       digest: await sha256Hex(`${t.id}\n${body}`),
       state: "pending",
       verifierNote: "verifier hierarchy: human approval now (strong) + measured promotion before broad trust; intrinsic self-assessment is never a verifier (floor)",
+      contract,
       category: t.category,
       at: new Date().toISOString(),
     });
@@ -245,12 +255,15 @@ export async function applyRsiDraft(draftId: string): Promise<{ ok: boolean; err
 }
 
 /**
- * Settle a promotion with MEASURED evidence only. A candidate may be
- * adopted only if the measured score beats the baseline; anything else
- * retires it. Self-declared success has no API to call — this is the only
- * door, and it needs numbers from outside the loop.
+ * MODULE-PRIVATE raw settlement. Deliberately NOT exported: no product
+ * surface can settle a promotion by supplying numbers directly. The only
+ * exported door is settleRsiPromotion below, which verifies a sealed
+ * MeasurementEvidence produced by the receipt-bound path
+ * (rsirals.bindSettlementEvidence). This is a structural seal — the
+ * honesty of the claim rests on code review + probes, not on keeping
+ * client-side crypto secret.
  */
-export function settleRsiPromotion(promoId: string, measured: { baselineScore: number; candidateScore: number; source: string }): RsiPromotion | null {
+function settleRaw(promoId: string, measured: { baselineScore: number; candidateScore: number; source: string }): RsiPromotion | null {
   const st = load();
   const p = st.promotions.find((x) => x.id === promoId);
   if (!p || p.state !== "measuring") return null;
@@ -264,6 +277,18 @@ export function settleRsiPromotion(promoId: string, measured: { baselineScore: n
   }
   save(st);
   return p;
+}
+
+/**
+ * The ONLY product-level settlement API (19.4.4). Evidence must be a
+ * MeasurementEvidence sealed by rsirals.bindSettlementEvidence; the seal
+ * is recomputed here and any mismatch — forged numbers, re-used
+ * evidence, tampered source — is refused by returning null.
+ */
+export function settleRsiPromotion(promoId: string, evidence: MeasurementEvidence): RsiPromotion | null {
+  if (evidence.promoId !== promoId) return null;
+  if (sealMeasurement(evidence) !== evidence.digest) return null;
+  return settleRaw(promoId, { baselineScore: evidence.baseline, candidateScore: evidence.candidate, source: evidence.source });
 }
 
 export function rejectRsiDraft(draftId: string, reason: string): RsiState {

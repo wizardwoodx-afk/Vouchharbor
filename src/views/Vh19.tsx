@@ -45,7 +45,7 @@ import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, S
 import { createMemoryWorkspace, openDirectoryWorkspace, fsAccessSupported, type BrowserWorkspace } from '../vh19/browserWorkspace';
 import { byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
 import { applyRsiDraft, rejectRsiDraft, recordRsiSignal, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiPromotions, rsiSignals, rsiState, runRsiCycle, settleRsiPromotion } from '../vh19/rsi';
-import { boundSettlementInputs, canaryWatchlist, controlPlaneFirewall, EVIDENCE_STACK, exportThetaPairs, GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE, rsiArchive, rsiralsCanaryCheck, rsiralsExamScores, rsiralsOnApply, rsiralsOnFirewallBlock, rsiralsOnRevert, rsiralsOnSettle, rsiralsRecordExamScore } from '../vh19/rsirals';
+import { bindSettlementEvidence, canaryWatchlist, controlPlaneFirewall, EVIDENCE_STACK, exportThetaPairs, GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE, rsiArchive, rsiralsCanaryCheck, rsiralsExamScores, rsiralsOnApply, rsiralsOnFirewallBlock, rsiralsOnRevert, rsiralsOnSettle, rsiralsRecordExamScore, validateChangeContract } from '../vh19/rsirals';
 import { loadMemory } from '../vh19/memory';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
 
@@ -738,10 +738,13 @@ export const Vh19: React.FC = () => {
                       setRsiBusy(true);
                       try {
                         const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : undefined });
-                        /* RSIRALS VERIFY: the control-plane firewall runs BEFORE anything human sees */
+                        /* RSIRALS VERIFY: STRUCTURAL contract check first (primary),
+                           then the string firewall (defense-in-depth) — before
+                           anything human sees */
                         let blocked = 0;
                         for (const d of st.drafts.filter((x) => x.state === 'pending')) {
-                          const fw = controlPlaneFirewall({ name: d.name, description: d.description, body: d.body });
+                          const cv = validateChangeContract(d.contract);
+                          const fw = cv.allowed ? controlPlaneFirewall({ name: d.name, description: d.description, body: d.body }) : { allowed: false, reason: cv.reason };
                           if (!fw.allowed) { rejectRsiDraft(d.id, fw.reason); rsiralsOnFirewallBlock(d.name, fw.reason); blocked += 1; }
                         }
                         setRsiNote(st.drafts.filter((d) => d.state === 'pending').length > 0 ? `cycle complete — ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === 'pending').length} pending draft(s)${blocked > 0 ? `, ${blocked} firewall-blocked` : ''}. Nothing applies without your approval.` : 'cycle complete — the ledger produced no new topics; nothing was invented.');
@@ -782,11 +785,11 @@ export const Vh19: React.FC = () => {
                           <span className="px-muted" style={{ flex: 1 }}>{p.name}</span>
                           {p.state === 'measuring' && (
                             <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => {
-                              const b = boundSettlementInputs(p.id);
-                              if (!b.ok) { setRsiNote(b.error ?? 'settlement refused'); return; }
-                              const s = settleRsiPromotion(p.id, { baselineScore: b.baseline ?? 0, candidateScore: b.candidate ?? 0, source: b.source ?? '' });
+                              const b = bindSettlementEvidence(p.id);
+                              if (!b.ok) { setRsiNote(b.error); return; }
+                              const s = settleRsiPromotion(p.id, b.evidence);
                               if (s) rsiralsOnSettle(s.name, s.state as 'adopted' | 'retired', s.settledBy ?? '');
-                              setRsiNote(s ? `Settled from exam receipts — ${s.state}: ${s.settledBy ?? ''}` : 'settlement refused');
+                              setRsiNote(s ? `Settled from sealed exam receipts — ${s.state}: ${s.settledBy ?? ''}` : 'settlement refused (evidence seal failed)');
                               setRsiTick((t) => t + 1);
                             }}>Settle from exam receipts</button>
                           )}

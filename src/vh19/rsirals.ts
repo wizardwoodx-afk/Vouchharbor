@@ -46,6 +46,7 @@
  * Verifiers: RLVR can Lead to Reward Hacking" — plus the two papers in
  * the founding reading list (RSI survey; RSIAgent).
  */
+import { hashString } from "../domain/artifact";
 
 /* ── PLANE T — GOVERNANCE. Frozen. Digest-stamped. No write path. ───────── */
 
@@ -140,16 +141,64 @@ export const EVIDENCE_STACK = [
   { id: "V_cost", name: "cost / resource budget", how: "T's resource ceilings bound provider calls, topics and draft size per cycle" },
 ] as const;
 
+/* ── TRUST PLANE — structured change contracts (primary enforcement) ─────── */
+
+/**
+ * 19.4.4 (release review): strings alone cannot prove a candidate safe.
+ * The PRIMARY governance check is structural: every change carries a
+ * contract — target, field, old/new value, authority, scope, risk — and
+ * mutations targeting protected fields are rejected by the contract
+ * itself, before any text analysis runs. The string firewall stays as
+ * defense-in-depth, supplementary rather than primary.
+ */
+export const PROTECTED_TARGETS = ["governance", "gate", "exam", "verification", "risk-tier", "floor"] as const;
+
+export interface ChangeContract {
+  target: string;
+  field: string;
+  oldValue?: string;
+  newValue?: string;
+  authority: "human" | "rsi-loop";
+  scope: string;
+  risk: "safe" | "risky";
+}
+
+export function validateChangeContract(c: ChangeContract): { allowed: boolean; reason: string } {
+  if ((PROTECTED_TARGETS as readonly string[]).includes(c.target)) {
+    return { allowed: false, reason: `structural firewall: target "${c.target}" is protected — the loop may never write it, by any authority` };
+  }
+  if (!c.field.trim()) return { allowed: false, reason: "structural firewall: contract has no field" };
+  if (!c.scope.trim()) return { allowed: false, reason: "structural firewall: contract has no scope" };
+  if (c.authority !== "human" && c.authority !== "rsi-loop") return { allowed: false, reason: "structural firewall: authority must be human or rsi-loop" };
+  if (c.risk !== "safe" && c.risk !== "risky") return { allowed: false, reason: "structural firewall: unknown risk tier" };
+  return { allowed: true, reason: "contract valid — target is writable" };
+}
+
+/** The contract every RSI playbook draft is born with. */
+export function draftContract(topicSubject: string): ChangeContract {
+  return {
+    target: "playbook",
+    field: "specialist playbook (prompt composition)",
+    authority: "human",
+    scope: topicSubject.slice(0, 120),
+    risk: "safe",
+  };
+}
+
 /* ── AGENT PLANE — attribution and the dual clocks ───────────────────────── */
 
 export type ArmRoute = "sigma" | "theta" | "joint";
 
 /**
- * Counterfactual attribution, the honest VH version: route each failure
- * by shape. Scaffold-shaped evidence (playbooks, routing, tools, prompts,
- * egress) goes to the Σ-arm (fast, in-product). Provider/model-shaped
- * evidence goes to the θ-arm (slow — out-of-band; VH never trains
- * weights in-product). Ambiguous failures are tagged joint.
+ * FAILURE-SOURCE ATTRIBUTION / ARM ROUTING (wording kept honest per
+ * release review): this is heuristic attribution by failure shape, NOT a
+ * full causal counterfactual experiment — true controlled A/B
+ * counterfactuals live in the mission-level measured loop
+ * (src/mission/selfImprove.ts). Scaffold-shaped evidence (playbooks,
+ * routing, tools, prompts, egress) routes to the Σ-arm (fast,
+ * in-product). Provider/model-shaped evidence routes to the θ-arm (slow
+ * — out-of-band; VH never trains weights in-product). Ambiguous failures
+ * are tagged joint.
  */
 export function attributeEvidence(subject: string): ArmRoute {
   const s = subject.toLowerCase();
@@ -207,11 +256,13 @@ function appendArchive(st: RsiralsState, event: ArchiveEntry["event"], name: str
 
 /* ── lifecycle hooks (called by the door alongside rsi.ts) ───────────────── */
 
-/** REMEMBER + CANARY arm: an applied playbook enters the canary watch. */
+/** REMEMBER + CANARY arm: an applied playbook enters the canary watch.
+    The baseline exam score is stored under the PROMOTION id
+    (`promo.${draft.id}`) so bindSettlementEvidence finds it. */
 export function rsiralsOnApply(draft: { id: string; name: string; category?: string }, currentExamScore: number | null): void {
   const st = load();
   st.canary = [...st.canary, { name: draft.name, draftId: draft.id, category: draft.category, since: new Date().toISOString() }].slice(-12);
-  if (currentExamScore !== null) st.baselines[`promo.draft.${draft.id}`] = currentExamScore;
+  if (currentExamScore !== null) st.baselines[`promo.${draft.id}`] = currentExamScore;
   appendArchive(st, "applied", draft.name, `canary armed${currentExamScore !== null ? ` · baseline exam ${Math.round(currentExamScore * 100)}%` : " · no exam baseline recorded yet"}`);
   save(st);
 }
@@ -265,36 +316,45 @@ export function rsiralsCanaryCheck(signal: { kind: string; subject: string; cate
   return hit.map((h) => h.name);
 }
 
-/* ── PROMOTE — receipt-bound settlement ──────────────────────────────────── */
+/* ── PROMOTE — sealed, receipt-bound settlement (the ONLY product door) ──── */
 
-export interface BoundSettlement {
-  ok: boolean;
-  error?: string;
-  baseline?: number;
-  candidate?: number;
-  source?: string;
+export interface MeasurementEvidence {
+  promoId: string;
+  baseline: number;
+  candidate: number;
+  source: string;
+  producedAt: string;
+  /** Structural seal over the fields above — recomputed and verified by
+      rsi.settleRsiPromotion; forged or tampered evidence is refused. */
+  digest: string;
 }
 
+const SEAL_SALT = "vh.rsirals.measurement.v1";
+
+export function sealMeasurement(e: Omit<MeasurementEvidence, "digest">): string {
+  return hashString(`${SEAL_SALT}|${e.promoId}|${e.baseline}|${e.candidate}|${e.source}|${e.producedAt}`);
+}
+
+export type BindResult = { ok: true; evidence: MeasurementEvidence } | { ok: false; error: string };
+
 /**
- * End-to-end evidentiary settlement: the numbers are NOT supplied —
- * they are read from the product's own exam receipts (baseline recorded
- * at apply, candidate = latest exam). Without real exam receipts this
- * refuses in words. Manual settlement remains possible through
- * rsi.settleRsiPromotion but its source string must say "externally
- * supplied" — the anti-reward-hacking rung.
+ * End-to-end evidentiary settlement (19.4.4): the numbers are NOT
+ * supplied — they are read from the product's own exam receipts
+ * (baseline recorded at apply, candidate = latest exam) and returned as
+ * SEALED evidence. rsi.settleRsiPromotion accepts only sealed evidence;
+ * the raw numeric settlement function is module-private. Without real
+ * exam receipts this refuses in words.
  */
-export function boundSettlementInputs(promoId: string): BoundSettlement {
+export function bindSettlementEvidence(promoId: string): BindResult {
   const st = load();
   const baseline = st.baselines[promoId];
   const latest = st.examScores[st.examScores.length - 1];
   if (typeof baseline !== "number") return { ok: false, error: "no exam baseline was recorded when this playbook was applied — settlement refused (measurements must be receipt-bound)" };
   if (!latest) return { ok: false, error: "no exam run since apply — settlement refused (there is no candidate measurement yet)" };
-  return {
-    ok: true,
-    baseline,
-    candidate: latest.score,
-    source: `exam receipts (bound) · baseline at apply ${Math.round(baseline * 100)}% · latest exam ${Math.round(latest.score * 100)}%`,
-  };
+  const source = `exam receipts (bound) · baseline at apply ${Math.round(baseline * 100)}% · latest exam ${Math.round(latest.score * 100)}%`;
+  const producedAt = new Date().toISOString();
+  const partial = { promoId, baseline, candidate: latest.score, source, producedAt };
+  return { ok: true, evidence: { ...partial, digest: sealMeasurement(partial) } };
 }
 
 /* ── θ-ARM (slow clock) — honest boundary + DPO export ───────────────────── */

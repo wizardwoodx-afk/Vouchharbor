@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.4.3 · September 2026*
+*Vouch Harbor Labs · v19.4.4 · September 2026*
 *Companion to `PRESEED-PITCH.md` (the enterprise thesis) — this page is the brand layer and the product story as shipped.*
 
 ---
@@ -26,10 +26,16 @@ bots are not a security boundary — their own docs say so.*
 **Nobody owns the quadrant: a teammate you can talk to, running on YOUR
 machine, that signs what it did.**
 
-## The product (shipped, v19.3.0 — this tree)
+## The product (shipped, v19.4.x "Broader" — this tree)
 
 One local-first app (Tauri v2 desktop + browser edition), one engine, six
-doors:
+doors — plus the **VH-19 front door**: a chatbox-first Generalist over **620
+registered specialists** (460 seed + 160 broader, computed live from the
+registry), Captain synthesis, real gated tool execution, BYOA (external
+agents under a trust intersection), governed connector declarations, SKILL.md
+ecosystem import, and **RSIRALS v5.0** — the proprietary trust-rooted
+recursive self-improvement architecture (frozen governance plane, sealed
+receipt-bound promotion, canary auto-rollback, longitudinal monitor):
 
 | Door | What it is |
 |---|---|
@@ -61,6 +67,14 @@ doors:
   intelligence.** The benchmark is reproducible: `tools/drill-benchmark.mjs`
   emits a machine-readable report with one stable attestation digest
   (probe-pinned, cross-process reproducible).
+- **Learn (VH-19 RSI + RSIRALS v5.0)** — the agent improves from its OWN
+  receipted evidence: five curriculum sources (user rejection, gate denial,
+  execution failure, live-data unverified, handoff refusal), human-gated
+  apply, frozen digest-stamped playbooks, sealed receipt-bound promotion
+  (the raw settlement API is module-private), canary with automatic
+  rollback, and a governance plane the loop can never write (∂T/∂A = 0).
+  The θ-arm is honest: no in-product weight training — accept/reject pairs
+  export for out-of-band DPO under human governance.
 - **Learn** — the **M4 learning bridge**: a verified mission distills into a
   trajectory-backed skill (real provenance: mission ID, team, verified seats,
   cycle), replay-gated before activation, fast-pathed for matching future
@@ -142,8 +156,8 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
 
 ## Traction & stage (honest)
 
-- Complete, working product — v19.3.0, 30+ tagged releases, **113 probe
-  suites / 115 offline verification bundles**, byte-pinned offline
+- Complete, working product — v19.4.x, 31+ releases, **120 probe
+  suites / 119 offline verification bundles**, byte-pinned offline
   verification pack (runs in ~2.5 min with zero network), CI on the
   Windows pre-seed platform (Node 22, the supported runtime) plus
   certification under both Node v22.23.2 and v20.20.2 on the Linux build

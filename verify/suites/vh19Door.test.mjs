@@ -25029,12 +25029,12 @@ function allKnownIdentities() {
   ];
 }
 function requireBoundKey(memberId, presentedJwk) {
-  const bound2 = boundIdentityFor(memberId);
-  if (bound2) {
-    if (!jwkEqual(bound2.publicJwk, presentedJwk)) {
+  const bound = boundIdentityFor(memberId);
+  if (bound) {
+    if (!jwkEqual(bound.publicJwk, presentedJwk)) {
       return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
     }
-    return { ok: true, bound: bound2 };
+    return { ok: true, bound };
   }
   const structural = structuralIdentityFor(memberId);
   if (structural) {
@@ -26581,214 +26581,20 @@ function byoaDelegate(agent, opts = {}) {
   };
 }
 
-// src/vh19/rsi.ts
-var RSI_FLOOR = [
-  "the human gate and its risk tiers",
-  "the autonomy exam and its pass threshold",
-  "the probe and verification suites and their pins",
-  "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
-  "this floor list itself \u2014 the loop cannot loosen the loop"
-];
-var KEY5 = "vh19.rsi.v1";
-var SIGNAL_CAP = 50;
-function storage16() {
-  try {
-    return typeof localStorage !== "undefined" ? localStorage : null;
-  } catch {
-    return null;
+// src/domain/artifact.ts
+function hashString(str) {
+  let bytes;
+  if (typeof Buffer !== "undefined") {
+    bytes = Buffer.from(str, "utf8");
+  } else {
+    bytes = new TextEncoder().encode(str);
   }
-}
-var session3 = { topics: [], drafts: [], signals: [], promotions: [] };
-function load2() {
-  const s = storage16();
-  if (!s) return session3;
-  try {
-    const p = JSON.parse(s.getItem(KEY5) ?? "");
-    return { topics: p.topics ?? [], drafts: p.drafts ?? [], signals: p.signals ?? [], promotions: p.promotions ?? [] };
-  } catch {
-    return session3;
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= bytes[i];
+    h = Math.imul(h, 16777619) >>> 0;
   }
-}
-function save5(st) {
-  const s = storage16();
-  if (s) {
-    try {
-      s.setItem(KEY5, JSON.stringify(st));
-      return;
-    } catch {
-    }
-  }
-  session3.topics = st.topics;
-  session3.drafts = st.drafts;
-  session3.signals = st.signals;
-  session3.promotions = st.promotions;
-}
-async function sha256Hex7(text) {
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map((x) => x.toString(16).padStart(2, "0")).join("");
-}
-function rsiState() {
-  return load2();
-}
-function rsiMemory() {
-  return load2().drafts.filter((d) => d.state === "applied");
-}
-function rsiSignals() {
-  return load2().signals;
-}
-function rsiPromotions() {
-  return load2().promotions;
-}
-function recordRsiSignal(kind, subject, evidence = []) {
-  const st = load2();
-  const sig = { id: `sig.${kind}.${st.signals.length + 1}.${Date.now().toString(36)}`, kind, subject: subject.slice(0, 200), evidence: evidence.slice(0, 4), at: (/* @__PURE__ */ new Date()).toISOString() };
-  st.signals = [...st.signals, sig].slice(-SIGNAL_CAP);
-  save5(st);
-  return sig;
-}
-function rsiCurriculum(userId = "local") {
-  const topics2 = [];
-  const mem = loadMemory(userId).slice(-60);
-  for (const d of mem.filter((x) => x.kind === "reject").slice(-4)) {
-    topics2.push({
-      id: `topic.reject.${d.id}`,
-      subject: `Rejected work in "${(d.scenario ?? "").slice(0, 90)}" \u2014 correction: ${d.reason || "(no reason recorded)"}`,
-      source: "reject",
-      evidence: [d.id],
-      category: d.category ?? (d.specialistId ? getSpecialist(d.specialistId)?.category : void 0) ?? void 0
-    });
-  }
-  for (const sig of load2().signals.slice(-9)) {
-    topics2.push({ id: `topic.${sig.kind}.${sig.id}`, subject: sig.subject, source: sig.kind, evidence: sig.evidence });
-  }
-  for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
-    topics2.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
-  }
-  return topics2.slice(0, 10);
-}
-var draftBody = (t) => `Procedure:
-1. When a task resembles "${t.subject.split("\u2014")[0].trim()}", recall this ledger event (${t.source}).
-2. Apply the recorded correction before answering; if the correction conflicts with a newer human decision, the NEWER decision wins.
-3. State in one line that this playbook came from the RSI loop, with its evidence id.
-Quality checklist: does the correction trace to a real ledger entry? does it tighten rather than widen discretion? would a reviewer accept it in one sentence?`;
-async function runRsiCycle(userId, opts = {}) {
-  const topics2 = rsiCurriculum(userId);
-  const st = load2();
-  const known = new Set(st.topics.map((t) => t.id));
-  const fresh = topics2.filter((t) => !known.has(t.id));
-  st.topics = [...st.topics, ...fresh].slice(-40);
-  for (const t of fresh) {
-    let body = draftBody(t);
-    let provenance = "rsi-deterministic";
-    if (opts.provider) {
-      try {
-        const res = await complete(
-          opts.provider,
-          "You draft operational playbooks for a governed agent OS. Output ONLY markdown: a numbered Procedure (3-5 steps) and a Quality checklist (2-4 items). The playbook must TIGHTEN discretion, trace to the evidence given, and never touch gates, exams, risk tiers or verification.",
-          `Evidence (${t.source}): ${t.subject}
-Draft the playbook.`,
-          { fetchImpl: opts.fetchImpl, timeoutMs: 2e4 }
-        );
-        if (res.ok && res.text.trim().length > 40) {
-          body = res.text.trim().slice(0, 2400);
-          provenance = "rsi-provider";
-        }
-      } catch {
-      }
-    }
-    const name = `rsi.${t.source}.${t.id.split(".").pop()}`;
-    st.drafts.push({
-      id: `draft.${t.id}`,
-      topicId: t.id,
-      name,
-      description: `RSI draft from ${t.source} evidence \u2014 ${t.subject.slice(0, 110)}`,
-      body,
-      provenance,
-      digest: await sha256Hex7(`${t.id}
-${body}`),
-      state: "pending",
-      verifierNote: "verifier hierarchy: human approval now (strong) + measured promotion before broad trust; intrinsic self-assessment is never a verifier (floor)",
-      category: t.category,
-      at: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  }
-  save5(st);
-  return st;
-}
-async function applyRsiDraft(draftId) {
-  const st = load2();
-  const d = st.drafts.find((x) => x.id === draftId);
-  if (!d) return { ok: false, error: "no such draft" };
-  if (d.state !== "pending") return { ok: false, error: `draft already ${d.state}` };
-  const skillMd = `---
-name: ${d.name}
-description: ${d.description.slice(0, 160)}
-category: ${d.category ?? "*"}
----
-
-# RSI playbook ${d.name}
-
-${d.body}
-
-## Provenance
-Frozen RSI memory ${d.digest.slice(0, 16)}\u2026 \xB7 ${d.provenance} \xB7 ${d.at}. Applied by human decision; reverts exactly.`;
-  try {
-    await importSkillMd(skillMd, "pasted");
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
-  d.state = "applied";
-  const promo = {
-    id: `promo.${d.id}`,
-    draftId: d.id,
-    name: d.name,
-    state: "measuring",
-    baseline: "no playbook",
-    candidate: d.name,
-    at: (/* @__PURE__ */ new Date()).toISOString()
-  };
-  st.promotions = [...st.promotions, promo].slice(-24);
-  save5(st);
-  return { ok: true };
-}
-function settleRsiPromotion(promoId, measured) {
-  const st = load2();
-  const p = st.promotions.find((x) => x.id === promoId);
-  if (!p || p.state !== "measuring") return null;
-  const won2 = Number.isFinite(measured.baselineScore) && Number.isFinite(measured.candidateScore) && measured.candidateScore > measured.baselineScore;
-  p.state = won2 ? "adopted" : "retired";
-  p.settledBy = `${measured.source} \xB7 baseline ${measured.baselineScore} vs candidate ${measured.candidateScore}`;
-  if (!won2) {
-    const d = st.drafts.find((x) => x.id === p.draftId);
-    if (d && d.state === "applied") {
-      removeImportedSkill(d.name);
-      d.state = "reverted";
-    }
-  }
-  save5(st);
-  return p;
-}
-function rejectRsiDraft(draftId, reason) {
-  const st = load2();
-  const d = st.drafts.find((x) => x.id === draftId);
-  if (d && d.state === "pending") {
-    d.state = "rejected";
-    d.description = `${d.description} \xB7 rejected: ${reason}`;
-    save5(st);
-  }
-  return st;
-}
-function revertRsiMemory(draftId) {
-  const st = load2();
-  const d = st.drafts.find((x) => x.id === draftId);
-  if (d && d.state === "applied") {
-    removeImportedSkill(d.name);
-    d.state = "reverted";
-    const p = st.promotions.find((x) => x.draftId === draftId);
-    if (p && p.state === "measuring") p.state = "retired";
-    save5(st);
-  }
-  return st;
+  return h.toString(16).padStart(8, "0");
 }
 
 // src/vh19/rsirals.ts
@@ -26857,6 +26663,26 @@ var EVIDENCE_STACK = [
   { id: "V_anti_collapse", name: "anti-collapse", how: "diversity check over applied playbooks \u2014 the loop may not converge on one repeated category" },
   { id: "V_cost", name: "cost / resource budget", how: "T's resource ceilings bound provider calls, topics and draft size per cycle" }
 ];
+var PROTECTED_TARGETS = ["governance", "gate", "exam", "verification", "risk-tier", "floor"];
+function validateChangeContract(c) {
+  if (PROTECTED_TARGETS.includes(c.target)) {
+    return { allowed: false, reason: `structural firewall: target "${c.target}" is protected \u2014 the loop may never write it, by any authority` };
+  }
+  if (!c.field.trim()) return { allowed: false, reason: "structural firewall: contract has no field" };
+  if (!c.scope.trim()) return { allowed: false, reason: "structural firewall: contract has no scope" };
+  if (c.authority !== "human" && c.authority !== "rsi-loop") return { allowed: false, reason: "structural firewall: authority must be human or rsi-loop" };
+  if (c.risk !== "safe" && c.risk !== "risky") return { allowed: false, reason: "structural firewall: unknown risk tier" };
+  return { allowed: true, reason: "contract valid \u2014 target is writable" };
+}
+function draftContract(topicSubject) {
+  return {
+    target: "playbook",
+    field: "specialist playbook (prompt composition)",
+    authority: "human",
+    scope: topicSubject.slice(0, 120),
+    risk: "safe"
+  };
+}
 function attributeEvidence(subject) {
   const s = subject.toLowerCase();
   const theta = /(model|provider|completion|empty reply|token|llm|api error|http 5|rate limit)/.test(s);
@@ -26865,101 +26691,103 @@ function attributeEvidence(subject) {
   if (theta) return "theta";
   return "sigma";
 }
-var KEY6 = "vh19.rsirals.v1";
-function storage17() {
+var KEY5 = "vh19.rsirals.v1";
+function storage16() {
   try {
     return typeof localStorage !== "undefined" ? localStorage : null;
   } catch {
     return null;
   }
 }
-var session4 = { archive: [], canary: [], baselines: {}, examScores: [], providerCalls: 0 };
-function load3() {
-  const s = storage17();
-  if (!s) return session4;
+var session3 = { archive: [], canary: [], baselines: {}, examScores: [], providerCalls: 0 };
+function load2() {
+  const s = storage16();
+  if (!s) return session3;
   try {
-    const p = JSON.parse(s.getItem(KEY6) ?? "");
+    const p = JSON.parse(s.getItem(KEY5) ?? "");
     return { archive: p.archive ?? [], canary: p.canary ?? [], baselines: p.baselines ?? {}, examScores: p.examScores ?? [], providerCalls: p.providerCalls ?? 0 };
   } catch {
-    return session4;
+    return session3;
   }
 }
-function save6(st) {
-  const s = storage17();
+function save5(st) {
+  const s = storage16();
   if (s) {
     try {
-      s.setItem(KEY6, JSON.stringify(st));
+      s.setItem(KEY5, JSON.stringify(st));
       return;
     } catch {
     }
   }
-  Object.assign(session4, st);
+  Object.assign(session3, st);
 }
 function rsiArchive() {
-  return load3().archive;
+  return load2().archive;
 }
 function canaryWatchlist() {
-  return load3().canary;
+  return load2().canary;
 }
 function appendArchive(st, event, name, detail) {
   st.archive = [...st.archive, { id: `arc.${st.archive.length + 1}`, event, name, detail: detail.slice(0, 200), at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-80);
 }
 function rsiralsOnApply(draft, currentExamScore) {
-  const st = load3();
+  const st = load2();
   st.canary = [...st.canary, { name: draft.name, draftId: draft.id, category: draft.category, since: (/* @__PURE__ */ new Date()).toISOString() }].slice(-12);
-  if (currentExamScore !== null) st.baselines[`promo.draft.${draft.id}`] = currentExamScore;
+  if (currentExamScore !== null) st.baselines[`promo.${draft.id}`] = currentExamScore;
   appendArchive(st, "applied", draft.name, `canary armed${currentExamScore !== null ? ` \xB7 baseline exam ${Math.round(currentExamScore * 100)}%` : " \xB7 no exam baseline recorded yet"}`);
-  save6(st);
+  save5(st);
 }
 function rsiralsOnFirewallBlock(name, reason) {
-  const st = load3();
+  const st = load2();
   appendArchive(st, "firewall-blocked", name, reason);
-  save6(st);
+  save5(st);
 }
 function rsiralsOnSettle(name, state, settledBy) {
-  const st = load3();
+  const st = load2();
   st.canary = st.canary.filter((c) => c.name !== name);
   appendArchive(st, state, name, settledBy);
-  save6(st);
+  save5(st);
 }
 function rsiralsOnRevert(name) {
-  const st = load3();
+  const st = load2();
   st.canary = st.canary.filter((c) => c.name !== name);
   appendArchive(st, "reverted", name, "human revert \u2014 exact");
-  save6(st);
+  save5(st);
 }
 function rsiralsRecordExamScore(score) {
-  const st = load3();
+  const st = load2();
   st.examScores = [...st.examScores, { score, at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-20);
-  save6(st);
+  save5(st);
 }
 function rsiralsExamScores() {
-  return load3().examScores;
+  return load2().examScores;
 }
 function rsiralsCanaryCheck(signal) {
   if (signal.kind !== "failure" && signal.kind !== "livedata" && signal.kind !== "gate") return [];
-  const st = load3();
+  const st = load2();
   const route = attributeEvidence(signal.subject);
   if (route === "theta") return [];
   const hit = st.canary.filter((c) => !signal.category || !c.category || c.category === signal.category);
   if (hit.length === 0) return [];
   st.canary = st.canary.filter((c) => !hit.includes(c));
   for (const h of hit) appendArchive(st, "canary-rollback", h.name, `live regression attributed (${signal.kind}): ${signal.subject.slice(0, 120)}`);
-  save6(st);
+  save5(st);
   return hit.map((h) => h.name);
 }
-function boundSettlementInputs(promoId) {
-  const st = load3();
+var SEAL_SALT = "vh.rsirals.measurement.v1";
+function sealMeasurement(e) {
+  return hashString(`${SEAL_SALT}|${e.promoId}|${e.baseline}|${e.candidate}|${e.source}|${e.producedAt}`);
+}
+function bindSettlementEvidence(promoId) {
+  const st = load2();
   const baseline = st.baselines[promoId];
   const latest = st.examScores[st.examScores.length - 1];
   if (typeof baseline !== "number") return { ok: false, error: "no exam baseline was recorded when this playbook was applied \u2014 settlement refused (measurements must be receipt-bound)" };
   if (!latest) return { ok: false, error: "no exam run since apply \u2014 settlement refused (there is no candidate measurement yet)" };
-  return {
-    ok: true,
-    baseline,
-    candidate: latest.score,
-    source: `exam receipts (bound) \xB7 baseline at apply ${Math.round(baseline * 100)}% \xB7 latest exam ${Math.round(latest.score * 100)}%`
-  };
+  const source = `exam receipts (bound) \xB7 baseline at apply ${Math.round(baseline * 100)}% \xB7 latest exam ${Math.round(latest.score * 100)}%`;
+  const producedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const partial = { promoId, baseline, candidate: latest.score, source, producedAt };
+  return { ok: true, evidence: { ...partial, digest: sealMeasurement(partial) } };
 }
 function exportThetaPairs(decisions) {
   const pairs = [];
@@ -26978,7 +26806,7 @@ function exportThetaPairs(decisions) {
   return pairs.slice(-100);
 }
 function longitudinalMonitor() {
-  const st = load3();
+  const st = load2();
   const applied = st.archive.filter((a) => a.event === "applied" || a.event === "adopted").length;
   const gone = st.archive.filter((a) => a.event === "retired" || a.event === "reverted" || a.event === "canary-rollback").length;
   const families = new Set(st.archive.filter((a) => a.event === "applied").map((a) => a.name.split(".").slice(0, 2).join(".")));
@@ -27003,6 +26831,225 @@ var RSIRALS_LIFECYCLE = [
   "REPEAT"
 ];
 var RSIRALS_GOVERNANCE_CHANNEL = ["HUMAN GOVERN", "VERSION", "SIGN", "DEPLOY TRUST POLICY"];
+
+// src/vh19/rsi.ts
+var RSI_FLOOR = [
+  "the human gate and its risk tiers",
+  "the autonomy exam and its pass threshold",
+  "the probe and verification suites and their pins",
+  "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
+  "this floor list itself \u2014 the loop cannot loosen the loop"
+];
+var KEY6 = "vh19.rsi.v1";
+var SIGNAL_CAP = 50;
+function storage17() {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+var session4 = { topics: [], drafts: [], signals: [], promotions: [] };
+function load3() {
+  const s = storage17();
+  if (!s) return session4;
+  try {
+    const p = JSON.parse(s.getItem(KEY6) ?? "");
+    return { topics: p.topics ?? [], drafts: p.drafts ?? [], signals: p.signals ?? [], promotions: p.promotions ?? [] };
+  } catch {
+    return session4;
+  }
+}
+function save6(st) {
+  const s = storage17();
+  if (s) {
+    try {
+      s.setItem(KEY6, JSON.stringify(st));
+      return;
+    } catch {
+    }
+  }
+  session4.topics = st.topics;
+  session4.drafts = st.drafts;
+  session4.signals = st.signals;
+  session4.promotions = st.promotions;
+}
+async function sha256Hex7(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+function rsiState() {
+  return load3();
+}
+function rsiMemory() {
+  return load3().drafts.filter((d) => d.state === "applied");
+}
+function rsiSignals() {
+  return load3().signals;
+}
+function rsiPromotions() {
+  return load3().promotions;
+}
+function recordRsiSignal(kind, subject, evidence = []) {
+  const st = load3();
+  const sig = { id: `sig.${kind}.${st.signals.length + 1}.${Date.now().toString(36)}`, kind, subject: subject.slice(0, 200), evidence: evidence.slice(0, 4), at: (/* @__PURE__ */ new Date()).toISOString() };
+  st.signals = [...st.signals, sig].slice(-SIGNAL_CAP);
+  save6(st);
+  return sig;
+}
+function rsiCurriculum(userId = "local") {
+  const topics2 = [];
+  const mem = loadMemory(userId).slice(-60);
+  for (const d of mem.filter((x) => x.kind === "reject").slice(-4)) {
+    topics2.push({
+      id: `topic.reject.${d.id}`,
+      subject: `Rejected work in "${(d.scenario ?? "").slice(0, 90)}" \u2014 correction: ${d.reason || "(no reason recorded)"}`,
+      source: "reject",
+      evidence: [d.id],
+      category: d.category ?? (d.specialistId ? getSpecialist(d.specialistId)?.category : void 0) ?? void 0
+    });
+  }
+  for (const sig of load3().signals.slice(-9)) {
+    topics2.push({ id: `topic.${sig.kind}.${sig.id}`, subject: sig.subject, source: sig.kind, evidence: sig.evidence });
+  }
+  for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
+    topics2.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
+  }
+  return topics2.slice(0, 10);
+}
+var draftBody = (t) => `Procedure:
+1. When a task resembles "${t.subject.split("\u2014")[0].trim()}", recall this ledger event (${t.source}).
+2. Apply the recorded correction before answering; if the correction conflicts with a newer human decision, the NEWER decision wins.
+3. State in one line that this playbook came from the RSI loop, with its evidence id.
+Quality checklist: does the correction trace to a real ledger entry? does it tighten rather than widen discretion? would a reviewer accept it in one sentence?`;
+async function runRsiCycle(userId, opts = {}) {
+  const topics2 = rsiCurriculum(userId);
+  const st = load3();
+  const known = new Set(st.topics.map((t) => t.id));
+  const fresh = topics2.filter((t) => !known.has(t.id));
+  st.topics = [...st.topics, ...fresh].slice(-40);
+  for (const t of fresh) {
+    let body = draftBody(t);
+    let provenance = "rsi-deterministic";
+    if (opts.provider) {
+      try {
+        const res = await complete(
+          opts.provider,
+          "You draft operational playbooks for a governed agent OS. Output ONLY markdown: a numbered Procedure (3-5 steps) and a Quality checklist (2-4 items). The playbook must TIGHTEN discretion, trace to the evidence given, and never touch gates, exams, risk tiers or verification.",
+          `Evidence (${t.source}): ${t.subject}
+Draft the playbook.`,
+          { fetchImpl: opts.fetchImpl, timeoutMs: 2e4 }
+        );
+        if (res.ok && res.text.trim().length > 40) {
+          body = res.text.trim().slice(0, 2400);
+          provenance = "rsi-provider";
+        }
+      } catch {
+      }
+    }
+    const name = `rsi.${t.source}.${t.id.split(".").pop()}`;
+    const contract = draftContract(t.subject);
+    const cv = validateChangeContract(contract);
+    if (!cv.allowed) continue;
+    st.drafts.push({
+      id: `draft.${t.id}`,
+      topicId: t.id,
+      name,
+      description: `RSI draft from ${t.source} evidence \u2014 ${t.subject.slice(0, 110)}`,
+      body,
+      provenance,
+      digest: await sha256Hex7(`${t.id}
+${body}`),
+      state: "pending",
+      verifierNote: "verifier hierarchy: human approval now (strong) + measured promotion before broad trust; intrinsic self-assessment is never a verifier (floor)",
+      contract,
+      category: t.category,
+      at: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  }
+  save6(st);
+  return st;
+}
+async function applyRsiDraft(draftId) {
+  const st = load3();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (!d) return { ok: false, error: "no such draft" };
+  if (d.state !== "pending") return { ok: false, error: `draft already ${d.state}` };
+  const skillMd = `---
+name: ${d.name}
+description: ${d.description.slice(0, 160)}
+category: ${d.category ?? "*"}
+---
+
+# RSI playbook ${d.name}
+
+${d.body}
+
+## Provenance
+Frozen RSI memory ${d.digest.slice(0, 16)}\u2026 \xB7 ${d.provenance} \xB7 ${d.at}. Applied by human decision; reverts exactly.`;
+  try {
+    await importSkillMd(skillMd, "pasted");
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+  d.state = "applied";
+  const promo = {
+    id: `promo.${d.id}`,
+    draftId: d.id,
+    name: d.name,
+    state: "measuring",
+    baseline: "no playbook",
+    candidate: d.name,
+    at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  st.promotions = [...st.promotions, promo].slice(-24);
+  save6(st);
+  return { ok: true };
+}
+function settleRaw(promoId, measured) {
+  const st = load3();
+  const p = st.promotions.find((x) => x.id === promoId);
+  if (!p || p.state !== "measuring") return null;
+  const won2 = Number.isFinite(measured.baselineScore) && Number.isFinite(measured.candidateScore) && measured.candidateScore > measured.baselineScore;
+  p.state = won2 ? "adopted" : "retired";
+  p.settledBy = `${measured.source} \xB7 baseline ${measured.baselineScore} vs candidate ${measured.candidateScore}`;
+  if (!won2) {
+    const d = st.drafts.find((x) => x.id === p.draftId);
+    if (d && d.state === "applied") {
+      removeImportedSkill(d.name);
+      d.state = "reverted";
+    }
+  }
+  save6(st);
+  return p;
+}
+function settleRsiPromotion(promoId, evidence) {
+  if (evidence.promoId !== promoId) return null;
+  if (sealMeasurement(evidence) !== evidence.digest) return null;
+  return settleRaw(promoId, { baselineScore: evidence.baseline, candidateScore: evidence.candidate, source: evidence.source });
+}
+function rejectRsiDraft(draftId, reason) {
+  const st = load3();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (d && d.state === "pending") {
+    d.state = "rejected";
+    d.description = `${d.description} \xB7 rejected: ${reason}`;
+    save6(st);
+  }
+  return st;
+}
+function revertRsiMemory(draftId) {
+  const st = load3();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (d && d.state === "applied") {
+    removeImportedSkill(d.name);
+    d.state = "reverted";
+    const p = st.promotions.find((x) => x.draftId === draftId);
+    if (p && p.state === "measuring") p.state = "retired";
+    save6(st);
+  }
+  return st;
+}
 
 // src/views/Vh19.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
@@ -27735,7 +27782,8 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                       const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : void 0 });
                       let blocked = 0;
                       for (const d of st.drafts.filter((x) => x.state === "pending")) {
-                        const fw = controlPlaneFirewall({ name: d.name, description: d.description, body: d.body });
+                        const cv = validateChangeContract(d.contract);
+                        const fw = cv.allowed ? controlPlaneFirewall({ name: d.name, description: d.description, body: d.body }) : { allowed: false, reason: cv.reason };
                         if (!fw.allowed) {
                           rejectRsiDraft(d.id, fw.reason);
                           rsiralsOnFirewallBlock(d.name, fw.reason);
@@ -27804,14 +27852,14 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   rsiPromotions().map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 4 }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-muted", style: { flex: 1 }, children: p.name }),
                     p.state === "measuring" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
-                      const b2 = boundSettlementInputs(p.id);
+                      const b2 = bindSettlementEvidence(p.id);
                       if (!b2.ok) {
-                        setRsiNote(b2.error ?? "settlement refused");
+                        setRsiNote(b2.error);
                         return;
                       }
-                      const s = settleRsiPromotion(p.id, { baselineScore: b2.baseline ?? 0, candidateScore: b2.candidate ?? 0, source: b2.source ?? "" });
+                      const s = settleRsiPromotion(p.id, b2.evidence);
                       if (s) rsiralsOnSettle(s.name, s.state, s.settledBy ?? "");
-                      setRsiNote(s ? `Settled from exam receipts \u2014 ${s.state}: ${s.settledBy ?? ""}` : "settlement refused");
+                      setRsiNote(s ? `Settled from sealed exam receipts \u2014 ${s.state}: ${s.settledBy ?? ""}` : "settlement refused (evidence seal failed)");
                       setRsiTick((t) => t + 1);
                     }, children: "Settle from exam receipts" }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `px-pill ${p.state === "adopted" ? "px-pill-ok" : p.state === "measuring" ? "px-pill-warn" : "px-pill-err"}`, children: p.state })
@@ -28675,15 +28723,25 @@ ok("RSI promotion is measurement-gated: applied \u2260 trusted, and settlement n
   promos.push({ id: "promo.probe.win", draftId: "draft.probe.win", name: "rsi.probe.win", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.win", at: "" });
   globalThis.localStorage.setItem("vh19.rsi.v1", JSON.stringify({ ...raw, drafts, promotions: promos }));
 }
-var lost = settleRsiPromotion("promo.probe.lose", { baselineScore: 0.6, candidateScore: 0.5, source: "probe measured run" });
+rsiralsOnApply({ id: "probe.lose", name: "rsi.probe.lose" }, 0.6);
+rsiralsRecordExamScore(0.5);
+var loseBind = bindSettlementEvidence("promo.probe.lose");
+ok("sealed evidence binds baseline-at-apply and the latest exam receipt", loseBind.ok === true && loseBind.evidence.baseline === 0.6 && loseBind.evidence.candidate === 0.5);
+var lost = loseBind.ok ? settleRsiPromotion("promo.probe.lose", loseBind.evidence) : null;
 ok("a promotion with LOSING measurements is retired, never adopted", lost !== null && lost.state === "retired");
-var won = settleRsiPromotion("promo.probe.win", { baselineScore: 0.5, candidateScore: 0.7, source: "probe measured run" });
-ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("probe measured run"));
+rsiralsOnApply({ id: "probe.win", name: "rsi.probe.win" }, 0.5);
+rsiralsRecordExamScore(0.7);
+var winBind = bindSettlementEvidence("promo.probe.win");
+var won = winBind.ok ? settleRsiPromotion("promo.probe.win", winBind.evidence) : null;
+ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("exam receipts (bound)"));
 {
   const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}");
   const loser = (raw.drafts ?? []).find((d) => d.id === "draft.probe.lose");
   ok("a retired promotion reverts its frozen memory exactly (draft state \u2192 reverted)", loser?.state === "reverted");
 }
+ok("FORGED measurement evidence is refused \u2014 the seal verifies", settleRsiPromotion("promo.probe.win", { promoId: "promo.probe.win", baseline: 0.1, candidate: 0.99, source: "forged", producedAt: "2026-01-01", digest: "deadbeef" }) === null);
+ok("the raw numeric settlement API is MODULE-PRIVATE \u2014 sealed evidence is the only product door", !/export function settleRsiPromotion\(promoId: string, measured:/.test(read("src/vh19/rsi.ts")) && /function settleRaw\(/.test(read("src/vh19/rsi.ts")) && /export function settleRsiPromotion\(promoId: string, evidence: MeasurementEvidence\)/.test(read("src/vh19/rsi.ts")));
+ok("settlement without recorded receipts refuses in words", bindSettlementEvidence("promo.nonexistent").ok === false);
 ok("BYOA enforces the trust intersection \u2014 endpoint policy \u2229 ceiling \u2229 non-authoritative capabilities \u2229 identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /byoaDelegate\(byoaSelected/.test(doorSrc));
 var ssrfTrust = byoaTrustCheck({ id: "byoa.probe", name: "probe", kind: "openai-compatible", endpoint: "http://169.254.169.254/latest/meta-data", ceiling: "safe", capabilities: [], addedAt: (/* @__PURE__ */ new Date()).toISOString() });
 ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust intersection", ssrfTrust.ok === false && ssrfTrust.verdicts[0].ok === false);
@@ -28707,10 +28765,9 @@ ok("a live regression attributed to the scaffold rolls the canary back automatic
 rsiralsOnApply({ id: "probe.canary2", name: "rsi.probe.c2" }, 0.9);
 var thetaRoll = rsiralsCanaryCheck({ kind: "failure", subject: "the provider model returned http 500 api error" });
 ok("model-shaped failures do NOT roll back scaffold canaries (attribution, not blame-spray)", thetaRoll.includes("rsi.probe.c2") === false);
-rsiralsRecordExamScore(0.7);
-var bound = boundSettlementInputs("promo.draft.probe.canary");
-ok("promotion settlement is END-TO-END EVIDENTIARY: the numbers are read from exam receipts, never supplied", bound.ok === true && bound.baseline === 0.9 && bound.candidate === 0.7 && (bound.source ?? "").includes("exam receipts (bound)"));
-ok("without recorded receipts, settlement refuses in words", boundSettlementInputs("promo.nonexistent").ok === false);
+ok("the STRUCTURAL change contract rejects protected targets and accepts playbooks \u2014 strings are supplementary", validateChangeContract({ target: "gate", field: "riskTier", authority: "rsi-loop", scope: "x", risk: "safe" }).allowed === false && validateChangeContract({ target: "governance", field: "anything", authority: "human", scope: "x", risk: "safe" }).allowed === false && validateChangeContract(draftContract("probe subject")).allowed === true);
+ok("every RSI draft is born with a validated change contract", /contract: ChangeContract/.test(read("src/vh19/rsi.ts")) && /draftContract\(t\.subject\)/.test(read("src/vh19/rsi.ts")));
+ok("attribution is honestly worded \u2014 failure-source attribution / arm routing, not counterfactual claims", /FAILURE-SOURCE ATTRIBUTION/.test(read("src/vh19/rsirals.ts")));
 var mon = longitudinalMonitor();
 ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
 section("4. the bench management surface lists real specialists");

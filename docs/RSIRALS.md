@@ -56,9 +56,14 @@ versioned release — never the recursive loop.
   is exported: `exportThetaPairs()` yields the real logged accept/reject
   pairs for out-of-band DPO under human governance (RSIRALS Phase 1).
 
-## 2. Attribution (counterfactual, the honest VH version)
+## 2. Attribution — failure-source / arm routing (honest wording)
 
-`attributeEvidence()` routes each failure by shape:
+`attributeEvidence()` is **heuristic failure-source attribution by failure
+shape — arm routing, not a full causal counterfactual experiment.** True
+controlled counterfactuals (same/matched task, baseline vs candidate,
+measured outcome) live in the mission-level measured loop
+(`src/mission/selfImprove.ts`); the two layers are designed to meet at the
+promotion ladder.
 
 - scaffold-shaped (playbook/routing/tool/prompt/egress/retrieval) → **Σ-arm**
 - model-shaped (provider/model/completion/api errors) → **θ-arm**
@@ -78,10 +83,23 @@ candidate playbook
    ↓ adopted — or retired with exact revert of frozen memory
 ```
 
-`boundSettlementInputs()` reads the numbers from the product's own receipts;
-without real receipts it refuses in words. Manually supplied measurements
-remain possible through the engine but must label their source — the
-anti-reward-hacking rung.
+`bindSettlementEvidence()` reads the numbers from the product's own receipts
+and returns them as **sealed** `MeasurementEvidence`; `settleRsiPromotion()`
+accepts ONLY sealed evidence — the raw numeric settlement function is
+module-private, and forged or tampered evidence fails the seal check.
+Without real receipts the bind step refuses in words. That makes the
+receipt-bound path the ONLY product-level settlement door — the
+anti-reward-hacking rung, enforced structurally (19.4.4).
+
+### Structured change contracts (primary enforcement, 19.4.4)
+
+Strings alone cannot prove a candidate safe, so the primary governance
+check is structural: every change carries a contract — `target`, `field`,
+`old/new value`, `authority`, `scope`, `risk` — and `validateChangeContract()`
+rejects any mutation targeting a protected field (`governance`, `gate`,
+`exam`, `verification`, `risk-tier`, `floor`) regardless of authority or
+wording. Every RSI draft is born with its contract; the string firewall
+remains as defense-in-depth, supplementary rather than primary.
 
 ## 4. Failure mode → component (why each piece exists)
 
@@ -94,7 +112,9 @@ anti-reward-hacking rung.
 | Replay passes but live behavior drifts | Canary watch + automatic rollback on live regression |
 | Single-candidate checks miss slow drift | Longitudinal monitor runs on the ARCHIVE (capability, diversity, verifier, cost drift) |
 | Safety criteria go stale | T's own human-governed lifecycle, separate from the loop |
-| Misrouted root cause (weights vs scaffold) | Counterfactual attribution, not hard binary routing |
+| Misrouted root cause (weights vs scaffold) | Failure-source attribution / arm routing (heuristic, labeled as such), not hard binary routing |
+| Forged or replayed measurement evidence | Sealed MeasurementEvidence; raw settlement API is module-private |
+| String-evasion of the governance firewall | Structural change contracts are primary; strings are supplementary |
 
 ## 5. Research anchors
 

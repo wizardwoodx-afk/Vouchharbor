@@ -38,9 +38,9 @@ import { catalogStats } from "../src/vh19/registry";
 import { recordRsiSignal, rsiCurriculum, settleRsiPromotion } from "../src/vh19/rsi";
 import { byoaTrustCheck, registerByoaAgent } from "../src/vh19/byoa";
 import {
-  attributeEvidence, boundSettlementInputs, controlPlaneFirewall, exportThetaPairs,
+  attributeEvidence, bindSettlementEvidence, controlPlaneFirewall, draftContract, exportThetaPairs,
   GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE,
-  rsiralsCanaryCheck, rsiralsOnApply, rsiralsRecordExamScore,
+  rsiralsCanaryCheck, rsiralsOnApply, rsiralsRecordExamScore, validateChangeContract,
 } from "../src/vh19/rsirals";
 
 let passed = 0;
@@ -133,15 +133,25 @@ ok("RSI promotion is measurement-gated: applied ≠ trusted, and settlement need
   promos.push({ id: "promo.probe.win", draftId: "draft.probe.win", name: "rsi.probe.win", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.win", at: "" });
   globalThis.localStorage.setItem("vh19.rsi.v1", JSON.stringify({ ...raw, drafts, promotions: promos }));
 }
-const lost = settleRsiPromotion("promo.probe.lose", { baselineScore: 0.6, candidateScore: 0.5, source: "probe measured run" });
+rsiralsOnApply({ id: "probe.lose", name: "rsi.probe.lose" }, 0.6);
+rsiralsRecordExamScore(0.5);
+const loseBind = bindSettlementEvidence("promo.probe.lose");
+ok("sealed evidence binds baseline-at-apply and the latest exam receipt", loseBind.ok === true && loseBind.evidence.baseline === 0.6 && loseBind.evidence.candidate === 0.5);
+const lost = loseBind.ok ? settleRsiPromotion("promo.probe.lose", loseBind.evidence) : null;
 ok("a promotion with LOSING measurements is retired, never adopted", lost !== null && lost.state === "retired");
-const won = settleRsiPromotion("promo.probe.win", { baselineScore: 0.5, candidateScore: 0.7, source: "probe measured run" });
-ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("probe measured run"));
+rsiralsOnApply({ id: "probe.win", name: "rsi.probe.win" }, 0.5);
+rsiralsRecordExamScore(0.7);
+const winBind = bindSettlementEvidence("promo.probe.win");
+const won = winBind.ok ? settleRsiPromotion("promo.probe.win", winBind.evidence) : null;
+ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("exam receipts (bound)"));
 {
   const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}") as { drafts?: Array<{ id: string; state: string }> };
   const loser = (raw.drafts ?? []).find((d) => d.id === "draft.probe.lose");
   ok("a retired promotion reverts its frozen memory exactly (draft state → reverted)", loser?.state === "reverted");
 }
+ok("FORGED measurement evidence is refused — the seal verifies", settleRsiPromotion("promo.probe.win", { promoId: "promo.probe.win", baseline: 0.1, candidate: 0.99, source: "forged", producedAt: "2026-01-01", digest: "deadbeef" }) === null);
+ok("the raw numeric settlement API is MODULE-PRIVATE — sealed evidence is the only product door", !/export function settleRsiPromotion\(promoId: string, measured:/.test(read("src/vh19/rsi.ts")) && /function settleRaw\(/.test(read("src/vh19/rsi.ts")) && /export function settleRsiPromotion\(promoId: string, evidence: MeasurementEvidence\)/.test(read("src/vh19/rsi.ts")));
+ok("settlement without recorded receipts refuses in words", bindSettlementEvidence("promo.nonexistent").ok === false);
 ok("BYOA enforces the trust intersection — endpoint policy ∩ ceiling ∩ non-authoritative capabilities ∩ identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /byoaDelegate\(byoaSelected/.test(doorSrc));
 const ssrfTrust = byoaTrustCheck({ id: "byoa.probe", name: "probe", kind: "openai-compatible", endpoint: "http://169.254.169.254/latest/meta-data", ceiling: "safe", capabilities: [], addedAt: new Date().toISOString() });
 ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust intersection", ssrfTrust.ok === false && ssrfTrust.verdicts[0].ok === false);
@@ -161,10 +171,9 @@ ok("a live regression attributed to the scaffold rolls the canary back automatic
 rsiralsOnApply({ id: "probe.canary2", name: "rsi.probe.c2" }, 0.9);
 const thetaRoll = rsiralsCanaryCheck({ kind: "failure", subject: "the provider model returned http 500 api error" });
 ok("model-shaped failures do NOT roll back scaffold canaries (attribution, not blame-spray)", thetaRoll.includes("rsi.probe.c2") === false);
-rsiralsRecordExamScore(0.7);
-const bound = boundSettlementInputs("promo.draft.probe.canary");
-ok("promotion settlement is END-TO-END EVIDENTIARY: the numbers are read from exam receipts, never supplied", bound.ok === true && bound.baseline === 0.9 && bound.candidate === 0.7 && (bound.source ?? "").includes("exam receipts (bound)"));
-ok("without recorded receipts, settlement refuses in words", boundSettlementInputs("promo.nonexistent").ok === false);
+ok("the STRUCTURAL change contract rejects protected targets and accepts playbooks — strings are supplementary", validateChangeContract({ target: "gate", field: "riskTier", authority: "rsi-loop", scope: "x", risk: "safe" }).allowed === false && validateChangeContract({ target: "governance", field: "anything", authority: "human", scope: "x", risk: "safe" }).allowed === false && validateChangeContract(draftContract("probe subject")).allowed === true);
+ok("every RSI draft is born with a validated change contract", /contract: ChangeContract/.test(read("src/vh19/rsi.ts")) && /draftContract\(t\.subject\)/.test(read("src/vh19/rsi.ts")));
+ok("attribution is honestly worded — failure-source attribution / arm routing, not counterfactual claims", /FAILURE-SOURCE ATTRIBUTION/.test(read("src/vh19/rsirals.ts")));
 const mon = longitudinalMonitor();
 ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
 

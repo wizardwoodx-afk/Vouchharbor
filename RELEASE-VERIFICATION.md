@@ -1,10 +1,14 @@
-# Vouch Harbor 19.4.3 "Broader" — release verification record
+# Vouch Harbor 19.4.4 "Broader" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.4.4 record — RSIRALS frozen: sealed settlement, structural contracts, honest attribution + pre-seed pack
+
+19.4.4 closes the 19.4.3 review's three tightenings. Settlement is sealed: the raw numeric settlement function is module-private; the only exported door accepts MeasurementEvidence sealed by bindSettlementEvidence, and forged or tampered evidence is refused (probe-pinned in both directions). Governance is structural: every RSI draft carries a change contract (target, field, old/new value, authority, scope, risk); validateChangeContract rejects protected targets regardless of authority or wording, with the string firewall kept as defense-in-depth. Attribution wording is honest: failure-source attribution / arm routing — heuristic and labeled, with true counterfactuals in the mission-level measured loop. Ships the pre-seed application pack (docs/PRESEED-APPLICATION.md) and a refreshed one-pager. Gates: tsc 0 · door probe 63/63 · fleet 120/120 · offline 119/119.
 
 ## The 19.4.3 record — RSIRALS v5.0 ships proprietary + credential hygiene
 
@@ -67,7 +71,7 @@ import). Protocol v0.10.7; suites 120/119.
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
 | VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
-| VH-19 door (incl. BYOA, RSI, egress, full-curriculum, promotion-ladder and trust-intersection pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 at 19.4.1; 48/48 at 19.4.2; **58/58 at 19.4.3** |
+| VH-19 door (incl. BYOA, RSI, egress, full-curriculum, promotion-ladder and trust-intersection pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38 at 19.4.1; 48 at 19.4.2; 58 at 19.4.3; **63/63 at 19.4.4** |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Doc identity | `node tools/run-one-probe.mjs docIdentity` | 6/6 |
 | Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |
