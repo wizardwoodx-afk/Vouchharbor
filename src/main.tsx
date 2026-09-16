@@ -5,6 +5,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import VouchApp from './App';
 import './styles/atelier.css';
+// 19.3.0 UI refresh — the Premium design system (the VH-19 door and its desks).
+import './styles/premium.css';
 
 // Import font declarations
 import './styles/fonts.css';

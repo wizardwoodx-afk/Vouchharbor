@@ -23,7 +23,7 @@
  * future releases ONLY with their own receipts, gates and probes.
  */
 import { checkEgressUrl } from "../security/guardrail";
-import type { GateAsk, GateDecision, RiskTier } from "./types";
+import type { GateAsk, GateDecision, RiskTier, VhFs } from "./types";
 
 export type ToolId = "fs.list" | "fs.read" | "fs.write" | "net.fetch" | "wiki.search";
 
@@ -70,8 +70,14 @@ export function toolsForCategory(category: string): ToolId[] {
     case "research":
       return ["wiki.search", "net.fetch"];
     case "writing":
+    case "comms":
       return ["wiki.search", "fs.read", "fs.write"];
     case "analysis":
+    case "product":
+      return ["fs.read", "wiki.search"];
+    case "business":
+    case "legal":
+      // read-only + research by design: advisors audit, they don't mutate
       return ["fs.read", "wiki.search"];
     default:
       return [];
@@ -100,6 +106,13 @@ export interface ToolContext {
   gate?: (ask: GateAsk) => Promise<GateDecision>;
   /** Injectable fetch — probes drive a double; production uses global fetch. */
   fetchImpl?: typeof fetch;
+  /**
+   * Injectable filesystem (19.4.0). Absent → the genuine node:fs/promises
+   * (Node probes, desktop host). The browser front door supplies a virtual
+   * or File-System-Access adapter so specialists execute for real there
+   * too — same resolver, same gate, same receipts on every surface.
+   */
+  fsImpl?: VhFs;
   /** Specialist identity for gate asks — provenance, not decoration. */
   specialistId?: string;
   now?: () => Date;
@@ -188,13 +201,54 @@ interface ToolExecResult {
   output: string;
 }
 
-async function execFsList(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
+/**
+ * The storage seam (19.4.0). An injected adapter wins; otherwise the genuine
+ * node:fs/promises, wrapped so exec* code is storage-agnostic. Behaviour with
+ * no adapter is EXACTLY the 19.3.0 path — same reads, same caps, same errors.
+ */
+async function fsFor(ctx: ToolContext): Promise<VhFs> {
+  if (ctx.fsImpl) return ctx.fsImpl;
   const fs = await import("node:fs/promises");
+  const pathMod = await import("node:path");
+  return {
+    kind: "node",
+    async readdir(p) {
+      const entries = await fs.readdir(p, { withFileTypes: true });
+      return entries.map((e) => ({ name: e.name, isDirectory: e.isDirectory() }));
+    },
+    async stat(p) {
+      const st = await fs.stat(p);
+      if (!st.isFile()) return { isFile: false, size: 0 };
+      return { isFile: true, size: st.size };
+    },
+    async readText(p, maxBytes) {
+      const st = await fs.stat(p);
+      const fh = await fs.open(p, "r");
+      try {
+        const buf = Buffer.alloc(Math.min(st.size, maxBytes));
+        const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
+        return { text: buf.subarray(0, bytesRead).toString("utf8"), truncated: st.size > maxBytes };
+      } finally {
+        await fh.close();
+      }
+    },
+    async mkdir(p) {
+      await fs.mkdir(p, { recursive: true });
+    },
+    async writeText(p, content) {
+      await fs.mkdir(pathMod.dirname(p), { recursive: true });
+      await fs.writeFile(p, content, "utf8");
+    },
+  };
+}
+
+async function execFsList(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
   const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
   try {
-    const entries = await fs.readdir(resolved, { withFileTypes: true });
-    const lines = entries.slice(0, 100).map((e) => (e.isDirectory() ? `${e.name}/` : e.name));
+    const fs = await fsFor(ctx);
+    const entries = await fs.readdir(resolved);
+    const lines = entries.slice(0, 100).map((e) => (e.isDirectory ? `${e.name}/` : e.name));
     return { outcome: "ok", output: lines.length > 0 ? lines.join("\n") : "(empty directory)" };
   } catch (err) {
     return { outcome: "error", output: `fs.list failed: ${err instanceof Error ? err.message : String(err)}` };
@@ -202,37 +256,28 @@ async function execFsList(input: Record<string, unknown>, ctx: ToolContext): Pro
 }
 
 async function execFsRead(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
-  const fs = await import("node:fs/promises");
   const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
   try {
-    const stat = await fs.stat(resolved);
-    if (!stat.isFile()) return { outcome: "error", output: "not a regular file" };
-    const fh = await fs.open(resolved, "r");
-    try {
-      const buf = Buffer.alloc(Math.min(stat.size, MAX_READ_BYTES));
-      const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
-      const text = buf.subarray(0, bytesRead).toString("utf8");
-      const truncated = stat.size > MAX_READ_BYTES ? `\n[truncated — file is ${stat.size} bytes, first ${MAX_READ_BYTES} returned]` : "";
-      return { outcome: "ok", output: text + truncated };
-    } finally {
-      await fh.close();
-    }
+    const fs = await fsFor(ctx);
+    const st = await fs.stat(resolved);
+    if (!st.isFile) return { outcome: "error", output: "not a regular file" };
+    const { text, truncated } = await fs.readText(resolved, MAX_READ_BYTES);
+    const tail = truncated ? `\n[truncated — file is ${st.size} bytes, first ${MAX_READ_BYTES} returned]` : "";
+    return { outcome: "ok", output: text + tail };
   } catch (err) {
     return { outcome: "error", output: `fs.read failed: ${err instanceof Error ? err.message : String(err)}` };
   }
 }
 
 async function execFsWrite(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
-  const fs = await import("node:fs/promises");
-  const path = await import("node:path");
   const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
   if (typeof input.content !== "string") return { outcome: "error", output: `fs.write needs a string "content" field` };
   try {
-    await fs.mkdir(path.dirname(resolved), { recursive: true });
-    await fs.writeFile(resolved, input.content, "utf8");
-    return { outcome: "ok", output: `wrote ${Buffer.byteLength(input.content, "utf8")} bytes to ${input.path}` };
+    const fs = await fsFor(ctx);
+    await fs.writeText(resolved, input.content);
+    return { outcome: "ok", output: `wrote ${new TextEncoder().encode(input.content).length} bytes to ${input.path}` };
   } catch (err) {
     return { outcome: "error", output: `fs.write failed: ${err instanceof Error ? err.message : String(err)}` };
   }

@@ -64,6 +64,10 @@ const DOMAIN_LABEL: Record<SpecialistCategory, string> = {
   writing: "Content & docs",
   analysis: "Analysis & decisions",
   design: "Design & UI",
+  product: "Product strategy",
+  business: "Business & operations",
+  legal: "Legal & compliance",
+  comms: "Communications",
 };
 
 const CAPTAIN_INSTRUCTION: Record<SpecialistCategory, string> = {
@@ -77,6 +81,10 @@ const CAPTAIN_INSTRUCTION: Record<SpecialistCategory, string> = {
   writing: "Draft the product content for this brief: README, onboarding copy, and docs structure.",
   analysis: "Break this brief into decisions: what must be chosen, the options, and a recommendation with risks.",
   design: "Produce the design system slice for this product: layout, components, palette, and the states every screen needs.",
+  product: "Frame the product problem in this brief: user, evidence, hypothesis, and the metric that proves the win.",
+  business: "Produce the business slice: unit economics, go-to-market motion, and the risks with owners.",
+  legal: "Review this brief for legal exposure: privacy, licensing, terms — and state where counsel must sign.",
+  comms: "Draft the communications slice: launch copy, changelog, and the announcement a journalist could verify.",
 };
 
 /* ── local checkpoint ───────────────────────────────────── */

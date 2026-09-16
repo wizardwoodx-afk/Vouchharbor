@@ -10,6 +10,7 @@
  * It scales to hundreds of entries; it never claims entries it does not have.
  */
 import { loadSelfOverrides } from "./selfOverrides";
+import { BROADER_SPECIALISTS } from "./broaderBench";
 import type { Specialist, SpecialistCategory, RiskTier } from "./types";
 
 const seed = (
@@ -2017,6 +2018,13 @@ export const SPECIALISTS: Specialist[] = [
     ["Enumerates every state a surface can occupy", "Designs transitions that explain what changed"],
     ["ui states", "state machine", "transitions", "edge states", "loading"], "safe",
     "You are a UI-state designer. Enumerate the states before drawing the happy one: empty, loading, partial, error, stale, offline; transitions tell the user what changed — animation is communication, not decoration."),
+
+  /* ── 19.4.0 "Broader": 160 individually specified specialists that widen
+       the bench to the full surface of product work (product, business,
+       legal, comms join as first-class categories; the original ten deepen).
+       Same discipline as the seed: capabilities, vocabulary, honest tier,
+       real prompt. The bench count below is still the catalog's OWN count. */
+  ...BROADER_SPECIALISTS,
 ];
 
 const BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));

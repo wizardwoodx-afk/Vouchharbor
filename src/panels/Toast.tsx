@@ -31,7 +31,7 @@ export const Toasts: React.FC = () => {
             background: 'var(--bg-panel)', border: '1px solid var(--border)',
             borderLeft: `3px solid ${t.kind === 'ok' ? 'var(--success)' : t.kind === 'err' ? 'var(--err)' : 'var(--accent)'}`,
             borderRadius: 'var(--radius-md)', padding: '10px 16px',
-            fontSize: 'var(--fs-sm)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+            fontSize: 'var(--fs-sm)', boxShadow: '0 8px 30px rgba(45,49,66,0.25)',
             animation: 'vh-toast-in 220ms var(--ease-out-quint) both',
             minWidth: 240, maxWidth: 380,
           }}>

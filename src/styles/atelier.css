@@ -5,45 +5,47 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ─── HORIZON (18.2.0) — the minimal premium tokens ───
-     Drawn from the approved palettes: Thamar Black, Dark Onyx, Lead, Jet Set,
-     Corduroy, Echo Park, Rainmaster, Ephemeral Mist, Platinum, French gray,
-     Gunmetal, Greyish White. One muted sage-gray signature. No noise. */
-  --ink-950:    #141416;    /* near-Thamar — app background */
-  --ink-800:    #1A1919;    /* Thamar Black — panels */
-  --ink-700:    #232327;    /* elevated, hover */
-  --ink-600:    #302D2F;    /* Dark Onyx */
-  --ink-500:    #4B4347;    /* Apple Herb Black — strong borders */
-  --parchment:  #E9EBED;    /* near Greyish White — text */
-  --parchment-soft: #C6CDD3; /* Ephemeral Mist */
-  --aged:       #9BA6A8;    /* Rainmaster — muted text */
-  --aged-2:     #6E7678;    /* dim */
-  /* the signature — Echo Park sage-gray. The horizon line, not a gimmick. */
-  --patina:     #748785;
-  --patina-glow: rgba(116, 135, 133, 0.14);
-  --patina-bright: #9BA6A8;
-  --patina-deep:   #404D49; /* Corduroy */
-  --seal-rgb:      116, 135, 133;
+  /* ─── HORIZON (19.4.0 "Broader") — the five-color light system ───
+     The whole shell now rides the five colors the product owns:
+     Gunmetal #2D3142 · Greyish White #D5DFEA · Platinum #D8D5DB ·
+     Brooklyn #586A66 · Simple Plum #827278. Every other tone is an
+     alpha or shade of the five. Dark ramp names are kept so the 700+
+     lines of component CSS flip coherently; their ROLES are light now. */
+  --ink-950:    #2d3142;    /* Gunmetal — the deep ink: text-on-accent, seals */
+  --ink-800:    #3a3f52;    /* gunmetal lifted — rare elevated dark surface */
+  --ink-700:    rgba(45, 49, 66, 0.07);  /* hover tint on the light canvas */
+  --ink-600:    #8a8c96;    /* scrollbar, quiet hardware */
+  --ink-500:    rgba(45, 49, 66, 0.26);  /* strong borders */
+  --parchment:  #2d3142;    /* primary text is the gunmetal now */
+  --parchment-soft: #4a4e60;
+  --aged:       #666a78;    /* muted text */
+  --aged-2:     #8d8f9a;    /* dim */
+  /* the signature — Brooklyn sage. The horizon line, not a gimmick. */
+  --patina:     #586a66;
+  --patina-glow: rgba(88, 106, 102, 0.14);
+  --patina-bright: #46554f; /* sage dark enough for text on light */
+  --patina-deep:   #404d49;
+  --seal-rgb:      88, 106, 102;
 
   /* ─── semantic ── */
-  --bg:           var(--ink-950);
-  --bg-elev:      var(--ink-800);
-  --bg-panel:     var(--ink-800);
-  --bg-hover:     var(--ink-700);
-  --border:       var(--ink-500);
-  --border-soft:  rgba(233, 235, 237, 0.07);
-  --text:         var(--parchment);
-  --text-muted:   var(--aged);
-  --text-dim:     var(--aged-2);
-  --accent:       var(--patina);
-  --accent-glow:  var(--patina-glow);
-  --accent-deep:  var(--patina-deep);
-  --accent-hi:    var(--patina-bright);
-  --success:      #7FA08C;
-  --warn:         #C2A26B;
-  --err:          #B0655A;
+  --bg:           #d8d5db;    /* Platinum — the canvas */
+  --bg-elev:      #e2e6ed;    /* porcelain lifted toward white */
+  --bg-panel:     #dee4eb;    /* Greyish White family */
+  --bg-hover:     rgba(255, 255, 255, 0.5);
+  --border:       rgba(45, 49, 66, 0.22);
+  --border-soft:  rgba(45, 49, 66, 0.10);
+  --text:         #2d3142;
+  --text-muted:   #666a78;
+  --text-dim:     #8d8f9a;
+  --accent:       #586a66;
+  --accent-glow:  rgba(88, 106, 102, 0.14);
+  --accent-deep:  #404d49;
+  --accent-hi:    #46554f;
+  --success:      #586a66;
+  --warn:         #827278;    /* Simple Plum */
+  --err:          #7c4a55;    /* plum deepened toward red */
 
-  /* ─── typography — system stack, SF-first; minimal tracking ─── */
+/* ─── typography — system stack, SF-first; minimal tracking ─── */
   --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
   --font-sans:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
   --font-mono:    'SF Mono', ui-monospace, 'JetBrains Mono', Consolas, monospace;
@@ -117,7 +119,7 @@ a { color: inherit; }
   grid-template-rows: 1fr var(--console-h);
   height: 100vh;
   background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(62,124,113,0.08), transparent 60%),
+    radial-gradient(1200px 600px at 100% -10%, rgba(88,106,102,0.10), transparent 60%),
     var(--bg);
 }
 .sidebar {
@@ -152,7 +154,7 @@ a { color: inherit; }
   display: grid;
   place-items: center;
   position: relative;
-  box-shadow: 0 0 0 4px var(--patina-glow), inset 0 0 0 1px rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 4px var(--patina-glow), inset 0 0 0 1px rgba(45,49,66,0.10);
   animation: patinaSeal 1s var(--ease-spring) both;
 }
 .brand-mark::after {
@@ -438,13 +440,13 @@ a { color: inherit; }
   letter-spacing: 0.08em;
 }
 .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
-.chip-done   { color: var(--success); border-color: rgba(111,160,129,0.3); background: rgba(111,160,129,0.08); }
+.chip-done   { color: var(--success); border-color: rgba(88,106,102,0.35); background: rgba(88,106,102,0.10); }
 .chip-done .chip-dot { background: var(--success); }
-.chip-run    { color: var(--patina-bright); border-color: rgba(62,124,113,0.35); background: var(--patina-glow); }
+.chip-run    { color: var(--patina-bright); border-color: rgba(88,106,102,0.35); background: var(--patina-glow); }
 .chip-run .chip-dot { background: var(--patina-bright); animation: pulse 1.4s ease-in-out infinite; }
-.chip-warn   { color: var(--warn); border-color: rgba(201,163,78,0.3); background: rgba(201,163,78,0.06); }
+.chip-warn   { color: var(--warn); border-color: rgba(130,114,120,0.4); background: rgba(130,114,120,0.10); }
 .chip-warn .chip-dot { background: var(--warn); }
-.chip-err    { color: var(--err); border-color: rgba(181,99,76,0.3); background: rgba(181,99,76,0.06); }
+.chip-err    { color: var(--err); border-color: rgba(124,74,85,0.35); background: rgba(124,74,85,0.08); }
 .chip-err .chip-dot { background: var(--err); }
 .chip-idle   { color: var(--text-dim); border-color: var(--border); background: var(--bg); }
 
@@ -533,7 +535,7 @@ a { color: inherit; }
   transition: box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform 120ms var(--ease);
   user-select: none;
 }
-.node-box:hover { border-color: var(--patina); box-shadow: 0 6px 24px rgba(0,0,0,0.45); transform: translateY(-1px); }
+.node-box:hover { border-color: var(--patina); box-shadow: 0 6px 24px rgba(45,49,66,0.14); transform: translateY(-1px); }
 .node-box.running { border-color: var(--patina); box-shadow: 0 0 0 2px var(--patina-glow), 0 0 24px var(--patina-glow); }
 .node-box .node-role { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--patina-bright); font-weight: 600; font-family: var(--font-mono); }
 .node-box .node-name { font-size: var(--fs-sm); font-weight: 600; margin-top: 3px; font-family: var(--font-display); }
@@ -564,7 +566,7 @@ a { color: inherit; }
 /* ─── palette ─── */
 .palette-backdrop {
   position: fixed; inset: 0;
-  background: rgba(10,12,14,0.8);
+  background: rgba(45,49,66,0.32);
   backdrop-filter: blur(10px);
   z-index: 50;
   display: grid;
@@ -578,7 +580,7 @@ a { color: inherit; }
   background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 32px 100px rgba(0,0,0,0.65), 0 0 0 1px var(--patina-glow);
+  box-shadow: 0 32px 100px rgba(45,49,66,0.22), 0 0 0 1px var(--patina-glow);
   overflow: hidden;
   animation: paletteIn var(--dur-med) var(--ease-spring);
 }
@@ -682,14 +684,14 @@ a { color: inherit; }
 .node-box.kind-brain   { border-left: 3px solid var(--patina); box-shadow: 0 0 20px var(--patina-glow); }
 .node-box.kind-seat    { border-left: 3px solid var(--patina-bright); }
 .node-box.kind-gate    { border-left: 3px solid var(--warn); }
-.node-box.kind-seal    { border-left: 3px solid var(--success); background: linear-gradient(180deg, var(--bg-panel) 0%, rgba(111,160,129,0.08) 100%); }
+.node-box.kind-seal    { border-left: 3px solid var(--success); background: linear-gradient(180deg, var(--bg-panel) 0%, rgba(88,106,102,0.10) 100%); }
 .node-box.underWeigh   { box-shadow: 0 0 0 2px var(--patina-glow), 0 0 24px var(--patina-glow); }
 
 /* voyage phase rail */
 .voyage-phases { display: flex; gap: 4px; flex-wrap: wrap; }
 .phase-dot { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 3px; color: var(--text-dim); background: var(--bg-elev); border: 1px solid var(--border); }
-.phase-dot.done { color: var(--parchment); border-color: var(--patina); background: rgba(62,124,113,0.15); }
-.phase-dot.err  { color: var(--err); border-color: rgba(181,99,76,0.4); background: rgba(181,99,76,0.10); }
+.phase-dot.done { color: var(--parchment); border-color: var(--patina); background: rgba(88,106,102,0.15); }
+.phase-dot.err  { color: var(--err); border-color: rgba(124,74,85,0.4); background: rgba(124,74,85,0.10); }
 .phase-dot.denied { color: var(--text-muted); border-color: var(--border); text-decoration: line-through; }
 
 /* conversation log */
@@ -793,7 +795,7 @@ a { color: inherit; }
 
 /* streaming placeholder shimmer */
 .streaming-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(155, 166, 168, 0.12) 50%, transparent 75%);
+  background: linear-gradient(90deg, transparent 25%, rgba(45, 49, 66, 0.08) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: vh-shimmer 1.4s linear infinite;
 }
@@ -824,7 +826,7 @@ a { color: inherit; }
  * the horizon arc, which draws itself when the view changes. */
 
 .viewport {
-  background: linear-gradient(180deg, #141416 0%, #121214 55%, #101013 100%);
+  background: linear-gradient(180deg, #d8d5db 0%, #d7d4da 55%, #d5d2d8 100%);
 }
 
 /* display type — quiet confidence, not hero noise */
@@ -914,4 +916,4 @@ a { color: inherit; }
 
 /* cards recede until touched */
 .card { transition: border-color 160ms linear, transform 160ms var(--ease-out-soft); }
-.card:hover { border-color: rgba(155, 166, 168, 0.22); }
+.card:hover { border-color: rgba(45, 49, 66, 0.22); }

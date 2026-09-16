@@ -1,6 +1,6 @@
-Vouch Harbor 19.3.0 Vanguard
-built: 19.3.0 Vanguard
-ts:   2026-09-15T18:00:00Z
+Vouch Harbor 19.4.0 Broader
+built: 19.4.0 Broader
+ts:   2026-09-16T02:53:35Z
 git:  local
 protocol: vh-proof-receipt/2
 

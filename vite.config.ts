@@ -56,6 +56,18 @@ export default defineConfig({
     strictPort: false,
     host: host || "0.0.0.0",
     allowedHosts: true,
+    // 19.3.0 UI refresh — demo-provider relay. The browser build talks to
+    // /th-api/* same-origin; the dev server forwards to the provider host.
+    // This keeps CSP trivially satisfied and sidesteps provider-side CORS
+    // for demos. Production deployments configure their own base URL in the
+    // Provider panel; nothing about this proxy ships in the desktop build.
+    proxy: {
+      "/th-api": {
+        target: "https://tokenharbor.ai",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/th-api/, ""),
+      },
+    },
     hmr: host ? { protocol: "ws", host, port: 5174 } : true,
     watch: { ignored: ["**/src-tauri/**", "**/vendor/**", "**/probe/**", "**/verify/**", "**/web-build/**", "**/dist/**"] },
   },

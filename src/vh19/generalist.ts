@@ -40,7 +40,7 @@ import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
 import { applyTeamPreference, autoProposeIfReady, recordTeamRun } from "./teamEvolve";
 import { autonomyCovers } from "./exam";
-import type { GeneralistDeps, GeneralistResponse, ProviderConfig, RouteDecision, SynthesisRecord } from "./types";
+import type { GeneralistDeps, GeneralistResponse, MemberRunView, ProviderConfig, RouteDecision, SynthesisRecord } from "./types";
 
 async function sha256Hex(text: string): Promise<string> {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -63,6 +63,8 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     failure: r.failure ?? null,
     liveData: r.liveData ?? null,
     synthesis: r.synthesis ?? null,
+    memberRuns: r.memberRuns ?? null,
+    workspace: r.workspace ?? null,
   });
 }
 
@@ -80,6 +82,13 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   const text = sanitizeText(args.text, 8000);
   const now = deps.now ?? (() => new Date());
   void now; // reserved for receipt timestamps in the UI wiring phase
+
+  /* 19.4.0 — the run states which storage seam it rode on, in the digest.
+     Declared before finish() so EVERY exit path (including the content-gate
+     refusal) carries the workspace view honestly. */
+  const workspaceView = deps.workspaceRoot
+    ? { kind: deps.fsImpl?.kind ?? "node", root: deps.workspaceRoot }
+    : null;
 
   /* The advisory layer is attached centrally so EVERY exit path carries it:
      the domain captain reports on the routed work, every non-execution is
@@ -123,7 +132,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
         if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
       }
     }
-    const full = { ...r, reply, captain, failure, liveData };
+    const full = { ...r, workspace: r.workspace ?? workspaceView, reply, captain, failure, liveData };
     return { ...full, provenanceDigest: await sha256Hex(responseCanonical(full)) };
   };
 
@@ -259,7 +268,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
      act/observe loop (own provider calls, gated tool executions, receipts);
      a toolless member keeps the exact 19.2.0 single-call semantics. */
   const memberToolCtx = deps.workspaceRoot
-    ? { workspaceRoot: deps.workspaceRoot, gate: deps.gate, fetchImpl: deps.fetchImpl }
+    ? { workspaceRoot: deps.workspaceRoot, gate: deps.gate, fetchImpl: deps.fetchImpl, fsImpl: deps.fsImpl }
     : undefined;
 
   /* 19.2.0 — TRUE multi-member execution; 19.3.0 — with real member agent
@@ -279,6 +288,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   if (specialists.length > 1) {
     const memberResults: { specialistId: string; outcome: string; note?: string; memberDigest?: string }[] = [];
     const memberAnswers: { specialistId: string; text: string }[] = [];
+    const memberRunViews: MemberRunView[] = [];
     const sections: string[] = [];
     for (const s of specialists) {
       const systemBase = [buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n");
@@ -290,6 +300,14 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
         fetchImpl: deps.fetchImpl,
         toolCtx: memberToolCtx,
         hash: sha256Hex,
+      });
+      memberRunViews.push({
+        specialistId: s.id,
+        providerCalls: run.calls,
+        latencyMs: run.latencyMs,
+        truncated: run.truncated,
+        tools: run.tools,
+        toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, inputPreview: t.inputCanonical.slice(0, 300), outputPreview: t.output.slice(0, 200), digest: t.digest })),
       });
       if (run.ok) {
         const digest = await sha256Hex(JSON.stringify({
@@ -363,6 +381,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       specialistIds: memberResults.map((m) => m.specialistId),
       captain,
       synthesis,
+      memberRuns: memberRunViews,
       note: `${executedCount} of ${memberResults.length} routed members executed — each with its own agent loop and member receipt` +
         (synthesis ? ` · captain synthesis ${synthesis.digest?.slice(0, 12)}… over ${synthesis.divergences.membersCompared} executed member(s)` : synthesisFailure ? " · synthesis attempted, failed honestly" : ""),
     });
@@ -399,6 +418,14 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       executed: true,
       outcome: "answered",
       specialistIds: specialists.map((s) => s.id),
+      memberRuns: [{
+        specialistId: primary.id,
+        providerCalls: run.calls,
+        latencyMs: run.latencyMs,
+        truncated: run.truncated,
+        tools: run.tools,
+        toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, inputPreview: t.inputCanonical.slice(0, 300), outputPreview: t.output.slice(0, 200), digest: t.digest })),
+      }],
       note: `provider ${provider.kind}/${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · accept or reject this answer so I can learn${
         autonomyEarned ? " · running under earned autonomy (override always available)" : ""
       }`,

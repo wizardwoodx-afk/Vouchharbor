@@ -37,9 +37,9 @@ export const Sidebar: React.FC<{ view: ViewKey; onChange: (v: ViewKey) => void; 
         <div className="seal-mark" aria-hidden>
           {/* Horizon mark — one arc, one ring. Nothing more. */}
           <svg viewBox="0 0 40 40" width="34" height="34">
-            <rect x="6" y="6" width="28" height="28" rx="9" fill="#16161A" stroke="rgba(233,235,237,0.10)" strokeWidth="1"/>
-            <path d="M12 24.5 Q20 13.5 28 24.5" fill="none" stroke="#7E8D8A" strokeWidth="1.7" strokeLinecap="round"/>
-            <circle cx="20" cy="29" r="2.6" fill="none" stroke="#B9BFC4" strokeWidth="1.5"/>
+            <rect x="6" y="6" width="28" height="28" rx="9" fill="#2d3142" stroke="rgba(213,223,234,0.25)" strokeWidth="1"/>
+            <path d="M12 24.5 Q20 13.5 28 24.5" fill="none" stroke="#9db4ae" strokeWidth="1.7" strokeLinecap="round"/>
+            <circle cx="20" cy="29" r="2.6" fill="none" stroke="#d5dfea" strokeWidth="1.5"/>
           </svg>
         </div>
         <div className="brand-text">

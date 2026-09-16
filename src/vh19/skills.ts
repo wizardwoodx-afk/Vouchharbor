@@ -11,6 +11,8 @@
  * impressive.
  */
 import type { Specialist } from "./types";
+import { importedSkills, skillEligibility } from "./skillsImport";
+import { connectorSkills } from "./connectors";
 
 export interface VhSkill {
   id: string;
@@ -182,6 +184,10 @@ const CATEGORY_SKILLS: Record<string, string[]> = {
   writing: ["writing.pyramid-first"],
   analysis: ["analysis.assumptions-visible", "research.triangulation"],
   design: ["design.premium-ui", "design.typographic-hierarchy", "design.color-and-contrast", "design.spatial-rhythm"],
+  product: ["analysis.assumptions-visible", "research.triangulation"],
+  business: ["analysis.assumptions-visible"],
+  legal: ["analysis.assumptions-visible", "research.triangulation"],
+  comms: ["writing.pyramid-first", "design.typographic-hierarchy"],
   ops: ["devops.blast-radius"],
 };
 
@@ -210,11 +216,20 @@ export function getSkill(id: string): VhSkill | null {
   return SKILLS.find((s) => s.id === id) ?? null;
 }
 
-/** Every skill bound to a specialist — category defaults plus id-specific extras. */
+/**
+ * Every skill bound to a specialist — category defaults, id-specific extras,
+ * ELIGIBLE imported skills (OpenClaw/Hermes, 19.4.0) for the category, and
+ * connected-connector playbooks bound to their categories. Imported skills
+ * are playbooks, never capability grants; ineligible ones stay out silently
+ * here and are explained honestly on the Skills desk.
+ */
 export function skillsFor(specialist: Pick<Specialist, "id" | "category">): VhSkill[] {
   const ids = [...(CATEGORY_SKILLS[specialist.category] ?? []), ...(EXTRA_SKILLS[specialist.id] ?? [])];
   const seen = new Set<string>();
-  return ids.filter((i) => (seen.has(i) ? false : (seen.add(i), true))).map((i) => getSkill(i)).filter((s): s is VhSkill => s !== null);
+  const seeded = ids.filter((i) => (seen.has(i) ? false : (seen.add(i), true))).map((i) => getSkill(i)).filter((s): s is VhSkill => s !== null);
+  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && s.category === specialist.category);
+  const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
+  return [...seeded, ...imported, ...connectors];
 }
 
 /**

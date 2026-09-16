@@ -22,7 +22,28 @@ export type SpecialistCategory =
   | "research"
   | "writing"
   | "analysis"
-  | "design";
+  | "design"
+  | "product"
+  | "business"
+  | "legal"
+  | "comms";
+
+/**
+ * A filesystem adapter (19.4.0). The tool runtime is storage-agnostic: Node
+ * probes and the desktop host run the genuine node:fs/promises; the browser
+ * front door supplies a virtual or File-System-Access-backed adapter. One
+ * tool boundary, honest on every surface — the resolver and the gate are
+ * identical either way.
+ */
+export interface VhFs {
+  /** "node" | "browser-memory" | "browser-fs-access" — provenance, not decoration. */
+  kind: string;
+  readdir(path: string): Promise<Array<{ name: string; isDirectory: boolean }>>;
+  stat(path: string): Promise<{ isFile: boolean; size: number }>;
+  readText(path: string, maxBytes: number): Promise<{ text: string; truncated: boolean }>;
+  mkdir(path: string): Promise<void>;
+  writeText(path: string, content: string): Promise<void>;
+}
 
 /** The risk vocabulary is the product's existing one (risk.tier). */
 export type RiskTier = "safe" | "risky" | "critical";
@@ -186,11 +207,30 @@ export interface GeneralistDeps {
    * 19.2.0 path.
    */
   workspaceRoot?: string;
+  /**
+   * The filesystem adapter for the workspace (19.4.0). Browser front door
+   * supplies a virtual or File-System-Access-backed VhFs so specialists run
+   * their real tool loop there too; Node surfaces leave it absent and get
+   * the genuine node:fs/promises. This closes the reviewer's integration
+   * gap: the shipped app no longer falls back to toolless members.
+   */
+  fsImpl?: VhFs;
   /** Injectable peer delegation — the real one is the A2A bridge. */
   peerDelegate?: (d: PeerDelegation) => Promise<{ ok: boolean; detail: string; receiptDigest?: string }>;
   /** A2A handoff ledger hook — every delegation attempt, including refusals, gets a receipt (18.7.0). */
   onHandoff?: (h: { peer: string; task: string; outcome: "delegated" | "refused"; detail: string; receiptDigest?: string }) => void;
   now?: () => Date;
+}
+
+/** Per-member execution detail (19.3.0) — the door's evidence view over each member's agent loop. */
+export interface MemberRunView {
+  specialistId: string;
+  providerCalls: number;
+  latencyMs: number;
+  truncated: boolean;
+  /** The tool ids this member carried ([] = toolless run). */
+  tools: string[];
+  toolReceipts: Array<{ tool: string; outcome: string; inputPreview: string; outputPreview: string; digest?: string }>;
 }
 
 /** The domain Captain's report to the Generalist (19.0.0 as AgentLead, renamed 19.1.0) — computed from real member results. */
@@ -289,4 +329,16 @@ export interface GeneralistResponse {
    * synthesis possible) — silence is never the explanation.
    */
   synthesis?: SynthesisRecord;
+  /**
+   * Per-member agent-loop detail (19.3.0) — provider-call counts, the
+   * toolset carried, and every tool receipt, so the door can show the
+   * evidence of execution, not just its claims.
+   */
+  memberRuns?: MemberRunView[];
+  /**
+   * The execution workspace this run rode on (19.4.0) — kind names the
+   * storage seam (node / browser-memory / browser-fs-access). Null means
+   * the toolless path, stated, never hidden.
+   */
+  workspace?: { kind: string; root: string } | null;
 }

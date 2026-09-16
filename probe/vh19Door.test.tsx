@@ -91,6 +91,13 @@ ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
 ok("the door offers goal mode (18.5.0)", /Assignments · goal mode/.test(html) && /createGoal/.test(doorSrc) && /settleStep/.test(doorSrc) && /resumeGoal/.test(doorSrc));
 ok("the gate answers with session Auto-Review rules, critical excluded", /answerGateWithRules/.test(doorSrc) && /allowCategoryForSession/.test(doorSrc) && /riskTier === 'risky'/.test(doorSrc));
 
+section("3b. the 19.4.0 surfaces — chat door, workspace seam, connectors, skills import");
+ok("the door is a chatbox — users chat, then work", html.includes("Message VH-19") && html.includes("Conversation with VH-19"));
+ok("the workspace seam is wired into the real door", html.includes("Workspace") && /createMemoryWorkspace/.test(doorSrc) && /openDirectoryWorkspace/.test(doorSrc) && /fsImpl: ws/.test(doorSrc) && /toolless/.test(doorSrc));
+ok("app connectors are declared policies, not new tools", html.includes("App connectors") && /setConnectorConnected/.test(doorSrc) && html.includes("No sixth tool"));
+ok("skills import honors OpenClaw and Hermes with provenance", html.includes("OpenClaw") && html.includes("Hermes") && /importSkillMd/.test(doorSrc) && html.includes("SKILL.md") && /skillEligibility/.test(doorSrc));
+ok("the bench widened by 150 broader specialists (610 total)", stats.count >= 610, `count ${stats.count}`);
+
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));
