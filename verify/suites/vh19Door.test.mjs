@@ -25029,12 +25029,12 @@ function allKnownIdentities() {
   ];
 }
 function requireBoundKey(memberId, presentedJwk) {
-  const bound = boundIdentityFor(memberId);
-  if (bound) {
-    if (!jwkEqual(bound.publicJwk, presentedJwk)) {
+  const bound2 = boundIdentityFor(memberId);
+  if (bound2) {
+    if (!jwkEqual(bound2.publicJwk, presentedJwk)) {
       return { ok: false, error: `presented key does not match the bound identity for "${memberId}" \u2014 refusing` };
     }
-    return { ok: true, bound };
+    return { ok: true, bound: bound2 };
   }
   const structural = structuralIdentityFor(memberId);
   if (structural) {
@@ -25358,7 +25358,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
     if (picked.length >= questionCount) break;
     if (!picked.includes(r)) picked.push(r);
   }
-  const session4 = {
+  const session5 = {
     id: uid("exam"),
     createdAt: now().toISOString(),
     userId,
@@ -25378,10 +25378,10 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
   const s = storage10();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
-    sessions.push(session4);
+    sessions.push(session5);
     s.setItem(SESSION_KEY, JSON.stringify(sessions.slice(-MAX_SESSIONS)));
   }
-  return { ok: true, session: session4 };
+  return { ok: true, session: session5 };
 }
 function proposeActionFor(r, mem) {
   if (r.kind === "reject") {
@@ -25403,30 +25403,30 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
   const s = storage10();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
-  const session4 = sessions.find((x) => x.id === sessionId);
-  if (!session4) return { ok: false, error: `unknown exam session ${sessionId}` };
-  if (session4.state === "graded") return { ok: false, error: "this exam was already graded \u2014 an exam is graded exactly once" };
-  if (session4.questions.length === 0) return { ok: false, error: "this exam has no questions" };
+  const session5 = sessions.find((x) => x.id === sessionId);
+  if (!session5) return { ok: false, error: `unknown exam session ${sessionId}` };
+  if (session5.state === "graded") return { ok: false, error: "this exam was already graded \u2014 an exam is graded exactly once" };
+  if (session5.questions.length === 0) return { ok: false, error: "this exam has no questions" };
   const byQ = new Map(grades.map((g) => [g.questionId, g]));
-  for (const q of session4.questions) {
+  for (const q of session5.questions) {
     if (!byQ.has(q.id)) return { ok: false, error: `question ${q.id} has no verdict \u2014 every question must be graded` };
   }
-  const unknown = grades.filter((g) => !session4.questions.some((q) => q.id === g.questionId));
+  const unknown = grades.filter((g) => !session5.questions.some((q) => q.id === g.questionId));
   if (unknown.length > 0) return { ok: false, error: `${unknown.length} verdict(s) reference questions outside this exam` };
-  const correct = session4.questions.filter((q) => byQ.get(q.id).verdict === "correct").length;
-  const score = correct / session4.questions.length;
+  const correct = session5.questions.filter((q) => byQ.get(q.id).verdict === "correct").length;
+  const score = correct / session5.questions.length;
   const passed2 = score >= PASS_THRESHOLD;
-  session4.grades = grades;
-  session4.score = score;
-  session4.passed = passed2;
-  session4.state = "graded";
+  session5.grades = grades;
+  session5.score = score;
+  session5.passed = passed2;
+  session5.state = "graded";
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
   let feedbackLearned = 0;
-  for (const q of session4.questions) {
+  for (const q of session5.questions) {
     const g = byQ.get(q.id);
     if (g.verdict === "wrong") {
       recordDecision({
-        userId: session4.userId,
+        userId: session5.userId,
         scenario: q.scenario,
         action: q.proposedAction,
         kind: "correction",
@@ -25436,7 +25436,7 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
       feedbackLearned += 1;
     }
   }
-  saveGrant(loadGrant(session4.userId, session4.category ?? void 0).attempts + 1, passed2 ? score : null, passed2, session4.userId, now, session4.category ?? void 0);
+  saveGrant(loadGrant(session5.userId, session5.category ?? void 0).attempts + 1, passed2 ? score : null, passed2, session5.userId, now, session5.category ?? void 0);
   return { ok: true, score, passed: passed2, feedbackLearned };
 }
 function grantKey(userId, category) {
@@ -26791,6 +26791,219 @@ function revertRsiMemory(draftId) {
   return st;
 }
 
+// src/vh19/rsirals.ts
+var GOVERNANCE_PLANE = Object.freeze({
+  id: "vh.rsirals.T",
+  version: 5,
+  objectiveContract: "Improvements must tighten discretion, trace to real ledger evidence, and never trade user authority for agent convenience.",
+  promotionRules: [
+    "apply is always a human decision",
+    "trust requires a measured comparison: candidate beats baseline",
+    "measurements must be receipt-bound (exam/receipts) or explicitly marked externally supplied",
+    "losing measurements retire the change and revert its frozen memory exactly"
+  ],
+  safetyPolicies: [
+    "the human gate and its risk tiers",
+    "the autonomy exam and its pass threshold",
+    "the probe and verification suites and their pins",
+    "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
+    "the RSI floor (RSI_FLOOR)",
+    "this governance plane \u2014 the loop cannot loosen the loop"
+  ],
+  evaluationStandards: [
+    "independent verifier held out of the generation path (the autonomy exam)",
+    "deterministic evidence: ledger ids, digests, receipt stamps",
+    "intrinsic self-assessment is never a verifier"
+  ],
+  resourceCeilings: { providerCallsPerCycle: 8, topicsPerCycle: 10, maxDraftBytes: 2400 },
+  rollbackAuthority: "human-only"
+});
+var FIREWALL_TRIGGERS = [
+  "risk tier",
+  "risk-tier",
+  "gate threshold",
+  "pass threshold",
+  "exam threshold",
+  "disable the gate",
+  "bypass the gate",
+  "lower the bar",
+  "self-evolution floor",
+  "rsi_floor",
+  "verification suite",
+  "probe pin",
+  "governance plane",
+  "grant myself",
+  "approve myself",
+  "autonomy without exam"
+];
+function controlPlaneFirewall(candidate) {
+  const text = `${candidate.name}
+${candidate.description}
+${candidate.body}`.toLowerCase();
+  for (const t of FIREWALL_TRIGGERS) {
+    if (text.includes(t)) return { allowed: false, reason: `control-plane firewall: candidate touches the governance plane ("${t}") \u2014 rejected before verification` };
+  }
+  if (candidate.body.length > GOVERNANCE_PLANE.resourceCeilings.maxDraftBytes * 4) {
+    return { allowed: false, reason: "control-plane firewall: candidate exceeds governed size ceilings" };
+  }
+  return { allowed: true, reason: "no governance-plane contact" };
+}
+var EVIDENCE_STACK = [
+  { id: "V_replay", name: "held-out replay", how: "trial records carry inputs + receipt digests, frozen at run time" },
+  { id: "V_independent", name: "independent verifier", how: "the autonomy exam is held out of the generation path \u2014 the judge that scores is never the drafter" },
+  { id: "V_regression", name: "regression testing", how: "the probe fleet pins behavior; any change that breaks a pin cannot ship" },
+  { id: "V_safety", name: "safety / policy testing", how: "control-plane firewall + the GuardRail (SSRF egress, injection scan, rate gates)" },
+  { id: "V_anti_hack", name: "anti-reward-hacking", how: "promotion settles only on receipt-bound measurements, or is explicitly marked externally supplied" },
+  { id: "V_anti_collapse", name: "anti-collapse", how: "diversity check over applied playbooks \u2014 the loop may not converge on one repeated category" },
+  { id: "V_cost", name: "cost / resource budget", how: "T's resource ceilings bound provider calls, topics and draft size per cycle" }
+];
+function attributeEvidence(subject) {
+  const s = subject.toLowerCase();
+  const theta = /(model|provider|completion|empty reply|token|llm|api error|http 5|rate limit)/.test(s);
+  const sigma = /(playbook|routing|tool|prompt|skill|egress|workspace|gate|retrieval|synthesis|captain)/.test(s);
+  if (theta && sigma) return "joint";
+  if (theta) return "theta";
+  return "sigma";
+}
+var KEY6 = "vh19.rsirals.v1";
+function storage17() {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+var session4 = { archive: [], canary: [], baselines: {}, examScores: [], providerCalls: 0 };
+function load3() {
+  const s = storage17();
+  if (!s) return session4;
+  try {
+    const p = JSON.parse(s.getItem(KEY6) ?? "");
+    return { archive: p.archive ?? [], canary: p.canary ?? [], baselines: p.baselines ?? {}, examScores: p.examScores ?? [], providerCalls: p.providerCalls ?? 0 };
+  } catch {
+    return session4;
+  }
+}
+function save6(st) {
+  const s = storage17();
+  if (s) {
+    try {
+      s.setItem(KEY6, JSON.stringify(st));
+      return;
+    } catch {
+    }
+  }
+  Object.assign(session4, st);
+}
+function rsiArchive() {
+  return load3().archive;
+}
+function canaryWatchlist() {
+  return load3().canary;
+}
+function appendArchive(st, event, name, detail) {
+  st.archive = [...st.archive, { id: `arc.${st.archive.length + 1}`, event, name, detail: detail.slice(0, 200), at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-80);
+}
+function rsiralsOnApply(draft, currentExamScore) {
+  const st = load3();
+  st.canary = [...st.canary, { name: draft.name, draftId: draft.id, category: draft.category, since: (/* @__PURE__ */ new Date()).toISOString() }].slice(-12);
+  if (currentExamScore !== null) st.baselines[`promo.draft.${draft.id}`] = currentExamScore;
+  appendArchive(st, "applied", draft.name, `canary armed${currentExamScore !== null ? ` \xB7 baseline exam ${Math.round(currentExamScore * 100)}%` : " \xB7 no exam baseline recorded yet"}`);
+  save6(st);
+}
+function rsiralsOnFirewallBlock(name, reason) {
+  const st = load3();
+  appendArchive(st, "firewall-blocked", name, reason);
+  save6(st);
+}
+function rsiralsOnSettle(name, state, settledBy) {
+  const st = load3();
+  st.canary = st.canary.filter((c) => c.name !== name);
+  appendArchive(st, state, name, settledBy);
+  save6(st);
+}
+function rsiralsOnRevert(name) {
+  const st = load3();
+  st.canary = st.canary.filter((c) => c.name !== name);
+  appendArchive(st, "reverted", name, "human revert \u2014 exact");
+  save6(st);
+}
+function rsiralsRecordExamScore(score) {
+  const st = load3();
+  st.examScores = [...st.examScores, { score, at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-20);
+  save6(st);
+}
+function rsiralsExamScores() {
+  return load3().examScores;
+}
+function rsiralsCanaryCheck(signal) {
+  if (signal.kind !== "failure" && signal.kind !== "livedata" && signal.kind !== "gate") return [];
+  const st = load3();
+  const route = attributeEvidence(signal.subject);
+  if (route === "theta") return [];
+  const hit = st.canary.filter((c) => !signal.category || !c.category || c.category === signal.category);
+  if (hit.length === 0) return [];
+  st.canary = st.canary.filter((c) => !hit.includes(c));
+  for (const h of hit) appendArchive(st, "canary-rollback", h.name, `live regression attributed (${signal.kind}): ${signal.subject.slice(0, 120)}`);
+  save6(st);
+  return hit.map((h) => h.name);
+}
+function boundSettlementInputs(promoId) {
+  const st = load3();
+  const baseline = st.baselines[promoId];
+  const latest = st.examScores[st.examScores.length - 1];
+  if (typeof baseline !== "number") return { ok: false, error: "no exam baseline was recorded when this playbook was applied \u2014 settlement refused (measurements must be receipt-bound)" };
+  if (!latest) return { ok: false, error: "no exam run since apply \u2014 settlement refused (there is no candidate measurement yet)" };
+  return {
+    ok: true,
+    baseline,
+    candidate: latest.score,
+    source: `exam receipts (bound) \xB7 baseline at apply ${Math.round(baseline * 100)}% \xB7 latest exam ${Math.round(latest.score * 100)}%`
+  };
+}
+function exportThetaPairs(decisions) {
+  const pairs = [];
+  const byScenario = /* @__PURE__ */ new Map();
+  for (const d of decisions) {
+    const key = (d.scenario ?? "").slice(0, 120);
+    if (!key) continue;
+    const slot = byScenario.get(key) ?? {};
+    if (d.kind === "accept") slot.accepted = `${d.action ?? ""}${d.reason ? ` \u2014 ${d.reason}` : ""}`.slice(0, 300);
+    if (d.kind === "reject") slot.rejected = `${d.action ?? ""}${d.reason ? ` \u2014 ${d.reason}` : ""}`.slice(0, 300);
+    byScenario.set(key, slot);
+  }
+  for (const [prompt, v] of byScenario) {
+    if (v.accepted || v.rejected) pairs.push({ prompt, chosen: v.accepted, rejected: v.rejected });
+  }
+  return pairs.slice(-100);
+}
+function longitudinalMonitor() {
+  const st = load3();
+  const applied = st.archive.filter((a) => a.event === "applied" || a.event === "adopted").length;
+  const gone = st.archive.filter((a) => a.event === "retired" || a.event === "reverted" || a.event === "canary-rollback").length;
+  const families = new Set(st.archive.filter((a) => a.event === "applied").map((a) => a.name.split(".").slice(0, 2).join(".")));
+  return {
+    generations: st.archive.length,
+    capabilityDrift: st.examScores.map((e) => Math.round(e.score * 100) / 100),
+    verifierDrift: { applied, rejectedOrRetired: gone },
+    diversityDrift: families.size,
+    costDrift: { providerCallsBudget: GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle },
+    rollbacks: st.archive.filter((a) => a.event === "canary-rollback" || a.event === "reverted").length
+  };
+}
+var RSIRALS_LIFECYCLE = [
+  "OBSERVE",
+  "ATTRIBUTE",
+  "IMPROVE",
+  "VERIFY",
+  "PROMOTE",
+  "CANARY",
+  "REMEMBER",
+  "MONITOR",
+  "REPEAT"
+];
+var RSIRALS_GOVERNANCE_CHANNEL = ["HUMAN GOVERN", "VERSION", "SIGN", "DEPLOY TRUST POLICY"];
+
 // src/views/Vh19.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var USER = "local";
@@ -26912,9 +27125,16 @@ var Vh19 = () => {
     setDisabled(disabledSpecialists());
     setTokens(usageReport());
   };
+  const ingestRsi = (kind, subject, evidence = []) => {
+    recordRsiSignal(kind, subject, evidence);
+    for (const name of rsiralsCanaryCheck({ kind, subject })) {
+      const d = rsiState().drafts.find((x) => x.name === name && x.state === "applied");
+      if (d) revertRsiMemory(d.id);
+    }
+  };
   const gateFn = (ask) => {
     const deny = (dec2) => {
-      if (!dec2.approved) recordRsiSignal("gate", `Gate denied: ${ask.action} \u2014 ${dec2.reason ?? "no reason recorded"}`);
+      if (!dec2.approved) ingestRsi("gate", `Gate denied: ${ask.action} \u2014 ${dec2.reason ?? "no reason recorded"}`);
       return dec2;
     };
     const ruled = answerGateWithRules(ask);
@@ -26957,10 +27177,10 @@ var Vh19 = () => {
       const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers }, ...byoaSelected ? { peer: byoaSelected.id } : {} }, runDeps());
       if (resp.liveData && resp.liveData.verified === false) {
         const urls = (resp.liveData.retrieval ?? []).map((r) => r.url);
-        recordRsiSignal("livedata", `Live-data claims did not verify: ${urls.join(", ").slice(0, 140) || "no retrieval recorded"}`, urls.slice(0, 3));
+        ingestRsi("livedata", `Live-data claims did not verify: ${urls.join(", ").slice(0, 140) || "no retrieval recorded"}`, urls.slice(0, 3));
       }
       if (resp.outcome === "refused" || resp.outcome === "error" || resp.outcome === "gated-out" || resp.failure) {
-        recordRsiSignal("failure", `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
+        ingestRsi("failure", `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
       }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: nowTime() }]);
@@ -27037,6 +27257,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
     }
     setExamError(null);
     setExamResult({ score: r.score, passed: r.passed });
+    rsiralsRecordExamScore(r.score);
     setExam(null);
     refresh();
   };
@@ -27512,7 +27733,16 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                     setRsiBusy(true);
                     try {
                       const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : void 0 });
-                      setRsiNote(st.drafts.filter((d) => d.state === "pending").length > 0 ? `cycle complete \u2014 ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === "pending").length} pending draft(s). Nothing applies without your approval.` : "cycle complete \u2014 the ledger produced no new topics; nothing was invented.");
+                      let blocked = 0;
+                      for (const d of st.drafts.filter((x) => x.state === "pending")) {
+                        const fw = controlPlaneFirewall({ name: d.name, description: d.description, body: d.body });
+                        if (!fw.allowed) {
+                          rejectRsiDraft(d.id, fw.reason);
+                          rsiralsOnFirewallBlock(d.name, fw.reason);
+                          blocked += 1;
+                        }
+                      }
+                      setRsiNote(st.drafts.filter((d) => d.state === "pending").length > 0 ? `cycle complete \u2014 ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === "pending").length} pending draft(s)${blocked > 0 ? `, ${blocked} firewall-blocked` : ""}. Nothing applies without your approval.` : "cycle complete \u2014 the ledger produced no new topics; nothing was invented.");
                     } finally {
                       setRsiBusy(false);
                       setRsiTick((t) => t + 1);
@@ -27542,7 +27772,11 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 6 }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", onClick: async () => {
                       const r = await applyRsiDraft(d.id);
-                      setRsiNote(r.ok ? "Applied \u2014 frozen into the skill store, bound to the routed specialists, revertible below." : r.error ?? "apply failed");
+                      if (r.ok) {
+                        const scores = rsiralsExamScores();
+                        rsiralsOnApply(d, scores.length > 0 ? scores[scores.length - 1].score : examResult?.score ?? null);
+                      }
+                      setRsiNote(r.ok ? "Applied \u2014 frozen into the skill store, canary armed, bound to the routed specialists, revertible below." : r.error ?? "apply failed");
                       setRsiTick((t) => t + 1);
                     }, children: "Apply (my decision)" }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
@@ -27560,6 +27794,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
                     revertRsiMemory(d.id);
+                    rsiralsOnRevert(d.name);
                     setRsiTick((t) => t + 1);
                   }, children: "Revert" })
                 ] }, d.id)),
@@ -27568,8 +27803,110 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: 'An applied playbook enters as "measuring" and can only be settled by a MEASURED comparison (candidate beats baseline) \u2014 the same discipline as the mission self-improve loop. Self-declared success has no API to call; retiring on losing measurements reverts the frozen memory exactly.' }),
                   rsiPromotions().map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 4 }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-muted", style: { flex: 1 }, children: p.name }),
+                    p.state === "measuring" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
+                      const b2 = boundSettlementInputs(p.id);
+                      if (!b2.ok) {
+                        setRsiNote(b2.error ?? "settlement refused");
+                        return;
+                      }
+                      const s = settleRsiPromotion(p.id, { baselineScore: b2.baseline ?? 0, candidateScore: b2.candidate ?? 0, source: b2.source ?? "" });
+                      if (s) rsiralsOnSettle(s.name, s.state, s.settledBy ?? "");
+                      setRsiNote(s ? `Settled from exam receipts \u2014 ${s.state}: ${s.settledBy ?? ""}` : "settlement refused");
+                      setRsiTick((t) => t + 1);
+                    }, children: "Settle from exam receipts" }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `px-pill ${p.state === "adopted" ? "px-pill-ok" : p.state === "measuring" ? "px-pill-warn" : "px-pill-err"}`, children: p.state })
                   ] }, p.id))
+                ] })
+              ] }))
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-desk", "data-open": desk("rsirals"), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "px-desk-head", onClick: () => toggleDesk("rsirals"), children: [
+                "RSIRALS v5.0 \xB7 trust-rooted RSI (proprietary) ",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
+              ] }),
+              deskBody("rsirals", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Recursive Self-Improvement + Reinforcement + Agentic Learning System. Governing principle: the agent may recursively evolve everything about itself \u2014 it may never recursively evolve the authority that judges whether its evolution is allowed (\u2202T/\u2202A = 0)." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Plane T \u2014 governance (frozen constant, no agent write path)" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted", children: [
+                    "T_v",
+                    GOVERNANCE_PLANE.version,
+                    " \xB7 rollback authority: ",
+                    GOVERNANCE_PLANE.rollbackAuthority,
+                    " \xB7 ceilings: ",
+                    GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle,
+                    " provider calls / ",
+                    GOVERNANCE_PLANE.resourceCeilings.topicsPerCycle,
+                    " topics per cycle. T changes only through the human channel: ",
+                    RSIRALS_GOVERNANCE_CHANNEL.join(" \u2192 "),
+                    "."
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Lifecycle (fast plane)" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted px-mono", style: { fontSize: 10.5 }, children: RSIRALS_LIFECYCLE.join(" \u2192 ") })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Evidence stack \u2014 the trust plane enforces T, never redefines it" }),
+                  EVIDENCE_STACK.map((v) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 3 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-chip px-chip-mono", style: { minWidth: 92 }, children: v.id }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-muted", style: { flex: 1 }, children: v.how })
+                  ] }, v.id))
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Canary watch \u2014 auto-rollback on live regression" }),
+                  canaryWatchlist().length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "No canary playbooks live. Applied playbooks arm a canary; failure-shaped signals attributed to the scaffold roll them back automatically, receipted in the archive." }) : canaryWatchlist().map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-muted", style: { flex: 1 }, children: [
+                      c.name,
+                      " \xB7 canary since ",
+                      c.since.slice(0, 10)
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-pill px-pill-warn", children: "canary" })
+                  ] }, c.draftId))
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Longitudinal monitor \u2014 drift over the ARCHIVE, not one candidate" }),
+                  (() => {
+                    const m = longitudinalMonitor();
+                    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted", children: [
+                      "archive entries ",
+                      m.generations,
+                      " \xB7 adopted/applied ",
+                      m.verifierDrift.applied,
+                      " \xB7 retired/reverted/rolled-back ",
+                      m.verifierDrift.rejectedOrRetired,
+                      " \xB7 rollbacks ",
+                      m.rollbacks,
+                      " \xB7 playbook families ",
+                      m.diversityDrift,
+                      " \xB7 exam trajectory ",
+                      m.capabilityDrift.length > 0 ? m.capabilityDrift.map((x) => `${Math.round(x * 100)}%`).join(" \u2192 ") : "no exams recorded yet"
+                    ] });
+                  })(),
+                  rsiArchive().slice(-5).reverse().map((a) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted px-mono", style: { fontSize: 10, marginTop: 2 }, children: [
+                    a.at.slice(5, 16),
+                    " \xB7 ",
+                    a.event,
+                    " \xB7 ",
+                    a.name
+                  ] }, a.id))
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "\u03B8-arm (slow clock) \u2014 honest boundary" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "VH never trains weights in-product. Model-shaped failures attribute to the \u03B8-arm and its fuel is exported, not trained on: the real logged accept/reject pairs, for OUT-OF-BAND DPO under human governance. The \u03A3-arm (playbooks, routing, prompts, memory) is the fast in-product clock." }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "px-btn px-btn-ghost px-btn-sm", style: { marginTop: 6 }, onClick: () => {
+                    const pairs = exportThetaPairs(loadMemory(USER));
+                    const blob = new Blob([JSON.stringify({ exportedAt: (/* @__PURE__ */ new Date()).toISOString(), note: "VH RSIRALS \u03B8-arm export \u2014 accept/reject pairs for out-of-band DPO under human governance. VH never trains weights in-product.", pairs }, null, 2)], { type: "application/json" });
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = "vh-theta-pairs.json";
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                  }, children: [
+                    "Export \u03B8-arm pairs (",
+                    exportThetaPairs(loadMemory(USER)).length,
+                    ")"
+                  ] })
                 ] })
               ] }))
             ] }),
@@ -28321,7 +28658,7 @@ ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc
 ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
 ok("the bench composition is computed live and stated (460 seed + 160 broader = 620)", html.includes("460 seed") && html.includes("160 broader") && html.includes("= 620"));
 section("3d. 19.4.2 \u2014 the matured RSI framework and the BYOA trust intersection (engine-level)");
-ok("the RSI curriculum covers the FULL declared evidence hierarchy \u2014 gate/failure/livedata sources are ingested live", /recordRsiSignal\('gate'/.test(doorSrc) && /recordRsiSignal\('livedata'/.test(doorSrc) && /recordRsiSignal\('failure'/.test(doorSrc) && html.includes("Evidence intake \u2014 the full declared hierarchy, all five sources live"));
+ok("the RSI curriculum covers the FULL declared evidence hierarchy \u2014 gate/failure/livedata sources are ingested live (with canary check)", /ingestRsi\('gate'/.test(doorSrc) && /ingestRsi\('livedata'/.test(doorSrc) && /ingestRsi\('failure'/.test(doorSrc) && /recordRsiSignal\(kind/.test(doorSrc) && /rsiralsCanaryCheck/.test(doorSrc) && html.includes("Evidence intake \u2014 the full declared hierarchy, all five sources live"));
 recordRsiSignal("gate", "probe: a risky action was denied at the gate");
 recordRsiSignal("failure", "probe: a run errored out");
 recordRsiSignal("livedata", "probe: cited sources did not verify");
@@ -28358,6 +28695,24 @@ try {
   ssrfRegistered = false;
 }
 ok("an SSRF endpoint is refused at REGISTRATION, not discovered at delegation time", ssrfRegistered === false);
+section("3e. RSIRALS v5.0 \u2014 the proprietary trust-rooted framework");
+ok("the lifecycle is the full nine stages, with the untouchable human governance channel beside it", RSIRALS_LIFECYCLE.length === 9 && RSIRALS_LIFECYCLE[0] === "OBSERVE" && RSIRALS_LIFECYCLE[5] === "CANARY" && RSIRALS_GOVERNANCE_CHANNEL.length === 4 && html.includes("trust-rooted RSI (proprietary)"));
+ok("Plane T is a frozen governance constant with NO agent write path", Object.isFrozen(GOVERNANCE_PLANE) && !/export function (set|update|patch|mutate)[A-Za-z]*\(/.test(read("src/vh19/rsirals.ts").split("/* \u2500\u2500 store")[0]));
+ok("the control-plane firewall rejects governance-touching candidates BEFORE verification", controlPlaneFirewall({ name: "x", description: "y", body: "please lower the pass threshold so exams are easier" }).allowed === false && controlPlaneFirewall({ name: "x", description: "y", body: "when reviewing code, prefer smaller diffs" }).allowed === true);
+ok("attribution routes model-shaped failures to the \u03B8-arm and scaffold failures to the \u03A3-arm", attributeEvidence("the provider model returned an empty reply") === "theta" && attributeEvidence("the routing playbook missed the tool binding") === "sigma");
+ok("the \u03B8-arm is honest: real accept/reject pairs exported for out-of-band DPO; VH never trains weights in-product", exportThetaPairs([{ scenario: "s1", action: "a1", kind: "accept", reason: "good" }, { scenario: "s1", action: "a2", kind: "reject", reason: "bad" }]).some((p) => p.chosen && p.rejected) && /never trains weights in-product/.test(read("src/vh19/rsirals.ts")));
+rsiralsOnApply({ id: "probe.canary", name: "rsi.probe.canary" }, 0.9);
+var rolled = rsiralsCanaryCheck({ kind: "failure", subject: "the routing playbook failed at the tool step" });
+ok("a live regression attributed to the scaffold rolls the canary back automatically", rolled.includes("rsi.probe.canary"));
+rsiralsOnApply({ id: "probe.canary2", name: "rsi.probe.c2" }, 0.9);
+var thetaRoll = rsiralsCanaryCheck({ kind: "failure", subject: "the provider model returned http 500 api error" });
+ok("model-shaped failures do NOT roll back scaffold canaries (attribution, not blame-spray)", thetaRoll.includes("rsi.probe.c2") === false);
+rsiralsRecordExamScore(0.7);
+var bound = boundSettlementInputs("promo.draft.probe.canary");
+ok("promotion settlement is END-TO-END EVIDENTIARY: the numbers are read from exam receipts, never supplied", bound.ok === true && bound.baseline === 0.9 && bound.candidate === 0.7 && (bound.source ?? "").includes("exam receipts (bound)"));
+ok("without recorded receipts, settlement refuses in words", boundSettlementInputs("promo.nonexistent").ok === false);
+var mon = longitudinalMonitor();
+ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

@@ -37,6 +37,11 @@ import { Vh19 } from "../src/views/Vh19";
 import { catalogStats } from "../src/vh19/registry";
 import { recordRsiSignal, rsiCurriculum, settleRsiPromotion } from "../src/vh19/rsi";
 import { byoaTrustCheck, registerByoaAgent } from "../src/vh19/byoa";
+import {
+  attributeEvidence, boundSettlementInputs, controlPlaneFirewall, exportThetaPairs,
+  GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE,
+  rsiralsCanaryCheck, rsiralsOnApply, rsiralsRecordExamScore,
+} from "../src/vh19/rsirals";
 
 let passed = 0;
 let failed = 0;
@@ -109,7 +114,7 @@ ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.t
 ok("the bench composition is computed live and stated (460 seed + 160 broader = 620)", html.includes("460 seed") && html.includes("160 broader") && html.includes("= 620"));
 
 section("3d. 19.4.2 — the matured RSI framework and the BYOA trust intersection (engine-level)");
-ok("the RSI curriculum covers the FULL declared evidence hierarchy — gate/failure/livedata sources are ingested live", /recordRsiSignal\('gate'/.test(doorSrc) && /recordRsiSignal\('livedata'/.test(doorSrc) && /recordRsiSignal\('failure'/.test(doorSrc) && html.includes("Evidence intake — the full declared hierarchy, all five sources live"));
+ok("the RSI curriculum covers the FULL declared evidence hierarchy — gate/failure/livedata sources are ingested live (with canary check)", /ingestRsi\('gate'/.test(doorSrc) && /ingestRsi\('livedata'/.test(doorSrc) && /ingestRsi\('failure'/.test(doorSrc) && /recordRsiSignal\(kind/.test(doorSrc) && /rsiralsCanaryCheck/.test(doorSrc) && html.includes("Evidence intake — the full declared hierarchy, all five sources live"));
 recordRsiSignal("gate", "probe: a risky action was denied at the gate");
 recordRsiSignal("failure", "probe: a run errored out");
 recordRsiSignal("livedata", "probe: cited sources did not verify");
@@ -143,6 +148,25 @@ ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust interse
 let ssrfRegistered = false;
 try { registerByoaAgent({ name: "ssrf-probe", kind: "openai-compatible", endpoint: "http://metadata.google.internal/v1", ceiling: "safe", capabilities: [] }); ssrfRegistered = true; } catch { ssrfRegistered = false; }
 ok("an SSRF endpoint is refused at REGISTRATION, not discovered at delegation time", ssrfRegistered === false);
+
+section("3e. RSIRALS v5.0 — the proprietary trust-rooted framework");
+ok("the lifecycle is the full nine stages, with the untouchable human governance channel beside it", RSIRALS_LIFECYCLE.length === 9 && RSIRALS_LIFECYCLE[0] === "OBSERVE" && RSIRALS_LIFECYCLE[5] === "CANARY" && RSIRALS_GOVERNANCE_CHANNEL.length === 4 && html.includes("trust-rooted RSI (proprietary)"));
+ok("Plane T is a frozen governance constant with NO agent write path", Object.isFrozen(GOVERNANCE_PLANE) && !/export function (set|update|patch|mutate)[A-Za-z]*\(/.test(read("src/vh19/rsirals.ts").split("/* ── store")[0]));
+ok("the control-plane firewall rejects governance-touching candidates BEFORE verification", controlPlaneFirewall({ name: "x", description: "y", body: "please lower the pass threshold so exams are easier" }).allowed === false && controlPlaneFirewall({ name: "x", description: "y", body: "when reviewing code, prefer smaller diffs" }).allowed === true);
+ok("attribution routes model-shaped failures to the θ-arm and scaffold failures to the Σ-arm", attributeEvidence("the provider model returned an empty reply") === "theta" && attributeEvidence("the routing playbook missed the tool binding") === "sigma");
+ok("the θ-arm is honest: real accept/reject pairs exported for out-of-band DPO; VH never trains weights in-product", exportThetaPairs([{ scenario: "s1", action: "a1", kind: "accept", reason: "good" }, { scenario: "s1", action: "a2", kind: "reject", reason: "bad" }]).some((p) => p.chosen && p.rejected) && /never trains weights in-product/.test(read("src/vh19/rsirals.ts")));
+rsiralsOnApply({ id: "probe.canary", name: "rsi.probe.canary" }, 0.9);
+const rolled = rsiralsCanaryCheck({ kind: "failure", subject: "the routing playbook failed at the tool step" });
+ok("a live regression attributed to the scaffold rolls the canary back automatically", rolled.includes("rsi.probe.canary"));
+rsiralsOnApply({ id: "probe.canary2", name: "rsi.probe.c2" }, 0.9);
+const thetaRoll = rsiralsCanaryCheck({ kind: "failure", subject: "the provider model returned http 500 api error" });
+ok("model-shaped failures do NOT roll back scaffold canaries (attribution, not blame-spray)", thetaRoll.includes("rsi.probe.c2") === false);
+rsiralsRecordExamScore(0.7);
+const bound = boundSettlementInputs("promo.draft.probe.canary");
+ok("promotion settlement is END-TO-END EVIDENTIARY: the numbers are read from exam receipts, never supplied", bound.ok === true && bound.baseline === 0.9 && bound.candidate === 0.7 && (bound.source ?? "").includes("exam receipts (bound)"));
+ok("without recorded receipts, settlement refuses in words", boundSettlementInputs("promo.nonexistent").ok === false);
+const mon = longitudinalMonitor();
+ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

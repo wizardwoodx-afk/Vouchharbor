@@ -1,4 +1,4 @@
-# Install Vouch Harbor 19.4.2 on your laptop (Windows 11) — the only supported install
+# Install Vouch Harbor 19.4.3 on your laptop (Windows 11) — the only supported install
 
 This zip is **native desktop source**, not a website. VH is a **Tauri v2** app: the UI is React,
 the engine is Rust, and everything real (SQLite, the keyring, agent processes, sandboxes) happens
@@ -57,7 +57,7 @@ npm run tauri build
 When it finishes, the installer is at:
 
 ```
-src-tauri\target\release\bundle\nsis\Vouch Harbor 19.4.2_x64-setup.exe
+src-tauri\target\release\bundle\nsis\Vouch Harbor 19.4.3_x64-setup.exe
 ```
 
 Run it — VH installs per-user, gets a Start-menu entry, and launches as a desktop
@@ -66,7 +66,7 @@ written outside that.
 
 ## 5. First run — sanity checklist
 
-1. The header says **Vouch Harbor 19.4.2** (Help → About must agree — `probe/versionDrift` enforces this).
+1. The header says **Vouch Harbor 19.4.3** (Help → About must agree — `probe/versionDrift` enforces this).
 2. Settings → **Themes**: try `ink` (true-black flagship), `pitch`, `slag`, `fern`, `ivory`, `travertine`.
 3. Settings → MCP: the control server advertises **5 tools** and implements **5 tools** — the
    counts must match; that equality is the whole W2 story.

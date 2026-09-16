@@ -1,10 +1,14 @@
-# Vouch Harbor 19.4.2 "Broader" — release verification record
+# Vouch Harbor 19.4.3 "Broader" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.4.3 record — RSIRALS v5.0 ships proprietary + credential hygiene
+
+19.4.3 ships RSIRALS v5.0 (Trust-Rooted Recursive Self-Improvement) as a proprietary Vouch Harbor product: three planes with a frozen, write-path-free governance plane; the nine-stage lifecycle with canary auto-rollback and an evolution archive; a control-plane firewall; counterfactual attribution with honest θ-arm (weight training stays out-of-band; accept/reject pairs export for DPO); and end-to-end evidentiary promotion — settlement numbers are read from exam receipts, never supplied. The 19.4.2 reviewer's P0 is fixed: the populated `.env.local` no longer ships (removed; `.env.example` placeholders only; packaging excludes `.env.*`; the exposed key must be rotated with the provider). Gates: tsc 0 · door probe 58/58 · fleet 120/120 · offline 119/119.
 
 ## The 19.4.2 record — the matured RSI framework, the BYOA trust intersection, a self-proving count
 
@@ -63,7 +67,7 @@ import). Protocol v0.10.7; suites 120/119.
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
 | VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
-| VH-19 door (incl. BYOA, RSI, egress, full-curriculum, promotion-ladder and trust-intersection pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 at 19.4.1; **48/48 at 19.4.2** |
+| VH-19 door (incl. BYOA, RSI, egress, full-curriculum, promotion-ladder and trust-intersection pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 at 19.4.1; 48/48 at 19.4.2; **58/58 at 19.4.3** |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Doc identity | `node tools/run-one-probe.mjs docIdentity` | 6/6 |
 | Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |

@@ -1,5 +1,5 @@
-Vouch Harbor 19.4.2 Broader
-built: 19.4.2 Broader
+Vouch Harbor 19.4.3 Broader
+built: 19.4.3 Broader
 ts:   2026-09-16T02:53:35Z
 git:  local
 protocol: vh-proof-receipt/2

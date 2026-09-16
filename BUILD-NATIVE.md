@@ -1,4 +1,4 @@
-# Vouch Harbor 19.4.2 — BUILD NATIVE (Windows 11)
+# Vouch Harbor 19.4.3 — BUILD NATIVE (Windows 11)
 
 Vouch Harbor is a **Tauri v2 desktop application for Windows 11**. It is not a website and it does not need a server.
 macOS/Linux bundles were removed — nobody validates them, so this tree no longer pretends to ship them
@@ -10,7 +10,7 @@ only way anyone can show you the UI from inside a sandbox. The artifact you ship
 
 | Platform | Output |
 |---|---|
-| Windows | `src-tauri/target/release/bundle/nsis/Vouch Harbor_19.4.2_x64-setup.exe` |
+| Windows | `src-tauri/target/release/bundle/nsis/Vouch Harbor_19.4.3_x64-setup.exe` |
 
 Double-click the installer. There is no port, no `npm run dev`, no browser.
 
@@ -66,7 +66,7 @@ Verified on Windows 11, with the command that verified it:
 | `tsc --noEmit` | 0 errors |
 | `vite build` (the exact `beforeBuildCommand`) | ok — this is what gets bundled into the app |
 | `cargo test` (full Tauri crate, real deps) | **40 passed, 0 failed** (29 unit + 11 store-integration) |
-| `tauri build` → NSIS installer | ok — `Vouch Harbor_19.4.2_x64-setup.exe`, installs per-user |
+| `tauri build` → NSIS installer | ok — `Vouch Harbor_19.4.3_x64-setup.exe`, installs per-user |
 | Launch smoke | exe stays alive, main window titled "VH", SQLite store created |
 | Bundle icons | `32x32.png`, `128x128.png`, `128x128@2x.png`, `512x512.png`, `icon.png`, `icon.ico` |
 | `tauri.conf.json` | valid JSON, `frontendDist: ../dist`, `identifier: com.mj.desktop`, bundle target nsis |

@@ -1,5 +1,11 @@
 # Vouch Harbor RSI Framework — the bounded, production-grade design (19.4.2)
 
+> **19.4.3 update:** this design has been superseded by **RSIRALS v5.0** —
+> the proprietary trust-rooted architecture (three planes, control-plane
+> firewall, canary auto-rollback, end-to-end evidentiary promotion). See
+> [RSIRALS.md](RSIRALS.md). Everything below remains the landscape and
+> rationale the RSIRALS design stands on.
+
 Every serious recursive-self-improvement system in the 2026 landscape improves
 against a **fixed external signal** and is **bounded**. None of the verified
 production examples is an open-ended self-modifier. Vouch Harbor's RSI takes

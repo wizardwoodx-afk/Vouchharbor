@@ -44,7 +44,9 @@ import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/c
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
 import { createMemoryWorkspace, openDirectoryWorkspace, fsAccessSupported, type BrowserWorkspace } from '../vh19/browserWorkspace';
 import { byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
-import { applyRsiDraft, rejectRsiDraft, recordRsiSignal, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiPromotions, rsiSignals, rsiState, runRsiCycle } from '../vh19/rsi';
+import { applyRsiDraft, rejectRsiDraft, recordRsiSignal, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiPromotions, rsiSignals, rsiState, runRsiCycle, settleRsiPromotion } from '../vh19/rsi';
+import { boundSettlementInputs, canaryWatchlist, controlPlaneFirewall, EVIDENCE_STACK, exportThetaPairs, GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE, rsiArchive, rsiralsCanaryCheck, rsiralsExamScores, rsiralsOnApply, rsiralsOnFirewallBlock, rsiralsOnRevert, rsiralsOnSettle, rsiralsRecordExamScore } from '../vh19/rsirals';
+import { loadMemory } from '../vh19/memory';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
 
 const USER = 'local';
@@ -198,8 +200,18 @@ export const Vh19: React.FC = () => {
   /** The engine seam, one place: provider, gate, handoffs, the 19.3.0
       evidence fetch, and — 19.4.0 — the workspace root + fs adapter, so the
       shipped app runs the REAL tool loop instead of falling back toolless. */
+  /** RSIRALS OBSERVE: record a signal AND run the canary check —
+      live regression attributed to a canary playbook rolls it back. */
+  const ingestRsi = (kind: 'gate' | 'failure' | 'livedata', subject: string, evidence: string[] = []) => {
+    recordRsiSignal(kind, subject, evidence);
+    for (const name of rsiralsCanaryCheck({ kind, subject })) {
+      const d = rsiState().drafts.find((x) => x.name === name && x.state === 'applied');
+      if (d) revertRsiMemory(d.id);
+    }
+  };
+
   const gateFn = (ask: GateAsk) => {
-    const deny = (dec: GateDecision) => { if (!dec.approved) recordRsiSignal('gate', `Gate denied: ${ask.action} — ${dec.reason ?? 'no reason recorded'}`); return dec; };
+    const deny = (dec: GateDecision) => { if (!dec.approved) ingestRsi('gate', `Gate denied: ${ask.action} — ${dec.reason ?? 'no reason recorded'}`); return dec; };
     const ruled = answerGateWithRules(ask);
     if (ruled) return Promise.resolve(deny(ruled));
     return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve: (dec) => resolve(deny(dec)) }); });
@@ -242,10 +254,10 @@ export const Vh19: React.FC = () => {
       /* RSI evidence ingestion (19.4.2): real failures become curriculum. */
       if (resp.liveData && resp.liveData.verified === false) {
         const urls = (resp.liveData.retrieval ?? []).map((r) => r.url);
-        recordRsiSignal('livedata', `Live-data claims did not verify: ${urls.join(', ').slice(0, 140) || 'no retrieval recorded'}`, urls.slice(0, 3));
+        ingestRsi('livedata', `Live-data claims did not verify: ${urls.join(', ').slice(0, 140) || 'no retrieval recorded'}`, urls.slice(0, 3));
       }
       if (resp.outcome === 'refused' || resp.outcome === 'error' || resp.outcome === 'gated-out' || resp.failure) {
-        recordRsiSignal('failure', `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
+        ingestRsi('failure', `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
       }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: nowTime() }]);
@@ -317,6 +329,7 @@ export const Vh19: React.FC = () => {
     if (!r.ok) { setExamError(r.error); return; }
     setExamError(null);
     setExamResult({ score: r.score, passed: r.passed });
+    rsiralsRecordExamScore(r.score); // RSIRALS: exam receipts are the bound measurement source
     setExam(null);
     refresh();
   };
@@ -725,7 +738,13 @@ export const Vh19: React.FC = () => {
                       setRsiBusy(true);
                       try {
                         const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : undefined });
-                        setRsiNote(st.drafts.filter((d) => d.state === 'pending').length > 0 ? `cycle complete — ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === 'pending').length} pending draft(s). Nothing applies without your approval.` : 'cycle complete — the ledger produced no new topics; nothing was invented.');
+                        /* RSIRALS VERIFY: the control-plane firewall runs BEFORE anything human sees */
+                        let blocked = 0;
+                        for (const d of st.drafts.filter((x) => x.state === 'pending')) {
+                          const fw = controlPlaneFirewall({ name: d.name, description: d.description, body: d.body });
+                          if (!fw.allowed) { rejectRsiDraft(d.id, fw.reason); rsiralsOnFirewallBlock(d.name, fw.reason); blocked += 1; }
+                        }
+                        setRsiNote(st.drafts.filter((d) => d.state === 'pending').length > 0 ? `cycle complete — ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === 'pending').length} pending draft(s)${blocked > 0 ? `, ${blocked} firewall-blocked` : ''}. Nothing applies without your approval.` : 'cycle complete — the ledger produced no new topics; nothing was invented.');
                       } finally {
                         setRsiBusy(false);
                         setRsiTick((t) => t + 1);
@@ -743,7 +762,7 @@ export const Vh19: React.FC = () => {
                       <div className="px-muted" style={{ whiteSpace: 'pre-wrap' }}>{d.body.slice(0, 420)}{d.body.length > 420 ? '…' : ''}</div>
                       <div className="px-muted" style={{ fontStyle: 'italic' }}>{d.verifierNote}</div>
                       <div className="px-row" style={{ marginTop: 6 }}>
-                        <button className="px-btn px-btn-primary px-btn-sm" onClick={async () => { const r = await applyRsiDraft(d.id); setRsiNote(r.ok ? 'Applied — frozen into the skill store, bound to the routed specialists, revertible below.' : r.error ?? 'apply failed'); setRsiTick((t) => t + 1); }}>Apply (my decision)</button>
+                        <button className="px-btn px-btn-primary px-btn-sm" onClick={async () => { const r = await applyRsiDraft(d.id); if (r.ok) { const scores = rsiralsExamScores(); rsiralsOnApply(d, scores.length > 0 ? scores[scores.length - 1].score : (examResult?.score ?? null)); } setRsiNote(r.ok ? 'Applied — frozen into the skill store, canary armed, bound to the routed specialists, revertible below.' : r.error ?? 'apply failed'); setRsiTick((t) => t + 1); }}>Apply (my decision)</button>
                         <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { rejectRsiDraft(d.id, 'user declined at the verifier'); setRsiTick((t) => t + 1); }}>Reject</button>
                       </div>
                     </div>
@@ -751,7 +770,7 @@ export const Vh19: React.FC = () => {
                   {rsiMemory().map((d) => (
                     <div key={d.id} className="px-row" style={{ opacity: 0.8 }}>
                       <span className="px-muted" style={{ flex: 1 }}>frozen memory · {d.name} · {d.at.slice(0, 10)}</span>
-                      <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertRsiMemory(d.id); setRsiTick((t) => t + 1); }}>Revert</button>
+                      <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertRsiMemory(d.id); rsiralsOnRevert(d.name); setRsiTick((t) => t + 1); }}>Revert</button>
                     </div>
                   ))}
                   {rsiPromotions().length > 0 && (
@@ -761,11 +780,78 @@ export const Vh19: React.FC = () => {
                       {rsiPromotions().map((p) => (
                         <div key={p.id} className="px-row" style={{ marginTop: 4 }}>
                           <span className="px-muted" style={{ flex: 1 }}>{p.name}</span>
+                          {p.state === 'measuring' && (
+                            <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => {
+                              const b = boundSettlementInputs(p.id);
+                              if (!b.ok) { setRsiNote(b.error ?? 'settlement refused'); return; }
+                              const s = settleRsiPromotion(p.id, { baselineScore: b.baseline ?? 0, candidateScore: b.candidate ?? 0, source: b.source ?? '' });
+                              if (s) rsiralsOnSettle(s.name, s.state as 'adopted' | 'retired', s.settledBy ?? '');
+                              setRsiNote(s ? `Settled from exam receipts — ${s.state}: ${s.settledBy ?? ''}` : 'settlement refused');
+                              setRsiTick((t) => t + 1);
+                            }}>Settle from exam receipts</button>
+                          )}
                           <span className={`px-pill ${p.state === 'adopted' ? 'px-pill-ok' : p.state === 'measuring' ? 'px-pill-warn' : 'px-pill-err'}`}>{p.state}</span>
                         </div>
                       ))}
                     </div>
                   )}
+                </>
+              ))}
+            </div>
+
+            {/* RSIRALS v5.0 */}
+            <div className="px-desk" data-open={desk('rsirals')}>
+              <button className="px-desk-head" onClick={() => toggleDesk('rsirals')}>
+                RSIRALS v5.0 · trust-rooted RSI (proprietary) <span className="px-desk-caret">▸</span>
+              </button>
+              {deskBody('rsirals', (
+                <>
+                  <div className="px-muted">Recursive Self-Improvement + Reinforcement + Agentic Learning System. Governing principle: the agent may recursively evolve everything about itself — it may never recursively evolve the authority that judges whether its evolution is allowed (∂T/∂A = 0).</div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Plane T — governance (frozen constant, no agent write path)</div>
+                    <div className="px-muted">T_v{GOVERNANCE_PLANE.version} · rollback authority: {GOVERNANCE_PLANE.rollbackAuthority} · ceilings: {GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle} provider calls / {GOVERNANCE_PLANE.resourceCeilings.topicsPerCycle} topics per cycle. T changes only through the human channel: {RSIRALS_GOVERNANCE_CHANNEL.join(' → ')}.</div>
+                  </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Lifecycle (fast plane)</div>
+                    <div className="px-muted px-mono" style={{ fontSize: 10.5 }}>{RSIRALS_LIFECYCLE.join(' → ')}</div>
+                  </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Evidence stack — the trust plane enforces T, never redefines it</div>
+                    {EVIDENCE_STACK.map((v) => (
+                      <div key={v.id} className="px-row" style={{ marginTop: 3 }}>
+                        <span className="px-chip px-chip-mono" style={{ minWidth: 92 }}>{v.id}</span>
+                        <span className="px-muted" style={{ flex: 1 }}>{v.how}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Canary watch — auto-rollback on live regression</div>
+                    {canaryWatchlist().length === 0
+                      ? <div className="px-muted">No canary playbooks live. Applied playbooks arm a canary; failure-shaped signals attributed to the scaffold roll them back automatically, receipted in the archive.</div>
+                      : canaryWatchlist().map((c) => <div key={c.draftId} className="px-row"><span className="px-muted" style={{ flex: 1 }}>{c.name} · canary since {c.since.slice(0, 10)}</span><span className="px-pill px-pill-warn">canary</span></div>)}
+                  </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Longitudinal monitor — drift over the ARCHIVE, not one candidate</div>
+                    {(() => { const m = longitudinalMonitor(); return (
+                      <div className="px-muted">archive entries {m.generations} · adopted/applied {m.verifierDrift.applied} · retired/reverted/rolled-back {m.verifierDrift.rejectedOrRetired} · rollbacks {m.rollbacks} · playbook families {m.diversityDrift} · exam trajectory {m.capabilityDrift.length > 0 ? m.capabilityDrift.map((x) => `${Math.round(x * 100)}%`).join(' → ') : 'no exams recorded yet'}</div>
+                    ); })()}
+                    {rsiArchive().slice(-5).reverse().map((a) => (
+                      <div key={a.id} className="px-muted px-mono" style={{ fontSize: 10, marginTop: 2 }}>{a.at.slice(5, 16)} · {a.event} · {a.name}</div>
+                    ))}
+                  </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">θ-arm (slow clock) — honest boundary</div>
+                    <div className="px-muted">VH never trains weights in-product. Model-shaped failures attribute to the θ-arm and its fuel is exported, not trained on: the real logged accept/reject pairs, for OUT-OF-BAND DPO under human governance. The Σ-arm (playbooks, routing, prompts, memory) is the fast in-product clock.</div>
+                    <button className="px-btn px-btn-ghost px-btn-sm" style={{ marginTop: 6 }} onClick={() => {
+                      const pairs = exportThetaPairs(loadMemory(USER));
+                      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), note: 'VH RSIRALS θ-arm export — accept/reject pairs for out-of-band DPO under human governance. VH never trains weights in-product.', pairs }, null, 2)], { type: 'application/json' });
+                      const a = document.createElement('a');
+                      a.href = URL.createObjectURL(blob);
+                      a.download = 'vh-theta-pairs.json';
+                      a.click();
+                      URL.revokeObjectURL(a.href);
+                    }}>Export θ-arm pairs ({exportThetaPairs(loadMemory(USER)).length})</button>
+                  </div>
                 </>
               ))}
             </div>
