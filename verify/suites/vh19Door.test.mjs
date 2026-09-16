@@ -23833,7 +23833,7 @@ function skillsFor(specialist) {
   const ids = [...CATEGORY_SKILLS[specialist.category] ?? [], ...EXTRA_SKILLS[specialist.id] ?? []];
   const seen = /* @__PURE__ */ new Set();
   const seeded = ids.filter((i) => seen.has(i) ? false : (seen.add(i), true)).map((i) => getSkill(i)).filter((s) => s !== null);
-  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && s.category === specialist.category);
+  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && (s.category === specialist.category || s.category === "*"));
   const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
   return [...seeded, ...imported, ...connectors];
 }
@@ -23973,8 +23973,14 @@ async function verifyLiveEvidence(reply, claims, opts) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), RETRIEVAL_TIMEOUT_MS);
     const fetchedAt = now().toISOString();
+    const policy = checkEgressUrl(url);
+    if (!policy.ok) {
+      clearTimeout(timer);
+      retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `egress refused by the shared URL policy: ${policy.reason}` });
+      continue;
+    }
     try {
-      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.3 (evidence-retrieval)" } });
+      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.4 (evidence-retrieval)" } });
       if (!res.ok) {
         retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `HTTP ${res.status}` });
         continue;
@@ -25346,7 +25352,7 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
     if (picked.length >= questionCount) break;
     if (!picked.includes(r)) picked.push(r);
   }
-  const session2 = {
+  const session4 = {
     id: uid("exam"),
     createdAt: now().toISOString(),
     userId,
@@ -25366,10 +25372,10 @@ function proposeExam(userId = "default", questionCount = 10, now = () => /* @__P
   const s = storage10();
   if (s) {
     const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
-    sessions.push(session2);
+    sessions.push(session4);
     s.setItem(SESSION_KEY, JSON.stringify(sessions.slice(-MAX_SESSIONS)));
   }
-  return { ok: true, session: session2 };
+  return { ok: true, session: session4 };
 }
 function proposeActionFor(r, mem) {
   if (r.kind === "reject") {
@@ -25391,30 +25397,30 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
   const s = storage10();
   if (!s) return { ok: false, error: "no exam store available in this runtime" };
   const sessions = JSON.parse(s.getItem(SESSION_KEY) ?? "[]");
-  const session2 = sessions.find((x) => x.id === sessionId);
-  if (!session2) return { ok: false, error: `unknown exam session ${sessionId}` };
-  if (session2.state === "graded") return { ok: false, error: "this exam was already graded \u2014 an exam is graded exactly once" };
-  if (session2.questions.length === 0) return { ok: false, error: "this exam has no questions" };
+  const session4 = sessions.find((x) => x.id === sessionId);
+  if (!session4) return { ok: false, error: `unknown exam session ${sessionId}` };
+  if (session4.state === "graded") return { ok: false, error: "this exam was already graded \u2014 an exam is graded exactly once" };
+  if (session4.questions.length === 0) return { ok: false, error: "this exam has no questions" };
   const byQ = new Map(grades.map((g) => [g.questionId, g]));
-  for (const q of session2.questions) {
+  for (const q of session4.questions) {
     if (!byQ.has(q.id)) return { ok: false, error: `question ${q.id} has no verdict \u2014 every question must be graded` };
   }
-  const unknown = grades.filter((g) => !session2.questions.some((q) => q.id === g.questionId));
+  const unknown = grades.filter((g) => !session4.questions.some((q) => q.id === g.questionId));
   if (unknown.length > 0) return { ok: false, error: `${unknown.length} verdict(s) reference questions outside this exam` };
-  const correct = session2.questions.filter((q) => byQ.get(q.id).verdict === "correct").length;
-  const score = correct / session2.questions.length;
+  const correct = session4.questions.filter((q) => byQ.get(q.id).verdict === "correct").length;
+  const score = correct / session4.questions.length;
   const passed2 = score >= PASS_THRESHOLD;
-  session2.grades = grades;
-  session2.score = score;
-  session2.passed = passed2;
-  session2.state = "graded";
+  session4.grades = grades;
+  session4.score = score;
+  session4.passed = passed2;
+  session4.state = "graded";
   s.setItem(SESSION_KEY, JSON.stringify(sessions));
   let feedbackLearned = 0;
-  for (const q of session2.questions) {
+  for (const q of session4.questions) {
     const g = byQ.get(q.id);
     if (g.verdict === "wrong") {
       recordDecision({
-        userId: session2.userId,
+        userId: session4.userId,
         scenario: q.scenario,
         action: q.proposedAction,
         kind: "correction",
@@ -25424,7 +25430,7 @@ function gradeExam(sessionId, grades, now = () => /* @__PURE__ */ new Date()) {
       feedbackLearned += 1;
     }
   }
-  saveGrant(loadGrant(session2.userId, session2.category ?? void 0).attempts + 1, passed2 ? score : null, passed2, session2.userId, now, session2.category ?? void 0);
+  saveGrant(loadGrant(session4.userId, session4.category ?? void 0).attempts + 1, passed2 ? score : null, passed2, session4.userId, now, session4.category ?? void 0);
   return { ok: true, score, passed: passed2, feedbackLearned };
 }
 function grantKey(userId, category) {
@@ -26425,6 +26431,293 @@ async function openDirectoryWorkspace() {
   return { root: "/vh-mission", kind: "browser-fs-access", label: `User-picked directory (real disk, File System Access)`, fs: fs2 };
 }
 
+// src/vh19/byoa.ts
+var KEY4 = "vh19.byoa.agents.v1";
+function storage15() {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+var session2 = [];
+function listByoaAgents() {
+  const s = storage15();
+  if (!s) return session2;
+  try {
+    return JSON.parse(s.getItem(KEY4) ?? "[]");
+  } catch {
+    return session2;
+  }
+}
+function persist(all) {
+  const s = storage15();
+  if (s) {
+    try {
+      s.setItem(KEY4, JSON.stringify(all));
+      return;
+    } catch {
+    }
+  }
+  session2.length = 0;
+  session2.push(...all);
+}
+function registerByoaAgent(a) {
+  const agent = {
+    ...a,
+    id: `byoa.${a.name.toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 24) || Math.random().toString(36).slice(2, 8)}`,
+    addedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  persist([...listByoaAgents().filter((x) => x.id !== agent.id), agent]);
+  return agent;
+}
+function removeByoaAgent(id) {
+  const all = listByoaAgents().filter((a) => a.id !== id);
+  persist(all);
+  return all;
+}
+var sessionKeys = /* @__PURE__ */ new Map();
+function setByoaSessionKey(id, key) {
+  sessionKeys.set(id, key);
+}
+function byoaSessionKey(id) {
+  return sessionKeys.get(id) ?? null;
+}
+async function sha256Hex6(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+function byoaDelegate(agent, opts = {}) {
+  return async (d) => {
+    const at = (/* @__PURE__ */ new Date()).toISOString();
+    const gate = opts.gate;
+    if (gate) {
+      const decision = await gate({
+        action: `BYOA delegation \u2014 send task to external agent "${agent.name}"`,
+        summary: `kind ${agent.kind} \xB7 endpoint ${agent.endpoint} \xB7 ceiling ${agent.ceiling} \xB7 task: ${d.task.slice(0, 160)}`,
+        riskTier: agent.ceiling === "risky" ? "risky" : "safe",
+        specialistIds: []
+      });
+      if (!decision.approved) {
+        const digest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: false, detail: `denied at the gate: ${decision.reason ?? "no reason given"}`, at }));
+        return { ok: false, detail: `denied at the human gate${decision.reason ? ` \u2014 ${decision.reason}` : ""}`, receiptDigest: digest };
+      }
+    }
+    const fetchImpl = opts.fetchImpl ?? globalThis.fetch.bind(globalThis);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 2e4);
+    let detail;
+    let ok2 = false;
+    try {
+      if (agent.kind === "openai-compatible") {
+        const headers = { "content-type": "application/json" };
+        const key = byoaSessionKey(agent.id);
+        if (key) headers.authorization = `Bearer ${key}`;
+        const res = await fetchImpl(`${agent.endpoint.replace(/\/+$/, "")}/chat/completions`, {
+          method: "POST",
+          headers,
+          signal: controller.signal,
+          body: JSON.stringify({ model: agent.model ?? "default", messages: [{ role: "user", content: d.task }] })
+        });
+        if (!res.ok) {
+          detail = `the brought agent answered HTTP ${res.status}`;
+        } else {
+          const j = await res.json();
+          if (j.error?.message) detail = `the brought agent errored: ${j.error.message}`;
+          else {
+            ok2 = true;
+            detail = (j.choices?.[0]?.message?.content ?? "(empty reply)").slice(0, 1200);
+          }
+        }
+      } else {
+        const res = await fetchImpl(agent.endpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({ jsonrpc: "2.0", id: `vh-${Date.now()}`, method: "tasks/send", params: { id: `t-${Date.now()}`, message: { role: "user", parts: [{ type: "text", text: d.task }] } } })
+        });
+        if (!res.ok) {
+          detail = `the brought agent answered HTTP ${res.status}`;
+        } else {
+          const j = await res.json();
+          if (j.error?.message) detail = `the brought agent errored: ${j.error.message}`;
+          else {
+            ok2 = true;
+            detail = (j.result?.status?.message?.parts?.map((p) => p.text ?? "").join(" ") ?? `(state ${j.result?.status?.state ?? "unknown"})`).slice(0, 1200);
+          }
+        }
+      }
+    } catch (err) {
+      detail = `the brought agent could not be reached: ${err instanceof Error ? err.message : String(err)}`;
+    } finally {
+      clearTimeout(timer);
+    }
+    const receiptDigest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: ok2, detail: detail.slice(0, 400), at }));
+    return { ok: ok2, detail, receiptDigest };
+  };
+}
+
+// src/vh19/rsi.ts
+var RSI_FLOOR = [
+  "the human gate and its risk tiers",
+  "the autonomy exam and its pass threshold",
+  "the probe and verification suites and their pins",
+  "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
+  "this floor list itself \u2014 the loop cannot loosen the loop"
+];
+var KEY5 = "vh19.rsi.v1";
+function storage16() {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+var session3 = { topics: [], drafts: [] };
+function load2() {
+  const s = storage16();
+  if (!s) return session3;
+  try {
+    return JSON.parse(s.getItem(KEY5) ?? "");
+  } catch {
+    return session3;
+  }
+}
+function save5(st) {
+  const s = storage16();
+  if (s) {
+    try {
+      s.setItem(KEY5, JSON.stringify(st));
+      return;
+    } catch {
+    }
+  }
+  session3.topics = st.topics;
+  session3.drafts = st.drafts;
+}
+async function sha256Hex7(text) {
+  const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+function rsiState() {
+  return load2();
+}
+function rsiMemory() {
+  return load2().drafts.filter((d) => d.state === "applied");
+}
+function rsiCurriculum(userId = "local") {
+  const topics = [];
+  const mem = loadMemory(userId).slice(-60);
+  for (const d of mem.filter((x) => x.kind === "reject").slice(-6)) {
+    topics.push({
+      id: `topic.reject.${d.id}`,
+      subject: `Rejected work in "${(d.scenario ?? "").slice(0, 90)}" \u2014 correction: ${d.reason || "(no reason recorded)"}`,
+      source: "reject",
+      evidence: [d.id],
+      category: d.category ?? (d.specialistId ? getSpecialist(d.specialistId)?.category : void 0) ?? void 0
+    });
+  }
+  for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
+    topics.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
+  }
+  return topics.slice(0, 8);
+}
+var draftBody = (t) => `Procedure:
+1. When a task resembles "${t.subject.split("\u2014")[0].trim()}", recall this ledger event (${t.source}).
+2. Apply the recorded correction before answering; if the correction conflicts with a newer human decision, the NEWER decision wins.
+3. State in one line that this playbook came from the RSI loop, with its evidence id.
+Quality checklist: does the correction trace to a real ledger entry? does it tighten rather than widen discretion? would a reviewer accept it in one sentence?`;
+async function runRsiCycle(userId, opts = {}) {
+  const topics = rsiCurriculum(userId);
+  const st = load2();
+  const known = new Set(st.topics.map((t) => t.id));
+  const fresh = topics.filter((t) => !known.has(t.id));
+  st.topics = [...st.topics, ...fresh].slice(-40);
+  for (const t of fresh) {
+    let body = draftBody(t);
+    let provenance = "rsi-deterministic";
+    if (opts.provider) {
+      try {
+        const res = await complete(
+          opts.provider,
+          "You draft operational playbooks for a governed agent OS. Output ONLY markdown: a numbered Procedure (3-5 steps) and a Quality checklist (2-4 items). The playbook must TIGHTEN discretion, trace to the evidence given, and never touch gates, exams, risk tiers or verification.",
+          `Evidence (${t.source}): ${t.subject}
+Draft the playbook.`,
+          { fetchImpl: opts.fetchImpl, timeoutMs: 2e4 }
+        );
+        if (res.ok && res.text.trim().length > 40) {
+          body = res.text.trim().slice(0, 2400);
+          provenance = "rsi-provider";
+        }
+      } catch {
+      }
+    }
+    const name = `rsi.${t.source}.${t.id.split(".").pop()}`;
+    st.drafts.push({
+      id: `draft.${t.id}`,
+      topicId: t.id,
+      name,
+      description: `RSI draft from ${t.source} evidence \u2014 ${t.subject.slice(0, 110)}`,
+      body,
+      provenance,
+      digest: await sha256Hex7(`${t.id}
+${body}`),
+      state: "pending",
+      verifierNote: "verifier hierarchy: human approval now (strong) + exam regression at the next exam; intrinsic self-assessment is never a verifier (floor)",
+      category: t.category,
+      at: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  }
+  save5(st);
+  return st;
+}
+async function applyRsiDraft(draftId) {
+  const st = load2();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (!d) return { ok: false, error: "no such draft" };
+  if (d.state !== "pending") return { ok: false, error: `draft already ${d.state}` };
+  const skillMd = `---
+name: ${d.name}
+description: ${d.description.slice(0, 160)}
+category: ${d.category ?? "*"}
+---
+
+# RSI playbook ${d.name}
+
+${d.body}
+
+## Provenance
+Frozen RSI memory ${d.digest.slice(0, 16)}\u2026 \xB7 ${d.provenance} \xB7 ${d.at}. Applied by human decision; reverts exactly.`;
+  try {
+    await importSkillMd(skillMd, "pasted");
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+  d.state = "applied";
+  save5(st);
+  return { ok: true };
+}
+function rejectRsiDraft(draftId, reason) {
+  const st = load2();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (d && d.state === "pending") {
+    d.state = "rejected";
+    d.description = `${d.description} \xB7 rejected: ${reason}`;
+    save5(st);
+  }
+  return st;
+}
+function revertRsiMemory(draftId) {
+  const st = load2();
+  const d = st.drafts.find((x) => x.id === draftId);
+  if (d && d.state === "applied") {
+    removeImportedSkill(d.name);
+    d.state = "reverted";
+    save5(st);
+  }
+  return st;
+}
+
 // src/views/Vh19.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var USER = "local";
@@ -26516,6 +26809,12 @@ var Vh19 = () => {
   const [skillsTick, setSkillsTick] = (0, import_react.useState)(0);
   const [skillPaste, setSkillPaste] = (0, import_react.useState)("");
   const [skillNote, setSkillNote] = (0, import_react.useState)(null);
+  const [byoaAgents, setByoaAgents] = (0, import_react.useState)(() => listByoaAgents());
+  const [byoaTarget, setByoaTarget] = (0, import_react.useState)("bench");
+  const [byoaForm, setByoaForm] = (0, import_react.useState)({ name: "", kind: "openai-compatible", endpoint: "", model: "", ceiling: "safe", caps: "", key: "" });
+  const [rsiTick, setRsiTick] = (0, import_react.useState)(0);
+  const [rsiNote, setRsiNote] = (0, import_react.useState)(null);
+  const [rsiBusy, setRsiBusy] = (0, import_react.useState)(false);
   const seq = (0, import_react.useRef)(0);
   const threadEndRef = (0, import_react.useRef)(null);
   (0, import_react.useEffect)(() => {
@@ -26539,23 +26838,28 @@ var Vh19 = () => {
     setDisabled(disabledSpecialists());
     setTokens(usageReport());
   };
+  const gateFn = (ask) => {
+    const ruled = answerGateWithRules(ask);
+    if (ruled) return Promise.resolve(ruled);
+    return new Promise((resolve) => {
+      setDenyReason("");
+      setGateAsk({ ask, resolve });
+    });
+  };
+  const byoaSelected = byoaAgents.find((a) => a.id === byoaTarget) ?? null;
   const runDeps = () => ({
     provider,
-    gate: (ask) => {
-      const ruled = answerGateWithRules(ask);
-      if (ruled) return Promise.resolve(ruled);
-      return new Promise((resolve) => {
-        setDenyReason("");
-        setGateAsk({ ask, resolve });
-      });
-    },
+    gate: gateFn,
     onHandoff: (h) => {
       recordHandoff(h);
       setHandoffs(listHandoffs());
     },
     evidenceFetch: typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : void 0,
     workspaceRoot: ws?.root,
-    fsImpl: ws?.fs
+    fsImpl: ws?.fs,
+    /* BYOA: the Generalist hands work to a brought agent through the same
+       peer seam, same ledger, same gate — external is hostile-adjacent. */
+    peerDelegate: byoaSelected ? byoaDelegate(byoaSelected, { gate: gateFn, fetchImpl: typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : void 0 }) : void 0
   });
   const shipRun = async (text) => {
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, runDeps());
@@ -26572,7 +26876,7 @@ var Vh19 = () => {
     const userMsg = { id: seq.current, role: "user", text, ts: nowTime() };
     setMessages((m) => [...m, userMsg]);
     try {
-      const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, runDeps());
+      const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers }, ...byoaSelected ? { peer: byoaSelected.id } : {} }, runDeps());
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: nowTime() }]);
       refreshTeam();
@@ -26602,11 +26906,11 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
     setMessages((m) => m.map((x) => x.id === msg.id ? { ...x, feedback: kind } : x));
     refresh();
   };
-  const connectProvider = (cfg, persist) => {
+  const connectProvider = (cfg, persist2) => {
     setProvider(cfg);
     setTestResult(null);
     try {
-      if (persist) localStorage.setItem(PROVIDER_STORAGE_KEY, JSON.stringify(cfg));
+      if (persist2) localStorage.setItem(PROVIDER_STORAGE_KEY, JSON.stringify(cfg));
       else localStorage.removeItem(PROVIDER_STORAGE_KEY);
     } catch {
     }
@@ -26658,6 +26962,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
   const connStates = APP_CONNECTORS.map((c) => ({ c, st: connectorState(c.id) }));
   void connectorsTick;
   void skillsTick;
+  void rsiTick;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-door", children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-door-inner", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "px-top", children: [
@@ -26857,6 +27162,14 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: threadEndRef })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-composer", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "px-input px-route-select", value: byoaTarget, onChange: (e) => setByoaTarget(e.target.value), title: "who executes: the bench, or a brought agent (BYOA)", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "bench", children: "the bench" }),
+              byoaAgents.map((a) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("option", { value: a.id, children: [
+                "@",
+                a.name,
+                " \xB7 BYOA"
+              ] }, a.id))
+            ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
               "textarea",
               {
@@ -26981,7 +27294,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
               ] }),
               deskBody("connectors", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Connectors teach; they never add tools. A connected connector binds a generated playbook to its bench categories, riding only the existing SSRF-guarded net.fetch \u2014 every call still risky-tier, still gated, still receipted. No sixth tool, no silent egress." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "These are governed connector DECLARATIONS, not OAuth integrations: connecting one binds a generated playbook to its bench categories, riding only the existing SSRF-guarded net.fetch \u2014 every call still risky-tier, still gated, still receipted. No sixth tool, no silent egress. Native API execution arrives only with its own receipts, gates and probes." }),
                 connStates.map(({ c, st }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-quiet-title", style: { flex: 1 }, children: [
@@ -27014,6 +27327,145 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 ] }, c.id))
               ] }))
             ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-desk", "data-open": desk("byoa"), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "px-desk-head", onClick: () => {
+                toggleDesk("byoa");
+                setByoaAgents(listByoaAgents());
+              }, children: [
+                "BYOA \xB7 bring your own agent ",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
+              ] }),
+              deskBody("byoa", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Any external agent \u2014 yours, a colleague's, another vendor's \u2014 joins the mission UNDER VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Register a brought agent" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-stack", style: { marginTop: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", placeholder: "name (e.g. my-hermes)", value: byoaForm.name, onChange: (e) => setByoaForm((f) => ({ ...f, name: e.target.value })) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "px-input", style: { flex: 1 }, value: byoaForm.kind, onChange: (e) => setByoaForm((f) => ({ ...f, kind: e.target.value })), children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "openai-compatible", children: "OpenAI-compatible endpoint" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "a2a-http", children: "A2A JSON-RPC endpoint" })
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { className: "px-input", style: { flex: 1 }, value: byoaForm.ceiling, onChange: (e) => setByoaForm((f) => ({ ...f, ceiling: e.target.value })), children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "safe", children: "safe ceiling" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "risky", children: "risky ceiling" })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", placeholder: "endpoint URL", value: byoaForm.endpoint, onChange: (e) => setByoaForm((f) => ({ ...f, endpoint: e.target.value })) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", style: { flex: 1 }, placeholder: "model (optional)", value: byoaForm.model, onChange: (e) => setByoaForm((f) => ({ ...f, model: e.target.value })) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", style: { flex: 1 }, placeholder: "capabilities, comma-separated", value: byoaForm.caps, onChange: (e) => setByoaForm((f) => ({ ...f, caps: e.target.value })) })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", disabled: !byoaForm.name.trim() || !/^https?:\/\//.test(byoaForm.endpoint), onClick: () => {
+                      const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ""), model: byoaForm.model.trim() || void 0, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(",").map((x) => x.trim()).filter(Boolean) });
+                      if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
+                      setByoaForm((f) => ({ ...f, name: "", endpoint: "", model: "", caps: "", key: "" }));
+                      setByoaAgents(listByoaAgents());
+                    }, children: "Register" })
+                  ] })
+                ] }),
+                byoaAgents.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "No brought agents yet. Register one, then route to it from the composer's selector." }),
+                byoaAgents.map((a) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-quiet-title", style: { flex: 1 }, children: [
+                      a.name,
+                      " ",
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-chip", children: a.kind })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: `px-pill ${a.ceiling === "safe" ? "px-pill-ok" : "px-pill-warn"}`, children: [
+                      a.ceiling,
+                      " ceiling"
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-sub px-mono", style: { fontSize: 10.5 }, children: a.endpoint }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: a.capabilities.length > 0 ? `capabilities: ${a.capabilities.join(" \xB7 ")}` : "no declared capabilities" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", type: "password", placeholder: "session key (memory only)", style: { flex: 1 }, onChange: (e) => setByoaSessionKey(a.id, e.target.value) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
+                      setByoaTarget(a.id);
+                    }, children: "Route to it" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-danger px-btn-sm", onClick: () => {
+                      removeByoaAgent(a.id);
+                      setByoaAgents(listByoaAgents());
+                      if (byoaTarget === a.id) setByoaTarget("bench");
+                    }, children: "Remove" })
+                  ] })
+                ] }, a.id)),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", style: { fontStyle: "italic" }, children: "Inbound works the same way in reverse: issue a signed invitation here (Collaboration desk) and the external agent calls the Generalist through the host runtime's A2A endpoint \u2014 receipts both ways." })
+              ] }))
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-desk", "data-open": desk("rsi"), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "px-desk-head", onClick: () => {
+                toggleDesk("rsi");
+                setRsiTick((t) => t + 1);
+              }, children: [
+                "RSI \xB7 recursive self-improvement ",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
+              ] }),
+              deskBody("rsi", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Bounded, verifier-anchored RSI after the 2026 literature: a CURRICULUM scanned deterministically from the agent's own evidence ledger (rejections, gate denials, refused handoffs); an ACTOR that drafts frozen SKILL playbooks (one receipted provider call when a provider is wired, the raw correction otherwise); a VERIFIER hierarchy where human approval and the autonomy exam outrank everything and intrinsic self-assessment is never a verifier. Memory is frozen, digest-stamped, composed into prompts \u2014 no parameter updates \u2014 and reverts exactly." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Floor \u2014 the loop may never touch" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: RSI_FLOOR.join(" \xB7 ") })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", disabled: rsiBusy, onClick: async () => {
+                    setRsiBusy(true);
+                    try {
+                      const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : void 0 });
+                      setRsiNote(st.drafts.filter((d) => d.state === "pending").length > 0 ? `cycle complete \u2014 ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === "pending").length} pending draft(s). Nothing applies without your approval.` : "cycle complete \u2014 the ledger produced no new topics; nothing was invented.");
+                    } finally {
+                      setRsiBusy(false);
+                      setRsiTick((t) => t + 1);
+                    }
+                  }, children: rsiBusy ? "Scanning the ledger\u2026" : "Run improvement cycle" }),
+                  rsiNote && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-muted", children: rsiNote })
+                ] }),
+                rsiState().drafts.filter((d) => d.state === "pending").map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-quiet-title", style: { flex: 1 }, children: [
+                      d.name,
+                      " ",
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-chip", children: d.provenance })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-chip px-chip-mono", children: [
+                      "frozen ",
+                      d.digest.slice(0, 12),
+                      "\u2026"
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-sub", children: d.description }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted", style: { whiteSpace: "pre-wrap" }, children: [
+                    d.body.slice(0, 420),
+                    d.body.length > 420 ? "\u2026" : ""
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", style: { fontStyle: "italic" }, children: d.verifierNote }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", onClick: async () => {
+                      const r = await applyRsiDraft(d.id);
+                      setRsiNote(r.ok ? "Applied \u2014 frozen into the skill store, bound to the routed specialists, revertible below." : r.error ?? "apply failed");
+                      setRsiTick((t) => t + 1);
+                    }, children: "Apply (my decision)" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
+                      rejectRsiDraft(d.id, "user declined at the verifier");
+                      setRsiTick((t) => t + 1);
+                    }, children: "Reject" })
+                  ] })
+                ] }, d.id)),
+                rsiMemory().map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { opacity: 0.8 }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "px-muted", style: { flex: 1 }, children: [
+                    "frozen memory \xB7 ",
+                    d.name,
+                    " \xB7 ",
+                    d.at.slice(0, 10)
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
+                    revertRsiMemory(d.id);
+                    setRsiTick((t) => t + 1);
+                  }, children: "Revert" })
+                ] }, d.id))
+              ] }))
+            ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-desk", "data-open": desk("skills"), children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "px-desk-head", onClick: () => {
                 toggleDesk("skills");
@@ -27023,7 +27475,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
               ] }),
               deskBody("skills", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "One faithful SKILL.md importer for both ecosystems. Imported skills are playbooks with provenance \u2014 they compose into routed specialists' prompts and grant no tools. Gating metadata is respected: a skill needing binaries or env vars is ineligible on surfaces that cannot verify them, and says so." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "SKILL.md ecosystem import (not a runtime merge): one faithful parser for the OpenClaw and Hermes skill FORMAT. Imported skills are playbooks with provenance \u2014 they compose into routed specialists' prompts and grant no tools. Gating metadata is respected: a skill needing binaries or env vars is ineligible on surfaces that cannot verify them, and says so." }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
                     void importSkillMd(SAMPLE_OPENCLAW_SKILL, "openclaw").then(() => {
@@ -27515,7 +27967,11 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
               ] }),
               deskBody("bench", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "the router only fields enabled specialists \u2014 a disabled specialist is never routed to, never silently substituted. 19.4.0 added 160 broader specialists (product, business, legal, comms join as first-class categories)." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted", children: [
+                  "the router only fields enabled specialists \u2014 a disabled specialist is never routed to, never silently substituted. Composition, verifiable from catalogStats(): 460 seed specialists + 160 broader (19.4.0; product, business, legal, comms as first-class categories) = ",
+                  stats2.count,
+                  "."
+                ] }),
                 showBench ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "1fr", gap: 6, maxHeight: 340, overflowY: "auto" }, children: bench.map((s) => {
                   const on = !disabled.includes(s.id);
                   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { opacity: on ? 1 : 0.5 }, children: [
@@ -27746,6 +28202,12 @@ ok("the workspace seam is wired into the real door", html.includes("Workspace") 
 ok("app connectors are declared policies, not new tools", html.includes("App connectors") && /setConnectorConnected/.test(doorSrc) && html.includes("No sixth tool"));
 ok("skills import honors OpenClaw and Hermes with provenance", html.includes("OpenClaw") && html.includes("Hermes") && /importSkillMd/.test(doorSrc) && html.includes("SKILL.md") && /skillEligibility/.test(doorSrc));
 ok("the bench widened by 150 broader specialists (610 total)", stats.count >= 610, `count ${stats.count}`);
+section("3c. the 19.4.1 surfaces \u2014 BYOA, RSI, unified egress");
+ok("BYOA is wired through the Generalist's peer seam", /byoaDelegate/.test(doorSrc) && /peerDelegate: byoaSelected/.test(doorSrc) && html.includes("bring your own agent"));
+ok("every BYOA delegation is gated and ledgered", /gate: gateFn/.test(doorSrc) && /onHandoff/.test(doorSrc));
+ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc) && /RSI_FLOOR/.test(doorSrc) && html.includes("recursive self-improvement"));
+ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
+ok("the bench composition is stated, not asserted (460 seed + 160 broader)", html.includes("460 seed specialists + 160 broader"));
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

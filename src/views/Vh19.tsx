@@ -43,6 +43,8 @@ import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/connectors';
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
 import { createMemoryWorkspace, openDirectoryWorkspace, fsAccessSupported, type BrowserWorkspace } from '../vh19/browserWorkspace';
+import { byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
+import { applyRsiDraft, rejectRsiDraft, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiState, runRsiCycle } from '../vh19/rsi';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
 
 const USER = 'local';
@@ -155,6 +157,14 @@ export const Vh19: React.FC = () => {
   const [skillsTick, setSkillsTick] = useState(0);
   const [skillPaste, setSkillPaste] = useState('');
   const [skillNote, setSkillNote] = useState<string | null>(null);
+  /* 19.4.1 — BYOA: brought agents join under VH governance. */
+  const [byoaAgents, setByoaAgents] = useState<ByoaAgent[]>(() => listByoaAgents());
+  const [byoaTarget, setByoaTarget] = useState<string>('bench');
+  const [byoaForm, setByoaForm] = useState({ name: '', kind: 'openai-compatible' as 'openai-compatible' | 'a2a-http', endpoint: '', model: '', ceiling: 'safe' as 'safe' | 'risky', caps: '', key: '' });
+  /* 19.4.1 — RSI: bounded, verifier-anchored self-improvement. */
+  const [rsiTick, setRsiTick] = useState(0);
+  const [rsiNote, setRsiNote] = useState<string | null>(null);
+  const [rsiBusy, setRsiBusy] = useState(false);
   const seq = useRef(0);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -187,17 +197,27 @@ export const Vh19: React.FC = () => {
   /** The engine seam, one place: provider, gate, handoffs, the 19.3.0
       evidence fetch, and — 19.4.0 — the workspace root + fs adapter, so the
       shipped app runs the REAL tool loop instead of falling back toolless. */
+  const gateFn = (ask: GateAsk) => {
+    const ruled = answerGateWithRules(ask);
+    if (ruled) return Promise.resolve(ruled);
+    return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
+  };
+
+  /** The selected BYOA agent (19.4.1), if the user routed to one. */
+  const byoaSelected = byoaAgents.find((a) => a.id === byoaTarget) ?? null;
+
   const runDeps = () => ({
     provider,
-    gate: (ask: GateAsk) => {
-      const ruled = answerGateWithRules(ask);
-      if (ruled) return Promise.resolve(ruled);
-      return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
-    },
+    gate: gateFn,
     onHandoff: (h: { peer: string; task: string; outcome: 'delegated' | 'refused'; detail: string; receiptDigest?: string }) => { recordHandoff(h); setHandoffs(listHandoffs()); },
     evidenceFetch: typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : undefined,
     workspaceRoot: ws?.root,
     fsImpl: ws?.fs,
+    /* BYOA: the Generalist hands work to a brought agent through the same
+       peer seam, same ledger, same gate — external is hostile-adjacent. */
+    peerDelegate: byoaSelected
+      ? byoaDelegate(byoaSelected, { gate: gateFn, fetchImpl: typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : undefined })
+      : undefined,
   });
 
   const shipRun = async (text: string): Promise<RunResult> => {
@@ -216,7 +236,7 @@ export const Vh19: React.FC = () => {
     const userMsg: ChatMsg = { id: seq.current, role: 'user', text, ts: nowTime() };
     setMessages((m) => [...m, userMsg]);
     try {
-      const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, runDeps());
+      const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers }, ...(byoaSelected ? { peer: byoaSelected.id } : {}) }, runDeps());
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: nowTime() }]);
       refreshTeam();
@@ -304,6 +324,7 @@ export const Vh19: React.FC = () => {
   const connStates = APP_CONNECTORS.map((c) => ({ c, st: connectorState(c.id) }));
   void connectorsTick;
   void skillsTick;
+  void rsiTick;
 
   return (
     <div className="px-door">
@@ -469,6 +490,10 @@ export const Vh19: React.FC = () => {
           </div>
 
           <div className="px-composer">
+            <select className="px-input px-route-select" value={byoaTarget} onChange={(e) => setByoaTarget(e.target.value)} title="who executes: the bench, or a brought agent (BYOA)">
+              <option value="bench">the bench</option>
+              {byoaAgents.map((a) => <option key={a.id} value={a.id}>@{a.name} · BYOA</option>)}
+            </select>
             <textarea
               className="px-input px-composer-input"
               rows={1}
@@ -582,7 +607,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('connectors', (
                 <>
-                  <div className="px-muted">Connectors teach; they never add tools. A connected connector binds a generated playbook to its bench categories, riding only the existing SSRF-guarded net.fetch — every call still risky-tier, still gated, still receipted. No sixth tool, no silent egress.</div>
+                  <div className="px-muted">These are governed connector DECLARATIONS, not OAuth integrations: connecting one binds a generated playbook to its bench categories, riding only the existing SSRF-guarded net.fetch — every call still risky-tier, still gated, still receipted. No sixth tool, no silent egress. Native API execution arrives only with its own receipts, gates and probes.</div>
                   {connStates.map(({ c, st }) => (
                     <div key={c.id} className="px-quiet-card">
                       <div className="px-row">
@@ -603,6 +628,112 @@ export const Vh19: React.FC = () => {
               ))}
             </div>
 
+            {/* BYOA */}
+            <div className="px-desk" data-open={desk('byoa')}>
+              <button className="px-desk-head" onClick={() => { toggleDesk('byoa'); setByoaAgents(listByoaAgents()); }}>
+                BYOA · bring your own agent <span className="px-desk-caret">▸</span>
+              </button>
+              {deskBody('byoa', (
+                <>
+                  <div className="px-muted">Any external agent — yours, a colleague's, another vendor's — joins the mission UNDER VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only.</div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Register a brought agent</div>
+                    <div className="px-stack" style={{ marginTop: 6 }}>
+                      <input className="px-input" placeholder="name (e.g. my-hermes)" value={byoaForm.name} onChange={(e) => setByoaForm((f) => ({ ...f, name: e.target.value }))} />
+                      <div className="px-row">
+                        <select className="px-input" style={{ flex: 1 }} value={byoaForm.kind} onChange={(e) => setByoaForm((f) => ({ ...f, kind: e.target.value as 'openai-compatible' | 'a2a-http' }))}>
+                          <option value="openai-compatible">OpenAI-compatible endpoint</option>
+                          <option value="a2a-http">A2A JSON-RPC endpoint</option>
+                        </select>
+                        <select className="px-input" style={{ flex: 1 }} value={byoaForm.ceiling} onChange={(e) => setByoaForm((f) => ({ ...f, ceiling: e.target.value as 'safe' | 'risky' }))}>
+                          <option value="safe">safe ceiling</option>
+                          <option value="risky">risky ceiling</option>
+                        </select>
+                      </div>
+                      <input className="px-input" placeholder="endpoint URL" value={byoaForm.endpoint} onChange={(e) => setByoaForm((f) => ({ ...f, endpoint: e.target.value }))} />
+                      <div className="px-row">
+                        <input className="px-input" style={{ flex: 1 }} placeholder="model (optional)" value={byoaForm.model} onChange={(e) => setByoaForm((f) => ({ ...f, model: e.target.value }))} />
+                        <input className="px-input" style={{ flex: 1 }} placeholder="capabilities, comma-separated" value={byoaForm.caps} onChange={(e) => setByoaForm((f) => ({ ...f, caps: e.target.value }))} />
+                      </div>
+                      <button className="px-btn px-btn-primary px-btn-sm" disabled={!byoaForm.name.trim() || !/^https?:\/\//.test(byoaForm.endpoint)} onClick={() => {
+                        const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ''), model: byoaForm.model.trim() || undefined, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(',').map((x) => x.trim()).filter(Boolean) });
+                        if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
+                        setByoaForm((f) => ({ ...f, name: '', endpoint: '', model: '', caps: '', key: '' }));
+                        setByoaAgents(listByoaAgents());
+                      }}>Register</button>
+                    </div>
+                  </div>
+                  {byoaAgents.length === 0 && <div className="px-muted">No brought agents yet. Register one, then route to it from the composer's selector.</div>}
+                  {byoaAgents.map((a) => (
+                    <div key={a.id} className="px-quiet-card">
+                      <div className="px-row">
+                        <span className="px-quiet-title" style={{ flex: 1 }}>{a.name} <span className="px-chip">{a.kind}</span></span>
+                        <span className={`px-pill ${a.ceiling === 'safe' ? 'px-pill-ok' : 'px-pill-warn'}`}>{a.ceiling} ceiling</span>
+                      </div>
+                      <div className="px-quiet-sub px-mono" style={{ fontSize: 10.5 }}>{a.endpoint}</div>
+                      <div className="px-muted">{a.capabilities.length > 0 ? `capabilities: ${a.capabilities.join(' · ')}` : 'no declared capabilities'}</div>
+                      <div className="px-row" style={{ marginTop: 6 }}>
+                        <input className="px-input" type="password" placeholder="session key (memory only)" style={{ flex: 1 }} onChange={(e) => setByoaSessionKey(a.id, e.target.value)} />
+                        <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { setByoaTarget(a.id); }}>Route to it</button>
+                        <button className="px-btn px-btn-danger px-btn-sm" onClick={() => { removeByoaAgent(a.id); setByoaAgents(listByoaAgents()); if (byoaTarget === a.id) setByoaTarget('bench'); }}>Remove</button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="px-muted" style={{ fontStyle: 'italic' }}>Inbound works the same way in reverse: issue a signed invitation here (Collaboration desk) and the external agent calls the Generalist through the host runtime's A2A endpoint — receipts both ways.</div>
+                </>
+              ))}
+            </div>
+
+            {/* RSI */}
+            <div className="px-desk" data-open={desk('rsi')}>
+              <button className="px-desk-head" onClick={() => { toggleDesk('rsi'); setRsiTick((t) => t + 1); }}>
+                RSI · recursive self-improvement <span className="px-desk-caret">▸</span>
+              </button>
+              {deskBody('rsi', (
+                <>
+                  <div className="px-muted">Bounded, verifier-anchored RSI after the 2026 literature: a CURRICULUM scanned deterministically from the agent's own evidence ledger (rejections, gate denials, refused handoffs); an ACTOR that drafts frozen SKILL playbooks (one receipted provider call when a provider is wired, the raw correction otherwise); a VERIFIER hierarchy where human approval and the autonomy exam outrank everything and intrinsic self-assessment is never a verifier. Memory is frozen, digest-stamped, composed into prompts — no parameter updates — and reverts exactly.</div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Floor — the loop may never touch</div>
+                    <div className="px-muted">{RSI_FLOOR.join(' · ')}</div>
+                  </div>
+                  <div className="px-row">
+                    <button className="px-btn px-btn-primary px-btn-sm" disabled={rsiBusy} onClick={async () => {
+                      setRsiBusy(true);
+                      try {
+                        const st = await runRsiCycle(USER, { provider, fetchImpl: typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : undefined });
+                        setRsiNote(st.drafts.filter((d) => d.state === 'pending').length > 0 ? `cycle complete — ${st.topics.length} topic(s) from the ledger, ${st.drafts.filter((d) => d.state === 'pending').length} pending draft(s). Nothing applies without your approval.` : 'cycle complete — the ledger produced no new topics; nothing was invented.');
+                      } finally {
+                        setRsiBusy(false);
+                        setRsiTick((t) => t + 1);
+                      }
+                    }}>{rsiBusy ? 'Scanning the ledger…' : 'Run improvement cycle'}</button>
+                    {rsiNote && <span className="px-muted">{rsiNote}</span>}
+                  </div>
+                  {rsiState().drafts.filter((d) => d.state === 'pending').map((d) => (
+                    <div key={d.id} className="px-quiet-card">
+                      <div className="px-row">
+                        <span className="px-quiet-title" style={{ flex: 1 }}>{d.name} <span className="px-chip">{d.provenance}</span></span>
+                        <span className="px-chip px-chip-mono">frozen {d.digest.slice(0, 12)}…</span>
+                      </div>
+                      <div className="px-quiet-sub">{d.description}</div>
+                      <div className="px-muted" style={{ whiteSpace: 'pre-wrap' }}>{d.body.slice(0, 420)}{d.body.length > 420 ? '…' : ''}</div>
+                      <div className="px-muted" style={{ fontStyle: 'italic' }}>{d.verifierNote}</div>
+                      <div className="px-row" style={{ marginTop: 6 }}>
+                        <button className="px-btn px-btn-primary px-btn-sm" onClick={async () => { const r = await applyRsiDraft(d.id); setRsiNote(r.ok ? 'Applied — frozen into the skill store, bound to the routed specialists, revertible below.' : r.error ?? 'apply failed'); setRsiTick((t) => t + 1); }}>Apply (my decision)</button>
+                        <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { rejectRsiDraft(d.id, 'user declined at the verifier'); setRsiTick((t) => t + 1); }}>Reject</button>
+                      </div>
+                    </div>
+                  ))}
+                  {rsiMemory().map((d) => (
+                    <div key={d.id} className="px-row" style={{ opacity: 0.8 }}>
+                      <span className="px-muted" style={{ flex: 1 }}>frozen memory · {d.name} · {d.at.slice(0, 10)}</span>
+                      <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertRsiMemory(d.id); setRsiTick((t) => t + 1); }}>Revert</button>
+                    </div>
+                  ))}
+                </>
+              ))}
+            </div>
+
             {/* Skills import */}
             <div className="px-desk" data-open={desk('skills')}>
               <button className="px-desk-head" onClick={() => { toggleDesk('skills'); setSkillsTick((t) => t + 1); }}>
@@ -610,7 +741,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('skills', (
                 <>
-                  <div className="px-muted">One faithful SKILL.md importer for both ecosystems. Imported skills are playbooks with provenance — they compose into routed specialists' prompts and grant no tools. Gating metadata is respected: a skill needing binaries or env vars is ineligible on surfaces that cannot verify them, and says so.</div>
+                  <div className="px-muted">SKILL.md ecosystem import (not a runtime merge): one faithful parser for the OpenClaw and Hermes skill FORMAT. Imported skills are playbooks with provenance — they compose into routed specialists' prompts and grant no tools. Gating metadata is respected: a skill needing binaries or env vars is ineligible on surfaces that cannot verify them, and says so.</div>
                   <div className="px-row">
                     <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { void importSkillMd(SAMPLE_OPENCLAW_SKILL, 'openclaw').then(() => { setSkillsTick((t) => t + 1); setSkillNote('OpenClaw sample imported (todoist-tasks). It needs TODOIST_API_KEY + curl, so browser surfaces mark it ineligible — honestly.'); }); }}>Import OpenClaw sample</button>
                     <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { void importSkillMd(SAMPLE_HERMES_SKILL, 'hermes').then(() => { setSkillsTick((t) => t + 1); setSkillNote('Hermes sample imported (arxiv) — bound to research, eligible everywhere.'); }); }}>Import Hermes sample</button>
@@ -925,7 +1056,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('bench', (
                 <>
-                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. 19.4.0 added 160 broader specialists (product, business, legal, comms join as first-class categories).</div>
+                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, verifiable from catalogStats(): 460 seed specialists + 160 broader (19.4.0; product, business, legal, comms as first-class categories) = {stats.count}.</div>
                   {showBench ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
                       {bench.map((s) => {

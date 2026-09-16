@@ -1,12 +1,59 @@
-# Vouch Harbor 19.3.0 "Vanguard" — release verification record
+# Vouch Harbor 19.4.1 "Broader" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
-offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.)
+offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
 
-## The 19.3.0 record (specialists execute · Captains synthesize · the GuardRail retrieves)
+## The 19.4.1 record — BYOA, RSI, unified egress
+
+19.4.1 closes the pre-freeze review and adds two capabilities. **BYOA — bring
+your own agent**: external agents register (endpoint kind, capabilities, risk
+ceiling), join the Generalist through the existing peer seam, and every
+delegation pauses at the human gate and lands in the handoff ledger — the
+multi-agent story, under governance instead of in a walled garden. **RSI —
+recursive self-improvement, the bounded kind**: a deterministic curriculum over
+the agent's own evidence ledger, an actor that drafts frozen SKILL playbooks
+(one receipted provider call when wired, the raw correction otherwise), a
+verifier hierarchy where human approval and the autonomy exam outrank
+everything and intrinsic self-assessment is never a verifier, and a floor the
+loop can never touch. Fixes landed: evidence retrieval now rides the same
+`checkEgressUrl` SSRF guard as tool egress (one network policy; refusals
+receipted), the specialist count is stated as its composition (460 seed + 160
+broader = 620, verifiable from `catalogStats`), and connector/skill copy says
+exactly what it is (governed connector declarations; SKILL.md ecosystem
+import). Protocol v0.10.7; suites 120/119.
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `tsc --noEmit` | 0 errors |
+| Protocol selftest | `node protocol/test/selftest.js` | 171/171 |
+| Unit | `npm run unit` | 20/20 |
+| Theme (five-color) | `node tools/run-one-probe.mjs theme` | 11/11 |
+| Collab identity | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
+| Goals + session rules | `node tools/run-one-probe.mjs goals` | 26/26 |
+| Skills | `node tools/run-one-probe.mjs skills` | 16/16 |
+| Captains + multi-member + synthesis contract | `node tools/run-one-probe.mjs captains` | 38/38 |
+| Specialist tools + member agent loops | `node tools/run-one-probe.mjs agentTools` | 47/47 |
+| Captain synthesis | `node tools/run-one-probe.mjs synthesis` | 29/29 |
+| Live-data GuardRail (incl. retrieval + unified egress) | `node tools/run-one-probe.mjs liveData` | 27/27 |
+| The Shipyard | `node tools/run-one-probe.mjs shipyard` | 22/22 |
+| Legacy isolation | `node tools/run-one-probe.mjs legacyCompat` | 3/3 |
+| Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
+| Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
+| VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
+| Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
+| VH-19 door (incl. BYOA, RSI, egress pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 |
+| Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
+| Doc identity | `node tools/run-one-probe.mjs docIdentity` | 6/6 |
+| Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |
+| Bare-machine verify | `sh VERIFY.sh` | green |
+| Live fleet | `npm test` | 120/120 suites green |
+
+---
+
+## The 19.3.0 "Vanguard" record (history) (specialists execute · Captains synthesize · the GuardRail retrieves)
 
 19.3.0 answers the 19.2.0 review's three capability findings: specialists
 are executors now (workspace-wired members run a real act/observe loop
@@ -42,6 +89,8 @@ suites 120/119.
 | Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
 | Live fleet | `npm test` | 120/120 suites green |
+
+---
 
 ---
 

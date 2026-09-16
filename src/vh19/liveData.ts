@@ -22,6 +22,7 @@
  */
 
 import type { LiveDataVerdict, RetrievalRecord } from "./types";
+import { checkEgressUrl } from "../security/guardrail";
 
 /** Domains where freshness is a safety property, not a preference. */
 const LIVE_CATEGORIES = new Set(["research", "analysis"]);
@@ -114,8 +115,17 @@ export async function verifyLiveEvidence(
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), RETRIEVAL_TIMEOUT_MS);
     const fetchedAt = now().toISOString();
+    /* 19.4.1 — ONE network policy. The evidence path rides the same
+       checkEgressUrl SSRF guard as net.fetch; a model-cited URL gets no
+       privileges a tool call would not have. Refusals are receipted. */
+    const policy = checkEgressUrl(url);
+    if (!policy.ok) {
+      clearTimeout(timer);
+      retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `egress refused by the shared URL policy: ${policy.reason}` });
+      continue;
+    }
     try {
-      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.3 (evidence-retrieval)" } });
+      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.4 (evidence-retrieval)" } });
       if (!res.ok) {
         retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `HTTP ${res.status}` });
         continue;

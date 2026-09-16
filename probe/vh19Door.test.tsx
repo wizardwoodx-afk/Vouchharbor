@@ -98,6 +98,13 @@ ok("app connectors are declared policies, not new tools", html.includes("App con
 ok("skills import honors OpenClaw and Hermes with provenance", html.includes("OpenClaw") && html.includes("Hermes") && /importSkillMd/.test(doorSrc) && html.includes("SKILL.md") && /skillEligibility/.test(doorSrc));
 ok("the bench widened by 150 broader specialists (610 total)", stats.count >= 610, `count ${stats.count}`);
 
+section("3c. the 19.4.1 surfaces — BYOA, RSI, unified egress");
+ok("BYOA is wired through the Generalist's peer seam", /byoaDelegate/.test(doorSrc) && /peerDelegate: byoaSelected/.test(doorSrc) && html.includes("bring your own agent"));
+ok("every BYOA delegation is gated and ledgered", /gate: gateFn/.test(doorSrc) && /onHandoff/.test(doorSrc));
+ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc) && /RSI_FLOOR/.test(doorSrc) && html.includes("recursive self-improvement"));
+ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
+ok("the bench composition is stated, not asserted (460 seed + 160 broader)", html.includes("460 seed specialists + 160 broader"));
+
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

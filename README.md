@@ -1,6 +1,24 @@
-# Vouch Harbor 19.4.0 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.4.1 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
+
+### Why this beats the consumer agent wave (GROKBOT, MUSE and the rest)
+
+The 2026 consumer agents — xAI's GROKBOT, Meta's MUSE — are polished walled
+gardens: named first-party bots, shared cloud computers, taught tasks,
+routines, app connectors, human-approval pauses. Vouch Harbor ships the same
+surface area and then goes where none of them do:
+
+| They offer | Vouch Harbor ships instead |
+|---|---|
+| First-party named bots only | **BYOA** — any external agent registers under a declared risk ceiling and joins through the same gate + ledger (19.4.1) |
+| "Teach-a-Task" skills in their cloud | **Bounded RSI** — a curriculum from the agent's own evidence ledger drafts frozen, digest-stamped playbooks; apply/reject is always human; a floor the loop can never touch (19.4.1) |
+| Human-approval pauses | A graded human gate with risk tiers, receipts for APPROVALS AND REFUSALS, and a replayable audit chain |
+| Cloud-computer execution | On-device execution (File System Access API / Tauri shell) plus the same engine as an MCP router and an A2A host |
+| Conversational connectors | Governed connector declarations + SKILL.md ecosystem import — playbooks with provenance, no silent egress, one SSRF-guarded network policy |
+| No model picker, gated behind a heavy subscription | Bring your own model/provider endpoint; local-first; keys in memory only |
+
+They watch the screen; we sign the work.
 
 One product, one engine: you compose a crew, give it an outcome, and the
 Mission Loop runs the whole agent-work cycle — dispatch, inter-agent
@@ -442,7 +460,7 @@ RULE 5 (a capability claim is not a licence) and RULE 6 (rotation possession +
 revocation authority). The v0.10.2 "Fix1" history is preserved further down
 that file.
 
-- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 19.4.0: [VH-19.4-UPGRADE.md](VH-19.4-UPGRADE.md) · 19.3.0: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md) · 19.2.0: [VH-19.2-UPGRADE.md](VH-19.2-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 19.4.1: [VH-19.4-UPGRADE.md](VH-19.4-UPGRADE.md) · 19.3.0: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md) · 19.2.0: [VH-19.2-UPGRADE.md](VH-19.2-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
 - Problem map (what each feature exists to solve): [docs/PROBLEM-FOCUS.md](docs/PROBLEM-FOCUS.md)
 - Information architecture (one product, one spine): [docs/INFORMATION-ARCHITECTURE.md](docs/INFORMATION-ARCHITECTURE.md)
 

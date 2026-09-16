@@ -426,3 +426,10 @@
 @media (prefers-reduced-motion: reduce) {
   .px-splash-seal, .px-splash-title, .px-splash-sub, .px-splash-dots span { animation: none; opacity: 1; }
 }
+
+/* composer route selector (BYOA, 19.4.1) */
+.px-route-select {
+  width: auto; flex: 0 0 auto; max-width: 150px;
+  height: 40px; border-radius: 10px; font-size: 11.5px;
+  color: var(--px-ink-2); background: color-mix(in srgb, var(--px-porcelain) 60%, transparent);
+}

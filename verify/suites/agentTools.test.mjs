@@ -6759,7 +6759,7 @@ function skillsFor(specialist) {
   const ids = [...CATEGORY_SKILLS[specialist.category] ?? [], ...EXTRA_SKILLS[specialist.id] ?? []];
   const seen = /* @__PURE__ */ new Set();
   const seeded = ids.filter((i) => seen.has(i) ? false : (seen.add(i), true)).map((i) => getSkill(i)).filter((s) => s !== null);
-  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && s.category === specialist.category);
+  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && (s.category === specialist.category || s.category === "*"));
   const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
   return [...seeded, ...imported, ...connectors];
 }
@@ -6818,8 +6818,14 @@ async function verifyLiveEvidence(reply, claims, opts) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), RETRIEVAL_TIMEOUT_MS);
     const fetchedAt = now().toISOString();
+    const policy = checkEgressUrl(url);
+    if (!policy.ok) {
+      clearTimeout(timer);
+      retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `egress refused by the shared URL policy: ${policy.reason}` });
+      continue;
+    }
     try {
-      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.3 (evidence-retrieval)" } });
+      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.4 (evidence-retrieval)" } });
       if (!res.ok) {
         retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `HTTP ${res.status}` });
         continue;

@@ -227,7 +227,7 @@ export function skillsFor(specialist: Pick<Specialist, "id" | "category">): VhSk
   const ids = [...(CATEGORY_SKILLS[specialist.category] ?? []), ...(EXTRA_SKILLS[specialist.id] ?? [])];
   const seen = new Set<string>();
   const seeded = ids.filter((i) => (seen.has(i) ? false : (seen.add(i), true))).map((i) => getSkill(i)).filter((s): s is VhSkill => s !== null);
-  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && s.category === specialist.category);
+  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && (s.category === specialist.category || s.category === "*"));
   const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
   return [...seeded, ...imported, ...connectors];
 }

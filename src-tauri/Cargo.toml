@@ -1,6 +1,6 @@
 [package]
 name = "vouchharbor"
-version = "19.4.0"
+version = "19.4.1"
 description = "Vouch Harbor — Receipt OS for AI Agents"
 authors = ["the Vouch Harbor team"]
 edition = "2021"

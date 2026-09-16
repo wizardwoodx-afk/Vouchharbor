@@ -399,7 +399,7 @@ function skillsFor(specialist) {
   const ids = [...CATEGORY_SKILLS[specialist.category] ?? [], ...EXTRA_SKILLS[specialist.id] ?? []];
   const seen = /* @__PURE__ */ new Set();
   const seeded = ids.filter((i) => seen.has(i) ? false : (seen.add(i), true)).map((i) => getSkill(i)).filter((s) => s !== null);
-  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && s.category === specialist.category);
+  const imported = importedSkills().filter((s) => skillEligibility(s).eligible && (s.category === specialist.category || s.category === "*"));
   const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
   return [...seeded, ...imported, ...connectors];
 }
