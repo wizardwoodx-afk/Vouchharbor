@@ -44,7 +44,7 @@ import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/c
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
 import { createMemoryWorkspace, openDirectoryWorkspace, fsAccessSupported, type BrowserWorkspace } from '../vh19/browserWorkspace';
 import { byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
-import { applyRsiDraft, rejectRsiDraft, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiState, runRsiCycle } from '../vh19/rsi';
+import { applyRsiDraft, rejectRsiDraft, recordRsiSignal, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiPromotions, rsiSignals, rsiState, runRsiCycle } from '../vh19/rsi';
 import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse, ProviderConfig, ProviderKind, SpecialistCategory } from '../vh19/types';
 
 const USER = 'local';
@@ -160,6 +160,7 @@ export const Vh19: React.FC = () => {
   /* 19.4.1 — BYOA: brought agents join under VH governance. */
   const [byoaAgents, setByoaAgents] = useState<ByoaAgent[]>(() => listByoaAgents());
   const [byoaTarget, setByoaTarget] = useState<string>('bench');
+  const [byoaNote, setByoaNote] = useState<string | null>(null);
   const [byoaForm, setByoaForm] = useState({ name: '', kind: 'openai-compatible' as 'openai-compatible' | 'a2a-http', endpoint: '', model: '', ceiling: 'safe' as 'safe' | 'risky', caps: '', key: '' });
   /* 19.4.1 — RSI: bounded, verifier-anchored self-improvement. */
   const [rsiTick, setRsiTick] = useState(0);
@@ -198,9 +199,10 @@ export const Vh19: React.FC = () => {
       evidence fetch, and — 19.4.0 — the workspace root + fs adapter, so the
       shipped app runs the REAL tool loop instead of falling back toolless. */
   const gateFn = (ask: GateAsk) => {
+    const deny = (dec: GateDecision) => { if (!dec.approved) recordRsiSignal('gate', `Gate denied: ${ask.action} — ${dec.reason ?? 'no reason recorded'}`); return dec; };
     const ruled = answerGateWithRules(ask);
-    if (ruled) return Promise.resolve(ruled);
-    return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve }); });
+    if (ruled) return Promise.resolve(deny(ruled));
+    return new Promise<GateDecision>((resolve) => { setDenyReason(''); setGateAsk({ ask, resolve: (dec) => resolve(deny(dec)) }); });
   };
 
   /** The selected BYOA agent (19.4.1), if the user routed to one. */
@@ -237,6 +239,14 @@ export const Vh19: React.FC = () => {
     setMessages((m) => [...m, userMsg]);
     try {
       const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers }, ...(byoaSelected ? { peer: byoaSelected.id } : {}) }, runDeps());
+      /* RSI evidence ingestion (19.4.2): real failures become curriculum. */
+      if (resp.liveData && resp.liveData.verified === false) {
+        const urls = (resp.liveData.retrieval ?? []).map((r) => r.url);
+        recordRsiSignal('livedata', `Live-data claims did not verify: ${urls.join(', ').slice(0, 140) || 'no retrieval recorded'}`, urls.slice(0, 3));
+      }
+      if (resp.outcome === 'refused' || resp.outcome === 'error' || resp.outcome === 'gated-out' || resp.failure) {
+        recordRsiSignal('failure', `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
+      }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: nowTime() }]);
       refreshTeam();
@@ -656,11 +666,17 @@ export const Vh19: React.FC = () => {
                         <input className="px-input" style={{ flex: 1 }} placeholder="capabilities, comma-separated" value={byoaForm.caps} onChange={(e) => setByoaForm((f) => ({ ...f, caps: e.target.value }))} />
                       </div>
                       <button className="px-btn px-btn-primary px-btn-sm" disabled={!byoaForm.name.trim() || !/^https?:\/\//.test(byoaForm.endpoint)} onClick={() => {
-                        const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ''), model: byoaForm.model.trim() || undefined, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(',').map((x) => x.trim()).filter(Boolean) });
-                        if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
-                        setByoaForm((f) => ({ ...f, name: '', endpoint: '', model: '', caps: '', key: '' }));
-                        setByoaAgents(listByoaAgents());
+                        try {
+                          const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ''), model: byoaForm.model.trim() || undefined, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(',').map((x) => x.trim()).filter(Boolean) });
+                          if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
+                          setByoaForm((f) => ({ ...f, name: '', endpoint: '', model: '', caps: '', key: '' }));
+                          setByoaAgents(listByoaAgents());
+                          setByoaNote(`registered — trust intersection verified (endpoint policy · ceiling · declared capabilities are self-declared and NOT authoritative · identity)`);
+                        } catch (err) {
+                          setByoaNote(err instanceof Error ? err.message : String(err));
+                        }
                       }}>Register</button>
+                      {byoaNote && <div className="px-muted">{byoaNote}</div>}
                     </div>
                   </div>
                   {byoaAgents.length === 0 && <div className="px-muted">No brought agents yet. Register one, then route to it from the composer's selector.</div>}
@@ -696,6 +712,14 @@ export const Vh19: React.FC = () => {
                     <div className="px-quiet-title">Floor — the loop may never touch</div>
                     <div className="px-muted">{RSI_FLOOR.join(' · ')}</div>
                   </div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">Evidence intake — the full declared hierarchy, all five sources live</div>
+                    <div className="px-muted">{(() => {
+                      const sigs = rsiSignals();
+                      const by = (k: string) => sigs.filter((s) => s.kind === k).length;
+                      return `user rejection (from the decision ledger) · gate denials ${by('gate')} · execution failures ${by('failure')} · live-data unverified ${by('livedata')} · handoff refusals (from the handoff ledger) — nothing invented, every topic cites ledger evidence`;
+                    })()}</div>
+                  </div>
                   <div className="px-row">
                     <button className="px-btn px-btn-primary px-btn-sm" disabled={rsiBusy} onClick={async () => {
                       setRsiBusy(true);
@@ -730,6 +754,18 @@ export const Vh19: React.FC = () => {
                       <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertRsiMemory(d.id); setRsiTick((t) => t + 1); }}>Revert</button>
                     </div>
                   ))}
+                  {rsiPromotions().length > 0 && (
+                    <div className="px-quiet-card">
+                      <div className="px-quiet-title">Promotion ladder — applied ≠ trusted</div>
+                      <div className="px-muted">An applied playbook enters as "measuring" and can only be settled by a MEASURED comparison (candidate beats baseline) — the same discipline as the mission self-improve loop. Self-declared success has no API to call; retiring on losing measurements reverts the frozen memory exactly.</div>
+                      {rsiPromotions().map((p) => (
+                        <div key={p.id} className="px-row" style={{ marginTop: 4 }}>
+                          <span className="px-muted" style={{ flex: 1 }}>{p.name}</span>
+                          <span className={`px-pill ${p.state === 'adopted' ? 'px-pill-ok' : p.state === 'measuring' ? 'px-pill-warn' : 'px-pill-err'}`}>{p.state}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               ))}
             </div>
@@ -1056,7 +1092,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('bench', (
                 <>
-                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, verifiable from catalogStats(): 460 seed specialists + 160 broader (19.4.0; product, business, legal, comms as first-class categories) = {stats.count}.</div>
+                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader = {stats.count} (the broader bench adds product, business, legal and comms; counting seed() calls alone misses them).</div>
                   {showBench ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
                       {bench.map((s) => {

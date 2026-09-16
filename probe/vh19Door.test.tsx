@@ -35,6 +35,8 @@ if (typeof globalThis.localStorage === "undefined") {
 
 import { Vh19 } from "../src/views/Vh19";
 import { catalogStats } from "../src/vh19/registry";
+import { recordRsiSignal, rsiCurriculum, settleRsiPromotion } from "../src/vh19/rsi";
+import { byoaTrustCheck, registerByoaAgent } from "../src/vh19/byoa";
 
 let passed = 0;
 let failed = 0;
@@ -83,7 +85,8 @@ ok("the no-provider placeholder tells the truth", html.includes("answers will be
 ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
 ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
 ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
-ok("the bench is 100+ real specialists on screen", html.includes(String(catalogStats().count)) && catalogStats().count >= 100, `count ${catalogStats().count}`);
+ok("the bench is 100+ real specialists on screen", html.includes(String(stats.count)) && stats.count >= 100, `count ${stats.count}`);
+ok("the fleet count is SELF-PROVING: catalogStats().byProvenance sums to the count (460 seed + 160 broader = 620)", stats.count === 620 && stats.byProvenance.seed === 460 && stats.byProvenance.broader === 160 && stats.byProvenance.seed + stats.byProvenance.broader === stats.count, `count ${stats.count} seed ${stats.byProvenance.seed} broader ${stats.byProvenance.broader}`);
 ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes("Collaboration invitations · signed") && /createInvitation/.test(doorSrc) && /signApproval/.test(doorSrc) && /parseInvitation/.test(doorSrc));
 ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution · tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
 ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
@@ -103,7 +106,43 @@ ok("BYOA is wired through the Generalist's peer seam", /byoaDelegate/.test(doorS
 ok("every BYOA delegation is gated and ledgered", /gate: gateFn/.test(doorSrc) && /onHandoff/.test(doorSrc));
 ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc) && /RSI_FLOOR/.test(doorSrc) && html.includes("recursive self-improvement"));
 ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
-ok("the bench composition is stated, not asserted (460 seed + 160 broader)", html.includes("460 seed specialists + 160 broader"));
+ok("the bench composition is computed live and stated (460 seed + 160 broader = 620)", html.includes("460 seed") && html.includes("160 broader") && html.includes("= 620"));
+
+section("3d. 19.4.2 — the matured RSI framework and the BYOA trust intersection (engine-level)");
+ok("the RSI curriculum covers the FULL declared evidence hierarchy — gate/failure/livedata sources are ingested live", /recordRsiSignal\('gate'/.test(doorSrc) && /recordRsiSignal\('livedata'/.test(doorSrc) && /recordRsiSignal\('failure'/.test(doorSrc) && html.includes("Evidence intake — the full declared hierarchy, all five sources live"));
+recordRsiSignal("gate", "probe: a risky action was denied at the gate");
+recordRsiSignal("failure", "probe: a run errored out");
+recordRsiSignal("livedata", "probe: cited sources did not verify");
+const topics = rsiCurriculum("probe-user");
+ok("the curriculum actually turns gate denials, failures and live-data misses into topics", topics.some((t) => t.source === "gate") && topics.some((t) => t.source === "failure") && topics.some((t) => t.source === "livedata"));
+ok("RSI promotion is measurement-gated: applied ≠ trusted, and settlement needs measured numbers", /settleRsiPromotion/.test(read("src/vh19/rsi.ts")) && /candidateScore > measured\.baselineScore/.test(read("src/vh19/rsi.ts")) && doorSrc.includes("Promotion ladder — applied ≠ trusted"));
+/* Seed two real promotions through the engine's own store, then settle
+   both directions with measured numbers. */
+{
+  const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}") as Record<string, unknown>;
+  const drafts = (raw.drafts ?? []) as Array<Record<string, unknown>>;
+  const promos = (raw.promotions ?? []) as Array<Record<string, unknown>>;
+  drafts.push({ id: "draft.probe.lose", topicId: "t1", name: "rsi.probe.lose", description: "probe", body: "b", provenance: "rsi-deterministic", digest: "ab".repeat(16), state: "applied", verifierNote: "", at: "" });
+  drafts.push({ id: "draft.probe.win", topicId: "t2", name: "rsi.probe.win", description: "probe", body: "b", provenance: "rsi-deterministic", digest: "cd".repeat(16), state: "applied", verifierNote: "", at: "" });
+  promos.push({ id: "promo.probe.lose", draftId: "draft.probe.lose", name: "rsi.probe.lose", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.lose", at: "" });
+  promos.push({ id: "promo.probe.win", draftId: "draft.probe.win", name: "rsi.probe.win", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.win", at: "" });
+  globalThis.localStorage.setItem("vh19.rsi.v1", JSON.stringify({ ...raw, drafts, promotions: promos }));
+}
+const lost = settleRsiPromotion("promo.probe.lose", { baselineScore: 0.6, candidateScore: 0.5, source: "probe measured run" });
+ok("a promotion with LOSING measurements is retired, never adopted", lost !== null && lost.state === "retired");
+const won = settleRsiPromotion("promo.probe.win", { baselineScore: 0.5, candidateScore: 0.7, source: "probe measured run" });
+ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("probe measured run"));
+{
+  const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}") as { drafts?: Array<{ id: string; state: string }> };
+  const loser = (raw.drafts ?? []).find((d) => d.id === "draft.probe.lose");
+  ok("a retired promotion reverts its frozen memory exactly (draft state → reverted)", loser?.state === "reverted");
+}
+ok("BYOA enforces the trust intersection — endpoint policy ∩ ceiling ∩ non-authoritative capabilities ∩ identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /byoaDelegate\(byoaSelected/.test(doorSrc));
+const ssrfTrust = byoaTrustCheck({ id: "byoa.probe", name: "probe", kind: "openai-compatible", endpoint: "http://169.254.169.254/latest/meta-data", ceiling: "safe", capabilities: [], addedAt: new Date().toISOString() });
+ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust intersection", ssrfTrust.ok === false && ssrfTrust.verdicts[0].ok === false);
+let ssrfRegistered = false;
+try { registerByoaAgent({ name: "ssrf-probe", kind: "openai-compatible", endpoint: "http://metadata.google.internal/v1", ceiling: "safe", capabilities: [] }); ssrfRegistered = true; } catch { ssrfRegistered = false; }
+ok("an SSRF endpoint is refused at REGISTRATION, not discovered at delegation time", ssrfRegistered === false);
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

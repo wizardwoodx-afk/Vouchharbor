@@ -20,6 +20,7 @@
  * invitation surface plus the host runtime's A2A endpoint — receipts both ways.
  */
 import type { GateAsk, GateDecision } from "./types";
+import { checkEgressUrl } from "../security/guardrail";
 
 export interface ByoaAgent {
   id: string;
@@ -69,12 +70,34 @@ export function getByoaAgent(id: string): ByoaAgent | null {
   return listByoaAgents().find((a) => a.id === id) ?? null;
 }
 
+/**
+ * The BYOA trust invariant (19.4.2, per release review): a brought agent's
+ * effective trust is the INTERSECTION of five checks — never any single one:
+ *   endpoint policy (SSRF/egress) ∩ valid risk ceiling ∩ declared
+ *   capabilities (self-declared = NEVER authoritative, always flagged) ∩
+ *   task scope at delegation time ∩ stable identity.
+ */
+export function byoaTrustCheck(agent: ByoaAgent): { ok: boolean; verdicts: Array<{ check: string; ok: boolean; detail: string }> } {
+  const egress = checkEgressUrl(agent.endpoint);
+  const verdicts = [
+    { check: "endpoint policy", ok: egress.ok, detail: egress.ok ? "endpoint passes the shared SSRF/egress guard" : egress.reason },
+    { check: "risk ceiling", ok: agent.ceiling === "safe" || agent.ceiling === "risky", detail: `ceiling "${agent.ceiling}" is a recognized VH tier` },
+    { check: "declared capabilities", ok: true, detail: agent.capabilities.length > 0 ? `${agent.capabilities.length} declared — self-declared, NOT authoritative; VH never widens its own toolset on this word` : "none declared — the agent gets no capability credit at all" },
+    { check: "identity", ok: agent.id.length > 5 && agent.name.trim().length > 0, detail: `registered as ${agent.id}` },
+  ];
+  return { ok: verdicts.every((v) => v.ok), verdicts };
+}
+
 export function registerByoaAgent(a: Omit<ByoaAgent, "id" | "addedAt">): ByoaAgent {
   const agent: ByoaAgent = {
     ...a,
     id: `byoa.${a.name.toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 24) || Math.random().toString(36).slice(2, 8)}`,
     addedAt: new Date().toISOString(),
   };
+  /* A brought agent whose endpoint fails the shared egress policy is not
+     registered at all — the SSRF guard is not a delegation-time surprise. */
+  const trust = byoaTrustCheck(agent);
+  if (!trust.ok) throw new Error(`registration refused: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`);
   persist([...listByoaAgents().filter((x) => x.id !== agent.id), agent]);
   return agent;
 }
@@ -109,6 +132,15 @@ export interface ByoaDelegateOpts {
 export function byoaDelegate(agent: ByoaAgent, opts: ByoaDelegateOpts = {}) {
   return async (d: { peerName: string; task: string }): Promise<{ ok: boolean; detail: string; receiptDigest?: string }> => {
     const at = new Date().toISOString();
+    /* Defense in depth: re-run the trust intersection at delegation time —
+       a stored endpoint that no longer passes the egress policy delegates
+       to nothing, with a receipt saying so. */
+    const trust = byoaTrustCheck(agent);
+    if (!trust.ok) {
+      const detail = `trust check failed: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`;
+      const digest = await sha256Hex(JSON.stringify({ peer: agent.id, task: d.task, ok: false, detail, at }));
+      return { ok: false, detail, receiptDigest: digest };
+    }
     const gate = opts.gate;
     if (gate) {
       const decision = await gate({

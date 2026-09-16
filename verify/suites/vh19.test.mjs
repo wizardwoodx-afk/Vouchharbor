@@ -5761,7 +5761,13 @@ function specialistsForCategory(category) {
 function catalogStats() {
   const byRisk = {};
   for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
-  return { count: SPECIALISTS.length, categories: new Set(SPECIALISTS.map((s) => s.category)).size, byRisk };
+  const broader = BROADER_SPECIALISTS.length;
+  return {
+    count: SPECIALISTS.length,
+    categories: new Set(SPECIALISTS.map((s) => s.category)).size,
+    byRisk,
+    byProvenance: { seed: SPECIALISTS.length - broader, broader }
+  };
 }
 function catalogCanonical() {
   const rows = SPECIALISTS.map(

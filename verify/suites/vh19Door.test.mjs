@@ -23168,7 +23168,13 @@ function effectiveRiskTier(s) {
 function catalogStats() {
   const byRisk = {};
   for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
-  return { count: SPECIALISTS.length, categories: new Set(SPECIALISTS.map((s) => s.category)).size, byRisk };
+  const broader = BROADER_SPECIALISTS.length;
+  return {
+    count: SPECIALISTS.length,
+    categories: new Set(SPECIALISTS.map((s) => s.category)).size,
+    byRisk,
+    byProvenance: { seed: SPECIALISTS.length - broader, broader }
+  };
 }
 
 // src/vh19/skillsImport.ts
@@ -26462,12 +26468,24 @@ function persist(all) {
   session2.length = 0;
   session2.push(...all);
 }
+function byoaTrustCheck(agent) {
+  const egress = checkEgressUrl(agent.endpoint);
+  const verdicts = [
+    { check: "endpoint policy", ok: egress.ok, detail: egress.ok ? "endpoint passes the shared SSRF/egress guard" : egress.reason },
+    { check: "risk ceiling", ok: agent.ceiling === "safe" || agent.ceiling === "risky", detail: `ceiling "${agent.ceiling}" is a recognized VH tier` },
+    { check: "declared capabilities", ok: true, detail: agent.capabilities.length > 0 ? `${agent.capabilities.length} declared \u2014 self-declared, NOT authoritative; VH never widens its own toolset on this word` : "none declared \u2014 the agent gets no capability credit at all" },
+    { check: "identity", ok: agent.id.length > 5 && agent.name.trim().length > 0, detail: `registered as ${agent.id}` }
+  ];
+  return { ok: verdicts.every((v) => v.ok), verdicts };
+}
 function registerByoaAgent(a) {
   const agent = {
     ...a,
     id: `byoa.${a.name.toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 24) || Math.random().toString(36).slice(2, 8)}`,
     addedAt: (/* @__PURE__ */ new Date()).toISOString()
   };
+  const trust = byoaTrustCheck(agent);
+  if (!trust.ok) throw new Error(`registration refused: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`);
   persist([...listByoaAgents().filter((x) => x.id !== agent.id), agent]);
   return agent;
 }
@@ -26490,6 +26508,12 @@ async function sha256Hex6(text) {
 function byoaDelegate(agent, opts = {}) {
   return async (d) => {
     const at = (/* @__PURE__ */ new Date()).toISOString();
+    const trust = byoaTrustCheck(agent);
+    if (!trust.ok) {
+      const detail2 = `trust check failed: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`;
+      const digest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: false, detail: detail2, at }));
+      return { ok: false, detail: detail2, receiptDigest: digest };
+    }
     const gate = opts.gate;
     if (gate) {
       const decision = await gate({
@@ -26566,6 +26590,7 @@ var RSI_FLOOR = [
   "this floor list itself \u2014 the loop cannot loosen the loop"
 ];
 var KEY5 = "vh19.rsi.v1";
+var SIGNAL_CAP = 50;
 function storage16() {
   try {
     return typeof localStorage !== "undefined" ? localStorage : null;
@@ -26573,12 +26598,13 @@ function storage16() {
     return null;
   }
 }
-var session3 = { topics: [], drafts: [] };
+var session3 = { topics: [], drafts: [], signals: [], promotions: [] };
 function load2() {
   const s = storage16();
   if (!s) return session3;
   try {
-    return JSON.parse(s.getItem(KEY5) ?? "");
+    const p = JSON.parse(s.getItem(KEY5) ?? "");
+    return { topics: p.topics ?? [], drafts: p.drafts ?? [], signals: p.signals ?? [], promotions: p.promotions ?? [] };
   } catch {
     return session3;
   }
@@ -26594,6 +26620,8 @@ function save5(st) {
   }
   session3.topics = st.topics;
   session3.drafts = st.drafts;
+  session3.signals = st.signals;
+  session3.promotions = st.promotions;
 }
 async function sha256Hex7(text) {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -26605,11 +26633,24 @@ function rsiState() {
 function rsiMemory() {
   return load2().drafts.filter((d) => d.state === "applied");
 }
+function rsiSignals() {
+  return load2().signals;
+}
+function rsiPromotions() {
+  return load2().promotions;
+}
+function recordRsiSignal(kind, subject, evidence = []) {
+  const st = load2();
+  const sig = { id: `sig.${kind}.${st.signals.length + 1}.${Date.now().toString(36)}`, kind, subject: subject.slice(0, 200), evidence: evidence.slice(0, 4), at: (/* @__PURE__ */ new Date()).toISOString() };
+  st.signals = [...st.signals, sig].slice(-SIGNAL_CAP);
+  save5(st);
+  return sig;
+}
 function rsiCurriculum(userId = "local") {
-  const topics = [];
+  const topics2 = [];
   const mem = loadMemory(userId).slice(-60);
-  for (const d of mem.filter((x) => x.kind === "reject").slice(-6)) {
-    topics.push({
+  for (const d of mem.filter((x) => x.kind === "reject").slice(-4)) {
+    topics2.push({
       id: `topic.reject.${d.id}`,
       subject: `Rejected work in "${(d.scenario ?? "").slice(0, 90)}" \u2014 correction: ${d.reason || "(no reason recorded)"}`,
       source: "reject",
@@ -26617,10 +26658,13 @@ function rsiCurriculum(userId = "local") {
       category: d.category ?? (d.specialistId ? getSpecialist(d.specialistId)?.category : void 0) ?? void 0
     });
   }
-  for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
-    topics.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
+  for (const sig of load2().signals.slice(-9)) {
+    topics2.push({ id: `topic.${sig.kind}.${sig.id}`, subject: sig.subject, source: sig.kind, evidence: sig.evidence });
   }
-  return topics.slice(0, 8);
+  for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
+    topics2.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
+  }
+  return topics2.slice(0, 10);
 }
 var draftBody = (t) => `Procedure:
 1. When a task resembles "${t.subject.split("\u2014")[0].trim()}", recall this ledger event (${t.source}).
@@ -26628,10 +26672,10 @@ var draftBody = (t) => `Procedure:
 3. State in one line that this playbook came from the RSI loop, with its evidence id.
 Quality checklist: does the correction trace to a real ledger entry? does it tighten rather than widen discretion? would a reviewer accept it in one sentence?`;
 async function runRsiCycle(userId, opts = {}) {
-  const topics = rsiCurriculum(userId);
+  const topics2 = rsiCurriculum(userId);
   const st = load2();
   const known = new Set(st.topics.map((t) => t.id));
-  const fresh = topics.filter((t) => !known.has(t.id));
+  const fresh = topics2.filter((t) => !known.has(t.id));
   st.topics = [...st.topics, ...fresh].slice(-40);
   for (const t of fresh) {
     let body = draftBody(t);
@@ -26663,7 +26707,7 @@ Draft the playbook.`,
       digest: await sha256Hex7(`${t.id}
 ${body}`),
       state: "pending",
-      verifierNote: "verifier hierarchy: human approval now (strong) + exam regression at the next exam; intrinsic self-assessment is never a verifier (floor)",
+      verifierNote: "verifier hierarchy: human approval now (strong) + measured promotion before broad trust; intrinsic self-assessment is never a verifier (floor)",
       category: t.category,
       at: (/* @__PURE__ */ new Date()).toISOString()
     });
@@ -26694,8 +26738,35 @@ Frozen RSI memory ${d.digest.slice(0, 16)}\u2026 \xB7 ${d.provenance} \xB7 ${d.a
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
   d.state = "applied";
+  const promo = {
+    id: `promo.${d.id}`,
+    draftId: d.id,
+    name: d.name,
+    state: "measuring",
+    baseline: "no playbook",
+    candidate: d.name,
+    at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  st.promotions = [...st.promotions, promo].slice(-24);
   save5(st);
   return { ok: true };
+}
+function settleRsiPromotion(promoId, measured) {
+  const st = load2();
+  const p = st.promotions.find((x) => x.id === promoId);
+  if (!p || p.state !== "measuring") return null;
+  const won2 = Number.isFinite(measured.baselineScore) && Number.isFinite(measured.candidateScore) && measured.candidateScore > measured.baselineScore;
+  p.state = won2 ? "adopted" : "retired";
+  p.settledBy = `${measured.source} \xB7 baseline ${measured.baselineScore} vs candidate ${measured.candidateScore}`;
+  if (!won2) {
+    const d = st.drafts.find((x) => x.id === p.draftId);
+    if (d && d.state === "applied") {
+      removeImportedSkill(d.name);
+      d.state = "reverted";
+    }
+  }
+  save5(st);
+  return p;
 }
 function rejectRsiDraft(draftId, reason) {
   const st = load2();
@@ -26713,6 +26784,8 @@ function revertRsiMemory(draftId) {
   if (d && d.state === "applied") {
     removeImportedSkill(d.name);
     d.state = "reverted";
+    const p = st.promotions.find((x) => x.draftId === draftId);
+    if (p && p.state === "measuring") p.state = "retired";
     save5(st);
   }
   return st;
@@ -26811,6 +26884,7 @@ var Vh19 = () => {
   const [skillNote, setSkillNote] = (0, import_react.useState)(null);
   const [byoaAgents, setByoaAgents] = (0, import_react.useState)(() => listByoaAgents());
   const [byoaTarget, setByoaTarget] = (0, import_react.useState)("bench");
+  const [byoaNote, setByoaNote] = (0, import_react.useState)(null);
   const [byoaForm, setByoaForm] = (0, import_react.useState)({ name: "", kind: "openai-compatible", endpoint: "", model: "", ceiling: "safe", caps: "", key: "" });
   const [rsiTick, setRsiTick] = (0, import_react.useState)(0);
   const [rsiNote, setRsiNote] = (0, import_react.useState)(null);
@@ -26839,11 +26913,15 @@ var Vh19 = () => {
     setTokens(usageReport());
   };
   const gateFn = (ask) => {
+    const deny = (dec2) => {
+      if (!dec2.approved) recordRsiSignal("gate", `Gate denied: ${ask.action} \u2014 ${dec2.reason ?? "no reason recorded"}`);
+      return dec2;
+    };
     const ruled = answerGateWithRules(ask);
-    if (ruled) return Promise.resolve(ruled);
+    if (ruled) return Promise.resolve(deny(ruled));
     return new Promise((resolve) => {
       setDenyReason("");
-      setGateAsk({ ask, resolve });
+      setGateAsk({ ask, resolve: (dec2) => resolve(deny(dec2)) });
     });
   };
   const byoaSelected = byoaAgents.find((a) => a.id === byoaTarget) ?? null;
@@ -26877,6 +26955,13 @@ var Vh19 = () => {
     setMessages((m) => [...m, userMsg]);
     try {
       const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers }, ...byoaSelected ? { peer: byoaSelected.id } : {} }, runDeps());
+      if (resp.liveData && resp.liveData.verified === false) {
+        const urls = (resp.liveData.retrieval ?? []).map((r) => r.url);
+        recordRsiSignal("livedata", `Live-data claims did not verify: ${urls.join(", ").slice(0, 140) || "no retrieval recorded"}`, urls.slice(0, 3));
+      }
+      if (resp.outcome === "refused" || resp.outcome === "error" || resp.outcome === "gated-out" || resp.failure) {
+        recordRsiSignal("failure", `Run did not execute (${resp.outcome}): ${resp.note ?? resp.reply.slice(0, 120)}`);
+      }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: nowTime() }]);
       refreshTeam();
@@ -27357,11 +27442,17 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { className: "px-input", style: { flex: 1 }, placeholder: "capabilities, comma-separated", value: byoaForm.caps, onChange: (e) => setByoaForm((f) => ({ ...f, caps: e.target.value })) })
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", disabled: !byoaForm.name.trim() || !/^https?:\/\//.test(byoaForm.endpoint), onClick: () => {
-                      const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ""), model: byoaForm.model.trim() || void 0, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(",").map((x) => x.trim()).filter(Boolean) });
-                      if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
-                      setByoaForm((f) => ({ ...f, name: "", endpoint: "", model: "", caps: "", key: "" }));
-                      setByoaAgents(listByoaAgents());
-                    }, children: "Register" })
+                      try {
+                        const a = registerByoaAgent({ name: byoaForm.name.trim(), kind: byoaForm.kind, endpoint: byoaForm.endpoint.replace(/\/+$/, ""), model: byoaForm.model.trim() || void 0, ceiling: byoaForm.ceiling, capabilities: byoaForm.caps.split(",").map((x) => x.trim()).filter(Boolean) });
+                        if (byoaForm.key) setByoaSessionKey(a.id, byoaForm.key);
+                        setByoaForm((f) => ({ ...f, name: "", endpoint: "", model: "", caps: "", key: "" }));
+                        setByoaAgents(listByoaAgents());
+                        setByoaNote(`registered \u2014 trust intersection verified (endpoint policy \xB7 ceiling \xB7 declared capabilities are self-declared and NOT authoritative \xB7 identity)`);
+                      } catch (err) {
+                        setByoaNote(err instanceof Error ? err.message : String(err));
+                      }
+                    }, children: "Register" }),
+                    byoaNote && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: byoaNote })
                   ] })
                 ] }),
                 byoaAgents.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "No brought agents yet. Register one, then route to it from the composer's selector." }),
@@ -27407,6 +27498,14 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Floor \u2014 the loop may never touch" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: RSI_FLOOR.join(" \xB7 ") })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Evidence intake \u2014 the full declared hierarchy, all five sources live" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: (() => {
+                    const sigs = rsiSignals();
+                    const by = (k) => sigs.filter((s) => s.kind === k).length;
+                    return `user rejection (from the decision ledger) \xB7 gate denials ${by("gate")} \xB7 execution failures ${by("failure")} \xB7 live-data unverified ${by("livedata")} \xB7 handoff refusals (from the handoff ledger) \u2014 nothing invented, every topic cites ledger evidence`;
+                  })() })
                 ] }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", disabled: rsiBusy, onClick: async () => {
@@ -27463,7 +27562,15 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                     revertRsiMemory(d.id);
                     setRsiTick((t) => t + 1);
                   }, children: "Revert" })
-                ] }, d.id))
+                ] }, d.id)),
+                rsiPromotions().length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Promotion ladder \u2014 applied \u2260 trusted" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: 'An applied playbook enters as "measuring" and can only be settled by a MEASURED comparison (candidate beats baseline) \u2014 the same discipline as the mission self-improve loop. Self-declared success has no API to call; retiring on losing measurements reverts the frozen memory exactly.' }),
+                  rsiPromotions().map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", style: { marginTop: 4 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-muted", style: { flex: 1 }, children: p.name }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `px-pill ${p.state === "adopted" ? "px-pill-ok" : p.state === "measuring" ? "px-pill-warn" : "px-pill-err"}`, children: p.state })
+                  ] }, p.id))
+                ] })
               ] }))
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-desk", "data-open": desk("skills"), children: [
@@ -27968,9 +28075,13 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
               ] }),
               deskBody("bench", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-muted", children: [
-                  "the router only fields enabled specialists \u2014 a disabled specialist is never routed to, never silently substituted. Composition, verifiable from catalogStats(): 460 seed specialists + 160 broader (19.4.0; product, business, legal, comms as first-class categories) = ",
+                  "the router only fields enabled specialists \u2014 a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): ",
+                  stats2.byProvenance.seed,
+                  " seed + ",
+                  stats2.byProvenance.broader,
+                  " broader = ",
                   stats2.count,
-                  "."
+                  " (the broader bench adds product, business, legal and comms; counting seed() calls alone misses them)."
                 ] }),
                 showBench ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "1fr", gap: 6, maxHeight: 340, overflowY: "auto" }, children: bench.map((s) => {
                   const on = !disabled.includes(s.id);
@@ -28189,7 +28300,8 @@ ok("the no-provider placeholder tells the truth", html.includes("answers will be
 ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
 ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
 ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
-ok("the bench is 100+ real specialists on screen", html.includes(String(catalogStats().count)) && catalogStats().count >= 100, `count ${catalogStats().count}`);
+ok("the bench is 100+ real specialists on screen", html.includes(String(stats.count)) && stats.count >= 100, `count ${stats.count}`);
+ok("the fleet count is SELF-PROVING: catalogStats().byProvenance sums to the count (460 seed + 160 broader = 620)", stats.count === 620 && stats.byProvenance.seed === 460 && stats.byProvenance.broader === 160 && stats.byProvenance.seed + stats.byProvenance.broader === stats.count, `count ${stats.count} seed ${stats.byProvenance.seed} broader ${stats.byProvenance.broader}`);
 ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes("Collaboration invitations \xB7 signed") && /createInvitation/.test(doorSrc) && /signApproval/.test(doorSrc) && /parseInvitation/.test(doorSrc));
 ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution \xB7 tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
 ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
@@ -28207,7 +28319,45 @@ ok("BYOA is wired through the Generalist's peer seam", /byoaDelegate/.test(doorS
 ok("every BYOA delegation is gated and ledgered", /gate: gateFn/.test(doorSrc) && /onHandoff/.test(doorSrc));
 ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc) && /RSI_FLOOR/.test(doorSrc) && html.includes("recursive self-improvement"));
 ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
-ok("the bench composition is stated, not asserted (460 seed + 160 broader)", html.includes("460 seed specialists + 160 broader"));
+ok("the bench composition is computed live and stated (460 seed + 160 broader = 620)", html.includes("460 seed") && html.includes("160 broader") && html.includes("= 620"));
+section("3d. 19.4.2 \u2014 the matured RSI framework and the BYOA trust intersection (engine-level)");
+ok("the RSI curriculum covers the FULL declared evidence hierarchy \u2014 gate/failure/livedata sources are ingested live", /recordRsiSignal\('gate'/.test(doorSrc) && /recordRsiSignal\('livedata'/.test(doorSrc) && /recordRsiSignal\('failure'/.test(doorSrc) && html.includes("Evidence intake \u2014 the full declared hierarchy, all five sources live"));
+recordRsiSignal("gate", "probe: a risky action was denied at the gate");
+recordRsiSignal("failure", "probe: a run errored out");
+recordRsiSignal("livedata", "probe: cited sources did not verify");
+var topics = rsiCurriculum("probe-user");
+ok("the curriculum actually turns gate denials, failures and live-data misses into topics", topics.some((t) => t.source === "gate") && topics.some((t) => t.source === "failure") && topics.some((t) => t.source === "livedata"));
+ok("RSI promotion is measurement-gated: applied \u2260 trusted, and settlement needs measured numbers", /settleRsiPromotion/.test(read("src/vh19/rsi.ts")) && /candidateScore > measured\.baselineScore/.test(read("src/vh19/rsi.ts")) && doorSrc.includes("Promotion ladder \u2014 applied \u2260 trusted"));
+{
+  const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}");
+  const drafts = raw.drafts ?? [];
+  const promos = raw.promotions ?? [];
+  drafts.push({ id: "draft.probe.lose", topicId: "t1", name: "rsi.probe.lose", description: "probe", body: "b", provenance: "rsi-deterministic", digest: "ab".repeat(16), state: "applied", verifierNote: "", at: "" });
+  drafts.push({ id: "draft.probe.win", topicId: "t2", name: "rsi.probe.win", description: "probe", body: "b", provenance: "rsi-deterministic", digest: "cd".repeat(16), state: "applied", verifierNote: "", at: "" });
+  promos.push({ id: "promo.probe.lose", draftId: "draft.probe.lose", name: "rsi.probe.lose", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.lose", at: "" });
+  promos.push({ id: "promo.probe.win", draftId: "draft.probe.win", name: "rsi.probe.win", state: "measuring", baseline: "no playbook", candidate: "rsi.probe.win", at: "" });
+  globalThis.localStorage.setItem("vh19.rsi.v1", JSON.stringify({ ...raw, drafts, promotions: promos }));
+}
+var lost = settleRsiPromotion("promo.probe.lose", { baselineScore: 0.6, candidateScore: 0.5, source: "probe measured run" });
+ok("a promotion with LOSING measurements is retired, never adopted", lost !== null && lost.state === "retired");
+var won = settleRsiPromotion("promo.probe.win", { baselineScore: 0.5, candidateScore: 0.7, source: "probe measured run" });
+ok("a promotion with WINNING measurements is adopted, with the measured evidence named", won !== null && won.state === "adopted" && (won.settledBy ?? "").includes("probe measured run"));
+{
+  const raw = JSON.parse(globalThis.localStorage.getItem("vh19.rsi.v1") ?? "{}");
+  const loser = (raw.drafts ?? []).find((d) => d.id === "draft.probe.lose");
+  ok("a retired promotion reverts its frozen memory exactly (draft state \u2192 reverted)", loser?.state === "reverted");
+}
+ok("BYOA enforces the trust intersection \u2014 endpoint policy \u2229 ceiling \u2229 non-authoritative capabilities \u2229 identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /byoaDelegate\(byoaSelected/.test(doorSrc));
+var ssrfTrust = byoaTrustCheck({ id: "byoa.probe", name: "probe", kind: "openai-compatible", endpoint: "http://169.254.169.254/latest/meta-data", ceiling: "safe", capabilities: [], addedAt: (/* @__PURE__ */ new Date()).toISOString() });
+ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust intersection", ssrfTrust.ok === false && ssrfTrust.verdicts[0].ok === false);
+var ssrfRegistered = false;
+try {
+  registerByoaAgent({ name: "ssrf-probe", kind: "openai-compatible", endpoint: "http://metadata.google.internal/v1", ceiling: "safe", capabilities: [] });
+  ssrfRegistered = true;
+} catch {
+  ssrfRegistered = false;
+}
+ok("an SSRF endpoint is refused at REGISTRATION, not discovered at delegation time", ssrfRegistered === false);
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

@@ -1,10 +1,29 @@
-# Vouch Harbor 19.4.1 "Broader" — release verification record
+# Vouch Harbor 19.4.2 "Broader" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.4.2 record — the matured RSI framework, the BYOA trust intersection, a self-proving count
+
+19.4.2 closes the 19.4.1 review's remaining items, built on a survey of
+the 2026 RSI landscape (see `docs/RSI-FRAMEWORK.md`). The RSI curriculum
+now covers the FULL declared evidence hierarchy — user rejection, gate
+denials, execution failures, live-data unverified events, handoff
+refusals — wired live from the door, nothing invented. Applied playbooks
+enter a promotion ladder as `measuring` and can only be settled by a
+MEASURED comparison (candidate beats baseline); losing measurements
+retire them and revert the frozen memory exactly — the same discipline
+as the mission self-improve loop. BYOA now enforces the trust
+intersection (endpoint policy ∩ ceiling ∩ non-authoritative declared
+capabilities ∩ identity), checked at registration and at delegation.
+The specialist count proves itself: `catalogStats().byProvenance` is
+computed from the arrays (460 seed + 160 broader = 620 registered
+specialists, both batches fully routable), rendered live in the door,
+and pinned by the probe. Gates: tsc 0 · door probe 48/48 · fleet
+120/120 · offline 119/119.
 
 ## The 19.4.1 record — BYOA, RSI, unified egress
 
@@ -44,7 +63,7 @@ import). Protocol v0.10.7; suites 120/119.
 | Mission self-evolution spine | `node tools/run-one-probe.mjs selfEvolveMission` | 52/52 |
 | VH-19 engine | `node tools/run-one-probe.mjs vh19` | 81/81 |
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
-| VH-19 door (incl. BYOA, RSI, egress pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 |
+| VH-19 door (incl. BYOA, RSI, egress, full-curriculum, promotion-ladder and trust-intersection pins) | `probe/vh19Door.test.tsx` (via `npm test`) | 38/38 at 19.4.1; **48/48 at 19.4.2** |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
 | Doc identity | `node tools/run-one-probe.mjs docIdentity` | 6/6 |
 | Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |

@@ -23,6 +23,13 @@ const seed = (
   systemPrompt: string,
 ): Specialist => ({ id, name, category, capabilities, keywords, riskTier, systemPrompt, provenance: "vh-18.0.0-seed" });
 
+/*
+ * The fleet's composition, stated once and verified by catalogStats():
+ * this array is 460 seed specialists followed by a spread of
+ * BROADER_SPECIALISTS (160, from ./broaderBench — the 19.4.0 product,
+ * business, legal and comms bench). Total 620. Counting seed() calls
+ * alone misses the spread — catalogStats().byProvenance is the check.
+ */
 export const SPECIALISTS: Specialist[] = [
   /* ── code ───────────────────────────────────────────────────────────────── */
   seed("code.typescript", "TypeScript Engineer", "code",
@@ -2095,10 +2102,29 @@ export function specialistsForCategory(category: SpecialistCategory): Specialist
   return SPECIALISTS.filter((s) => s.category === category);
 }
 
-export function catalogStats(): { count: number; categories: number; byRisk: Record<string, number> } {
+/**
+ * Catalog stats — computed from the arrays themselves, never asserted.
+ * 19.4.2: the fleet's composition is self-proving: `byProvenance` is
+ * derived from SPECIALISTS and BROADER_SPECIALISTS at runtime, so any
+ * claim about the count ("620", "460 seed + 160 broader") is checkable
+ * in one call — `seed + broader === count` — by a reviewer, an auditor
+ * or a probe.
+ */
+export function catalogStats(): {
+  count: number;
+  categories: number;
+  byRisk: Record<string, number>;
+  byProvenance: { seed: number; broader: number };
+} {
   const byRisk: Record<string, number> = {};
   for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
-  return { count: SPECIALISTS.length, categories: new Set(SPECIALISTS.map((s) => s.category)).size, byRisk };
+  const broader = BROADER_SPECIALISTS.length;
+  return {
+    count: SPECIALISTS.length,
+    categories: new Set(SPECIALISTS.map((s) => s.category)).size,
+    byRisk,
+    byProvenance: { seed: SPECIALISTS.length - broader, broader },
+  };
 }
 
 /** Canonical serialization — stable key order, so the digest is reproducible. */

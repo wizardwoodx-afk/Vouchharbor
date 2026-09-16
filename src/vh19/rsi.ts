@@ -1,39 +1,36 @@
 /**
- * VH-19 — Recursive Self-Improvement, the Vouch Harbor way (19.4.1).
+ * VH-19 — Recursive Self-Improvement, the Vouch Harbor way (19.4.2).
  *
- * Two 2026 papers frame the field (both in the user's reading list):
+ * THE LANDSCAPE, AND WHERE THIS SITS (see docs/RSI-FRAMEWORK.md):
+ * every verified RSI system in the 2026 literature — AlphaEvolve, the
+ * Darwin Gödel Machine, Gödel Agent, STOP, AIDE², RSIAgent — improves
+ * against a FIXED external signal and is bounded. The production
+ * literature converges on the same checklist: external ground truth
+ * (never intrinsic self-judgment — Huang et al., ICLR 2024), capped
+ * iterations, promotion gates, rollback, evidence lineage. Vouch Harbor
+ * implements that checklist as product mechanics:
  *
- *   · the RSI survey (Chen et al.) separates BOUNDED self-refinement —
- *     convergent, evaluable, already practice — from open-ended RSI, and
- *     orders verifier signals into a hierarchy: formal verifiers strongest,
- *     intrinsic self-assessment WEAKEST; its failure modes (self-confirming
- *     loops, model collapse, diversity collapse) all follow from letting a
- *     loop verify itself;
- *   · RSIAgent (Zhu et al.) gets training-free RSI from a curriculum / actor /
- *     verifier trio that WRITES FROZEN MEMORY — reusable causal entries
- *     (condition → action → consequence) — reused at inference, no parameter
- *     updates.
+ *   CURRICULUM — deterministic scan of the agent's OWN evidence, all five
+ *     declared sources: user rejection, human-gate denial, execution
+ *     failure, live-data verification failure, peer/BYOA handoff refusal.
+ *     Nothing is invented; every topic cites ledger evidence.
+ *   ACTOR — drafts a frozen SKILL playbook per topic; with a provider, ONE
+ *     receipted call may refine wording. Provider proposes ≠ provider
+ *     decides: drafts stay pending until a human acts.
+ *   VERIFIER — the hierarchy from the RSI survey, honored in code: human
+ *     approval + the autonomy exam outrank everything; intrinsic
+ *     self-assessment is NEVER a verifier (floor).
+ *   PROMOTION — an applied playbook enters the promotion ladder as
+ *     'measuring'; it may only be settled by a MEASURED comparison
+ *     (candidate beats baseline) — the same discipline as the mission
+ *     self-improve loop (src/mission/selfImprove.ts). Self-declared
+ *     success retires nothing and adopts nothing.
+ *   MEMORY — frozen, digest-stamped, composed into prompts (no parameter
+ *     updates), reverts exactly.
  *
- * Vouch Harbor implements exactly the bounded, verifier-anchored side, in its
- * own identity — improvement as receipted, human-gated, revertible pipeline:
- *
- *   CURRICULUM  — deterministic scan of the agent's OWN evidence ledger:
- *                 rejected corrections, gate denials, classified failures,
- *                 unverified live-data events. No invented curriculum.
- *   ACTOR       — drafts a frozen SKILL playbook per topic; with a provider,
- *                 ONE receipted call refines the draft; without, the draft is
- *                 the deterministic correction itself. Memory entries carry
- *                 condition → action → consequence plus evidence digests.
- *   VERIFIER    — the hierarchy, honored: human accept/reject provenance and
- *                 the autonomy exam outrank everything; intrinsic
- *                 self-assessment is NEVER a verifier (floor). Applying a
- *                 draft is a human decision; every applied entry is frozen,
- *                 digest-stamped, composed into specialist prompts as a
- *                 playbook (no parameter updates), and reverts exactly.
- *
- * The floor is the product's answer to open-ended RSI: the loop may improve
- * playbooks and routing vocabulary; it may never touch the gate, the exam,
- * the verification suites, the risk tiers, or the floor list itself.
+ * The floor is the product's answer to open-ended RSI: the loop may
+ * improve playbooks; it may never touch the gate, the exam, the
+ * verification suites, the risk tiers, or the floor itself.
  */
 import { loadMemory } from "./memory";
 import { listHandoffs } from "./handoffs";
@@ -50,13 +47,34 @@ export const RSI_FLOOR = [
   "this floor list itself — the loop cannot loosen the loop",
 ];
 
+/** The full declared evidence hierarchy — every source is implemented. */
+export type RsiSource = "reject" | "gate" | "failure" | "livedata" | "handoff";
+
+export interface RsiSignal {
+  id: string;
+  kind: RsiSource;
+  subject: string;
+  evidence: string[];
+  at: string;
+}
+
 export interface RsiTopic {
   id: string;
   subject: string;
-  /** Where the curriculum came from — never invented. */
-  source: "reject" | "gate" | "failure" | "livedata" | "handoff";
+  source: RsiSource;
   evidence: string[];
   category?: string;
+}
+
+export interface RsiPromotion {
+  id: string;
+  draftId: string;
+  name: string;
+  state: "measuring" | "adopted" | "retired";
+  baseline: string;
+  candidate: string;
+  settledBy?: string;
+  at: string;
 }
 
 export interface RsiDraft {
@@ -75,24 +93,28 @@ export interface RsiDraft {
   at: string;
 }
 
-interface RsiState { topics: RsiTopic[]; drafts: RsiDraft[]; }
+interface RsiState { topics: RsiTopic[]; drafts: RsiDraft[]; signals: RsiSignal[]; promotions: RsiPromotion[]; }
 
 const KEY = "vh19.rsi.v1";
+const SIGNAL_CAP = 50;
 
 function storage(): Storage | null {
   try { return typeof localStorage !== "undefined" ? localStorage : null; } catch { return null; }
 }
-const session: RsiState = { topics: [], drafts: [] };
+const session: RsiState = { topics: [], drafts: [], signals: [], promotions: [] };
 
 function load(): RsiState {
   const s = storage();
   if (!s) return session;
-  try { return JSON.parse(s.getItem(KEY) ?? "") as RsiState; } catch { return session; }
+  try {
+    const p = JSON.parse(s.getItem(KEY) ?? "") as Partial<RsiState>;
+    return { topics: p.topics ?? [], drafts: p.drafts ?? [], signals: p.signals ?? [], promotions: p.promotions ?? [] };
+  } catch { return session; }
 }
 function save(st: RsiState): void {
   const s = storage();
   if (s) { try { s.setItem(KEY, JSON.stringify(st)); return; } catch { /* session-only */ } }
-  session.topics = st.topics; session.drafts = st.drafts;
+  session.topics = st.topics; session.drafts = st.drafts; session.signals = st.signals; session.promotions = st.promotions;
 }
 
 async function sha256Hex(text: string): Promise<string> {
@@ -102,13 +124,31 @@ async function sha256Hex(text: string): Promise<string> {
 
 export function rsiState(): RsiState { return load(); }
 export function rsiMemory(): RsiDraft[] { return load().drafts.filter((d) => d.state === "applied"); }
+export function rsiSignals(): RsiSignal[] { return load().signals; }
+export function rsiPromotions(): RsiPromotion[] { return load().promotions; }
+
+/* ── EVIDENCE INGEST — the five sources, wired from the live product ─────── */
+
+/**
+ * Called by the door on real events: a gate denial, an execution failure,
+ * a live-data verification that did not verify. The RSI loop only ever
+ * learns from events that actually happened and were receipted elsewhere.
+ */
+export function recordRsiSignal(kind: RsiSource, subject: string, evidence: string[] = []): RsiSignal {
+  const st = load();
+  const sig: RsiSignal = { id: `sig.${kind}.${st.signals.length + 1}.${Date.now().toString(36)}`, kind, subject: subject.slice(0, 200), evidence: evidence.slice(0, 4), at: new Date().toISOString() };
+  st.signals = [...st.signals, sig].slice(-SIGNAL_CAP);
+  save(st);
+  return sig;
+}
 
 /* ── CURRICULUM — the scan of the agent's own evidence ───────────────────── */
 
 export function rsiCurriculum(userId = "local"): RsiTopic[] {
   const topics: RsiTopic[] = [];
+  /* 1. user rejections — the strongest human signal */
   const mem = loadMemory(userId).slice(-60);
-  for (const d of mem.filter((x) => x.kind === "reject").slice(-6)) {
+  for (const d of mem.filter((x) => x.kind === "reject").slice(-4)) {
     topics.push({
       id: `topic.reject.${d.id}`,
       subject: `Rejected work in "${(d.scenario ?? "").slice(0, 90)}" — correction: ${d.reason || "(no reason recorded)"}`,
@@ -117,10 +157,15 @@ export function rsiCurriculum(userId = "local"): RsiTopic[] {
       category: d.category ?? (d.specialistId ? getSpecialist(d.specialistId)?.category : undefined) ?? undefined,
     });
   }
+  /* 2-4. gate denials, execution failures, live-data failures — ingested live */
+  for (const sig of load().signals.slice(-9)) {
+    topics.push({ id: `topic.${sig.kind}.${sig.id}`, subject: sig.subject, source: sig.kind, evidence: sig.evidence });
+  }
+  /* 5. peer/BYOA handoff refusals */
   for (const h of listHandoffs().filter((x) => x.outcome === "refused").slice(-3)) {
     topics.push({ id: `topic.handoff.${h.id}`, subject: `Refused delegation to ${h.peer}: ${h.detail.slice(0, 90)}`, source: "handoff", evidence: [h.id] });
   }
-  return topics.slice(0, 8);
+  return topics.slice(0, 10);
 }
 
 /* ── ACTOR — draft a frozen playbook per topic ───────────────────────────── */
@@ -159,7 +204,7 @@ export async function runRsiCycle(userId: string, opts: { provider?: ProviderCon
       provenance,
       digest: await sha256Hex(`${t.id}\n${body}`),
       state: "pending",
-      verifierNote: "verifier hierarchy: human approval now (strong) + exam regression at the next exam; intrinsic self-assessment is never a verifier (floor)",
+      verifierNote: "verifier hierarchy: human approval now (strong) + measured promotion before broad trust; intrinsic self-assessment is never a verifier (floor)",
       category: t.category,
       at: new Date().toISOString(),
     });
@@ -168,7 +213,7 @@ export async function runRsiCycle(userId: string, opts: { provider?: ProviderCon
   return st;
 }
 
-/* ── VERIFIER + frozen memory: apply is a human act; revert is exact ─────── */
+/* ── VERIFIER + frozen memory + the promotion ladder ─────────────────────── */
 
 export async function applyRsiDraft(draftId: string): Promise<{ ok: boolean; error?: string }> {
   const st = load();
@@ -182,8 +227,43 @@ export async function applyRsiDraft(draftId: string): Promise<{ ok: boolean; err
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
   d.state = "applied";
+  /* The promotion ladder: applied ≠ trusted. The playbook enters as
+     'measuring' and can only be settled by a MEASURED comparison —
+     the same discipline as src/mission/selfImprove.ts. */
+  const promo: RsiPromotion = {
+    id: `promo.${d.id}`,
+    draftId: d.id,
+    name: d.name,
+    state: "measuring",
+    baseline: "no playbook",
+    candidate: d.name,
+    at: new Date().toISOString(),
+  };
+  st.promotions = [...st.promotions, promo].slice(-24);
   save(st);
   return { ok: true };
+}
+
+/**
+ * Settle a promotion with MEASURED evidence only. A candidate may be
+ * adopted only if the measured score beats the baseline; anything else
+ * retires it. Self-declared success has no API to call — this is the only
+ * door, and it needs numbers from outside the loop.
+ */
+export function settleRsiPromotion(promoId: string, measured: { baselineScore: number; candidateScore: number; source: string }): RsiPromotion | null {
+  const st = load();
+  const p = st.promotions.find((x) => x.id === promoId);
+  if (!p || p.state !== "measuring") return null;
+  const won = Number.isFinite(measured.baselineScore) && Number.isFinite(measured.candidateScore) && measured.candidateScore > measured.baselineScore;
+  p.state = won ? "adopted" : "retired";
+  p.settledBy = `${measured.source} · baseline ${measured.baselineScore} vs candidate ${measured.candidateScore}`;
+  if (!won) {
+    /* retired = the frozen memory goes with it; revert is exact */
+    const d = st.drafts.find((x) => x.id === p.draftId);
+    if (d && d.state === "applied") { removeImportedSkill(d.name); d.state = "reverted"; }
+  }
+  save(st);
+  return p;
 }
 
 export function rejectRsiDraft(draftId: string, reason: string): RsiState {
@@ -199,6 +279,8 @@ export function revertRsiMemory(draftId: string): RsiState {
   if (d && d.state === "applied") {
     removeImportedSkill(d.name);
     d.state = "reverted";
+    const p = st.promotions.find((x) => x.draftId === draftId);
+    if (p && p.state === "measuring") p.state = "retired";
     save(st);
   }
   return st;
