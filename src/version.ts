@@ -4,7 +4,7 @@
  * README, BUILD-NATIVE, Cargo.lock, package-lock) must agree with this.
  * `probe/versionDrift.test.ts` enforces that.
  */
-export const VH_VERSION = "19.4.4";
+export const VH_VERSION = "19.4.5";
 export const VH_SHORT = "19.4";
 export const VH_CODENAME = "Broader";
 export const VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;

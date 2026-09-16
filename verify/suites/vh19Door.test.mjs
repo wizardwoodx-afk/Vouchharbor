@@ -26437,7 +26437,33 @@ async function openDirectoryWorkspace() {
   return { root: "/vh-mission", kind: "browser-fs-access", label: `User-picked directory (real disk, File System Access)`, fs: fs2 };
 }
 
+// src/domain/artifact.ts
+function hashString(str) {
+  let bytes;
+  if (typeof Buffer !== "undefined") {
+    bytes = Buffer.from(str, "utf8");
+  } else {
+    bytes = new TextEncoder().encode(str);
+  }
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= bytes[i];
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
 // src/vh19/byoa.ts
+var BYOA_SECURITY_POLICY = [
+  "TLS by default \u2014 plain http is refused except for localhost dev endpoints",
+  "the shared SSRF/egress guard applies to every brought endpoint",
+  "declared capabilities are self-declared and never authoritative",
+  "every delegation is human-gated and ledgered with a scoped receipt token",
+  "per-agent rate ceiling \u2014 10 delegations per rolling minute",
+  "response containment \u2014 external replies are size-capped and injection-scanned",
+  "identity digests \u2014 a tampered registration fails the trust check",
+  "session keys live in memory only"
+];
 var KEY4 = "vh19.byoa.agents.v1";
 function storage15() {
   try {
@@ -26468,22 +26494,37 @@ function persist(all) {
   session2.length = 0;
   session2.push(...all);
 }
+function byoaIdentityDigest(a) {
+  return hashString(`vh.byoa.identity.v1|${a.name}|${a.kind}|${a.endpoint}|${a.ceiling}`);
+}
 function byoaTrustCheck(agent) {
   const egress = checkEgressUrl(agent.endpoint);
+  let host = "";
+  try {
+    host = new URL(agent.endpoint).hostname.toLowerCase();
+  } catch {
+    host = "";
+  }
+  const isLocalDev = host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1";
+  const tlsOk = agent.endpoint.startsWith("https://") || agent.endpoint.startsWith("http://") && isLocalDev;
+  const identityOk = !agent.identityDigest || agent.identityDigest === byoaIdentityDigest(agent);
   const verdicts = [
+    { check: "transport", ok: tlsOk, detail: tlsOk ? agent.endpoint.startsWith("https://") ? "TLS endpoint" : "localhost dev endpoint \u2014 http tolerated" : "plain http to a non-local host is refused \u2014 TLS by default" },
     { check: "endpoint policy", ok: egress.ok, detail: egress.ok ? "endpoint passes the shared SSRF/egress guard" : egress.reason },
     { check: "risk ceiling", ok: agent.ceiling === "safe" || agent.ceiling === "risky", detail: `ceiling "${agent.ceiling}" is a recognized VH tier` },
     { check: "declared capabilities", ok: true, detail: agent.capabilities.length > 0 ? `${agent.capabilities.length} declared \u2014 self-declared, NOT authoritative; VH never widens its own toolset on this word` : "none declared \u2014 the agent gets no capability credit at all" },
-    { check: "identity", ok: agent.id.length > 5 && agent.name.trim().length > 0, detail: `registered as ${agent.id}` }
+    { check: "identity", ok: agent.id.length > 5 && agent.name.trim().length > 0 && identityOk, detail: identityOk ? `registered as ${agent.id}` : "identity digest mismatch \u2014 this stored agent was tampered with after registration" }
   ];
   return { ok: verdicts.every((v) => v.ok), verdicts };
 }
+var byoaRateGate = new RateGate(10, 6e4);
 function registerByoaAgent(a) {
   const agent = {
     ...a,
     id: `byoa.${a.name.toLowerCase().replace(/[^a-z0-9-]+/g, "-").slice(0, 24) || Math.random().toString(36).slice(2, 8)}`,
     addedAt: (/* @__PURE__ */ new Date()).toISOString()
   };
+  agent.identityDigest = byoaIdentityDigest(agent);
   const trust = byoaTrustCheck(agent);
   if (!trust.ok) throw new Error(`registration refused: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`);
   persist([...listByoaAgents().filter((x) => x.id !== agent.id), agent]);
@@ -26511,6 +26552,11 @@ function byoaDelegate(agent, opts = {}) {
     const trust = byoaTrustCheck(agent);
     if (!trust.ok) {
       const detail2 = `trust check failed: ${trust.verdicts.filter((v) => !v.ok).map((v) => v.detail).join("; ")}`;
+      const digest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: false, detail: detail2, at }));
+      return { ok: false, detail: detail2, receiptDigest: digest };
+    }
+    if (!byoaRateGate.check(agent.id)) {
+      const detail2 = "delegation rate ceiling reached (10 per rolling minute) \u2014 refused, receipted";
       const digest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: false, detail: detail2, at }));
       return { ok: false, detail: detail2, receiptDigest: digest };
     }
@@ -26576,25 +26622,14 @@ function byoaDelegate(agent, opts = {}) {
     } finally {
       clearTimeout(timer);
     }
-    const receiptDigest = await sha256Hex6(JSON.stringify({ peer: agent.id, task: d.task, ok: ok2, detail: detail.slice(0, 400), at }));
-    return { ok: ok2, detail, receiptDigest };
+    let findings;
+    if (ok2) {
+      const f = detectInjection(detail);
+      if (f.length > 0) findings = f.map((x) => x.code);
+    }
+    const receiptDigest = await sha256Hex6(JSON.stringify({ token: "vh.byoa.delegation.v1", peer: agent.id, identity: agent.identityDigest ?? "", ceiling: agent.ceiling, task: d.task, ok: ok2, detail: detail.slice(0, 400), findings: findings ?? [], at }));
+    return { ok: ok2, detail, receiptDigest, ...findings && findings.length > 0 ? { findings } : {} };
   };
-}
-
-// src/domain/artifact.ts
-function hashString(str) {
-  let bytes;
-  if (typeof Buffer !== "undefined") {
-    bytes = Buffer.from(str, "utf8");
-  } else {
-    bytes = new TextEncoder().encode(str);
-  }
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < bytes.length; i++) {
-    h ^= bytes[i];
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  return h.toString(16).padStart(8, "0");
 }
 
 // src/vh19/rsirals.ts
@@ -27362,9 +27397,10 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-thread", children: [
             messages.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-thread-empty", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-thread-empty-title", children: "Ask VH-19 anything." }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-thread-empty-sub", children: "Replies show which specialists routed and why, every tool receipt, the Captain's synthesis, and live-data stamps \u2014 and say plainly when nothing executed." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-thread-empty-sub", children: "Your task routes to the right specialists out of 620, runs with governed tools over your workspace, and comes back as one answer \u2014 routed reasoning, every tool receipt, and the Captain's synthesis included." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-row", style: { justifyContent: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }, children: ["Draft a mission brief for a launch checklist", "Research the current state of agent receipts", "Review this repo structure and suggest improvements"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => setInput(s), children: s }, s)) }),
               DEMO_PROVIDER && !provider && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-warn-text", style: { fontSize: 12, marginTop: 8 }, children: "A demo provider is available \u2014 connect it in the Provider desk to run for real." }),
-              !ws && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", style: { fontSize: 12, marginTop: 8 }, children: "No workspace attached \u2014 specialists will run toolless and say so." })
+              !ws && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", style: { fontSize: 12, marginTop: 8 }, children: "Attach a workspace (sandbox or a real folder) to unlock specialist tools." })
             ] }),
             messages.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: m.role === "user" ? "px-msg px-msg-user px-rise" : "px-msg px-msg-agent px-rise", children: m.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-bubble-user", children: [
               m.text,
@@ -27689,7 +27725,11 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
               ] }),
               deskBody("byoa", /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Any external agent \u2014 yours, a colleague's, another vendor's \u2014 joins the mission UNDER VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: "Any external agent \u2014 yours, a colleague's, another vendor's \u2014 joins the mission under VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only." }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "BYOA security \u2014 always on" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: BYOA_SECURITY_POLICY.map((p) => `\xB7 ${p}`).join("  ") })
+                ] }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-quiet-card", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-quiet-title", children: "Register a brought agent" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-stack", style: { marginTop: 6 }, children: [
@@ -27772,7 +27812,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-muted", children: (() => {
                     const sigs = rsiSignals();
                     const by = (k) => sigs.filter((s) => s.kind === k).length;
-                    return `user rejection (from the decision ledger) \xB7 gate denials ${by("gate")} \xB7 execution failures ${by("failure")} \xB7 live-data unverified ${by("livedata")} \xB7 handoff refusals (from the handoff ledger) \u2014 nothing invented, every topic cites ledger evidence`;
+                    return `What VH-19 learns from: your corrections (decision ledger) \xB7 gate decisions ${by("gate")} \xB7 run outcomes ${by("failure")} \xB7 evidence checks ${by("livedata")} \xB7 delegation results (handoff ledger). Every improvement topic cites real ledger evidence.`;
                   })() })
                 ] }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-row", children: [
@@ -28770,6 +28810,17 @@ ok("every RSI draft is born with a validated change contract", /contract: Change
 ok("attribution is honestly worded \u2014 failure-source attribution / arm routing, not counterfactual claims", /FAILURE-SOURCE ATTRIBUTION/.test(read("src/vh19/rsirals.ts")));
 var mon = longitudinalMonitor();
 ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
+section("3f. BYOA security hardening (19.4.5)");
+var byoaSrc = read("src/vh19/byoa.ts");
+ok("the BYOA security policy is stated in-product", BYOA_SECURITY_POLICY.length >= 6 && html.includes("BYOA security \u2014 always on"));
+ok("TLS by default \u2014 plain http to a remote host fails the trust intersection", byoaTrustCheck({ id: "byoa.p1", name: "p1", kind: "openai-compatible", endpoint: "http://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === false);
+ok("localhost dev endpoints are the ONLY tolerated http", byoaTrustCheck({ id: "byoa.p2", name: "p2", kind: "openai-compatible", endpoint: "http://localhost:8080/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === true);
+var stampedAgent = { id: "byoa.p3", name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "", identityDigest: byoaIdentityDigest({ name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe" }) };
+ok("registrations are identity-digest stamped", typeof stampedAgent.identityDigest === "string" && stampedAgent.identityDigest.length > 0);
+ok("a tampered stored agent fails the trust check (identity digest mismatch)", byoaTrustCheck({ ...stampedAgent, endpoint: "https://evil.example.com/v1" }).ok === false);
+for (let i = 0; i < 10; i++) byoaRateGate.check("byoa.flood-probe");
+ok("the per-agent delegation rate ceiling is enforced", byoaRateGate.check("byoa.flood-probe") === false && /byoaRateGate\.check\(agent\.id\)/.test(byoaSrc));
+ok("response containment: external replies are injection-scanned and the receipt is a scoped delegation token", /detectInjection\(detail\)/.test(byoaSrc) && /vh\.byoa\.delegation\.v1/.test(byoaSrc));
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
 ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));

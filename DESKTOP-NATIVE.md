@@ -1,4 +1,4 @@
-# Vouch Harbor 19.4.4 — Desktop native install (Windows 11)
+# Vouch Harbor 19.4.5 — Desktop native install (Windows 11)
 
 VH is a Tauri v2 desktop app for Windows 11. The web preview you see in a browser is the same React app with no
 native shell — it cannot spawn coding agents, touch the keyring, or write SQLite. Everything below
@@ -60,7 +60,7 @@ npm run tauri dev        # dev window, hot reload
 npm run tauri:build      # installer: nsis (Win x64)
 ```
 
-The bundle lands in `src-tauri\target\release\bundle\nsis\Vouch Harbor 19.4.4_x64-setup.exe`.
+The bundle lands in `src-tauri\target\release\bundle\nsis\Vouch Harbor 19.4.5_x64-setup.exe`.
 
 ## 5. Install a coding agent
 

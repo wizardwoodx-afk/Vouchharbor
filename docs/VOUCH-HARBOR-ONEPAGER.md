@@ -1,7 +1,7 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.4.4 · September 2026*
-*Companion to `PRESEED-PITCH.md` (the enterprise thesis) — this page is the brand layer and the product story as shipped.*
+*Vouch Harbor Labs · v19.4.5 · September 2026*
+*The brand layer and the product story as shipped.*
 
 ---
 

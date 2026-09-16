@@ -36,7 +36,7 @@ if (typeof globalThis.localStorage === "undefined") {
 import { Vh19 } from "../src/views/Vh19";
 import { catalogStats } from "../src/vh19/registry";
 import { recordRsiSignal, rsiCurriculum, settleRsiPromotion } from "../src/vh19/rsi";
-import { byoaTrustCheck, registerByoaAgent } from "../src/vh19/byoa";
+import { BYOA_SECURITY_POLICY, byoaIdentityDigest, byoaRateGate, byoaTrustCheck, registerByoaAgent, type ByoaAgent } from "../src/vh19/byoa";
 import {
   attributeEvidence, bindSettlementEvidence, controlPlaneFirewall, draftContract, exportThetaPairs,
   GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE,
@@ -176,6 +176,18 @@ ok("every RSI draft is born with a validated change contract", /contract: Change
 ok("attribution is honestly worded — failure-source attribution / arm routing, not counterfactual claims", /FAILURE-SOURCE ATTRIBUTION/.test(read("src/vh19/rsirals.ts")));
 const mon = longitudinalMonitor();
 ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate", mon.generations > 0 && mon.capabilityDrift.length > 0 && mon.costDrift.providerCallsBudget === GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle);
+
+section("3f. BYOA security hardening (19.4.5)");
+const byoaSrc = read("src/vh19/byoa.ts");
+ok("the BYOA security policy is stated in-product", BYOA_SECURITY_POLICY.length >= 6 && html.includes("BYOA security — always on"));
+ok("TLS by default — plain http to a remote host fails the trust intersection", byoaTrustCheck({ id: "byoa.p1", name: "p1", kind: "openai-compatible", endpoint: "http://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === false);
+ok("localhost dev endpoints are the ONLY tolerated http", byoaTrustCheck({ id: "byoa.p2", name: "p2", kind: "openai-compatible", endpoint: "http://localhost:8080/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === true);
+const stampedAgent: ByoaAgent = { id: "byoa.p3", name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "", identityDigest: byoaIdentityDigest({ name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe" }) };
+ok("registrations are identity-digest stamped", typeof stampedAgent.identityDigest === "string" && stampedAgent.identityDigest.length > 0);
+ok("a tampered stored agent fails the trust check (identity digest mismatch)", byoaTrustCheck({ ...stampedAgent, endpoint: "https://evil.example.com/v1" }).ok === false);
+for (let i = 0; i < 10; i++) byoaRateGate.check("byoa.flood-probe");
+ok("the per-agent delegation rate ceiling is enforced", byoaRateGate.check("byoa.flood-probe") === false && /byoaRateGate\.check\(agent\.id\)/.test(byoaSrc));
+ok("response containment: external replies are injection-scanned and the receipt is a scoped delegation token", /detectInjection\(detail\)/.test(byoaSrc) && /vh\.byoa\.delegation\.v1/.test(byoaSrc));
 
 section("4. the bench management surface lists real specialists");
 ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));

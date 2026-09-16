@@ -91,6 +91,14 @@ Without real receipts the bind step refuses in words. That makes the
 receipt-bound path the ONLY product-level settlement door — the
 anti-reward-hacking rung, enforced structurally (19.4.4).
 
+**Sealed, not attested — stated plainly.** The seal proves *measurement
+integrity* (these exact fields belong to this digest). It does NOT prove
+*provenance/authorship* (that a trusted execution system produced them) —
+the salt is public, and this is a local-first client, not a signing
+authority. Signed measurement provenance (receipt id + execution provenance
+bound into signed evidence) is the named next milestone; until then the
+honest claim is "sealed," never "cryptographically attested."
+
 ### Structured change contracts (primary enforcement, 19.4.4)
 
 Strings alone cannot prove a candidate safe, so the primary governance

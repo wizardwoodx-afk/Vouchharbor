@@ -43,7 +43,7 @@ import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/connectors';
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
 import { createMemoryWorkspace, openDirectoryWorkspace, fsAccessSupported, type BrowserWorkspace } from '../vh19/browserWorkspace';
-import { byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
+import { BYOA_SECURITY_POLICY, byoaDelegate, listByoaAgents, registerByoaAgent, removeByoaAgent, setByoaSessionKey, type ByoaAgent } from '../vh19/byoa';
 import { applyRsiDraft, rejectRsiDraft, recordRsiSignal, revertRsiMemory, RSI_FLOOR, rsiMemory, rsiPromotions, rsiSignals, rsiState, runRsiCycle, settleRsiPromotion } from '../vh19/rsi';
 import { bindSettlementEvidence, canaryWatchlist, controlPlaneFirewall, EVIDENCE_STACK, exportThetaPairs, GOVERNANCE_PLANE, longitudinalMonitor, RSIRALS_GOVERNANCE_CHANNEL, RSIRALS_LIFECYCLE, rsiArchive, rsiralsCanaryCheck, rsiralsExamScores, rsiralsOnApply, rsiralsOnFirewallBlock, rsiralsOnRevert, rsiralsOnSettle, rsiralsRecordExamScore, validateChangeContract } from '../vh19/rsirals';
 import { loadMemory } from '../vh19/memory';
@@ -378,11 +378,16 @@ export const Vh19: React.FC = () => {
               <div className="px-thread-empty">
                 <div className="px-thread-empty-title">Ask VH-19 anything.</div>
                 <div className="px-thread-empty-sub">
-                  Replies show which specialists routed and why, every tool receipt, the Captain's synthesis, and live-data stamps —
-                  and say plainly when nothing executed.
+                  Your task routes to the right specialists out of 620, runs with governed tools over your workspace, and comes back as one answer —
+                  routed reasoning, every tool receipt, and the Captain's synthesis included.
+                </div>
+                <div className="px-row" style={{ justifyContent: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                  {['Draft a mission brief for a launch checklist', 'Research the current state of agent receipts', 'Review this repo structure and suggest improvements'].map((s) => (
+                    <button key={s} className="px-btn px-btn-ghost px-btn-sm" onClick={() => setInput(s)}>{s}</button>
+                  ))}
                 </div>
                 {DEMO_PROVIDER && !provider && <div className="px-warn-text" style={{ fontSize: 12, marginTop: 8 }}>A demo provider is available — connect it in the Provider desk to run for real.</div>}
-                {!ws && <div className="px-muted" style={{ fontSize: 12, marginTop: 8 }}>No workspace attached — specialists will run toolless and say so.</div>}
+                {!ws && <div className="px-muted" style={{ fontSize: 12, marginTop: 8 }}>Attach a workspace (sandbox or a real folder) to unlock specialist tools.</div>}
               </div>
             )}
             {messages.map((m) => (
@@ -658,7 +663,11 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('byoa', (
                 <>
-                  <div className="px-muted">Any external agent — yours, a colleague's, another vendor's — joins the mission UNDER VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only.</div>
+                  <div className="px-muted">Any external agent — yours, a colleague's, another vendor's — joins the mission under VH governance: declared endpoint and capabilities, a risk ceiling it never exceeds, delegation through the Generalist's peer seam, every handoff paused at the human gate and stamped in the ledger. Keys live in memory for this session only.</div>
+                  <div className="px-quiet-card">
+                    <div className="px-quiet-title">BYOA security — always on</div>
+                    <div className="px-muted">{BYOA_SECURITY_POLICY.map((p) => `· ${p}`).join('  ')}</div>
+                  </div>
                   <div className="px-quiet-card">
                     <div className="px-quiet-title">Register a brought agent</div>
                     <div className="px-stack" style={{ marginTop: 6 }}>
@@ -730,7 +739,7 @@ export const Vh19: React.FC = () => {
                     <div className="px-muted">{(() => {
                       const sigs = rsiSignals();
                       const by = (k: string) => sigs.filter((s) => s.kind === k).length;
-                      return `user rejection (from the decision ledger) · gate denials ${by('gate')} · execution failures ${by('failure')} · live-data unverified ${by('livedata')} · handoff refusals (from the handoff ledger) — nothing invented, every topic cites ledger evidence`;
+                      return `What VH-19 learns from: your corrections (decision ledger) · gate decisions ${by('gate')} · run outcomes ${by('failure')} · evidence checks ${by('livedata')} · delegation results (handoff ledger). Every improvement topic cites real ledger evidence.`;
                     })()}</div>
                   </div>
                   <div className="px-row">

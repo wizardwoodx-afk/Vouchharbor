@@ -162,7 +162,7 @@ async function verifyIssuerSignature(chainHashHex, sigHex, publicKeyHex) {
 }
 
 // src/version.ts
-var VH_VERSION = "19.4.4";
+var VH_VERSION = "19.4.5";
 var VH_SHORT = "19.4";
 var VH_CODENAME = "Broader";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
