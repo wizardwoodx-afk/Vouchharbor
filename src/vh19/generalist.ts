@@ -15,21 +15,32 @@
  *   • risky + no gate        → outcome "refused"; risky work without a human
  *                              gate does not run, ever.
  *   • injection detected     → outcome "refused" with the finding codes.
+ *
+ * 19.3.0 "Vanguard" — the execution layer becomes real:
+ *   • members with a wired workspace run an ACT/ OBSERVE tool loop
+ *     (agentLoop.ts) — every tool call gated and receipted;
+ *   • multi-member runs end in the Captain's OWN synthesis call over the
+ *     members' real answers (synthesis.ts), divergences surfaced, not hidden;
+ *   • the live-data GuardRail FETCHES cited sources when an evidence fetch
+ *     is wired — "verified" then means retrieval, and the verdict says so.
  */
 import { uid } from "../app/id";
 import { detectInjection, sanitizeText } from "../security/guardrail";
 import { getSpecialist } from "./registry";
 import { buildSpecialistPrompt } from "./skills";
 import { estimateTokens, optimizeComposedPrompt, recordUsage } from "./tokenOptim";
-import { liveDataBanner, liveDataVerdict } from "./liveData";
+import { liveDataBanner, liveDataVerdict, verifyLiveEvidence } from "./liveData";
 import { buildCaptainReport, captainForRoute } from "./captains";
+import { buildSynthesisSystem, buildSynthesisUser, findDivergences } from "./synthesis";
+import { runMemberAgent } from "./agentLoop";
+import { stripToolBlocks } from "./tools";
 import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
 import { applyTeamPreference, autoProposeIfReady, recordTeamRun } from "./teamEvolve";
 import { autonomyCovers } from "./exam";
-import type { GeneralistDeps, GeneralistResponse, ProviderConfig, RouteDecision } from "./types";
+import type { GeneralistDeps, GeneralistResponse, ProviderConfig, RouteDecision, SynthesisRecord } from "./types";
 
 async function sha256Hex(text: string): Promise<string> {
   const buf = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -51,6 +62,7 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     captain: r.captain ?? null,
     failure: r.failure ?? null,
     liveData: r.liveData ?? null,
+    synthesis: r.synthesis ?? null,
   });
 }
 
@@ -71,11 +83,12 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
 
   /* The advisory layer is attached centrally so EVERY exit path carries it:
      the domain captain reports on the routed work, every non-execution is
-     classified with recovery advice, and the live-data GuardRail (19.2.0)
-     assesses every answered research/analysis reply at RUNTIME — a reply
-     making time-sensitive claims without dated live sources gets the
-     stale flag appended to the reply itself, inside the digest. All three
-     are computed from the response's own real fields. */
+     classified with recovery advice, and the live-data GuardRail (19.2.0;
+     19.3.0 retrieval upgrade) assesses every answered research/analysis
+     reply at RUNTIME. When an evidence fetch is wired, the GuardRail
+     FETCHES the cited sources and only a source that was actually retrieved
+     and contains the claim markers earns a "retrieval" stamp — otherwise
+     the stale flag is appended to the reply itself, inside the digest. */
   const finish = async (r: Omit<GeneralistResponse, "provenanceDigest">): Promise<GeneralistResponse> => {
     const captain = r.captain ?? (r.specialistIds.length > 0
       ? buildCaptainReport(captainForRoute(r.specialistIds)?.id ?? "", r.specialistIds.map((id) => ({ specialistId: id, outcome: r.outcome, note: r.note }))) ?? undefined
@@ -88,6 +101,24 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     if (r.outcome === "answered") {
       const verdict = liveDataVerdict(reply, r.specialistIds.map((id) => id.split(".")[0]));
       if (verdict) {
+        if (deps.evidenceFetch) {
+          // 19.3.0 — verification by REAL retrieval: fetch what the answer
+          // cites, look for the claims inside, and stamp accordingly.
+          const { retrieval, supported } = await verifyLiveEvidence(reply, verdict.claims, { fetchImpl: deps.evidenceFetch });
+          const retrievedCount = retrieval.filter((x) => x.status === "retrieved").length;
+          const hits = retrieval.reduce((n, x) => n + x.claimHits, 0);
+          verdict.retrieval = retrieval;
+          if (supported) {
+            verdict.verified = true;
+            verdict.verifiedBy = "retrieval";
+            verdict.note = `Time-sensitive claims VERIFIED BY RETRIEVAL — ${retrievedCount}/${retrieval.length} cited source(s) fetched, claim markers found inside (${hits} hit(s)).`;
+          } else {
+            verdict.verified = false;
+            verdict.note = `Time-sensitive claims NOT supported by retrieval — ${retrievedCount}/${retrieval.length} cited source(s) fetched, ${hits} claim hit(s). Flagged as unverified.`;
+          }
+        } else if (verdict.verified) {
+          verdict.verifiedBy = "disclosure";
+        }
         liveData = verdict;
         if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
       }
@@ -224,31 +255,55 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   const gateLine = "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.";
   const briefing = memoryBriefing(userId);
 
-  /* 19.2.0 — TRUE multi-member execution (the 19.1.0 review's first
-     finding): when the router selects several specialists, EACH member
-     gets its own provider call under its own composed prompt, its own
-     token-ledger entry, its own result and its own member receipt
-     digest. The Captain then reports on N real per-member results — the
-     hierarchy executes, it is not organizational metadata. One routed
-     specialist keeps the single-call path below. */
+  /* The 19.3.0 member execution seam: a workspace-wired member runs the real
+     act/observe loop (own provider calls, gated tool executions, receipts);
+     a toolless member keeps the exact 19.2.0 single-call semantics. */
+  const memberToolCtx = deps.workspaceRoot
+    ? { workspaceRoot: deps.workspaceRoot, gate: deps.gate, fetchImpl: deps.fetchImpl }
+    : undefined;
+
+  /* 19.2.0 — TRUE multi-member execution; 19.3.0 — with real member agent
+     loops and Captain synthesis on top:
+
+       route (up to 3 specialists)
+         ↓
+       EACH member: own agent loop (own calls, own gated tool receipts) →
+                    own result → own member receipt digest
+         ↓
+       divergence pass (claim atoms, computed not asserted)
+         ↓
+       Captain's OWN synthesis call → one coherent domain result
+         ↓
+       reply = synthesis + member evidence sections, never one shared
+       answer relabelled N ways, never a synthesis the Captain didn't run */
   if (specialists.length > 1) {
     const memberResults: { specialistId: string; outcome: string; note?: string; memberDigest?: string }[] = [];
+    const memberAnswers: { specialistId: string; text: string }[] = [];
     const sections: string[] = [];
     for (const s of specialists) {
-      const opt = optimizeComposedPrompt([buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n"));
-      const res = await complete(provider, opt.prompt, text, { fetchImpl: deps.fetchImpl });
-      recordUsage({
-        promptTokens: opt.estimatedTokens + estimateTokens(text),
-        replyTokens: estimateTokens(res.ok ? res.text : res.error),
-        optimized: opt.optimized,
-        savedTokens: opt.savedTokens,
+      const systemBase = [buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n");
+      const run = await runMemberAgent({
+        provider,
+        specialist: s,
+        task: text,
+        systemBase,
+        fetchImpl: deps.fetchImpl,
+        toolCtx: memberToolCtx,
+        hash: sha256Hex,
       });
-      if (res.ok) {
-        const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: res.model, text: res.text }));
+      if (run.ok) {
+        const digest = await sha256Hex(JSON.stringify({
+          v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: run.model, text: run.text,
+          tools: run.tools, truncated: run.truncated,
+          toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, digest: t.digest ?? null })),
+        }));
         memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
-        sections.push(`── ${s.name} (${s.id}) · answered · ${res.model} · ${res.latencyMs}ms · member receipt ${digest.slice(0, 12)}\n${res.text}`);
+        memberAnswers.push({ specialistId: s.id, text: run.text });
+        const toolLine = run.toolReceipts.length > 0 ? ` · ${run.toolReceipts.length} tool call(s) receipted` : "";
+        const truncLine = run.truncated ? "\n[agent loop reached its step limit — labelled honestly, not dressed as done]" : "";
+        sections.push(`── ${s.name} (${s.id}) · answered · ${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · member receipt ${digest.slice(0, 12)}\n${run.text}${truncLine}`);
       } else {
-        const note = `${res.kind}: ${redactSecrets(res.error, [provider.apiKey])}`;
+        const note = `${run.errorKind}: ${run.error}`;
         const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
         memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
         sections.push(`── ${s.name} (${s.id}) · ERROR — this member's own provider call failed\n${note}`);
@@ -256,24 +311,102 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     }
     const executedCount = memberResults.filter((m) => m.outcome === "answered").length;
     const captain = buildCaptainReport(captainForRoute(memberResults.map((m) => m.specialistId))?.id ?? "", memberResults) ?? undefined;
-    const header = `${captain?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists — each section below is that member's OWN provider run, not one shared answer:`;
+
+    /* 19.3.0 — Captain synthesis: the Captain reasons over the executed
+       members' real answers in its OWN provider call. Honest edges: only
+       executed answers are synthesized; a failed synthesis call keeps every
+       member answer and says so; single-member runs never synthesize. */
+    let synthesis: SynthesisRecord | undefined;
+    let synthesisFailure = "";
+    const synthCaptain = captainForRoute(memberAnswers.map((m) => m.specialistId));
+    if (executedCount >= 2 && synthCaptain) {
+      const divergences = findDivergences(memberAnswers);
+      const synthSystem = buildSynthesisSystem(synthCaptain);
+      const synthUser = buildSynthesisUser(
+        text,
+        memberAnswers.map((m) => ({ name: getSpecialist(m.specialistId)?.name ?? m.specialistId, text: m.text })),
+        divergences,
+      );
+      const optimizedSynth = optimizeComposedPrompt(synthSystem);
+      const sres = await complete(provider, optimizedSynth.prompt, synthUser, { fetchImpl: deps.fetchImpl });
+      recordUsage({
+        promptTokens: optimizedSynth.estimatedTokens + estimateTokens(synthUser),
+        replyTokens: estimateTokens(sres.ok ? sres.text : sres.error),
+        optimized: optimizedSynth.optimized,
+        savedTokens: optimizedSynth.savedTokens,
+      });
+      if (sres.ok) {
+        // Defence in depth: the Captain synthesizes — it never executes tools
+        // here, so any stray tool fence in the model output is stripped
+        // before the text reaches the user or the digest.
+        const synthText = stripToolBlocks(sres.text);
+        const digest = await sha256Hex(JSON.stringify({
+          v: "vh19-synthesis/1", captainId: synthCaptain.id, text: synthText,
+          memberDigests: memberResults.filter((m) => m.outcome === "answered").map((m) => m.memberDigest),
+          divergences,
+        }));
+        synthesis = { text: synthText, captainId: synthCaptain.id, captainName: synthCaptain.name, model: sres.model, latencyMs: sres.latencyMs, digest, divergences };
+      } else {
+        synthesisFailure = `Captain synthesis was attempted and FAILED (${sres.kind}: ${redactSecrets(sres.error, [provider.apiKey])}) — the member answers below stand on their own.`;
+      }
+    }
+
+    const header = `${captain?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists — each section below is that member's OWN provider run${synthesis ? ", and the synthesis above them is the captain's OWN reasoned result" : ""}:`;
+    const body = synthesis
+      ? `── CAPTAIN SYNTHESIS (${synthesis.captainName} · ${synthesis.model} · synthesis receipt ${synthesis.digest?.slice(0, 12)}…) ──\n${synthesis.text}\n\n── MEMBER EVIDENCE (each its own execution) ──\n\n${sections.join("\n\n")}`
+      : sections.join("\n\n");
     return finish({
-      reply: `${header}\n\n${sections.join("\n\n")}`,
+      reply: `${header}\n\n${synthesisFailure ? `${synthesisFailure}\n\n` : ""}${body}`,
       routed,
       executed: executedCount > 0,
       outcome: executedCount > 0 ? "answered" : "error",
       specialistIds: memberResults.map((m) => m.specialistId),
       captain,
-      note: `${executedCount} of ${memberResults.length} routed members executed — each with its own call, result and member receipt`,
+      synthesis,
+      note: `${executedCount} of ${memberResults.length} routed members executed — each with its own agent loop and member receipt` +
+        (synthesis ? ` · captain synthesis ${synthesis.digest?.slice(0, 12)}… over ${synthesis.divergences.membersCompared} executed member(s)` : synthesisFailure ? " · synthesis attempted, failed honestly" : ""),
     });
   }
 
   const primary = specialists[0] ?? null;
-  /* The token optimizer: every composed prompt is measured and
-     budget-fitted before it leaves, and every call is written to the
-     local usage ledger. Estimates are labelled as estimates. */
+  /* Single routed member (or none): the member agent loop with its tools
+     when a workspace is wired, the plain generalist call when not. */
+  if (primary) {
+    const systemBase = [buildSpecialistPrompt(primary), gateLine, ...briefing].join("\n\n");
+    const run = await runMemberAgent({
+      provider,
+      specialist: primary,
+      task: text,
+      systemBase,
+      fetchImpl: deps.fetchImpl,
+      toolCtx: memberToolCtx,
+      hash: sha256Hex,
+    });
+    if (!run.ok) {
+      return finish({
+        reply: `The provider call did not complete (${run.errorKind}): ${run.error}`,
+        routed,
+        executed: false,
+        outcome: "error",
+        specialistIds: specialists.map((s) => s.id),
+        note: redactSecrets(run.error ?? "", [provider.apiKey]),
+      });
+    }
+    const toolLine = run.toolReceipts.length > 0 ? ` · ${run.toolReceipts.length} tool call(s) receipted` : "";
+    return finish({
+      reply: run.text + (run.truncated ? "\n\n[agent loop reached its step limit — labelled honestly]" : ""),
+      routed,
+      executed: true,
+      outcome: "answered",
+      specialistIds: specialists.map((s) => s.id),
+      note: `provider ${provider.kind}/${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · accept or reject this answer so I can learn${
+        autonomyEarned ? " · running under earned autonomy (override always available)" : ""
+      }`,
+    });
+  }
+
   const composedSystem = [
-    primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     gateLine,
     ...briefing,
   ].join("\n\n");

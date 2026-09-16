@@ -172,6 +172,20 @@ export interface GeneralistDeps {
   gate?: (ask: GateAsk) => Promise<GateDecision>;
   /** Injectable fetch (probes drive a fake; production uses global fetch). */
   fetchImpl?: typeof fetch;
+  /**
+   * Evidence-retrieval fetch (19.3.0). When wired, the live-data GuardRail
+   * FETCHES the sources an answer cites and checks the claim markers inside
+   * them — "LIVE-DATA VERIFIED" then means actual retrieval, not just
+   * disclosure. Absent → the GuardRail stays disclosure-only and says so.
+   */
+  evidenceFetch?: typeof fetch;
+  /**
+   * Mission workspace root (19.3.0). When set, specialists carry real
+   * filesystem/research tools and run a real act/observe loop; each tool
+   * call is gated and receipted. Absent → toolless members, exactly the
+   * 19.2.0 path.
+   */
+  workspaceRoot?: string;
   /** Injectable peer delegation — the real one is the A2A bridge. */
   peerDelegate?: (d: PeerDelegation) => Promise<{ ok: boolean; detail: string; receiptDigest?: string }>;
   /** A2A handoff ledger hook — every delegation attempt, including refusals, gets a receipt (18.7.0). */
@@ -191,7 +205,20 @@ export interface CaptainReport {
   nextStep: string;
 }
 
-/** Live-data GuardRail verdict (19.2.0) — computed at runtime over the real reply, sealed in the digest. */
+/** One real retrieval attempt behind the live-data GuardRail (19.3.0). */
+export interface RetrievalRecord {
+  url: string;
+  status: "retrieved" | "failed";
+  /** How many of the reply's claim markers were found inside the fetched source. */
+  claimHits: number;
+  /** ISO timestamp of the attempt — freshness is a fact, not an assertion. */
+  fetchedAt: string;
+  bytes: number;
+  /** The real failure reason when status is "failed". */
+  detail?: string;
+}
+
+/** Live-data GuardRail verdict (19.2.0; retrieval upgrade 19.3.0) — computed at runtime over the real reply, sealed in the digest. */
 export interface LiveDataVerdict {
   required: boolean;
   verified: boolean;
@@ -202,6 +229,31 @@ export interface LiveDataVerdict {
   /** as-of / dated-claim markers present in the answer. */
   datedClaims: number;
   note: string;
+  /**
+   * How a "verified" verdict was earned (19.3.0): "retrieval" = the cited
+   * sources were ACTUALLY FETCHED and contained the claim markers;
+   * "disclosure" = URLs + dated markers present but no retrieval was
+   * performed. Null when the answer is not verified. The distinction is
+   * sealed in the provenance digest — a disclosure stamp can never pose
+   * as a retrieval stamp.
+   */
+  verifiedBy?: "retrieval" | "disclosure" | null;
+  /** The real retrieval attempts — present whenever retrieval was tried (19.3.0). */
+  retrieval?: RetrievalRecord[];
+}
+
+/** The Captain's synthesis over its members' real results (19.3.0). */
+export interface SynthesisRecord {
+  /** The synthesized domain result — the Captain's OWN provider call. */
+  text: string;
+  captainId: string;
+  captainName: string;
+  model: string;
+  latencyMs: number;
+  /** 64-hex digest over the synthesis canonical — its own receipt, never a member's. */
+  digest?: string;
+  /** The computed divergence report the synthesis reasoned over. */
+  divergences: { corroborated: string[]; singleSourced: Array<{ atom: string; kind: string; backedBy: string[] }>; membersCompared: number };
 }
 
 /** Classified failure with recovery advice (19.0.0). */
@@ -226,8 +278,15 @@ export interface GeneralistResponse {
   note?: string;
   /** The domain captain's report on the routed work — present whenever the bench was routed. */
   captain?: CaptainReport;
-  /** Live-data GuardRail verdict (19.2.0) — present when the answer makes time-sensitive claims in research/analysis. */
+  /** Live-data GuardRail verdict (19.2.0; retrieval upgrade 19.3.0) — present when the answer makes time-sensitive claims in research/analysis. */
   liveData?: LiveDataVerdict;
   /** Classified failure + recovery advice whenever the outcome is not an execution (19.0.0). */
   failure?: FailureInfo;
+  /**
+   * The Captain's synthesis (19.3.0) — present when several members
+   * executed and the Captain's own synthesis call completed. When absent on
+   * a multi-member run, the note says why (attempted-and-failed or no
+   * synthesis possible) — silence is never the explanation.
+   */
+  synthesis?: SynthesisRecord;
 }

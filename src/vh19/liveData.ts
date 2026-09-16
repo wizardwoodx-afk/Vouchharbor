@@ -21,7 +21,7 @@
  * so the log cannot show a clean stamp over a stale answer.
  */
 
-import type { LiveDataVerdict } from "./types";
+import type { LiveDataVerdict, RetrievalRecord } from "./types";
 
 /** Domains where freshness is a safety property, not a preference. */
 const LIVE_CATEGORIES = new Set(["research", "analysis"]);
@@ -75,11 +75,75 @@ export function liveDataVerdict(reply: string, categories: string[]): LiveDataVe
   };
 }
 
+/* ── 19.3.0: retrieval, not just disclosure ─────────────────────────────────
+ *
+ * The 19.2.0 GuardRail enforced DISCLOSURE: URL + dated marker ⇒ verified.
+ * A model could satisfy that with a fabricated citation. 19.3.0 adds the
+ * enforcement the review demanded — when an evidence-retrieval fetch is
+ * wired, the GuardRail FETCHES the cited sources and checks the claim
+ * markers INSIDE them:
+ *
+ *   time-sensitive claim → fetch each cited URL (≤3, timeout) → claim
+ *   markers found in the fetched text? → supported ⇒ verifiedBy "retrieval"
+ *
+ * Honest boundary, unchanged in spirit: when no evidenceFetch is wired the
+ * GuardRail stays disclosure-only and labels the verdict exactly that —
+ * "verified" stamps carry their earning mechanism in the digest, so a
+ * disclosure stamp can never pose as a retrieval stamp.
+ */
+
+export const MAX_RETRIEVAL_SOURCES = 3;
+const RETRIEVAL_TIMEOUT_MS = 8_000;
+const MAX_RETRIEVAL_CHARS = 20_000;
+
+/**
+ * Fetch the URLs the reply itself cites and look for the reply's claim
+ * markers inside them. Pure function of real fetch results — every attempt
+ * lands in a RetrievalRecord, successful or not.
+ */
+export async function verifyLiveEvidence(
+  reply: string,
+  claims: string[],
+  opts: { fetchImpl: typeof fetch; now?: () => Date },
+): Promise<{ retrieval: RetrievalRecord[]; supported: boolean }> {
+  const urls = [...new Set(reply.match(URL) ?? [])].slice(0, MAX_RETRIEVAL_SOURCES);
+  const now = opts.now ?? (() => new Date());
+  const retrieval: RetrievalRecord[] = [];
+  let supported = false;
+  for (const url of urls) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), RETRIEVAL_TIMEOUT_MS);
+    const fetchedAt = now().toISOString();
+    try {
+      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.3 (evidence-retrieval)" } });
+      if (!res.ok) {
+        retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `HTTP ${res.status}` });
+        continue;
+      }
+      const body = (await res.text()).slice(0, MAX_RETRIEVAL_CHARS);
+      const lower = body.toLowerCase();
+      const claimHits = claims.filter((c) => lower.includes(c.toLowerCase())).length;
+      retrieval.push({ url, status: "retrieved", claimHits, fetchedAt, bytes: body.length });
+      if (claimHits > 0) supported = true;
+    } catch (err) {
+      const aborted = err instanceof Error && err.name === "AbortError";
+      retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: aborted ? `timeout after ${RETRIEVAL_TIMEOUT_MS}ms` : (err instanceof Error ? err.message : String(err)) });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { retrieval, supported };
+}
+
 /** The stale flag — appended to the reply itself, so it travels with the answer into the digest. */
 export function liveDataBanner(v: LiveDataVerdict): string {
+  const retrievalNote =
+    v.retrieval && v.retrieval.length > 0
+      ? ` Retrieval was attempted: ${v.retrieval.filter((r) => r.status === "retrieved").length}/${v.retrieval.length} cited source(s) fetched, ${v.retrieval.reduce((n, r) => n + r.claimHits, 0)} claim hit(s) found — the flag stands.`
+      : ` No retrieval capability is wired in this runtime, so disclosure is enforced instead.`;
   return (
     `\n\n⚠ LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v.claims.slice(0, 4).join(", ")}) ` +
-    `but carries no dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)). VH ships no web-search provider, ` +
-    `so treat this as knowledge-cutoff data until verified — flagged honestly instead of dressed as fresh.`
+    `without sufficient dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)).${retrievalNote} ` +
+    `Treat it as knowledge-cutoff data until verified — flagged honestly instead of dressed as fresh.`
   );
 }

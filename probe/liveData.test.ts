@@ -49,7 +49,7 @@ test("live-data GuardRail — runtime enforcement, not a prompt ask", async () =
   check("dated live sources ⇒ verified", vGood !== null && vGood.verified === true);
   check("a code answer is never flagged, whatever it says", liveDataVerdict("the latest version 9.9 pricing today", ["code"]) === null);
   check("a research answer with no time-sensitive claims is not flagged", liveDataVerdict("The scientific method: observe, hypothesize, test.", ["research"]) === null);
-  check("the banner is honest about VH having no search provider", liveDataBanner(vBad!).includes("no web-search provider") && liveDataBanner(vBad!).includes("knowledge-cutoff"));
+  check("the banner is honest about enforcing disclosure when no retrieval is wired", liveDataBanner(vBad!).includes("No retrieval capability is wired") && liveDataBanner(vBad!).includes("knowledge-cutoff"));
 
   console.log("── pipeline integration ──");
   const stale = await askVH19({ text: "research the current market trends for electric vehicles", userId: "ld-user" }, { provider: prov, fetchImpl: scripted("The current EV market is growing fast and prices dropped in 2026.") });
@@ -68,6 +68,57 @@ test("live-data GuardRail — runtime enforcement, not a prompt ask", async () =
 
   const planned = await askVH19({ text: "research the current market trends for electric vehicles", userId: "ld-user" });
   check("a planned (non-executed) answer gets no live-data verdict — nothing was answered", planned.liveData === undefined && planned.outcome === "planned");
+
+  console.log("── retrieval verification (19.3.0) — verified means FETCHED ──");
+  // The evidence fetch double serves the cited URL; provider calls and
+  // evidence calls are distinguished by URL.
+  const evidenceOk = (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("chat/completions")) {
+      return new Response(JSON.stringify({ choices: [{ message: { content: "As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices." } }] }), { status: 200 });
+    }
+    // The fetched source: contains the claim markers ("current", "2026", "price").
+    return new Response("<html>EV report: current price trends down as of 2026-09-01. Price index inside.</html>", { status: 200 });
+  }) as unknown as typeof fetch;
+  const retrieved = await askVH19(
+    { text: "research the current EV price trend", userId: "ld-user" },
+    { provider: prov, fetchImpl: scripted("As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices."), evidenceFetch: evidenceOk },
+  );
+  check("a cited source that was FETCHED and supports the claims verifies by retrieval", retrieved.liveData?.verified === true && retrieved.liveData?.verifiedBy === "retrieval", retrieved.liveData);
+  check("the retrieval attempt is receipted — url, status, hits, timestamp", (retrieved.liveData?.retrieval ?? []).length === 1 && retrieved.liveData!.retrieval![0].status === "retrieved" && retrieved.liveData!.retrieval![0].claimHits > 0 && /^\d{4}-\d{2}-\d{2}T/.test(retrieved.liveData!.retrieval![0].fetchedAt), retrieved.liveData?.retrieval);
+  check("a retrieval-verified answer carries no stale banner", !retrieved.reply.includes("LIVE-DATA CHECK"));
+  check("the retrieval verdict rides inside the provenance digest", JSON.parse(responseCanonical({ ...retrieved, provenanceDigest: "" })).liveData?.verifiedBy === "retrieval");
+
+  const evidenceDown = (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("chat/completions")) return new Response(JSON.stringify({ choices: [{ message: { content: "As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices." } }] }), { status: 200 });
+    return new Response("not found", { status: 404 });
+  }) as unknown as typeof fetch;
+  const unfetchable = await askVH19(
+    { text: "research the current EV price trend", userId: "ld-user" },
+    { provider: prov, fetchImpl: scripted("As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices."), evidenceFetch: evidenceDown },
+  );
+  check("a citation that FAILS to fetch does not verify — URL + date alone is no longer enough", unfetchable.liveData?.verified === false && unfetchable.liveData?.retrieval?.[0].status === "failed", unfetchable.liveData);
+  check("the failed attempt is receipted with the real reason", unfetchable.liveData?.retrieval?.[0].detail === "HTTP 404", unfetchable.liveData?.retrieval);
+  check("the banner states retrieval was attempted and the flag stands", unfetchable.reply.includes("Retrieval was attempted") && unfetchable.reply.includes("LIVE-DATA CHECK"));
+
+  const unsupportive = (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("chat/completions")) return new Response(JSON.stringify({ choices: [{ message: { content: "As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices." } }] }), { status: 200 });
+    return new Response("<html>an unrelated page about medieval agriculture</html>", { status: 200 });
+  }) as unknown as typeof fetch;
+  const unsupported = await askVH19(
+    { text: "research the current EV price trend", userId: "ld-user" },
+    { provider: prov, fetchImpl: scripted("As of 2026-09-01 the current EV price trend is down, per https://example.org/ev-prices."), evidenceFetch: unsupportive },
+  );
+  check("a fetched source that does NOT contain the claims does not verify", unsupported.liveData?.verified === false && unsupported.liveData?.retrieval?.[0].status === "retrieved" && unsupported.liveData?.retrieval?.[0].claimHits === 0, unsupported.liveData?.retrieval);
+
+  const disclosureFresh = await askVH19(
+    { text: "research the current market trends for electric vehicles", userId: "ld-user" },
+    { provider: prov, fetchImpl: scripted("As of 2026-03-01, per https://example.org/ev-report, the current EV market grew 12%.") },
+  );
+  check("without an evidence fetch, a verified verdict labels itself disclosure — never retrieval", disclosureFresh.liveData?.verified === true && disclosureFresh.liveData?.verifiedBy === "disclosure", disclosureFresh.liveData?.verifiedBy);
+  check("an unverified disclosure verdict stays null-verifiedBy", vBad!.verifiedBy === undefined || vBad!.verifiedBy === null);
 
   assert.equal(fail, 0, `${fail} liveData checks failed`);
   console.log(`liveData probe: ${pass} passed, ${fail} failed`);

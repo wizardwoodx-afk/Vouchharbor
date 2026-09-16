@@ -1,4 +1,4 @@
-# Vouch Harbor 19.2.0 "Armada" — feature sheet
+# Vouch Harbor 19.3.0 "Vanguard" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
@@ -148,9 +148,18 @@ Probes: `shipyard` 22 · `captains` 37 (incl. the multi-member execution pins).
 | 2 | **Live-data GuardRail at runtime** — answered research/analysis replies are scanned; time-sensitive claims without dated live sources get the stale flag appended to the reply, sealed in the digest, stamped in the door | `src/vh19/liveData.ts` · `probe/liveData` 17 |
 | 3 | **Honest naming** — the token optimizer is a **prompt-budget optimizer** working on token estimates (~4 chars/token, labelled everywhere as an estimate) | door strip · `tokenOptim.ts` |
 
+## I. 19.3.0 — the fleet-becomes-real release
+
+| # | Feature | Where |
+|---|---|---|
+| 1 | **Real specialist execution** — workspace-wired members run an act/observe loop over five gated tools (`fs.list`, `fs.read`, `fs.write`, `net.fetch`, `wiki.search`), category-bound ≤ 3; every attempted call receipted (`vh19-tool/1`), gate denials fed back verbatim, step limit labelled honestly | `src/vh19/tools.ts` · `src/vh19/agentLoop.ts` · `probe/agentTools` 47 |
+| 2 | **Captain synthesis** — deterministic divergence pass (corroborated vs single-sourced claim atoms) + the Captain's OWN reasoning call into one coherent domain result; member sections kept as evidence; failed synthesis stated, never faked | `src/vh19/synthesis.ts` · `probe/synthesis` 29 |
+| 3 | **GuardRail retrieval** — cited sources FETCHED and claim-checked inside; `verifiedBy: "retrieval"` vs `"disclosure"` sealed in the digest; unfetchable sources keep the flag, receipted | `verifyLiveEvidence` · `probe/liveData` 27 |
+| 4 | **Receipts cover effects** — member digests commit to the member's tool receipts, so a run's evidence chain includes what it did, not just what it said | `askVH19` multi-member branch |
+
 ## E. Version integrity
 
-Every manifest agrees on **19.2.0 "Armada"**: `src/version.ts`,
+Every manifest agrees on **19.3.0 "Vanguard"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

@@ -4894,87 +4894,117 @@ function liveDataVerdict(reply, categories) {
     note: verified ? `Time-sensitive claims (${shown}\u2026) carry dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s).` : `Time-sensitive claims (${shown}\u2026) carry NO dated live sources \u2014 ${sources} URL(s), ${datedClaims} dated claim(s). Flagged as unverified.`
   };
 }
+var MAX_RETRIEVAL_SOURCES = 3;
+var RETRIEVAL_TIMEOUT_MS = 8e3;
+var MAX_RETRIEVAL_CHARS = 2e4;
+async function verifyLiveEvidence(reply, claims, opts) {
+  const urls = [...new Set(reply.match(URL2) ?? [])].slice(0, MAX_RETRIEVAL_SOURCES);
+  const now = opts.now ?? (() => /* @__PURE__ */ new Date());
+  const retrieval = [];
+  let supported = false;
+  for (const url of urls) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), RETRIEVAL_TIMEOUT_MS);
+    const fetchedAt = now().toISOString();
+    try {
+      const res = await opts.fetchImpl(url, { signal: controller.signal, headers: { accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor-GuardRail/19.3 (evidence-retrieval)" } });
+      if (!res.ok) {
+        retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: `HTTP ${res.status}` });
+        continue;
+      }
+      const body = (await res.text()).slice(0, MAX_RETRIEVAL_CHARS);
+      const lower = body.toLowerCase();
+      const claimHits = claims.filter((c) => lower.includes(c.toLowerCase())).length;
+      retrieval.push({ url, status: "retrieved", claimHits, fetchedAt, bytes: body.length });
+      if (claimHits > 0) supported = true;
+    } catch (err) {
+      const aborted = err instanceof Error && err.name === "AbortError";
+      retrieval.push({ url, status: "failed", claimHits: 0, fetchedAt, bytes: 0, detail: aborted ? `timeout after ${RETRIEVAL_TIMEOUT_MS}ms` : err instanceof Error ? err.message : String(err) });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { retrieval, supported };
+}
 function liveDataBanner(v) {
+  const retrievalNote = v.retrieval && v.retrieval.length > 0 ? ` Retrieval was attempted: ${v.retrieval.filter((r) => r.status === "retrieved").length}/${v.retrieval.length} cited source(s) fetched, ${v.retrieval.reduce((n2, r) => n2 + r.claimHits, 0)} claim hit(s) found \u2014 the flag stands.` : ` No retrieval capability is wired in this runtime, so disclosure is enforced instead.`;
   return `
 
-\u26A0 LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v.claims.slice(0, 4).join(", ")}) but carries no dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)). VH ships no web-search provider, so treat this as knowledge-cutoff data until verified \u2014 flagged honestly instead of dressed as fresh.`;
+\u26A0 LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v.claims.slice(0, 4).join(", ")}) without sufficient dated live sources (${v.sources} URL(s), ${v.datedClaims} dated claim(s)).${retrievalNote} Treat it as knowledge-cutoff data until verified \u2014 flagged honestly instead of dressed as fresh.`;
 }
 
-// src/vh19/router.ts
-var MIN_SCORE = 3;
-var MAX_K = 3;
-var SINGLE_MARGIN = 4;
-var TOKEN_RE = /[a-z0-9][a-z0-9+#.-]*/g;
-function tokenize(text) {
-  return (text.toLowerCase().match(TOKEN_RE) ?? []).filter((t) => t.length >= 3);
-}
-function scoreSpecialist(s, request, tokens) {
-  const reasons = [];
-  let score = 0;
-  const lower = request.toLowerCase();
-  const tokenSet = new Set(tokens);
-  for (const kw of s.keywords) {
-    if (tokenSet.has(kw)) {
-      score += 3;
-      reasons.push(`keyword "${kw}" matched exactly`);
-    } else if (kw.length >= 4 && lower.includes(kw)) {
-      score += 2;
-      reasons.push(`keyword "${kw}" appears in the request`);
+// src/vh19/synthesis.ts
+var ATOM_PATTERNS = [
+  { kind: "percent", re: /\b\d+(?:\.\d+)?\s?%/g },
+  { kind: "money", re: /\$\s?\d[\d,]*(?:\.\d+)?(?:\s?(?:million|billion|bn|m|k))?/gi },
+  { kind: "iso-date", re: /\b(?:19|20)\d{2}-\d{2}(?:-\d{2})?\b/g },
+  { kind: "year", re: /\b(?:19|20)\d{2}\b/g },
+  { kind: "url", re: /https?:\/\/[^\s)"'<>]+/g },
+  { kind: "version", re: /\bv?\d+\.\d+(?:\.\d+)?\b/g }
+];
+function extractClaimAtoms(text) {
+  const seen = /* @__PURE__ */ new Map();
+  for (const { kind, re } of ATOM_PATTERNS) {
+    for (const m of text.match(re) ?? []) {
+      const value = m.trim().toLowerCase().replace(/\s+/g, " ");
+      const key = `${kind}:${value}`;
+      if (!seen.has(key)) seen.set(key, { kind, value });
     }
   }
-  for (const cap of s.capabilities) {
-    const capTokens = tokenize(cap);
-    let hits = 0;
-    for (const ct of capTokens) if (tokenSet.has(ct)) hits += 1;
-    if (hits >= 2) {
-      score += 1;
-      reasons.push(`capability overlap: "${cap}"`);
+  return [...seen.values()];
+}
+function findDivergences(memberResults) {
+  const executed = memberResults.filter((m) => m.text.length > 0);
+  const perMember = executed.map((m) => ({ id: m.specialistId, atoms: extractClaimAtoms(m.text) }));
+  const support = /* @__PURE__ */ new Map();
+  for (const m of perMember) {
+    for (const a of m.atoms) {
+      const key = `${a.kind}:${a.value}`;
+      const entry = support.get(key) ?? { atom: a, backedBy: [] };
+      if (!entry.backedBy.includes(m.id)) entry.backedBy.push(m.id);
+      support.set(key, entry);
     }
   }
-  return { score, reasons };
-}
-function routeDeterministic(request, k = MAX_K) {
-  const tokens = tokenize(request);
-  const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
-  const scored = [];
-  for (const s of enabledSpecialists()) {
-    const { score, reasons } = scoreSpecialist(s, request, tokens);
-    if (score >= bar) scored.push({ id: s.id, score, reasons });
+  const corroborated = [];
+  const singleSourced = [];
+  for (const { atom, backedBy } of support.values()) {
+    if (executed.length >= 2 && backedBy.length < executed.length) {
+      singleSourced.push({ atom: `${atom.kind} ${atom.value}`, kind: atom.kind, backedBy });
+    } else {
+      corroborated.push(`${atom.kind} ${atom.value}`);
+    }
   }
-  scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
-  const selected = scored.slice(0, k);
-  let strategy = "none";
-  if (selected.length === 1) strategy = "single";
-  else if (selected.length > 1) {
-    strategy = selected[0].score - selected[1].score >= SINGLE_MARGIN ? "single" : "multi";
-    if (strategy === "single") selected.length = 1;
-  }
-  return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
+  return {
+    corroborated: corroborated.slice(0, 12),
+    singleSourced: singleSourced.slice(0, 12),
+    membersCompared: executed.length
+  };
 }
-async function routeWithModel(request, provider, complete2, k = MAX_K) {
-  const base = routeDeterministic(request, Math.max(k * 2, MAX_K));
-  if (base.strategy === "none" || base.selected.length === 0) return base;
-  const ids = base.selected.map((c) => c.id);
-  const prompt = `Rank these specialist ids by fit for the request. Reply with ONLY a JSON array of ids, most-fit first, using exactly these ids: ${JSON.stringify(ids)}
+function buildSynthesisSystem(captain2) {
+  return `${captain2.systemPrompt}
 
-Request: ${request}`;
-  const res = await complete2(provider, "You are a routing assistant. Output only JSON.", prompt);
-  if (!res.ok) return { ...base, fallbackReason: `llm re-rank unavailable: ${res.error}` };
-  let parsed;
-  try {
-    parsed = JSON.parse(res.text.trim().replace(/^[^{[]*/, "").replace(/[^}\]]*$/, ""));
-  } catch {
-    return { ...base, fallbackReason: "llm re-rank returned unparseable JSON" };
-  }
-  if (!Array.isArray(parsed) || parsed.some((x) => typeof x !== "string" || !ids.includes(x)) || new Set(parsed).size !== parsed.length) {
-    return { ...base, fallbackReason: "llm re-rank returned ids outside the candidate set" };
-  }
-  const order = parsed;
-  const byId = new Map(base.selected.map((c) => [c.id, c]));
-  const reranked = order.map((id) => byId.get(id)).filter(Boolean).concat(base.selected.filter((c) => !order.includes(c.id)));
-  const selected = reranked.slice(0, k);
-  let strategy = selected.length === 1 ? "single" : "multi";
-  return { selected, considered: base.considered, strategy, routedBy: "llm-assisted" };
+You are now SYNTHESIZING your members' real, separately-executed answers into ONE coherent domain result.
+Rules:
+1. Compare the member answers. Where they agree, state the result plainly.
+2. Where they diverge (see the divergence notes), say so explicitly and prefer the better-supported claim \u2014 name which member supports it.
+3. Never invent facts none of your members produced. The synthesis may ONLY combine what is below.
+4. Write as one result, not as a list of summaries. End with the single next step if the work is incomplete.
+5. If the members' answers cannot be reconciled, say exactly that and keep both positions visible.`;
+}
+function buildSynthesisUser(task, sections, div) {
+  const divergenceLines = div.singleSourced.length > 0 ? `DIVERGENCE NOTES (computed, not asserted \u2014 reconcile or name them):
+${div.singleSourced.map((d) => `- ${d.atom} \u2014 backed only by ${d.backedBy.join(", ")}`).join("\n")}` : `DIVERGENCE NOTES: none detected \u2014 all extracted claim atoms are corroborated across the ${div.membersCompared} executed members.`;
+  const memberParts = sections.map((s) => `\u2500\u2500 ${s.name}
+${s.text}`).join("\n\n");
+  return `Original task: ${task}
+
+${divergenceLines}
+
+Member answers (each its own provider execution):
+
+${memberParts}
+
+Now produce the single synthesized domain result.`;
 }
 
 // src/vh19/providers.ts
@@ -5076,6 +5106,404 @@ async function complete(cfg, system, user, opts = {}) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+// src/vh19/tools.ts
+var TOOLS = [
+  { id: "fs.list", purpose: "List directory entries inside the mission workspace.", riskTier: "safe", inputShape: '{ "path": string }' },
+  { id: "fs.read", purpose: "Read a UTF-8 text file inside the mission workspace.", riskTier: "safe", inputShape: '{ "path": string }' },
+  { id: "fs.write", purpose: "Write a UTF-8 text file inside the mission workspace (creates parent dirs).", riskTier: "risky", inputShape: '{ "path": string, "content": string }' },
+  { id: "net.fetch", purpose: "GET a single http(s) URL and return the body text (SSRF-guarded).", riskTier: "risky", inputShape: '{ "url": string }' },
+  { id: "wiki.search", purpose: "Keyless Wikipedia summary search \u2014 pinned to the public REST endpoint, no arbitrary egress.", riskTier: "safe", inputShape: '{ "query": string }' }
+];
+function getTool(id) {
+  return TOOLS.find((t) => t.id === id) ?? null;
+}
+function toolsForCategory(category) {
+  switch (category) {
+    case "code":
+    case "testing":
+      return ["fs.list", "fs.read", "fs.write"];
+    case "data":
+    case "devops":
+      return ["fs.list", "fs.read", "fs.write"];
+    case "design":
+      return ["fs.read", "fs.write"];
+    case "security":
+    case "review":
+      return ["fs.list", "fs.read"];
+    // read-only by design: auditors don't mutate
+    case "research":
+      return ["wiki.search", "net.fetch"];
+    case "writing":
+      return ["wiki.search", "fs.read", "fs.write"];
+    case "analysis":
+      return ["fs.read", "wiki.search"];
+    default:
+      return [];
+  }
+}
+var MAX_READ_BYTES = 64 * 1024;
+var MAX_FETCH_CHARS = 16e3;
+var FETCH_TIMEOUT_MS = 1e4;
+var WIKI_ENDPOINT = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+function toolProtocolText(toolIds) {
+  const list = toolIds.map((id) => {
+    const t = getTool(id);
+    return `- ${t.id} (${t.riskTier}) \u2014 ${t.purpose} Input: ${t.inputShape}`;
+  }).join("\n");
+  return `You have REAL tools. To use one, emit a fenced block named tool containing ONE JSON object:
+\`\`\`tool
+{"tool": "<id>", "input": { ... }}
+\`\`\`
+Available tools:
+${list}
+Rules: one tool call per block; wait for the RESULT before continuing; gated or failed tools report the real reason \u2014 never invent their output; when the work is done, give your final answer with NO tool blocks.`;
+}
+function parseToolBlocks(text) {
+  const blocks = [];
+  const re = /\u0060\u0060\u0060tool\s*\n([\s\S]*?)\u0060\u0060\u0060/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const raw = m[1].trim();
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed?.tool !== "string") {
+        blocks.push({ parseError: `tool block missing "tool" field: ${raw.slice(0, 120)}` });
+        continue;
+      }
+      blocks.push({ tool: parsed.tool, input: parsed.input ?? {} });
+    } catch {
+      blocks.push({ parseError: `tool block is not valid JSON: ${raw.slice(0, 120)}` });
+    }
+  }
+  return blocks;
+}
+function stripToolBlocks(text) {
+  return text.replace(/\u0060\u0060\u0060tool\s*\n[\s\S]*?\u0060\u0060\u0060\s*/g, "").trim();
+}
+function resolveWorkspacePath(root, p) {
+  if (typeof p !== "string" || p.length === 0 || p.includes("\0")) return null;
+  if (p.startsWith("/") || /^[A-Za-z]:[\\/]/.test(p)) return null;
+  const base = root.replace(/\/+$/, "");
+  if (p === ".") return base;
+  const parts = p.replace(/\\/g, "/").split("/");
+  const stack = [];
+  for (const part of parts) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") {
+      if (stack.length === 0) return null;
+      stack.pop();
+      continue;
+    }
+    stack.push(part);
+  }
+  const rel = stack.join("/");
+  if (rel.length === 0) return null;
+  return `${base}/${rel}`;
+}
+async function execFsList(input, ctx) {
+  const fs = await import("node:fs/promises");
+  const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
+  if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
+  try {
+    const entries = await fs.readdir(resolved, { withFileTypes: true });
+    const lines = entries.slice(0, 100).map((e) => e.isDirectory() ? `${e.name}/` : e.name);
+    return { outcome: "ok", output: lines.length > 0 ? lines.join("\n") : "(empty directory)" };
+  } catch (err) {
+    return { outcome: "error", output: `fs.list failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+async function execFsRead(input, ctx) {
+  const fs = await import("node:fs/promises");
+  const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
+  if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
+  try {
+    const stat = await fs.stat(resolved);
+    if (!stat.isFile()) return { outcome: "error", output: "not a regular file" };
+    const fh = await fs.open(resolved, "r");
+    try {
+      const buf = Buffer.alloc(Math.min(stat.size, MAX_READ_BYTES));
+      const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
+      const text = buf.subarray(0, bytesRead).toString("utf8");
+      const truncated = stat.size > MAX_READ_BYTES ? `
+[truncated \u2014 file is ${stat.size} bytes, first ${MAX_READ_BYTES} returned]` : "";
+      return { outcome: "ok", output: text + truncated };
+    } finally {
+      await fh.close();
+    }
+  } catch (err) {
+    return { outcome: "error", output: `fs.read failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+async function execFsWrite(input, ctx) {
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input.path ?? ""));
+  if (!resolved) return { outcome: "refused", output: `path refused: "${String(input.path ?? "")}" escapes the workspace root or is invalid` };
+  if (typeof input.content !== "string") return { outcome: "error", output: `fs.write needs a string "content" field` };
+  try {
+    await fs.mkdir(path.dirname(resolved), { recursive: true });
+    await fs.writeFile(resolved, input.content, "utf8");
+    return { outcome: "ok", output: `wrote ${Buffer.byteLength(input.content, "utf8")} bytes to ${input.path}` };
+  } catch (err) {
+    return { outcome: "error", output: `fs.write failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+async function execNetFetch(input, ctx) {
+  const url = String(input.url ?? "");
+  const egress = checkEgressUrl(url);
+  if (!egress.ok) return { outcome: "refused", output: `egress refused: ${egress.reason}` };
+  const doFetch = ctx.fetchImpl ?? globalThis.fetch?.bind(globalThis);
+  if (!doFetch) return { outcome: "error", output: "no fetch available in this runtime" };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await doFetch(url, { signal: controller.signal, headers: { accept: "text/html,application/json;q=0.9,*/*;q=0.8", "user-agent": "VouchHarbor/19.3 (+evidence-fetch)" } });
+    if (!res.ok) return { outcome: "error", output: `HTTP ${res.status} from ${url}` };
+    const text = (await res.text()).slice(0, MAX_FETCH_CHARS);
+    return { outcome: "ok", output: text };
+  } catch (err) {
+    const aborted = err instanceof Error && err.name === "AbortError";
+    return { outcome: "error", output: aborted ? `fetch timed out after ${FETCH_TIMEOUT_MS}ms` : `fetch failed: ${err instanceof Error ? err.message : String(err)}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function execWikiSearch(input, ctx) {
+  const query = String(input.query ?? "").trim();
+  if (!query) return { outcome: "error", output: `wiki.search needs a "query" string` };
+  const doFetch = ctx.fetchImpl ?? globalThis.fetch?.bind(globalThis);
+  if (!doFetch) return { outcome: "error", output: "no fetch available in this runtime" };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await doFetch(WIKI_ENDPOINT + encodeURIComponent(query.replace(/ /g, "_")), { signal: controller.signal, headers: { accept: "application/json" } });
+    if (!res.ok) return { outcome: "error", output: `Wikipedia returned HTTP ${res.status} for "${query.slice(0, 60)}"` };
+    const body = await res.json();
+    if (!body.extract) return { outcome: "error", output: `no Wikipedia summary for "${query.slice(0, 60)}"` };
+    return { outcome: "ok", output: `${body.title ?? query}${body.description ? ` \u2014 ${body.description}` : ""}
+${body.extract}` };
+  } catch (err) {
+    const aborted = err instanceof Error && err.name === "AbortError";
+    return { outcome: "error", output: aborted ? `wiki.search timed out after ${FETCH_TIMEOUT_MS}ms` : `wiki.search failed: ${err instanceof Error ? err.message : String(err)}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function executeTool(toolId, input, ctx) {
+  const def = getTool(toolId);
+  if (!def) return { outcome: "refused", output: `unknown tool "${toolId}" \u2014 available: ${TOOLS.map((t) => t.id).join(", ")}` };
+  if (input == null || typeof input !== "object") input = {};
+  if (def.riskTier !== "safe") {
+    if (!ctx.gate) {
+      return { outcome: "gated-out", output: `tool ${def.id} is ${def.riskTier} and no human gate is wired into this runtime \u2014 nothing was executed` };
+    }
+    const decision = await ctx.gate({
+      action: `tool ${def.id} \u2014 ${def.purpose}`,
+      riskTier: def.riskTier,
+      specialistIds: ctx.specialistId ? [ctx.specialistId] : [],
+      summary: JSON.stringify(input).slice(0, 300)
+    });
+    if (!decision.approved) {
+      return { outcome: "gated-out", output: `declined at the gate: ${decision.reason}` };
+    }
+  }
+  switch (def.id) {
+    case "fs.list":
+      return execFsList(input, ctx);
+    case "fs.read":
+      return execFsRead(input, ctx);
+    case "fs.write":
+      return execFsWrite(input, ctx);
+    case "net.fetch":
+      return execNetFetch(input, ctx);
+    case "wiki.search":
+      return execWikiSearch(input, ctx);
+  }
+}
+async function executeToolReceipted(toolId, input, ctx) {
+  const inputCanonical = JSON.stringify({ tool: toolId, input: input ?? {} });
+  const t0 = Date.now();
+  const { outcome, output } = await executeTool(toolId, input, ctx);
+  const latencyMs = Date.now() - t0;
+  const receipt = { tool: getTool(toolId)?.id ?? toolId, inputCanonical, outcome, output: output.slice(0, 2e3), latencyMs };
+  if (ctx.hash) {
+    receipt.digest = await ctx.hash(JSON.stringify({ v: "vh19-tool/1", tool: toolId, inputCanonical, outcome, output: receipt.output }));
+  }
+  return receipt;
+}
+
+// src/vh19/agentLoop.ts
+var MAX_AGENT_STEPS = 3;
+async function runMemberAgent(opts) {
+  const { provider, specialist, task, systemBase } = opts;
+  const maxSteps = opts.maxSteps ?? MAX_AGENT_STEPS;
+  const toolIds = opts.toolCtx ? toolsForCategory(specialist.category) : [];
+  const hasTools = toolIds.length > 0 && Boolean(opts.toolCtx);
+  const system = hasTools ? optimizeComposedPrompt(`${systemBase}
+
+${toolProtocolText(toolIds)}`).prompt : optimizeComposedPrompt(systemBase).prompt;
+  const toolCtx = hasTools ? { ...opts.toolCtx, specialistId: specialist.id, hash: opts.hash } : null;
+  let conversation = task;
+  const toolReceipts = [];
+  let calls = 0;
+  let totalLatency = 0;
+  let lastModel = provider.model;
+  for (let step = 0; step < maxSteps; step++) {
+    const res = await complete(provider, system, conversation, { fetchImpl: opts.fetchImpl });
+    calls += 1;
+    recordUsage({
+      promptTokens: estimateTokens(system) + estimateTokens(conversation),
+      replyTokens: estimateTokens(res.ok ? res.text : res.error),
+      optimized: false,
+      savedTokens: 0
+    });
+    if (!res.ok) {
+      return {
+        ok: false,
+        text: "",
+        error: redactSecrets(res.error, [provider.apiKey]),
+        errorKind: res.kind,
+        model: provider.model,
+        latencyMs: totalLatency,
+        calls,
+        toolReceipts,
+        truncated: false,
+        tools: toolIds
+      };
+    }
+    totalLatency += res.latencyMs;
+    lastModel = res.model;
+    if (!hasTools || !toolCtx) {
+      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: [] };
+    }
+    const blocks = parseToolBlocks(res.text);
+    if (blocks.length === 0) {
+      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds };
+    }
+    const resultLines = [];
+    for (const block of blocks) {
+      if ("parseError" in block) {
+        const receipt2 = {
+          tool: "(parse-error)",
+          // not an executed tool — the outcome field carries the truth
+          inputCanonical: JSON.stringify({ parseError: block.parseError }),
+          outcome: "error",
+          output: block.parseError,
+          latencyMs: 0
+        };
+        if (opts.hash) {
+          receipt2.digest = await opts.hash(JSON.stringify({ v: "vh19-tool/1", tool: "(parse-error)", inputCanonical: receipt2.inputCanonical, outcome: "error", output: receipt2.output }));
+        }
+        toolReceipts.push(receipt2);
+        resultLines.push(`RESULT(parse-error): ${block.parseError}`);
+        continue;
+      }
+      const receipt = await executeToolReceipted(block.tool, block.input, toolCtx);
+      toolReceipts.push(receipt);
+      resultLines.push(`RESULT(${receipt.tool}, ${receipt.outcome}${receipt.digest ? `, receipt ${receipt.digest.slice(0, 12)}` : ""}):
+${receipt.output}`);
+    }
+    if (step === maxSteps - 1) {
+      const soFar = stripToolBlocks(res.text);
+      return {
+        ok: true,
+        text: soFar.length > 0 ? soFar : "(the agent loop ended at its step limit while requesting further tool calls)",
+        model: lastModel,
+        latencyMs: totalLatency,
+        calls,
+        toolReceipts,
+        truncated: true,
+        tools: toolIds
+      };
+    }
+    conversation = `${task}
+
+[turn ${step + 1}] Your previous reply requested tools. Their real results:
+
+${resultLines.join("\n\n")}
+
+Continue the task. If the work is done, answer with NO tool blocks.`;
+  }
+  return { ok: false, text: "", error: "agent loop ended without a provider result", model: provider.model, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds };
+}
+
+// src/vh19/router.ts
+var MIN_SCORE = 3;
+var MAX_K = 3;
+var SINGLE_MARGIN = 4;
+var TOKEN_RE = /[a-z0-9][a-z0-9+#.-]*/g;
+function tokenize(text) {
+  return (text.toLowerCase().match(TOKEN_RE) ?? []).filter((t) => t.length >= 3);
+}
+function scoreSpecialist(s, request, tokens) {
+  const reasons = [];
+  let score = 0;
+  const lower = request.toLowerCase();
+  const tokenSet = new Set(tokens);
+  for (const kw of s.keywords) {
+    if (tokenSet.has(kw)) {
+      score += 3;
+      reasons.push(`keyword "${kw}" matched exactly`);
+    } else if (kw.length >= 4 && lower.includes(kw)) {
+      score += 2;
+      reasons.push(`keyword "${kw}" appears in the request`);
+    }
+  }
+  for (const cap of s.capabilities) {
+    const capTokens = tokenize(cap);
+    let hits = 0;
+    for (const ct of capTokens) if (tokenSet.has(ct)) hits += 1;
+    if (hits >= 2) {
+      score += 1;
+      reasons.push(`capability overlap: "${cap}"`);
+    }
+  }
+  return { score, reasons };
+}
+function routeDeterministic(request, k = MAX_K) {
+  const tokens = tokenize(request);
+  const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
+  const scored = [];
+  for (const s of enabledSpecialists()) {
+    const { score, reasons } = scoreSpecialist(s, request, tokens);
+    if (score >= bar) scored.push({ id: s.id, score, reasons });
+  }
+  scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  const selected = scored.slice(0, k);
+  let strategy = "none";
+  if (selected.length === 1) strategy = "single";
+  else if (selected.length > 1) {
+    strategy = selected[0].score - selected[1].score >= SINGLE_MARGIN ? "single" : "multi";
+    if (strategy === "single") selected.length = 1;
+  }
+  return { selected, considered: enabledSpecialists().length, strategy, routedBy: "deterministic" };
+}
+async function routeWithModel(request, provider, complete2, k = MAX_K) {
+  const base = routeDeterministic(request, Math.max(k * 2, MAX_K));
+  if (base.strategy === "none" || base.selected.length === 0) return base;
+  const ids = base.selected.map((c) => c.id);
+  const prompt = `Rank these specialist ids by fit for the request. Reply with ONLY a JSON array of ids, most-fit first, using exactly these ids: ${JSON.stringify(ids)}
+
+Request: ${request}`;
+  const res = await complete2(provider, "You are a routing assistant. Output only JSON.", prompt);
+  if (!res.ok) return { ...base, fallbackReason: `llm re-rank unavailable: ${res.error}` };
+  let parsed;
+  try {
+    parsed = JSON.parse(res.text.trim().replace(/^[^{[]*/, "").replace(/[^}\]]*$/, ""));
+  } catch {
+    return { ...base, fallbackReason: "llm re-rank returned unparseable JSON" };
+  }
+  if (!Array.isArray(parsed) || parsed.some((x) => typeof x !== "string" || !ids.includes(x)) || new Set(parsed).size !== parsed.length) {
+    return { ...base, fallbackReason: "llm re-rank returned ids outside the candidate set" };
+  }
+  const order = parsed;
+  const byId = new Map(base.selected.map((c) => [c.id, c]));
+  const reranked = order.map((id) => byId.get(id)).filter(Boolean).concat(base.selected.filter((c) => !order.includes(c.id)));
+  const selected = reranked.slice(0, k);
+  let strategy = selected.length === 1 ? "single" : "multi";
+  return { selected, considered: base.considered, strategy, routedBy: "llm-assisted" };
 }
 
 // src/vh19/memory.ts
@@ -5305,7 +5733,8 @@ function responseCanonical(r) {
     note: r.note ?? null,
     captain: r.captain ?? null,
     failure: r.failure ?? null,
-    liveData: r.liveData ?? null
+    liveData: r.liveData ?? null,
+    synthesis: r.synthesis ?? null
   });
 }
 async function askVH19(args, deps = {}) {
@@ -5321,6 +5750,22 @@ async function askVH19(args, deps = {}) {
     if (r.outcome === "answered") {
       const verdict = liveDataVerdict(reply, r.specialistIds.map((id) => id.split(".")[0]));
       if (verdict) {
+        if (deps.evidenceFetch) {
+          const { retrieval, supported } = await verifyLiveEvidence(reply, verdict.claims, { fetchImpl: deps.evidenceFetch });
+          const retrievedCount = retrieval.filter((x) => x.status === "retrieved").length;
+          const hits = retrieval.reduce((n2, x) => n2 + x.claimHits, 0);
+          verdict.retrieval = retrieval;
+          if (supported) {
+            verdict.verified = true;
+            verdict.verifiedBy = "retrieval";
+            verdict.note = `Time-sensitive claims VERIFIED BY RETRIEVAL \u2014 ${retrievedCount}/${retrieval.length} cited source(s) fetched, claim markers found inside (${hits} hit(s)).`;
+          } else {
+            verdict.verified = false;
+            verdict.note = `Time-sensitive claims NOT supported by retrieval \u2014 ${retrievedCount}/${retrieval.length} cited source(s) fetched, ${hits} claim hit(s). Flagged as unverified.`;
+          }
+        } else if (verdict.verified) {
+          verdict.verifiedBy = "disclosure";
+        }
         liveData = verdict;
         if (!verdict.verified) reply = `${reply}${liveDataBanner(verdict)}`;
       }
@@ -5436,25 +5881,41 @@ Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of
   }
   const gateLine = "You operate behind a human gate; risky actions are paused for approval. Never claim work you did not do.";
   const briefing = memoryBriefing(userId);
+  const memberToolCtx = deps.workspaceRoot ? { workspaceRoot: deps.workspaceRoot, gate: deps.gate, fetchImpl: deps.fetchImpl } : void 0;
   if (specialists.length > 1) {
     const memberResults = [];
+    const memberAnswers = [];
     const sections = [];
     for (const s of specialists) {
-      const opt = optimizeComposedPrompt([buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n"));
-      const res = await complete(provider, opt.prompt, text, { fetchImpl: deps.fetchImpl });
-      recordUsage({
-        promptTokens: opt.estimatedTokens + estimateTokens(text),
-        replyTokens: estimateTokens(res.ok ? res.text : res.error),
-        optimized: opt.optimized,
-        savedTokens: opt.savedTokens
+      const systemBase = [buildSpecialistPrompt(s), gateLine, ...briefing].join("\n\n");
+      const run = await runMemberAgent({
+        provider,
+        specialist: s,
+        task: text,
+        systemBase,
+        fetchImpl: deps.fetchImpl,
+        toolCtx: memberToolCtx,
+        hash: sha256Hex2
       });
-      if (res.ok) {
-        const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: res.model, text: res.text }));
+      if (run.ok) {
+        const digest = await sha256Hex2(JSON.stringify({
+          v: "vh19-member/1",
+          specialistId: s.id,
+          outcome: "answered",
+          model: run.model,
+          text: run.text,
+          tools: run.tools,
+          truncated: run.truncated,
+          toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, digest: t.digest ?? null }))
+        }));
         memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
-        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 answered \xB7 ${res.model} \xB7 ${res.latencyMs}ms \xB7 member receipt ${digest.slice(0, 12)}
-${res.text}`);
+        memberAnswers.push({ specialistId: s.id, text: run.text });
+        const toolLine = run.toolReceipts.length > 0 ? ` \xB7 ${run.toolReceipts.length} tool call(s) receipted` : "";
+        const truncLine = run.truncated ? "\n[agent loop reached its step limit \u2014 labelled honestly, not dressed as done]" : "";
+        sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 answered \xB7 ${run.model} \xB7 ${run.latencyMs}ms \xB7 ${run.calls} provider call(s)${toolLine} \xB7 member receipt ${digest.slice(0, 12)}
+${run.text}${truncLine}`);
       } else {
-        const note = `${res.kind}: ${redactSecrets(res.error, [provider.apiKey])}`;
+        const note = `${run.errorKind}: ${run.error}`;
         const digest = await sha256Hex2(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
         memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
         sections.push(`\u2500\u2500 ${s.name} (${s.id}) \xB7 ERROR \u2014 this member's own provider call failed
@@ -5463,22 +5924,95 @@ ${note}`);
     }
     const executedCount = memberResults.filter((m) => m.outcome === "answered").length;
     const captain2 = buildCaptainReport(captainForRoute(memberResults.map((m) => m.specialistId))?.id ?? "", memberResults) ?? void 0;
-    const header = `${captain2?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists \u2014 each section below is that member's OWN provider run, not one shared answer:`;
+    let synthesis;
+    let synthesisFailure = "";
+    const synthCaptain = captainForRoute(memberAnswers.map((m) => m.specialistId));
+    if (executedCount >= 2 && synthCaptain) {
+      const divergences = findDivergences(memberAnswers);
+      const synthSystem = buildSynthesisSystem(synthCaptain);
+      const synthUser = buildSynthesisUser(
+        text,
+        memberAnswers.map((m) => ({ name: getSpecialist(m.specialistId)?.name ?? m.specialistId, text: m.text })),
+        divergences
+      );
+      const optimizedSynth = optimizeComposedPrompt(synthSystem);
+      const sres = await complete(provider, optimizedSynth.prompt, synthUser, { fetchImpl: deps.fetchImpl });
+      recordUsage({
+        promptTokens: optimizedSynth.estimatedTokens + estimateTokens(synthUser),
+        replyTokens: estimateTokens(sres.ok ? sres.text : sres.error),
+        optimized: optimizedSynth.optimized,
+        savedTokens: optimizedSynth.savedTokens
+      });
+      if (sres.ok) {
+        const synthText = stripToolBlocks(sres.text);
+        const digest = await sha256Hex2(JSON.stringify({
+          v: "vh19-synthesis/1",
+          captainId: synthCaptain.id,
+          text: synthText,
+          memberDigests: memberResults.filter((m) => m.outcome === "answered").map((m) => m.memberDigest),
+          divergences
+        }));
+        synthesis = { text: synthText, captainId: synthCaptain.id, captainName: synthCaptain.name, model: sres.model, latencyMs: sres.latencyMs, digest, divergences };
+      } else {
+        synthesisFailure = `Captain synthesis was attempted and FAILED (${sres.kind}: ${redactSecrets(sres.error, [provider.apiKey])}) \u2014 the member answers below stand on their own.`;
+      }
+    }
+    const header = `${captain2?.captainName ?? "The domain captain"} coordinated ${memberResults.length} specialists \u2014 each section below is that member's OWN provider run${synthesis ? ", and the synthesis above them is the captain's OWN reasoned result" : ""}:`;
+    const body = synthesis ? `\u2500\u2500 CAPTAIN SYNTHESIS (${synthesis.captainName} \xB7 ${synthesis.model} \xB7 synthesis receipt ${synthesis.digest?.slice(0, 12)}\u2026) \u2500\u2500
+${synthesis.text}
+
+\u2500\u2500 MEMBER EVIDENCE (each its own execution) \u2500\u2500
+
+${sections.join("\n\n")}` : sections.join("\n\n");
     return finish({
       reply: `${header}
 
-${sections.join("\n\n")}`,
+${synthesisFailure ? `${synthesisFailure}
+
+` : ""}${body}`,
       routed,
       executed: executedCount > 0,
       outcome: executedCount > 0 ? "answered" : "error",
       specialistIds: memberResults.map((m) => m.specialistId),
       captain: captain2,
-      note: `${executedCount} of ${memberResults.length} routed members executed \u2014 each with its own call, result and member receipt`
+      synthesis,
+      note: `${executedCount} of ${memberResults.length} routed members executed \u2014 each with its own agent loop and member receipt` + (synthesis ? ` \xB7 captain synthesis ${synthesis.digest?.slice(0, 12)}\u2026 over ${synthesis.divergences.membersCompared} executed member(s)` : synthesisFailure ? " \xB7 synthesis attempted, failed honestly" : "")
     });
   }
   const primary = specialists[0] ?? null;
+  if (primary) {
+    const systemBase = [buildSpecialistPrompt(primary), gateLine, ...briefing].join("\n\n");
+    const run = await runMemberAgent({
+      provider,
+      specialist: primary,
+      task: text,
+      systemBase,
+      fetchImpl: deps.fetchImpl,
+      toolCtx: memberToolCtx,
+      hash: sha256Hex2
+    });
+    if (!run.ok) {
+      return finish({
+        reply: `The provider call did not complete (${run.errorKind}): ${run.error}`,
+        routed,
+        executed: false,
+        outcome: "error",
+        specialistIds: specialists.map((s) => s.id),
+        note: redactSecrets(run.error ?? "", [provider.apiKey])
+      });
+    }
+    const toolLine = run.toolReceipts.length > 0 ? ` \xB7 ${run.toolReceipts.length} tool call(s) receipted` : "";
+    return finish({
+      reply: run.text + (run.truncated ? "\n\n[agent loop reached its step limit \u2014 labelled honestly]" : ""),
+      routed,
+      executed: true,
+      outcome: "answered",
+      specialistIds: specialists.map((s) => s.id),
+      note: `provider ${provider.kind}/${run.model} \xB7 ${run.latencyMs}ms \xB7 ${run.calls} provider call(s)${toolLine} \xB7 accept or reject this answer so I can learn${autonomyEarned ? " \xB7 running under earned autonomy (override always available)" : ""}`
+    });
+  }
   const composedSystem = [
-    primary ? buildSpecialistPrompt(primary) : "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
     gateLine,
     ...briefing
   ].join("\n\n");
@@ -5590,8 +6124,12 @@ test("captains + failures \u2014 oversight that never fabricates", async () => {
   const calls = [];
   const memberFetch = (async (_input, init) => {
     const req = init ?? {};
-    calls.push(String(req.body ?? ""));
+    const body = String(req.body ?? "");
+    calls.push(body);
     callNo += 1;
+    if (body.includes("single synthesized domain result")) {
+      return new Response(JSON.stringify({ choices: [{ message: { content: "CAPTAIN-SYNTHESIS: the combined result of all members." } }] }), { status: 200 });
+    }
     if (callNo === failCallNo) return new Response(JSON.stringify({ error: "member down" }), { status: 500 });
     return new Response(JSON.stringify({ choices: [{ message: { content: `member answer #${callNo}` } }] }), { status: 200 });
   });
@@ -5600,13 +6138,14 @@ test("captains + failures \u2014 oversight that never fabricates", async () => {
   calls.length = 0;
   const multi = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
   const nMem = multi.specialistIds.length;
-  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 = the LLM re-rank attempt)", nMem > 1 && calls.length === nMem + 1, { routed: nMem, calls: calls.length });
+  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 re-rank, +1 captain synthesis)", nMem > 1 && calls.length === nMem + 2, { routed: nMem, calls: calls.length });
   const memberAnswers = [...multi.reply.matchAll(/member answer #(\d+)/g)].map((m) => m[1]);
   check("each member's OWN distinct answer appears in the reply \u2014 no shared answer relabelled", memberAnswers.length === nMem && new Set(memberAnswers).size === nMem, memberAnswers);
   check("each member carries its own receipt digest, all distinct", (multi.captain?.members ?? []).every((m) => typeof m.memberDigest === "string" && /^[0-9a-f]{64}$/.test(m.memberDigest ?? "")) && new Set(multi.captain?.members.map((m) => m.memberDigest)).size === multi.specialistIds.length);
   check("the captain reports on N real member results \u2014 completed only when all answered", multi.captain?.status === "completed" && multi.captain?.members.every((m) => m.outcome === "answered"));
   check("the response note counts the real per-member executions", (multi.note ?? "").includes(`${multi.specialistIds.length} of ${multi.specialistIds.length} routed members executed`));
-  check("every member call lands in the token ledger", usageReport().calls === multi.specialistIds.length, usageReport());
+  check("every member call AND the synthesis call land in the token ledger", usageReport().calls === multi.specialistIds.length + 1, usageReport());
+  check("the run ends in the captain's OWN synthesis (19.3.0)", multi.synthesis !== void 0 && multi.reply.includes("CAPTAIN-SYNTHESIS") && /^[0-9a-f]{64}$/.test(multi.synthesis?.digest ?? ""), multi.synthesis?.digest);
   callNo = 0;
   calls.length = 0;
   failCallNo = 2;

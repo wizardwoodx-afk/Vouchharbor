@@ -1,4 +1,4 @@
-# Vouch Harbor 19.2.0 "Armada" — release verification record
+# Vouch Harbor 19.3.0 "Vanguard" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,16 +6,17 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.)
 
-## The 19.2.0 record (multi-member execution + runtime live-data GuardRail)
+## The 19.3.0 record (specialists execute · Captains synthesize · the GuardRail retrieves)
 
-19.2.0 answers the 19.1.0 review's two implementation-vs-claim findings:
-routed specialists now EACH execute their own provider call (N members →
-N calls → N attributed answers → N member receipts, Captain reporting on
-real per-member results), and the live-data GuardRail is a runtime
-control over every answered research/analysis reply (stale flags sealed
-in the digest). The token optimizer is honestly renamed prompt-budget
-optimizer (estimates). Built on 19.1.0's Shipyard + Captains and
-19.0.0's 460-specialist bench. Protocol v0.10.7; suites 118/117.
+19.3.0 answers the 19.2.0 review's three capability findings: specialists
+are executors now (workspace-wired members run a real act/observe loop
+over five gated, receipted tools), the Captain REASONS over its members'
+real answers (deterministic divergence pass + its own synthesis call, its
+own receipt), and the live-data GuardRail performs actual source
+retrieval when an evidence fetch is wired — "verified" then means fetched,
+and a disclosure stamp can never pose as a retrieval stamp. Built on
+19.2.0's multi-member execution and runtime GuardRail. Protocol v0.10.7;
+suites 120/119.
 
 | Gate | Command | Result |
 |---|---|---|
@@ -26,8 +27,10 @@ optimizer (estimates). Built on 19.1.0's Shipyard + Captains and
 | Collab identity | `node tools/run-one-probe.mjs collabInvite` | 29/29 |
 | Goals + session rules | `node tools/run-one-probe.mjs goals` | 26/26 |
 | Skills | `node tools/run-one-probe.mjs skills` | 16/16 |
-| Captains + multi-member execution | `node tools/run-one-probe.mjs captains` | 37/37 |
-| Live-data GuardRail | `node tools/run-one-probe.mjs liveData` | 17/17 |
+| Captains + multi-member + synthesis contract | `node tools/run-one-probe.mjs captains` | 38/38 |
+| Specialist tools + member agent loops | `node tools/run-one-probe.mjs agentTools` | 47/47 |
+| Captain synthesis | `node tools/run-one-probe.mjs synthesis` | 29/29 |
+| Live-data GuardRail (incl. retrieval) | `node tools/run-one-probe.mjs liveData` | 27/27 |
 | The Shipyard | `node tools/run-one-probe.mjs shipyard` | 22/22 |
 | Legacy isolation | `node tools/run-one-probe.mjs legacyCompat` | 3/3 |
 | Self-evolution | `node tools/run-one-probe.mjs selfEvolve` | 18/18 |
@@ -36,9 +39,20 @@ optimizer (estimates). Built on 19.1.0's Shipyard + Captains and
 | Team-Evolve | `node tools/run-one-probe.mjs teamEvolve` | 35/35 |
 | VH-19 door | `probe/vh19Door.test.tsx` (via `npm test`) | 28/28 |
 | Version identity | `node tools/run-one-probe.mjs versionDrift` | 41/41 |
-| Offline pack | `node verify/run.mjs` | 117 passed, 0 failed |
+| Offline pack | `node verify/run.mjs` | 119 passed, 0 failed |
 | Bare-machine verify | `sh VERIFY.sh` | green |
-| Live fleet | `npm test` | 118/118 suites green |
+| Live fleet | `npm test` | 120/120 suites green |
+
+---
+
+# 19.2.0 "Armada" — release verification record (standing depth record)
+
+True multi-member execution + runtime live-data GuardRail + honest naming.
+All 19.2.0 gates were green at ship time: tsc 0 · protocol 171 · unit 20 ·
+captains 37 · liveData 17 · shipyard 22 · skills 16 · goals 26 · vh19 81 ·
+teamEvolve 35 · vh19Door 28 · versionDrift 41 · offline 117 · live 118 ·
+VERIFY.sh green. Its disclosure-only GuardRail and report-only Captains
+are superseded by 19.3.0's retrieval + synthesis (VH-19.3-UPGRADE.md).
 
 ---
 

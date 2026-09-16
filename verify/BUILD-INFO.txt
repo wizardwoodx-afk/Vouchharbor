@@ -1,13 +1,23 @@
-Vouch Harbor 19.2.0 Armada
-built: 19.2.0 Armada
-ts:   2026-09-15T08:30:00Z
+Vouch Harbor 19.3.0 Vanguard
+built: 19.3.0 Vanguard
+ts:   2026-09-15T18:00:00Z
 git:  local
 protocol: vh-proof-receipt/2
 
-117 self-contained bundles in verify/suites (every probe suite except the pack's
+119 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 118 probe
-suites; the offline pack reproduces 117 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 120 probe
+suites; the offline pack reproduces 119 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-118 passed, 0 failed across 118 probe suites (node verify/run.mjs → 117 passed,
+120 passed, 0 failed across 120 probe suites (node verify/run.mjs → 119 passed,
 0 failed for the offline-only subset).
+
+19.3.0 "Vanguard" — the fleet-becomes-real release:
+  · specialists are executors: real act/observe tool loops, five gated tools,
+    every call receipted (probe/agentTools, 47 checks)
+  · Captain synthesis: divergence pass + the Captain's OWN reasoning call over
+    executed member answers (probe/synthesis, 29 checks)
+  · live-data GuardRail retrieval: cited sources fetched and claim-checked;
+    verifiedBy "retrieval" vs "disclosure" sealed in the digest
+    (probe/liveData, 27 checks)
+  · captains probe 38 checks incl. the synthesis contract in multi-member runs

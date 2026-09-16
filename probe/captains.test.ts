@@ -89,10 +89,16 @@ test("captains + failures — oversight that never fabricates", async () => {
   let callNo = 0;
   let failCallNo = -1;
   const calls: string[] = [];
+  // 19.3.0: the double is marker-aware — the Captain's synthesis call is a
+  // distinct provider call and gets its own distinct answer.
   const memberFetch = (async (_input: unknown, init?: unknown) => {
     const req = (init ?? {}) as RequestInit;
-    calls.push(String(req.body ?? ""));
+    const body = String(req.body ?? "");
+    calls.push(body);
     callNo += 1;
+    if (body.includes("single synthesized domain result")) {
+      return new Response(JSON.stringify({ choices: [{ message: { content: "CAPTAIN-SYNTHESIS: the combined result of all members." } }] }), { status: 200 });
+    }
     if (callNo === failCallNo) return new Response(JSON.stringify({ error: "member down" }), { status: 500 });
     return new Response(JSON.stringify({ choices: [{ message: { content: `member answer #${callNo}` } }] }), { status: 200 });
   }) as unknown as typeof fetch;
@@ -101,13 +107,14 @@ test("captains + failures — oversight that never fabricates", async () => {
   callNo = 0; calls.length = 0;
   const multi = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
   const nMem = multi.specialistIds.length;
-  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 = the LLM re-rank attempt)", nMem > 1 && calls.length === nMem + 1, { routed: nMem, calls: calls.length });
+  check("a multi-routed request makes ONE PROVIDER CALL PER MEMBER (+1 re-rank, +1 captain synthesis)", nMem > 1 && calls.length === nMem + 2, { routed: nMem, calls: calls.length });
   const memberAnswers = [...multi.reply.matchAll(/member answer #(\d+)/g)].map((m) => m[1]);
   check("each member's OWN distinct answer appears in the reply — no shared answer relabelled", memberAnswers.length === nMem && new Set(memberAnswers).size === nMem, memberAnswers);
   check("each member carries its own receipt digest, all distinct", (multi.captain?.members ?? []).every((m) => typeof m.memberDigest === "string" && /^[0-9a-f]{64}$/.test(m.memberDigest ?? "")) && new Set(multi.captain?.members.map((m) => m.memberDigest)).size === multi.specialistIds.length);
   check("the captain reports on N real member results — completed only when all answered", multi.captain?.status === "completed" && multi.captain?.members.every((m) => m.outcome === "answered"));
   check("the response note counts the real per-member executions", (multi.note ?? "").includes(`${multi.specialistIds.length} of ${multi.specialistIds.length} routed members executed`));
-  check("every member call lands in the token ledger", usageReport().calls === multi.specialistIds.length, usageReport());
+  check("every member call AND the synthesis call land in the token ledger", usageReport().calls === multi.specialistIds.length + 1, usageReport());
+  check("the run ends in the captain's OWN synthesis (19.3.0)", multi.synthesis !== undefined && multi.reply.includes("CAPTAIN-SYNTHESIS") && /^[0-9a-f]{64}$/.test(multi.synthesis?.digest ?? ""), multi.synthesis?.digest);
 
   callNo = 0; calls.length = 0; failCallNo = 2;
   const partialRun = await askVH19({ text: MULTI_TEXT, userId: "probe-user" }, { provider: prov, fetchImpl: memberFetch });
