@@ -1,0 +1,112 @@
+name: Vouch Harbor 19.4.5 platform builds
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [build/19.4.5-macos-linux]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-builds-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macos-arm64
+            os: macos-15
+            target: aarch64-apple-darwin
+            bundles: dmg
+          - name: macos-intel
+            os: macos-15-intel
+            target: x86_64-apple-darwin
+            bundles: dmg
+          - name: linux-x64
+            os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            bundles: deb,appimage
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          components: clippy
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev patchelf libdbus-1-dev
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: ${{ matrix.target }}
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Verify release version
+        run: node --input-type=module -e "import fs from 'node:fs'; for (const p of ['package.json', 'src-tauri/tauri.conf.json']) { if (JSON.parse(fs.readFileSync(p, 'utf8')).version !== '19.4.5') throw new Error(p + ' is not 19.4.5'); }"
+
+      - name: Typecheck and unit tests
+        run: |
+          npm run typecheck
+          npm run unit
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --locked --target ${{ matrix.target }}
+
+      - name: Rust lint
+        working-directory: src-tauri
+        run: cargo clippy --locked --all-targets --target ${{ matrix.target }} -- -D warnings
+
+      - name: Build macOS test installer (ad-hoc signed, not notarized)
+        if: runner.os == 'macOS'
+        run: >-
+          npm run tauri:build -- --ci
+          --target ${{ matrix.target }}
+          --bundles ${{ matrix.bundles }}
+          --config '{"bundle":{"icon":["icons/icon.icns","icons/icon.png"],"macOS":{"signingIdentity":"-"}}}'
+          -- --locked
+
+      - name: Build Linux installers
+        if: runner.os == 'Linux'
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        run: >-
+          npm run tauri:build -- --ci
+          --target ${{ matrix.target }}
+          --bundles ${{ matrix.bundles }}
+          -- --locked
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: VouchHarbor-19.4.5-${{ matrix.name }}
+          path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
+            src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+          retention-days: 14
