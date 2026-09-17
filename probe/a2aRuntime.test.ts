@@ -242,7 +242,9 @@ async function main(): Promise<void> {
      (rather than importing the package) is deliberate: node_modules/.bin/esbuild
      is a native executable on some installs, and this suite must stay
      dependency-free to ship inside the offline verification pack. */
-  const esbuildBin = path.join(ROOT, "node_modules", ".bin", process.platform === "win32" ? "esbuild.cmd" : "esbuild");
+  const esbuildBin = process.platform === "win32"
+    ? path.join(ROOT, "node_modules", "@esbuild", `win32-${process.arch}`, "esbuild.exe")
+    : path.join(ROOT, "node_modules", ".bin", "esbuild");
   if (!fs.existsSync(esbuildBin)) {
     console.log("  (esbuild not available here — source-rebuild check skipped; the sha256 pin above is enforced)");
   } else {

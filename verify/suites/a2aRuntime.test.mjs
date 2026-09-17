@@ -7305,7 +7305,7 @@ async function main() {
     "the shipped engine matches its committed sha256 pin (offline-capable gate)",
     pin.length === 64 && pin === createHash3("sha256").update(shipped).digest("hex")
   );
-  const esbuildBin = path3.join(ROOT, "node_modules", ".bin", process.platform === "win32" ? "esbuild.cmd" : "esbuild");
+  const esbuildBin = process.platform === "win32" ? path3.join(ROOT, "node_modules", "@esbuild", `win32-${process.arch}`, "esbuild.exe") : path3.join(ROOT, "node_modules", ".bin", "esbuild");
   if (!fs2.existsSync(esbuildBin)) {
     console.log("  (esbuild not available here \u2014 source-rebuild check skipped; the sha256 pin above is enforced)");
   } else {

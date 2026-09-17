@@ -6,7 +6,7 @@
   "suites": {
     "a2a.test.mjs": "41dd0465cf373448ee8609e9b3219dd5f9fea6fcc3c6ebedd6b66b6e143f344b",
     "a2aBridge.test.mjs": "d6787a1d325c445ef85c2cd7f778825bbd791898ca4bb78b49bb89036b81efa2",
-    "a2aRuntime.test.mjs": "b427395c5bcff951ef30f706f7af0d8a3b5629fabbdb1967635ea1c986bcaad5",
+    "a2aRuntime.test.mjs": "3a6cbb9c6438a6820c6b28409ec5ab489f87412c84671358c01dd1b276859e90",
     "a2aV10.test.mjs": "5a415b67ff7c58a153d95a9c59ae176683f0bb07f372f85d22ad006bec11ab39",
     "acceptance.test.mjs": "88fc3e96126549bc7b3f54c25cab9b9b884c10fbd382eb48e34b77b56ac65576",
     "acp.test.mjs": "e4a183a58419bc45a08bf7a67f69dabbda694cada5ab8dca67031a08ac593ec3",
