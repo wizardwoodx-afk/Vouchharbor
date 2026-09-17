@@ -39,6 +39,8 @@ import type { HandoffRecord } from '../vh19/handoffs';
 import type { Goal, StepOutcome } from '../vh19/goals';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { complete } from '../vh19/providers';
+import { VhAvatar } from '../vh19/avatar';
+import { GeneralistFace, type GeneralistMood } from '../vh19/generalistFace';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/connectors';
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
@@ -51,6 +53,11 @@ import type { ExamGrade, ExamSession, GateAsk, GateDecision, GeneralistResponse,
 
 const USER = 'local';
 const PROVIDER_STORAGE_KEY = 'vh.provider.remembered.v1';
+const USER_HANDLE_KEY = 'vh.user.handle.v1';
+/** The user's avatar seed — their handle if they set one, else a stable local identity. SSR-safe. */
+function readUserHandle(): string {
+  try { return (typeof localStorage !== 'undefined' && localStorage.getItem(USER_HANDLE_KEY)) || 'you@vouchharbor.local'; } catch { return 'you@vouchharbor.local'; }
+}
 
 /** Vite injects import.meta.env; probe bundles run without it — read defensively. */
 const VITE_ENV = ((import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {}) as Record<string, string | undefined>;
@@ -102,6 +109,10 @@ export const Vh19: React.FC = () => {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
+  // 19.5.0 — the user's identity drives their avatar. One face per handle, forever.
+  const [userHandle, setUserHandle] = useState<string>(() => readUserHandle());
+  const [editingHandle, setEditingHandle] = useState(false);
+  const [handleDraft, setHandleDraft] = useState('');
   const [errorNote, setErrorNote] = useState<string | null>(null);
   const [provider, setProvider] = useState<ProviderConfig | null>(() => loadRememberedProvider());
   const [remember, setRemember] = useState<boolean>(() => loadRememberedProvider() !== null);
@@ -357,6 +368,41 @@ export const Vh19: React.FC = () => {
           <span className="px-brand-mark" aria-hidden="true" />
           <span className="px-brand-name">VH-19</span>
           <span className="px-brand-sub">the receipt OS for AI agents</span>
+          <span className="px-avatar-slot" title="the Generalist">
+            <VhAvatar seed="vh-generalist" name="the Generalist" size={30} state={gateAsk ? 'gate' : busy ? 'thinking' : 'idle'} />
+          </span>
+        </div>
+        <div className="px-identity" title="Your avatar is generated from your handle — one face, forever. Receipts remain the evidence.">
+          {editingHandle ? (
+            <form
+              className="px-identity-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const v = handleDraft.trim().slice(0, 40);
+                if (v) {
+                  setUserHandle(v);
+                  try { localStorage.setItem(USER_HANDLE_KEY, v); } catch { /* storage unavailable — session-only, stated */ }
+                }
+                setEditingHandle(false);
+              }}
+            >
+              <input
+                autoFocus
+                value={handleDraft}
+                onChange={(e) => setHandleDraft(e.target.value)}
+                placeholder="your-handle"
+                aria-label="your handle"
+                className="px-identity-input"
+              />
+              <button type="submit" className="px-btn px-btn-sm">Seal</button>
+              <button type="button" className="px-btn px-btn-sm" onClick={() => setEditingHandle(false)}>Keep</button>
+            </form>
+          ) : (
+            <button className="px-identity-chip" onClick={() => { setHandleDraft(userHandle); setEditingHandle(true); }}>
+              <VhAvatar seed={userHandle} name={userHandle} size={26} state="idle" />
+              <span className="px-identity-handle">{userHandle}</span>
+            </button>
+          )}
         </div>
         <div className="px-top-kpis">
           <div className="px-kpi"><span className="px-kpi-value">{enabledCount}<small>/{stats.count}</small></span><span className="px-kpi-label">bench enabled</span></div>
@@ -390,13 +436,20 @@ export const Vh19: React.FC = () => {
                 {!ws && <div className="px-muted" style={{ fontSize: 12, marginTop: 8 }}>Attach a workspace (sandbox or a real folder) to unlock specialist tools.</div>}
               </div>
             )}
+            <div className="vh-face-stage">
+              <GeneralistFace mood={((): GeneralistMood => (gateAsk ? 'gate' : busy ? 'thinking' : 'idle'))()} />
+            </div>
             {messages.map((m) => (
               <div key={m.id} className={m.role === 'user' ? 'px-msg px-msg-user px-rise' : 'px-msg px-msg-agent px-rise'}>
                 {m.role === 'user' ? (
-                  <div className="px-bubble-user">{m.text}<span className="px-msg-time">{m.ts}</span></div>
+                  <div className="px-row-user">
+                    <div className="px-bubble-user">{m.text}<span className="px-msg-time">{m.ts}</span></div>
+                    <VhAvatar seed={userHandle} name="you" size={26} state="idle" />
+                  </div>
                 ) : (
                   <div className="px-bubble-agent">
                     <div className="px-msg-meta">
+                      <VhAvatar seed="vh-generalist" name="the Generalist" size={20} state={m.resp?.outcome === 'gated-out' ? 'gate' : m.resp?.outcome === 'refused' ? 'refused' : 'idle'} />
                       <span className="px-chip">VH-19</span>
                       <span className="px-msg-time">{m.ts}</span>
                       {m.resp && <span className={`px-pill ${OUTCOME_PILL[m.resp.outcome].cls}`}>{OUTCOME_PILL[m.resp.outcome].label}</span>}

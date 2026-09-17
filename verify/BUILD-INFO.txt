@@ -1,16 +1,17 @@
-Vouch Harbor 19.4.5 Broader
-built: 19.4.5 Broader
+Vouch Harbor 19.5.0 Authority
+built: 19.5.0 Authority
 ts:   2026-09-16T02:53:35Z
 git:  local
 protocol: vh-proof-receipt/2
 
-119 self-contained bundles in verify/suites (every probe suite except the pack's
+121 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 120 probe
-suites; the offline pack reproduces 119 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 122 probe
+suites; the offline pack reproduces 121 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-120 passed, 0 failed across 120 probe suites (node verify/run.mjs → 119 passed,
-0 failed for the offline-only subset).
+122 passed, 0 failed across 122 probe suites (node verify/run.mjs → 121 passed,
+0 failed for the offline-only subset). Suite 121 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 122 is probe/authority (the Authority Suite + VouchMesh) —
+the pre-seed Agentic Test Protocol v1 (24/24 on this build).
 
 19.3.0 "Vanguard" — the fleet-becomes-real release:
   · specialists are executors: real act/observe tool loops, five gated tools,

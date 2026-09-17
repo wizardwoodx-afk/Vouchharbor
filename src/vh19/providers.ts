@@ -102,6 +102,8 @@ function buildRequest(cfg: ProviderConfig, system: string, user: string): { url:
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: system }] },
             contents: [{ role: "user", parts: [{ text: user }] }],
+            // Thinking models spend part of the budget on thoughts — give room.
+            generationConfig: { maxOutputTokens: 4096 },
           }),
         },
       };
@@ -119,8 +121,10 @@ function extractText(cfg: ProviderConfig, body: unknown): string | null {
       const parts = (b.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "");
       return parts.length ? parts.join("") : null;
     }
-    const b = body as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-    const parts = b.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "") ?? [];
+    const b = body as { candidates?: Array<{ content?: { parts?: Array<{ text?: string; thought?: boolean }> } }> };
+    // Thinking models (Gemma 4, Gemini 3.x flash) interleave thought parts —
+    // those are reasoning, never the agent's answer. Filter them out.
+    const parts = (b.candidates?.[0]?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "");
     return parts.length ? parts.join("") : null;
   } catch {
     return null;

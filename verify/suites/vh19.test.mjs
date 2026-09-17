@@ -6022,7 +6022,9 @@ function buildRequest(cfg, system, user) {
           headers: { "content-type": "application/json", "x-goog-api-key": cfg.apiKey },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: "user", parts: [{ text: user }] }]
+            contents: [{ role: "user", parts: [{ text: user }] }],
+            // Thinking models spend part of the budget on thoughts — give room.
+            generationConfig: { maxOutputTokens: 4096 }
           })
         }
       };
@@ -6040,7 +6042,7 @@ function extractText(cfg, body) {
       return parts2.length ? parts2.join("") : null;
     }
     const b2 = body;
-    const parts = b2.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "") ?? [];
+    const parts = (b2.candidates?.[0]?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "");
     return parts.length ? parts.join("") : null;
   } catch {
     return null;

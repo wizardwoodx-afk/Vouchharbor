@@ -917,3 +917,34 @@ a { color: inherit; }
 /* cards recede until touched */
 .card { transition: border-color 160ms linear, transform 160ms var(--ease-out-soft); }
 .card:hover { border-color: rgba(45, 49, 66, 0.22); }
+
+/* ── VH Avatars (19.5.0, adapted from OneWorks Avatar, MIT) ─────────────── */
+.px-avatar-slot { display: inline-flex; margin-left: 10px; vertical-align: middle; }
+.px-row-user { display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; }
+.vh-avatar { flex: none; }
+.vh-avatar--thinking .vh-avatar__facet { animation: vh-facet-seek 2.4s ease-in-out infinite; }
+.vh-avatar--acting .vh-avatar__facet { animation: vh-facet-seek 1.2s ease-in-out infinite; }
+.vh-avatar--gate { filter: drop-shadow(0 0 0.5px rgba(130,114,120,.6)); }
+.vh-avatar--sealed .vh-avatar__seal { animation: vh-seal-stamp .5s ease-out; transform-origin: 76px 76px; }
+@keyframes vh-facet-seek { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+@keyframes vh-seal-stamp { 0% { transform: scale(1.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .vh-avatar--thinking .vh-avatar__facet, .vh-avatar--acting .vh-avatar__facet, .vh-avatar--sealed .vh-avatar__seal { animation: none; }
+}
+.px-identity { display: flex; align-items: center; }
+.px-identity-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 5px; border: 1px solid var(--border-soft); border-radius: 999px; background: var(--bg-hover); cursor: pointer; }
+.px-identity-chip:hover { border-color: var(--border); }
+.px-identity-handle { font-size: 12.5px; color: var(--text); font-weight: 500; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.px-identity-form { display: inline-flex; align-items: center; gap: 6px; }
+.px-identity-input { font: inherit; font-size: 13px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-elev); color: var(--text); width: 180px; }
+.px-identity-input:focus { outline: none; border-color: var(--accent); }
+
+/* ── The Generalist's face (OneWorks Avatar engine, MIT) ─────────────────── */
+.vh-face-stage { display: flex; justify-content: center; padding: 14px 0 4px; }
+.vh-face { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vh-face-render { border-radius: 18px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--bg-elev); }
+.vh-face-render svg, .vh-face-render canvas { display: block; }
+.vh-face-caption { font-size: 11.5px; letter-spacing: .04em; color: var(--aged); font-style: italic; }
+.vh-face--gate .vh-face-caption { color: var(--warn); font-style: normal; font-weight: 600; }
+.vh-face--refused .vh-face-caption { color: var(--err); font-style: normal; }
+.vh-face--sealed .vh-face-caption { color: var(--accent); }
