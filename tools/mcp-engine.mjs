@@ -13,7 +13,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -56,18 +56,28 @@ var init_client = __esm({
 });
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -2916,7 +2926,7 @@ function deriveSessionId(seed) {
     h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
     h2 = Math.imul(h2 + c + i, 2246822519) >>> 0;
   }
-  const hex = (n2, len) => n2.toString(16).padStart(len, "0").slice(-len);
+  const hex = (n, len) => n.toString(16).padStart(len, "0").slice(-len);
   return `${hex(h1, 8)}-${hex(h2, 4)}-4${hex(h1 >>> 8, 3)}-a${hex(h2 >>> 12, 3)}-${hex(h1 ^ h2, 8)}${hex(h2 ^ h1, 4)}`;
 }
 var SessionStore = class {
@@ -5326,8 +5336,8 @@ var CapLedger = class {
   recordCapped(id, outcome, detail, at = (/* @__PURE__ */ new Date()).toISOString()) {
     this.state.cappedInvocations.push({ id, outcome, at, detail });
   }
-  addTurns(n2) {
-    this.state.turnsUsed += n2;
+  addTurns(n) {
+    this.state.turnsUsed += n;
   }
   snapshot() {
     return { ...this.state, cappedInvocations: [...this.state.cappedInvocations] };
@@ -5377,8 +5387,8 @@ function parseReportedUsage(harness, raw) {
     } else {
       tokens2 = t;
     }
-    const n2 = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
-    if (n2 !== null) turns = n2;
+    const n = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
+    if (n !== null) turns = n;
   }
   if (harness === "codex") costUsd = null;
   return { costUsd, tokens: tokens2, turns, source: harness };
@@ -6157,7 +6167,7 @@ Spent: $${(spentUsd2 || 0).toFixed(4)}`, "orchestrator", "finding");
     const gated2 = gateTheRun({
       status: status2,
       seats,
-      notRun: notRun.map((n2) => n2.seatId),
+      notRun: notRun.map((n) => n.seatId),
       snapshot: snapshot2,
       policy: req.gatePolicy ?? loadGatePolicy()
     });
@@ -6219,7 +6229,7 @@ Spent: $${(spentUsd2 || 0).toFixed(4)}`, "orchestrator", "finding");
   if (!packetGate.ok) {
     return finish("aborted", `Refused before any invocation by its action packet \u2014 ${packetGate.reason}`, 0, emptySnapshot, []);
   }
-  const arenaReport = await (deps.arenaRunner ?? ((n2) => runGovernanceArena({ now: n2 })))(t0);
+  const arenaReport = await (deps.arenaRunner ?? ((n) => runGovernanceArena({ now: n })))(t0);
   arenaStamp = {
     gate: arenaReport.gate,
     digest: arenaReport.digest,
@@ -6520,7 +6530,7 @@ ${lessonLines.map((l) => `- ${l}`).join("\n")}
   const gated = gateTheRun({
     status,
     seats,
-    notRun: notRun.map((n2) => n2.seatId),
+    notRun: notRun.map((n) => n.seatId),
     snapshot,
     policy: req.gatePolicy ?? loadGatePolicy()
   });
@@ -6901,10 +6911,10 @@ function summariseOutput(raw) {
   if (texts.length === 0) return raw.trim().slice(-800);
   return texts.join("\n").trim().slice(-800);
 }
-function tail(s, n2 = OUTPUT_TAIL_CHARS) {
+function tail(s, n = OUTPUT_TAIL_CHARS) {
   const t = s.trimEnd();
-  return t.length > n2 ? `\u2026(truncated ${t.length - n2} chars)\u2026
-${t.slice(-n2)}` : t;
+  return t.length > n ? `\u2026(truncated ${t.length - n} chars)\u2026
+${t.slice(-n)}` : t;
 }
 function unrunRecord(a, wt, outcome, reason) {
   const caps = resolveCaps(a.seat.harness).caps;
@@ -6947,7 +6957,7 @@ function buildSummary(o) {
   else if (o.snapshot.writerBranches.length === 0) parts.push("No review snapshot was built because no writer committed anything.");
   if (o.spentUsd > 0) parts.push(`Reported spend $${o.spentUsd.toFixed(4)}.`);
   else parts.push("No cost was reported by any CLI, so the true spend is unknown rather than zero.");
-  if (o.notRun.length) parts.push(`${o.notRun.length} seat(s) never ran: ${o.notRun.map((n2) => n2.seatId).join(", ")}.`);
+  if (o.notRun.length) parts.push(`${o.notRun.length} seat(s) never ran: ${o.notRun.map((n) => n.seatId).join(", ")}.`);
   if (o.briefings.some((f) => f.writtenTo.length === 0)) parts.push("At least one briefing could not be written, so some agents ran without the mission brief.");
   if (o.status === "blocked") parts.push("Nothing completed \u2014 this run produced no usable work.");
   return parts.join(" ");
@@ -7901,9 +7911,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -7920,7 +7930,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -7932,7 +7942,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -8753,9 +8763,9 @@ function deterministicRepair(tool, args, errors) {
   }
   if (tool === "workspace_write") {
     if (errs.includes("name") || errs.includes("too_small")) {
-      const n2 = typeof out.name === "string" ? out.name.trim() : "";
-      if (n2.includes("..")) out.name = n2.split(/[\\/]/).filter((s) => s && s !== "..").pop() ?? n2;
-      else if (n2) out.name = n2;
+      const n = typeof out.name === "string" ? out.name.trim() : "";
+      if (n.includes("..")) out.name = n.split(/[\\/]/).filter((s) => s && s !== "..").pop() ?? n;
+      else if (n) out.name = n;
     }
     if (errs.includes("content") && typeof out.content === "string" && out.content.length > 1e6) {
       out.content = out.content.slice(0, 1e6);
@@ -9775,7 +9785,7 @@ async function runVouchToolCall(tool, args, opts = {}) {
   let action = isDispatch ? { kind: "dispatch", objective: String(args.objective ?? "").trim() } : { kind: "tool", tool, args };
   const objective = action.kind === "dispatch" ? action.objective : "";
   let approvalIdRef = null;
-  const finalize = async (r) => {
+  const finalize2 = async (r) => {
     events.push({
       kind: isDispatch ? "vouch.dispatch" : "vouch.action",
       seatId: "vouch-core",
@@ -9835,14 +9845,14 @@ async function runVouchToolCall(tool, args, opts = {}) {
   events.push({ kind: "policy.decision", seatId: "vouch-policy", data: { tool, decision: policy.decision, rule: policy.rule, reason: policy.reason } });
   if (policy.decision === "deny") {
     emitInterrupt(agRunId2, `toolcall:${callId}`, agTcId2, tool, `${policy.reason} (rule: ${policy.rule})`);
-    return finalize({ ok: false, output: `Policy denied: ${policy.reason} (rule: ${policy.rule})`, approved: false, simulated: false, mission: null });
+    return finalize2({ ok: false, output: `Policy denied: ${policy.reason} (rule: ${policy.rule})`, approved: false, simulated: false, mission: null });
   }
   const risky = policy.decision === "steer";
   const gr = scanToolCall(tool, args);
   if (!gr.ok) {
     events.push({ kind: "tool.guardrail_refused", seatId: "vouch-guardrail", data: { tool, code: gr.code, reason: gr.reason } });
     emitInterrupt(agRunId2, `toolcall:${callId}`, agTcId2, tool, `guardrail: ${gr.reason}`);
-    return finalize({ ok: false, output: `GuardRail refused ${tool}: ${gr.reason} (code: ${gr.code}) \u2014 nothing executed.`, approved: false, simulated: false, mission: null });
+    return finalize2({ ok: false, output: `GuardRail refused ${tool}: ${gr.reason} (code: ${gr.code}) \u2014 nothing executed.`, approved: false, simulated: false, mission: null });
   }
   if (gr.warnings.length > 0) {
     events.push({ kind: "tool.guardrail_warnings", seatId: "vouch-guardrail", data: { tool, warnings: gr.warnings.slice(0, 8) } });
@@ -9855,14 +9865,14 @@ async function runVouchToolCall(tool, args, opts = {}) {
   if (!v.ok) {
     const msg = `Schema validation failed for ${tool} after one retry: ${v.audit.errors} \u2014 refusing, nothing executed.`;
     events.push({ kind: "tool.schema_refused", seatId: "vouch-schema", data: { tool, rawArgs: v.audit.rawArgs, repairedArgs: v.audit.repairedArgs, errors: v.audit.errors, attempts: v.audit.attempts - 1, repairSource: v.audit.repairSource, repairReason: v.audit.repairReason } });
-    return finalize({ ok: false, output: msg, approved: true, simulated: false, mission: null });
+    return finalize2({ ok: false, output: msg, approved: true, simulated: false, mission: null });
   }
   if (isDispatch) action = { kind: "dispatch", objective: String(args.objective ?? "") };
   if (!isDispatch && VOUCH_TOOLS[tool] === void 0) {
-    return finalize({ ok: false, output: `unknown tool "${tool}" \u2014 refused. Known tools: ${[...Object.keys(VOUCH_TOOLS), "dispatch_mission"].join(", ")}`, approved: true, simulated: false, mission: null });
+    return finalize2({ ok: false, output: `unknown tool "${tool}" \u2014 refused. Known tools: ${[...Object.keys(VOUCH_TOOLS), "dispatch_mission"].join(", ")}`, approved: true, simulated: false, mission: null });
   }
   if (isDispatch && String(args.objective ?? "").length === 0) {
-    return finalize({ ok: false, output: "dispatch_mission needs an objective \u2014 refused, nothing dispatched.", approved: true, simulated: false, mission: null });
+    return finalize2({ ok: false, output: "dispatch_mission needs an objective \u2014 refused, nothing dispatched.", approved: true, simulated: false, mission: null });
   }
   const runAction = async () => {
     if (isDispatch) {
@@ -9891,7 +9901,7 @@ async function runVouchToolCall(tool, args, opts = {}) {
   };
   if (!risky) {
     const a = await runAction();
-    return finalize({ ok: a.ok, output: a.output, approved: true, simulated: false, mission: a.mission });
+    return finalize2({ ok: a.ok, output: a.output, approved: true, simulated: false, mission: a.mission });
   }
   const sim = simulateVouchAction(action);
   events.push({ kind: "vouch.simulation", seatId: "vouch-core", data: { tool, prediction: sim.prediction, sideEffects: sim.sideEffects, warnings: sim.warnings, confidence: sim.confidence } });
@@ -9903,11 +9913,11 @@ WARNINGS: ${sim.warnings.join("; ")}` : ""}`;
   approvalIdRef = vouchSession().approvals[vouchSession().approvals.length - 1]?.id ?? null;
   const settle2 = async (granted) => {
     if (!granted) {
-      return finalize({ ok: false, output: "Denied by the human gate \u2014 nothing was executed.", approved: false, simulated: true, mission: null });
+      return finalize2({ ok: false, output: "Denied by the human gate \u2014 nothing was executed.", approved: false, simulated: true, mission: null });
     }
     toolCallTracks.get(callId).state = "running";
     const a = await runAction();
-    return finalize({ ok: a.ok, output: a.output, approved: true, simulated: true, mission: a.mission });
+    return finalize2({ ok: a.ok, output: a.output, approved: true, simulated: true, mission: a.mission });
   };
   if (opts.blockOnGate) {
     const granted = await approvalPromise;
@@ -10707,6 +10717,639 @@ registerDrillTool();
 
 // src/vouch/engine/mcpRouter.ts
 init_version();
+
+// src/vh19/computerUse.ts
+var sha2562 = (t) => {
+  let h1 = 2166136261, h2 = 16777619;
+  for (let i = 0; i < t.length; i++) {
+    h1 = Math.imul(h1 ^ t.charCodeAt(i), 16777619) >>> 0;
+    h2 = Math.imul(h2 ^ t.charCodeAt(t.length - 1 - i), 16777619) >>> 0;
+  }
+  let out = "";
+  for (let i = 0; i < 8; i++) {
+    out += (h1 = Math.imul(h1 ^ h1 >>> 15, 2246822507) >>> 0).toString(16).padStart(8, "0").slice(0, 4) + (h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909) >>> 0).toString(16).padStart(8, "0").slice(0, 4);
+    h1 ^= h2;
+  }
+  return out;
+};
+var SHELL_META = /[;&|`$<>!*?\n\r]/;
+function pcExec(binary, args, policy, risk, opts = {}) {
+  const started = Date.now();
+  const refuse = (reason) => finalize({
+    kind: "pc.exec",
+    binary,
+    args,
+    decision: "refused",
+    exitCode: null,
+    timedOut: false,
+    stdoutDigest: "",
+    stderrDigest: "",
+    stdoutPreview: "",
+    reason,
+    durationMs: Date.now() - started
+  });
+  if (risk === "critical") {
+    return finalize({
+      kind: "pc.exec",
+      binary,
+      args,
+      decision: "handover",
+      exitCode: null,
+      timedOut: false,
+      stdoutDigest: "",
+      stderrDigest: "",
+      stdoutPreview: "",
+      reason: "critical-tier command: handed to the human gate, not executed",
+      durationMs: Date.now() - started
+    });
+  }
+  if (!policy.allowlist.includes(binary)) {
+    return refuse(`binary "${binary}" is not on this mission's allowlist (${policy.allowlist.join(", ") || "empty"})`);
+  }
+  const injected = args.filter((a) => SHELL_META.test(a));
+  if (injected.length) {
+    return refuse(`shell metacharacters in arguments (${injected.join(", ")}) \u2014 injection risk, refusing`);
+  }
+  const run = opts.run ?? defaultRun;
+  let out;
+  try {
+    out = run(binary, args, policy.maxRuntimeMs);
+  } catch (err) {
+    return refuse(`execution failed to start: ${err.message}`);
+  }
+  const stdout = out.stdout.slice(0, policy.maxOutputBytes);
+  return finalize({
+    kind: "pc.exec",
+    binary,
+    args,
+    decision: "executed",
+    exitCode: out.status,
+    timedOut: out.timedOut,
+    stdoutDigest: sha2562(out.stdout),
+    stderrDigest: sha2562(out.stderr),
+    stdoutPreview: stdout.slice(0, 400),
+    reason: out.timedOut ? `ran past the ${policy.maxRuntimeMs}ms ceiling and was stopped` : "completed within bounds",
+    durationMs: Date.now() - started
+  });
+}
+function defaultRun(_bin, _args, _timeoutMs) {
+  throw new Error("no process runner attached to this runtime \u2014 node runtimes inject one from computerUseNode; this execution was refused, not faked");
+}
+function finalize(base) {
+  return { ...base, digest: sha2562(JSON.stringify(base)) };
+}
+function newProfile(missionId, name = "default") {
+  return { name, missionId, userAgent: `VH-Reach/19.5 (accountable-agent; mission ${missionId})`, viewport: { width: 1280, height: 800 }, cookiesAllowed: false };
+}
+var missionBrowsers = /* @__PURE__ */ new Map();
+function missionBrowser(missionId, transport, binary, spawn) {
+  let b = missionBrowsers.get(missionId);
+  if (!b) {
+    b = new HeadlessBrowser(newProfile(missionId), transport ?? fetchTransport, binary ?? null, spawn);
+    missionBrowsers.set(missionId, b);
+  } else {
+    if (transport && b.transport !== transport) b.transport = transport;
+    if (binary !== void 0 && binary !== null && b.binary !== binary) b.binary = binary;
+    if (spawn && b.spawn !== spawn) b.spawn = spawn;
+  }
+  return b;
+}
+function detectBrowserBinary(paths = DEFAULT_BROWSER_PATHS, exists) {
+  if (!exists) return null;
+  for (const p of paths) if (exists(p)) return p;
+  return null;
+}
+var DEFAULT_BROWSER_PATHS = [
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/snap/bin/chromium",
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+];
+var fetchTransport = {
+  async open(url, profile) {
+    const res = await fetch(url, { headers: { "user-agent": profile.userAgent }, redirect: "follow" });
+    const html = await res.text();
+    return parseSnapshot(url, res.status, html);
+  },
+  async act(_snapshot, action) {
+    if (action.type === "navigate") {
+      const res = await fetch(action.url, { redirect: "follow" });
+      return parseSnapshot(action.url, res.status, await res.text());
+    }
+    throw new Error("click/type require a live browser session \u2014 use the browser binary plane for interactive acts");
+  }
+};
+function parseSnapshot(url, status, html) {
+  const title = /<title[^>]*>([^<]*)<\/title>/i.exec(html)?.[1]?.trim() ?? "";
+  const links = Array.from(html.matchAll(/href="([^"]+)"/gi)).map((m) => m[1]).slice(0, 50);
+  return { url, title, links, status };
+}
+var HeadlessBrowser = class {
+  profile;
+  /* public so the mission registry can upgrade bindings on a live session */
+  transport;
+  binary;
+  steps = [];
+  spawn;
+  constructor(profile, transport = fetchTransport, binary = detectBrowserBinary(), spawn) {
+    this.profile = profile;
+    this.transport = transport;
+    this.binary = binary;
+    this.spawn = spawn;
+  }
+  record(receipt) {
+    const full = finalize({ ...receipt, missionId: this.profile.missionId });
+    this.steps.push(full);
+    return full;
+  }
+  guardUrl(url) {
+    if (!url.startsWith("https://")) return "plain-http navigation refused \u2014 the browser plane is HTTPS-by-policy";
+    const g = checkEgressUrl(url);
+    if (!g.ok) return `egress guard refused: ${g.reason}`;
+    let host = "";
+    try {
+      host = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    } catch {
+      return "egress guard refused: not a parseable URL";
+    }
+    if (host === "localhost" || host === "::1" || host === "0.0.0.0" || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2[0-9]|3[01])\./.test(host) || /^[fu][cd][0-9a-f]{2}:/.test(host)) {
+      return "egress guard (browser plane): local/private address refused \u2014 navigation is stricter than general egress";
+    }
+    return null;
+  }
+  async open(url, risk = "risky") {
+    if (risk === "critical") {
+      return this.record({ kind: "pc.browser", action: { type: "open", url }, decision: "handover", result: null, reason: "critical-tier navigation: handed to the human gate" });
+    }
+    const refusal = this.guardUrl(url);
+    if (refusal) return this.record({ kind: "pc.browser", action: { type: "open", url }, decision: "refused", result: null, reason: refusal });
+    try {
+      const result2 = await this.transport.open(url, this.profile);
+      return this.record({ kind: "pc.browser", action: { type: "open", url }, decision: "executed", result: result2, reason: `loaded (${result2.status}) under profile ${this.profile.name}` });
+    } catch (err) {
+      return this.record({ kind: "pc.browser", action: { type: "open", url }, decision: "refused", result: null, reason: `load failed: ${err.message} \u2014 nothing faked` });
+    }
+  }
+  async act(current, action, risk = "risky") {
+    if (risk === "critical") {
+      return this.record({ kind: "pc.browser", action, decision: "handover", result: null, reason: "critical-tier page action: handed to the human gate" });
+    }
+    if (action.type === "navigate") {
+      const refusal = this.guardUrl(action.url);
+      if (refusal) return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: refusal });
+    }
+    try {
+      const result2 = await this.transport.act(current, action);
+      return this.record({ kind: "pc.browser", action, decision: "executed", result: result2, reason: "action applied under the mission profile" });
+    } catch (err) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: `action failed: ${err.message}` });
+    }
+  }
+  /**
+   * Screenshot via the real browser binary when present. No binary → an
+   * honest refusal; the receipt records what could not be done.
+   */
+  screenshot(outPath) {
+    const action = { type: "navigate", url: "screenshot" };
+    if (!this.binary) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: "no browser binary on this machine \u2014 screenshot refused, not faked" });
+    }
+    const last = [...this.steps].reverse().find((s) => s.result && s.decision === "executed");
+    if (!last?.result) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: "no page is currently loaded \u2014 open a page before screenshotting" });
+    }
+    if (!this.spawn) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: "browser binary present but no process runner attached to this runtime \u2014 screenshot refused, not faked" });
+    }
+    const r = this.spawn(this.binary, ["--headless", "--disable-gpu", "--no-sandbox", `--screenshot=${outPath}`, `--window-size=${this.profile.viewport.width},${this.profile.viewport.height}`, last.result.url]);
+    if (r.status !== 0) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: `browser binary exited ${r.status}: ${(r.stderr ?? "").slice(0, 200)}` });
+    }
+    return this.record({ kind: "pc.browser", action, decision: "executed", result: last.result, reason: `screenshot written to ${outPath}` });
+  }
+  /** Mission teardown: the profile's state is declared destroyed. */
+  teardown() {
+    return { missionId: this.profile.missionId, stepsReceipted: this.steps.length, digest: sha2562(this.steps.map((s) => s.digest).join("|")) };
+  }
+};
+
+// src/vh19/authorityCore.ts
+var mandateCanonical = (m) => JSON.stringify({
+  v: "vh.mandate.v1",
+  agentId: m.agentId,
+  owner: m.owner,
+  scope: [...m.scope].sort(),
+  budgetCap: m.budgetCap,
+  maxDepth: m.maxDepth,
+  issuedAt: m.issuedAt,
+  expiresAt: m.expiresAt
+});
+function bytesToB64(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return typeof btoa === "function" ? btoa(s) : Buffer.from(bytes).toString("base64");
+}
+function b64ToBytes(b64) {
+  const s = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
+  const out = new Uint8Array(new ArrayBuffer(s.length));
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+
+// src/vh19/authorityWeb.ts
+var EC = { name: "ECDSA", namedCurve: "P-256" };
+async function generateOwnerKeysWeb() {
+  const pair = await crypto.subtle.generateKey(EC, true, ["sign", "verify"]);
+  const spki = await crypto.subtle.exportKey("spki", pair.publicKey);
+  return { privateKey: pair.privateKey, publicKey: pair.publicKey, publicKeyPem: pem("PUBLIC KEY", spki) };
+}
+function pem(label, der) {
+  const b64 = bytesToB64(new Uint8Array(der));
+  const lines = b64.match(/.{1,64}/g) ?? [b64];
+  return `-----BEGIN ${label}-----
+${lines.join("\n")}
+-----END ${label}-----
+`;
+}
+async function importPublicKeyWeb(publicKeyPem) {
+  const b64 = publicKeyPem.replace(/-----(BEGIN|END) [A-Z ]+-----/g, "").replace(/\s+/g, "");
+  return crypto.subtle.importKey("spki", b64ToBytes(b64).buffer, EC, false, ["verify"]);
+}
+async function signMandateWeb(m, keys) {
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keys.privateKey, new TextEncoder().encode(mandateCanonical(m)).buffer);
+  return { ...m, signature: `ecdsa-p256:${bytesToB64(new Uint8Array(sig))}` };
+}
+async function verifyMandateWeb(m, publicKeyPem, now = Date.now()) {
+  if (!m) return { ok: false, reason: "missing", detail: "no mandate passport \u2014 the agent does not act" };
+  if (!m.owner) return { ok: false, reason: "no-owner", detail: "a mandate without a named human owner is not authority" };
+  if (now > m.expiresAt) return { ok: false, reason: "expired", detail: "mandate expired \u2014 re-issue it" };
+  if (!m.signature?.startsWith("ecdsa-p256:")) {
+    return { ok: false, reason: "bad-signature", detail: "not an asymmetric signature \u2014 refusing to treat symmetric HMAC as portable authority" };
+  }
+  try {
+    const pub = await importPublicKeyWeb(publicKeyPem);
+    const ok = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pub, b64ToBytes(m.signature.slice("ecdsa-p256:".length)), new TextEncoder().encode(mandateCanonical(m)).buffer);
+    if (!ok) return { ok: false, reason: "bad-signature", detail: "asymmetric signature does not verify \u2014 treating as forged" };
+    return { ok: true, mandate: m };
+  } catch {
+    return { ok: false, reason: "bad-signature", detail: "public key or signature malformed \u2014 treating as forged" };
+  }
+}
+var sha256HexWeb = async (t) => {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+async function verifyAuthorityBindingWeb(binding, receiptDigest, hopDigest, expectedMandateDigest = null) {
+  const legacy = binding.mandateDigest == null;
+  const base = legacy ? { receiptDigest, hopDigest, mandateOwner: binding.mandateOwner } : { receiptDigest, mandateDigest: binding.mandateDigest, hopDigest, mandateOwner: binding.mandateOwner };
+  const want = await sha256HexWeb(JSON.stringify(base));
+  if (want !== binding.digest || binding.receiptDigest !== receiptDigest) return false;
+  if (expectedMandateDigest !== null && !legacy && binding.mandateDigest !== expectedMandateDigest) return false;
+  return true;
+}
+
+// src/vh19/ownerKeyStore.ts
+var OWNER_KEY_REF = "vh19.ownerKeys";
+async function tauriOwnerStorage() {
+  const w = globalThis;
+  const invoke3 = w.__TAURI__?.core?.invoke;
+  if (typeof invoke3 !== "function") return null;
+  let cached3 = null;
+  try {
+    const r = await invoke3("secret_get", { secretRef: OWNER_KEY_REF });
+    cached3 = r?.present && typeof r.value === "string" ? r.value : null;
+  } catch {
+    cached3 = null;
+  }
+  return {
+    get: () => cached3,
+    set: (v) => {
+      cached3 = v;
+      void invoke3("secret_set", { secretRef: OWNER_KEY_REF, value: v }).catch(() => {
+      });
+    }
+  };
+}
+var PBKDF2_ITERATIONS = 15e4;
+function bytesToB64Local(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return typeof btoa === "function" ? btoa(s) : Buffer.from(bytes).toString("base64");
+}
+function b64ToBytesLocal(b64) {
+  const s = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
+  const out = new Uint8Array(new ArrayBuffer(s.length));
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+async function deriveKey(passphrase, salt) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: salt.buffer, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+    base,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+async function encryptedOwnerStorage(base, passphrase) {
+  let memory2 = null;
+  let sealed = false;
+  const raw = base.get();
+  if (raw) {
+    try {
+      const env = JSON.parse(raw);
+      if (env.v !== 1 || !env.salt || !env.iv || !env.data) throw new Error("not an envelope");
+      const salt = b64ToBytesLocal(env.salt);
+      const key = await deriveKey(passphrase, salt);
+      const plain = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: b64ToBytesLocal(env.iv).buffer },
+        key,
+        b64ToBytesLocal(env.data).buffer
+      );
+      memory2 = new TextDecoder().decode(plain);
+    } catch {
+      memory2 = null;
+      sealed = true;
+    }
+  }
+  return {
+    sealed,
+    get: () => memory2,
+    set: sealed ? () => {
+    } : (v) => {
+      memory2 = v;
+      void (async () => {
+        try {
+          const salt = crypto.getRandomValues(new Uint8Array(16));
+          const iv = crypto.getRandomValues(new Uint8Array(12));
+          const key = await deriveKey(passphrase, salt);
+          const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv.buffer }, key, new TextEncoder().encode(v));
+          base.set(JSON.stringify({ v: 1, salt: bytesToB64Local(salt), iv: bytesToB64Local(iv), data: bytesToB64Local(new Uint8Array(ct)) }));
+        } catch {
+        }
+      })();
+    }
+  };
+}
+
+// src/vh19/missionAuthority.ts
+var AUTHORITY_OWNER_FALLBACK = "local-owner";
+var ISSUABLE_SCOPE = ["fs.read", "fs.write", "fs.list", "net.fetch", "wiki.search", "pc.exec", "pc.browser"];
+var MAX_BUDGET = 100;
+var MAX_DEPTH = 1;
+var browserRawStorage = (() => {
+  try {
+    const ls = globalThis.localStorage;
+    if (!ls) return null;
+    return { get: () => ls.getItem("vh19.ownerKeys.v1"), set: (v) => ls.setItem("vh19.ownerKeys.v1", v) };
+  } catch {
+    return null;
+  }
+})();
+function pemToDer(pem2) {
+  const b64 = pem2.replace(/-----(BEGIN|END) [A-Z ]+-----/g, "").replace(/\s+/g, "");
+  const bin = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
+  const out = new Uint8Array(new ArrayBuffer(bin.length));
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
+}
+async function loadOrCreate(storage, identity, security) {
+  const owner = identity.trim() || AUTHORITY_OWNER_FALLBACK;
+  if (storage) {
+    try {
+      const raw = storage.get();
+      if (raw) {
+        const saved = JSON.parse(raw);
+        const entry = saved.byOwner?.[owner];
+        if (entry) {
+          const privateKey = await crypto.subtle.importKey("jwk", entry.priv, { name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
+          const publicKey = await crypto.subtle.importKey("spki", pemToDer(entry.pem), { name: "ECDSA", namedCurve: "P-256" }, true, ["verify"]);
+          return { keys: { privateKey, publicKey, publicKeyPem: entry.pem }, owner, security, persisted: true };
+        }
+      }
+    } catch {
+    }
+  }
+  const keys = await generateOwnerKeysWeb();
+  const ident = { keys, owner, security, persisted: Boolean(storage) };
+  if (storage) {
+    try {
+      const priv = await crypto.subtle.exportKey("jwk", keys.privateKey);
+      const raw = storage.get();
+      let byOwner = {};
+      if (raw) {
+        try {
+          byOwner = JSON.parse(raw).byOwner ?? {};
+        } catch {
+        }
+      }
+      byOwner[owner] = { priv, pem: keys.publicKeyPem };
+      storage.set(JSON.stringify({ byOwner }));
+    } catch {
+    }
+  }
+  return ident;
+}
+var realmCache = /* @__PURE__ */ new WeakMap();
+var ephemeralCache = null;
+var defaultStorageCache = null;
+async function resolveDefaultStorage(passphrase) {
+  const native = await tauriOwnerStorage();
+  if (native) return { storage: native, security: "native" };
+  if (browserRawStorage && passphrase) {
+    const enc3 = await encryptedOwnerStorage(browserRawStorage, passphrase);
+    return { storage: enc3, security: "encrypted" };
+  }
+  return { storage: null, security: "session" };
+}
+var activePassphrase = null;
+async function authorityOwnerIdentity(opts) {
+  const owner = opts?.identity?.trim() || AUTHORITY_OWNER_FALLBACK;
+  const passphrase = opts?.passphrase ?? activePassphrase ?? void 0;
+  if (opts?.storage) {
+    if (opts.storage.sealed) {
+      const ident3 = await loadOrCreate(null, owner, "session");
+      ident3.unlockFailed = true;
+      return ident3;
+    }
+    let m2 = realmCache.get(opts.storage);
+    if (!m2) {
+      m2 = /* @__PURE__ */ new Map();
+      realmCache.set(opts.storage, m2);
+    }
+    const hit2 = m2.get(owner);
+    if (hit2) return hit2;
+    const ident2 = await loadOrCreate(opts.storage, owner, "encrypted");
+    m2.set(owner, ident2);
+    return ident2;
+  }
+  const key = passphrase ?? "";
+  if (!defaultStorageCache || defaultStorageCache.key !== key) {
+    defaultStorageCache = { key, promise: resolveDefaultStorage(passphrase) };
+  }
+  let { storage, security } = await defaultStorageCache.promise;
+  let unlockFailed = false;
+  if (storage && storage.sealed) {
+    storage = null;
+    security = "session";
+    unlockFailed = true;
+  }
+  if (!storage) {
+    if (!ephemeralCache) ephemeralCache = /* @__PURE__ */ new Map();
+    const cacheKey = unlockFailed ? `${owner}::unlock-failed` : owner;
+    const hit2 = ephemeralCache.get(cacheKey);
+    if (hit2) return hit2;
+    const ident2 = await loadOrCreate(null, owner, security);
+    if (unlockFailed) ident2.unlockFailed = true;
+    ephemeralCache.set(cacheKey, ident2);
+    return ident2;
+  }
+  let m = realmCache.get(storage);
+  if (!m) {
+    m = /* @__PURE__ */ new Map();
+    realmCache.set(storage, m);
+  }
+  const hit = m.get(owner);
+  if (hit) return hit;
+  const ident = await loadOrCreate(storage, owner, security);
+  m.set(owner, ident);
+  return ident;
+}
+async function issueMissionMandate(req, opts) {
+  const now = opts?.now ?? Date.now();
+  const ident = await authorityOwnerIdentity(opts);
+  const scope = [...new Set(req.scope ?? [])].filter((s) => ISSUABLE_SCOPE.includes(s)).sort();
+  if (scope.length === 0) {
+    throw new Error("authority cannot be issued with an empty scope \u2014 the owner must name what is granted");
+  }
+  return signMandateWeb({
+    agentId: `vh19:${req.missionId}`,
+    owner: ident.owner,
+    scope,
+    budgetCap: Math.max(1, Math.min(req.budgetCap ?? MAX_BUDGET, MAX_BUDGET)),
+    maxDepth: Math.max(0, Math.min(req.maxDepth ?? MAX_DEPTH, MAX_DEPTH)),
+    issuedAt: now,
+    expiresAt: now + Math.min(req.ttlMs ?? 36e5, 24 * 36e5)
+  }, ident.keys);
+}
+var KEY3 = "vh19.authority.v1";
+function loadLedger() {
+  try {
+    const raw = globalThis.localStorage?.getItem(KEY3);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+function missionAuthorityFor(responseDigest) {
+  return loadLedger().find((r) => r.responseDigest === responseDigest) ?? null;
+}
+async function verifyMissionAuthorityRecord(rec, expectedMandateDigest, now = Date.now()) {
+  const m = await verifyMandateWeb(rec.mandate, rec.publicKeyPem, now);
+  if (!m.ok) return false;
+  const recomputed = await sha256HexWeb(mandateCanonical(rec.mandate));
+  if (recomputed !== rec.mandateDigest) return false;
+  if (expectedMandateDigest !== void 0 && rec.mandateDigest !== expectedMandateDigest) return false;
+  return verifyAuthorityBindingWeb(
+    { receiptDigest: rec.responseDigest, mandateDigest: rec.mandateDigest, hopDigest: null, mandateOwner: rec.mandate.owner, digest: rec.bindingDigest },
+    rec.responseDigest,
+    null,
+    rec.mandateDigest
+  );
+}
+
+// src/vh19/reachMcp.ts
+var REACH_MCP_NAME = "Agent Reach MCP";
+var REACH_MCP_VERSION = "19.5.4";
+var REACH_MCP_DEFAULT_POLICY = {
+  allowlist: ["ls", "cat", "echo", "grep"],
+  maxRuntimeMs: 5e3,
+  maxOutputBytes: 64 * 1024
+};
+var reachMcpTools = [
+  { name: "pc.exec", riskTier: "risky", description: "Run an allowlisted binary under the mission policy \u2014 bounded, injection-scanned, receipted.", inputSchema: { type: "object", properties: { binary: { type: "string" }, args: { type: "array", items: { type: "string" } } }, required: ["binary"] } },
+  { name: "pc.browser.open", riskTier: "risky", description: "Open an HTTPS page in the built-in headless browser under the isolated mission profile.", inputSchema: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } },
+  { name: "pc.browser.screenshot", riskTier: "risky", description: "Screenshot the loaded page via the real browser binary; refuses honestly when none exists.", inputSchema: { type: "object", properties: { url: { type: "string" }, outPath: { type: "string" } }, required: ["outPath"] } },
+  { name: "authority.issue", riskTier: "risky", description: "OWNER-GRANTED authority: issues an ECDSA P-256 mandate ONLY after the human gate approves, ONLY for an explicit non-empty scope the owner names (subset of the issuable set), with clamped budget/depth. No gate, no issue.", inputSchema: { type: "object", properties: { missionId: { type: "string" }, scope: { type: "array", items: { type: "string" } }, budgetCap: { type: "number" }, maxDepth: { type: "number" } }, required: ["missionId", "scope"] } },
+  { name: "authority.verify", riskTier: "safe", description: "Verify a mandate with the public key alone.", inputSchema: { type: "object", properties: { mandate: { type: "object" }, publicKeyPem: { type: "string" } }, required: ["mandate", "publicKeyPem"] } },
+  { name: "authority.lookup", riskTier: "safe", description: "Look up and verify the authority record bound to a mission's provenance digest.", inputSchema: { type: "object", properties: { responseDigest: { type: "string" } }, required: ["responseDigest"] } }
+];
+function reachMcpServerInfo() {
+  return {
+    name: REACH_MCP_NAME,
+    version: REACH_MCP_VERSION,
+    primary: true,
+    default: true,
+    transport: ["in-app", "stdio"],
+    tools: reachMcpTools.map((t) => ({ name: t.name, description: t.description, riskTier: t.riskTier }))
+  };
+}
+async function reachMcpCall(name, args, ctx) {
+  const def = reachMcpTools.find((t) => t.name === name);
+  if (!def) return { ok: false, decision: "refused", output: `unknown tool "${name}" \u2014 Agent Reach MCP exposes: ${reachMcpTools.map((t) => t.name).join(", ")}` };
+  if (def.riskTier === "risky") {
+    if (!ctx.gate) return { ok: false, decision: "gated-out", output: `${name} is ${def.riskTier} and no human gate is wired \u2014 nothing executed` };
+    const decision = await ctx.gate({ action: `${REACH_MCP_NAME} \xB7 ${name}`, riskTier: def.riskTier });
+    if (!decision.approved) return { ok: false, decision: "gated-out", output: `declined at the gate: ${decision.reason}` };
+  }
+  const policy = ctx.policy ?? REACH_MCP_DEFAULT_POLICY;
+  switch (name) {
+    case "pc.exec": {
+      const r = pcExec(String(args.binary ?? ""), Array.isArray(args.args) ? args.args.map(String) : [], policy, "risky", ctx.run ? { run: ctx.run } : {});
+      return { ok: r.decision === "executed", decision: r.decision, output: r.decision === "executed" ? `exit ${r.exitCode} \u2014 ${r.stdoutPreview || "(no output)"}` : r.reason, receipt: r };
+    }
+    case "pc.browser.open":
+    case "pc.browser.navigate": {
+      const browser = missionBrowser(ctx.missionId, ctx.transport ?? void 0, ctx.exists ? detectBrowserBinary(void 0, ctx.exists) : null, ctx.spawn);
+      const r = await browser.open(String(args.url ?? ""));
+      return { ok: r.decision === "executed", decision: r.decision, output: r.decision === "executed" && r.result ? `loaded ${r.result.url} (${r.result.status}) \u2014 ${r.result.title || "(no title)"}` : r.reason, receipt: r };
+    }
+    case "pc.browser.screenshot": {
+      const browser = missionBrowser(ctx.missionId, ctx.transport ?? void 0, ctx.exists ? detectBrowserBinary(void 0, ctx.exists) : null, ctx.spawn);
+      if (typeof args.url === "string" && args.url) await browser.open(args.url);
+      const r = browser.screenshot(String(args.outPath ?? ""));
+      return { ok: r.decision === "executed", decision: r.decision, output: r.reason, receipt: r };
+    }
+    case "authority.issue": {
+      const requestedMission = typeof args.missionId === "string" && args.missionId ? args.missionId : ctx.missionId;
+      if (requestedMission !== ctx.missionId) {
+        return { ok: false, decision: "refused", output: `authority.issue refused: args.missionId "${requestedMission}" does not match this call's mission "${ctx.missionId}" \u2014 a gate on one call never issues for another mission` };
+      }
+      const scope = Array.isArray(args.scope) ? args.scope.map(String) : [];
+      const granted = [...new Set(scope)].filter((s) => ISSUABLE_SCOPE.includes(s));
+      if (granted.length === 0) {
+        return { ok: false, decision: "refused", output: `authority.issue needs an explicit non-empty scope from the issuable set (${ISSUABLE_SCOPE.join(", ")}) \u2014 owner authority is granted, never self-issued broad` };
+      }
+      if (granted.length !== new Set(scope).size) {
+        return { ok: false, decision: "refused", output: `scope outside the issuable set was dropped (${[...new Set(scope)].filter((s) => !ISSUABLE_SCOPE.includes(s)).join(", ")}) \u2014 refusing rather than silently narrowing a mandate` };
+      }
+      const mandate = await issueMissionMandate({
+        missionId: requestedMission,
+        scope: granted,
+        budgetCap: typeof args.budgetCap === "number" ? Math.min(args.budgetCap, MAX_BUDGET) : void 0,
+        maxDepth: typeof args.maxDepth === "number" ? Math.min(args.maxDepth, MAX_DEPTH) : void 0
+      }, { identity: ctx.owner });
+      return { ok: true, decision: "executed", output: `mandate issued \u2014 owner ${mandate.owner}, scope ${mandate.scope.join(", ")} (owner-granted, gate-approved), ECDSA P-256`, receipt: mandate };
+    }
+    case "authority.verify": {
+      const r = await verifyMandateWeb(args.mandate, String(args.publicKeyPem ?? ""));
+      return { ok: r.ok, decision: r.ok ? "executed" : "refused", output: r.ok ? "mandate verifies with the public key" : r.detail };
+    }
+    case "authority.lookup": {
+      const rec = missionAuthorityFor(String(args.responseDigest ?? ""));
+      if (!rec) return { ok: false, decision: "refused", output: "no authority record bound to that digest" };
+      const ok = await verifyMissionAuthorityRecord(rec);
+      return { ok, decision: ok ? "executed" : "refused", output: ok ? `authority verified \u2014 scheme ${rec.scheme}, owner ${rec.mandate.owner}` : "record failed verification", receipt: rec };
+    }
+    default:
+      return { ok: false, decision: "refused", output: `unhandled tool "${name}"` };
+  }
+}
+
+// src/vouch/engine/mcpRouter.ts
 var MODERN_VERSIONS = ["2026-07-28"];
 var LEGACY_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26"];
 var SUPPORTED_VERSIONS = [...MODERN_VERSIONS, ...LEGACY_VERSIONS];
@@ -10726,6 +11369,10 @@ var toolDef = (name, description, props, required = []) => ({
 });
 var str = { type: "string" };
 var MCP_TOOLS = [
+  toolDef("reach_info", "Agent Reach MCP \u2014 primary default server info: version, tools, governance model.", {}),
+  toolDef("authority.issue", "Issue an ECDSA P-256 mission mandate (portable authority plane).", { missionId: str }),
+  toolDef("authority.verify", "Verify a mandate with the public key alone.", { mandate: { type: "object" }, publicKeyPem: str }, ["mandate", "publicKeyPem"]),
+  toolDef("authority.lookup", "Look up + verify the authority record bound to a mission provenance digest.", { responseDigest: str }, ["responseDigest"]),
   toolDef("calculator", "Evaluate a math expression with the product's real parser (no eval). Safe; mints a receipt.", { expression: str }, ["expression"]),
   toolDef("clock", "Current date/time \u2014 Chennai (IST), UTC, and this machine. Safe; mints a receipt.", {}),
   toolDef("search", "Search the local offline knowledge base. Safe; mints a receipt.", { query: str }, ["query"]),
@@ -10865,6 +11512,23 @@ ${r?.output ?? ""}` }], isError: r ? !r.ok : true }
   };
 }
 async function governedTool(name, args) {
+  if (name === "reach_info") {
+    const info = reachMcpServerInfo();
+    return { text: `${info.name} v${info.version} \u2014 PRIMARY default MCP of Vouch Harbor. Tools: ${info.tools.map((t) => `${t.name} (${t.riskTier})`).join(", ")}. The pc.* tools execute inside the governed VH-19 pipeline (gate + receipts); the authority plane is served here.`, isError: false, pending: null };
+  }
+  if (name.startsWith("authority.")) {
+    const gate = async (ask) => {
+      const approved = await requestVouchApproval(ask.action, `${ask.action} \u2014 ${ask.riskTier} authority-plane call; approve only if you are the owner granting this scope`);
+      return { approved, reason: approved ? "owner approved at the gate" : "owner declined at the gate" };
+    };
+    const stdioMission = `mcp-${typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`}`;
+    const r2 = await reachMcpCall(name, args ?? {}, { missionId: stdioMission, gate });
+    if (!r2.ok && r2.decision === "gated-out") {
+      return { text: `${r2.output} \u2014 authority is owner-granted: approve_action to continue, or nothing is issued.`, isError: false, pending: null };
+    }
+    return { text: r2.output + (r2.receipt ? `
+${JSON.stringify(r2.receipt).slice(0, 900)}` : ""), isError: !r2.ok, pending: null };
+  }
   if (name === "approve_action") {
     const approvalId = String(args.approvalId ?? "");
     const approve = args.approve === void 0 ? true : args.approve === true;

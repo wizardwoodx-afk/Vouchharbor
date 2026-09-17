@@ -37,7 +37,7 @@ var require_react_production_min = __commonJS({
   "node_modules/react/cjs/react.production.min.js"(exports) {
     "use strict";
     var l = Symbol.for("react.element");
-    var n2 = Symbol.for("react.portal");
+    var n = Symbol.for("react.portal");
     var p2 = Symbol.for("react.fragment");
     var q = Symbol.for("react.strict_mode");
     var r = Symbol.for("react.profiler");
@@ -133,7 +133,7 @@ var require_react_production_min = __commonJS({
         case "object":
           switch (a.$$typeof) {
             case l:
-            case n2:
+            case n:
               h = true;
           }
       }
@@ -1042,11 +1042,11 @@ var require_react_development = __commonJS({
           return result;
         }
         function countChildren(children) {
-          var n2 = 0;
+          var n = 0;
           mapChildren(children, function() {
-            n2++;
+            n++;
           });
-          return n2;
+          return n;
         }
         function forEachChildren(children, forEachFunc, forEachContext) {
           mapChildren(children, function() {
@@ -3813,16 +3813,26 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "19.5.1";
+var VH_VERSION = "19.5.4";
 var VH_SHORT = "19.5";
 var VH_CODENAME = "Reach";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts
-var n = 0;
+var degradedSeq = 0;
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
@@ -4838,8 +4848,8 @@ function layoutComponent(ids2, nodeById, allEdges, o) {
       const fixedPos = new Map(fixedLayer.map((slot, i) => [slot.id, i]));
       const bary = /* @__PURE__ */ new Map();
       for (const slot of layers[li]) {
-        const ns = (neighboursOf.get(slot.id) ?? []).filter((n2) => fixedPos.has(n2));
-        if (ns.length > 0) bary.set(slot.id, ns.reduce((acc, n2) => acc + (fixedPos.get(n2) ?? 0), 0) / ns.length);
+        const ns = (neighboursOf.get(slot.id) ?? []).filter((n) => fixedPos.has(n));
+        if (ns.length > 0) bary.set(slot.id, ns.reduce((acc, n) => acc + (fixedPos.get(n) ?? 0), 0) / ns.length);
       }
       layers[li].map((slot, i) => ({ slot, i })).sort((x2, y) => {
         const bx = bary.has(x2.slot.id) ? bary.get(x2.slot.id) : x2.i;
@@ -4883,9 +4893,9 @@ function layoutComponent(ids2, nodeById, allEdges, o) {
     for (let li = 0; li < layers.length; li++) {
       let prevBottom = 0;
       for (const slot of layers[li]) {
-        const ns = (neighboursOf.get(slot.id) ?? []).filter((n2) => yOf.has(n2));
+        const ns = (neighboursOf.get(slot.id) ?? []).filter((n) => yOf.has(n));
         const current = yOf.get(slot.id) ?? 0;
-        const target = ns.length > 0 ? ns.reduce((acc, n2) => acc + (yOf.get(n2) ?? 0), 0) / ns.length : current;
+        const target = ns.length > 0 ? ns.reduce((acc, n) => acc + (yOf.get(n) ?? 0), 0) / ns.length : current;
         const want = Math.max(0, target - heightOf(slot) / 2);
         const yy = Math.max(want, prevBottom);
         yOf.set(slot.id, yy);
@@ -4899,20 +4909,20 @@ function layoutComponent(ids2, nodeById, allEdges, o) {
   layers.forEach((layer, li) => {
     for (const slot of layer) {
       if (slot.virtual) continue;
-      const n2 = nodeById.get(slot.id);
+      const n = nodeById.get(slot.id);
       const px = colX[li];
       const py = yOf.get(slot.id) ?? 0;
       positions.set(slot.id, { x: px, y: py });
-      width = Math.max(width, px + (n2?.w ?? 264));
-      height = Math.max(height, py + (n2?.h ?? 120));
+      width = Math.max(width, px + (n?.w ?? 264));
+      height = Math.max(height, py + (n?.h ?? 120));
     }
   });
   return { positions, layers: layers.length, crossings, reversed, width, height };
 }
 function layeredLayout(input, opts = {}) {
   const o = { ...DEFAULTS, ...opts };
-  const nodeById = new Map(input.nodes.map((n2) => [n2.id, n2]));
-  const comps = findComponents(input.nodes.map((n2) => n2.id), input.edges);
+  const nodeById = new Map(input.nodes.map((n) => [n.id, n]));
+  const comps = findComponents(input.nodes.map((n) => n.id), input.edges);
   const positions = /* @__PURE__ */ new Map();
   let yOffset = 0;
   let maxLayers = 0;
@@ -4931,9 +4941,9 @@ function layeredLayout(input, opts = {}) {
 
 // src/canvas/geometry.ts
 var NODE_W = 264;
-function nodeH(n2) {
-  const ports = Math.max(n2.inputs.length, n2.outputs.length);
-  const isControl = n2.definitionId.startsWith("control.");
+function nodeH(n) {
+  const ports = Math.max(n.inputs.length, n.outputs.length);
+  const isControl = n.definitionId.startsWith("control.");
   return isControl ? 52 : 85 + ports * 19;
 }
 
@@ -5010,16 +5020,16 @@ function sanitizeGraph(g2) {
   return {
     ...g2,
     schemaVersion: GRAPH_SCHEMA_VERSION,
-    nodes: Array.isArray(g2.nodes) ? g2.nodes.map((n2) => ({
-      ...n2,
-      x: num(n2.x, 80),
-      y: num(n2.y, 80),
-      inputs: Array.isArray(n2.inputs) ? n2.inputs : [],
-      outputs: Array.isArray(n2.outputs) ? n2.outputs : [],
-      reflection: n2.reflection && typeof n2.reflection === "object" ? {
-        enabled: Boolean(n2.reflection.enabled),
-        maxAttempts: Math.min(2, Math.max(1, Number(n2.reflection.maxAttempts) || 2)),
-        passThreshold: Math.min(10, Math.max(1, Number(n2.reflection.passThreshold) || 7))
+    nodes: Array.isArray(g2.nodes) ? g2.nodes.map((n) => ({
+      ...n,
+      x: num(n.x, 80),
+      y: num(n.y, 80),
+      inputs: Array.isArray(n.inputs) ? n.inputs : [],
+      outputs: Array.isArray(n.outputs) ? n.outputs : [],
+      reflection: n.reflection && typeof n.reflection === "object" ? {
+        enabled: Boolean(n.reflection.enabled),
+        maxAttempts: Math.min(2, Math.max(1, Number(n.reflection.maxAttempts) || 2)),
+        passThreshold: Math.min(10, Math.max(1, Number(n.reflection.passThreshold) || 7))
       } : { enabled: false, maxAttempts: 2, passThreshold: 7 }
     })) : [],
     connections: Array.isArray(g2.connections) ? g2.connections : [],
@@ -5114,21 +5124,21 @@ var useGraphStore = create((set, get) => {
       set((s) => ({
         graph: {
           ...s.graph,
-          notes: (s.graph.notes ?? []).map((n2) => n2.id === id ? { ...n2, ...patch } : n2)
+          notes: (s.graph.notes ?? []).map((n) => n.id === id ? { ...n, ...patch } : n)
         },
         dirty: true
       }));
       scheduleAutosave();
     },
     deleteNotes: (ids2) => withHistory("Delete notes", (g2) => {
-      g2.notes = (g2.notes ?? []).filter((n2) => !ids2.includes(n2.id));
+      g2.notes = (g2.notes ?? []).filter((n) => !ids2.includes(n.id));
     }),
     insertTemplate: (instances2, wires2) => {
       if (instances2.length === 0) return 0;
-      const byKey = new Map(instances2.map((n2) => [n2.templateKey, n2]));
+      const byKey = new Map(instances2.map((n) => [n.templateKey, n]));
       let connected = 0;
       withHistory("Load template", (g2) => {
-        for (const n2 of instances2) g2.nodes.push({ ...n2 });
+        for (const n of instances2) g2.nodes.push({ ...n });
         for (const [sk, sp, tk, tp] of wires2) {
           const src = byKey.get(sk);
           const tgt = byKey.get(tk);
@@ -5155,14 +5165,14 @@ var useGraphStore = create((set, get) => {
       return connected;
     },
     updateNode: (id, patch) => withHistory("Edit node", (g2) => {
-      const n2 = g2.nodes.find((x) => x.id === id);
-      if (n2) Object.assign(n2, patch);
+      const n = g2.nodes.find((x) => x.id === id);
+      if (n) Object.assign(n, patch);
     }),
     updateNodeLive: (id, patch) => {
       set((s) => ({
         graph: {
           ...s.graph,
-          nodes: s.graph.nodes.map((n2) => n2.id === id ? { ...n2, ...patch } : n2)
+          nodes: s.graph.nodes.map((n) => n.id === id ? { ...n, ...patch } : n)
         },
         dirty: true
       }));
@@ -5173,9 +5183,9 @@ var useGraphStore = create((set, get) => {
       set((s) => ({
         graph: {
           ...s.graph,
-          nodes: s.graph.nodes.map((n2) => {
-            const d = byId.get(n2.id);
-            return d ? { ...n2, x: d.x, y: d.y } : n2;
+          nodes: s.graph.nodes.map((n) => {
+            const d = byId.get(n.id);
+            return d ? { ...n, x: d.x, y: d.y } : n;
           })
         },
         dirty: true
@@ -5186,11 +5196,11 @@ var useGraphStore = create((set, get) => {
       get().moveNodes([{ id, x, y }]);
     },
     deleteNodes: (ids2) => withHistory("Delete nodes", (g2) => {
-      g2.nodes = g2.nodes.filter((n2) => !ids2.includes(n2.id));
+      g2.nodes = g2.nodes.filter((n) => !ids2.includes(n.id));
       g2.connections = g2.connections.filter((c) => !ids2.includes(c.sourceNodeId) && !ids2.includes(c.targetNodeId));
     }),
     duplicateNode: (id) => {
-      const src = get().graph.nodes.find((n2) => n2.id === id);
+      const src = get().graph.nodes.find((n) => n.id === id);
       if (!src) return null;
       const copy = structuredClone(src);
       copy.id = uid("n");
@@ -5204,8 +5214,8 @@ var useGraphStore = create((set, get) => {
     canConnect: (sourceNodeId, sourcePortId, targetNodeId, targetPortId) => {
       const g2 = get().graph;
       if (sourceNodeId === targetNodeId) return false;
-      const src = g2.nodes.find((n2) => n2.id === sourceNodeId);
-      const tgt = g2.nodes.find((n2) => n2.id === targetNodeId);
+      const src = g2.nodes.find((n) => n.id === sourceNodeId);
+      const tgt = g2.nodes.find((n) => n.id === targetNodeId);
       if (!src || !tgt) return false;
       const sp = src.outputs.find((p2) => p2.id === sourcePortId);
       const tp = tgt.inputs.find((p2) => p2.id === targetPortId);
@@ -5214,7 +5224,7 @@ var useGraphStore = create((set, get) => {
       if (!tp.multiple && g2.connections.some((c) => c.targetNodeId === targetNodeId && c.targetPortId === targetPortId)) {
         return false;
       }
-      const adj = new Map(g2.nodes.map((n2) => [n2.id, []]));
+      const adj = new Map(g2.nodes.map((n) => [n.id, []]));
       for (const c of g2.connections) adj.get(c.sourceNodeId)?.push(c.targetNodeId);
       const stack = [targetNodeId];
       const seen = /* @__PURE__ */ new Set();
@@ -5232,7 +5242,7 @@ var useGraphStore = create((set, get) => {
     },
     connect: (sourceNodeId, sourcePortId, targetNodeId, targetPortId) => {
       if (!get().canConnect(sourceNodeId, sourcePortId, targetNodeId, targetPortId)) return false;
-      const src = get().graph.nodes.find((n2) => n2.id === sourceNodeId);
+      const src = get().graph.nodes.find((n) => n.id === sourceNodeId);
       const sp = src.outputs.find((p2) => p2.id === sourcePortId);
       const conn = {
         id: uid("c"),
@@ -5253,8 +5263,8 @@ var useGraphStore = create((set, get) => {
     connectRefusal: (sourceNodeId, sourcePortId, targetNodeId, targetPortId) => {
       const g2 = get().graph;
       if (sourceNodeId === targetNodeId) return "A node cannot wire to itself.";
-      const src = g2.nodes.find((n2) => n2.id === sourceNodeId);
-      const tgt = g2.nodes.find((n2) => n2.id === targetNodeId);
+      const src = g2.nodes.find((n) => n.id === sourceNodeId);
+      const tgt = g2.nodes.find((n) => n.id === targetNodeId);
       if (!src || !tgt) return "One end of that wire no longer exists.";
       const sp = src.outputs.find((p2) => p2.id === sourcePortId);
       const tp = tgt.inputs.find((p2) => p2.id === targetPortId);
@@ -5263,7 +5273,7 @@ var useGraphStore = create((set, get) => {
       if (!tp.multiple && g2.connections.some((c) => c.targetNodeId === targetNodeId && c.targetPortId === targetPortId)) {
         return `"${tgt.title}\xB7${tp.label}" already has a wire (single-input port).`;
       }
-      const adj = new Map(g2.nodes.map((n2) => [n2.id, []]));
+      const adj = new Map(g2.nodes.map((n) => [n.id, []]));
       for (const c of g2.connections) adj.get(c.sourceNodeId)?.push(c.targetNodeId);
       const stack = [targetNodeId];
       const seen = /* @__PURE__ */ new Set();
@@ -5344,10 +5354,10 @@ var useGraphStore = create((set, get) => {
     },
     alignSelection: (mode) => {
       const ids2 = get().selectedIds;
-      const nodes = get().graph.nodes.filter((n2) => ids2.includes(n2.id));
+      const nodes = get().graph.nodes.filter((n) => ids2.includes(n.id));
       if (nodes.length < 2) return;
-      const xs = nodes.map((n2) => n2.x);
-      const ys = nodes.map((n2) => n2.y);
+      const xs = nodes.map((n) => n.x);
+      const ys = nodes.map((n) => n.y);
       const minX = Math.min(...xs);
       const maxX = Math.max(...xs);
       const minY = Math.min(...ys);
@@ -5357,28 +5367,28 @@ var useGraphStore = create((set, get) => {
       const sortedX = [...nodes].sort((a, b) => a.x - b.x);
       const sortedY = [...nodes].sort((a, b) => a.y - b.y);
       withHistory(`Align ${mode}`, (g2) => {
-        for (const n2 of g2.nodes) {
-          if (!ids2.includes(n2.id)) continue;
-          if (mode === "left") n2.x = minX;
-          if (mode === "right") n2.x = maxX;
-          if (mode === "top") n2.y = minY;
-          if (mode === "bottom") n2.y = maxY;
-          if (mode === "hcenter") n2.x = cx;
-          if (mode === "vcenter") n2.y = cy;
+        for (const n of g2.nodes) {
+          if (!ids2.includes(n.id)) continue;
+          if (mode === "left") n.x = minX;
+          if (mode === "right") n.x = maxX;
+          if (mode === "top") n.y = minY;
+          if (mode === "bottom") n.y = maxY;
+          if (mode === "hcenter") n.x = cx;
+          if (mode === "vcenter") n.y = cy;
         }
         if (mode === "hdist" && sortedX.length > 2) {
           const span = sortedX[sortedX.length - 1].x - sortedX[0].x;
           const step = span / (sortedX.length - 1);
-          sortedX.forEach((n2, i) => {
-            const t = g2.nodes.find((x) => x.id === n2.id);
+          sortedX.forEach((n, i) => {
+            const t = g2.nodes.find((x) => x.id === n.id);
             if (t) t.x = sortedX[0].x + step * i;
           });
         }
         if (mode === "vdist" && sortedY.length > 2) {
           const span = sortedY[sortedY.length - 1].y - sortedY[0].y;
           const step = span / (sortedY.length - 1);
-          sortedY.forEach((n2, i) => {
-            const t = g2.nodes.find((x) => x.id === n2.id);
+          sortedY.forEach((n, i) => {
+            const t = g2.nodes.find((x) => x.id === n.id);
             if (t) t.y = sortedY[0].y + step * i;
           });
         }
@@ -5388,19 +5398,19 @@ var useGraphStore = create((set, get) => {
       const g2 = get().graph;
       if (g2.nodes.length === 0) return;
       const res = layeredLayout({
-        nodes: g2.nodes.map((n2) => ({
-          id: n2.id,
-          w: n2.definitionId.startsWith("control.") ? 140 : NODE_W,
-          h: nodeH(n2)
+        nodes: g2.nodes.map((n) => ({
+          id: n.id,
+          w: n.definitionId.startsWith("control.") ? 140 : NODE_W,
+          h: nodeH(n)
         })),
         edges: g2.connections.map((c) => [c.sourceNodeId, c.targetNodeId])
       });
       withHistory("Auto layout", (graph) => {
-        for (const n2 of graph.nodes) {
-          const p2 = res.positions.get(n2.id);
+        for (const n of graph.nodes) {
+          const p2 = res.positions.get(n.id);
           if (p2) {
-            n2.x = Math.round(p2.x);
-            n2.y = Math.round(p2.y);
+            n.x = Math.round(p2.x);
+            n.y = Math.round(p2.y);
           }
         }
       });
@@ -5449,11 +5459,11 @@ ok(skipped.length === 0, `no template step was skipped, got ${skipped.join(",")}
 ok(added === 5, `all 5 nodes land on the canvas, got ${added}`);
 ok(g.nodes.length === 5, `the store holds 5 nodes, got ${g.nodes.length}`);
 ok(g.connections.length === 5, `all 5 wires connected, got ${g.connections.length}`);
-var ids = new Set(g.nodes.map((n2) => n2.id));
+var ids = new Set(g.nodes.map((n) => n.id));
 for (const c of g.connections) {
   ok(ids.has(c.sourceNodeId) && ids.has(c.targetNodeId), `wire ${c.id} endpoints exist`);
-  const s = g.nodes.find((n2) => n2.id === c.sourceNodeId);
-  const t = g.nodes.find((n2) => n2.id === c.targetNodeId);
+  const s = g.nodes.find((n) => n.id === c.sourceNodeId);
+  const t = g.nodes.find((n) => n.id === c.targetNodeId);
   ok(s.outputs.some((p2) => p2.id === c.sourcePortId), `wire ${c.id} source port exists on ${s.definitionId}`);
   ok(t.inputs.some((p2) => p2.id === c.targetPortId), `wire ${c.id} target port exists on ${t.definitionId}`);
 }

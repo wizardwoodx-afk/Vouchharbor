@@ -1,7 +1,10 @@
 use parking_lot::Mutex;
 use std::collections::{HashMap, HashSet};
 
-const SERVICE: &str = "mj-desktop";
+const SERVICE: &str = "vh-desktop";
+/// Legacy keychain namespace (pre-19.5.1). Reads fall back to it so owners
+/// keep access to previously stored secrets; writes always go to VH.
+const LEGACY_SERVICE: &str = "mj-desktop";
 
 /// Where a secret actually ended up. V7 fix (bug W): `set` used to fall back to an in-process
 /// HashMap and still return `Ok(())`, so the UI confirmed a key was stored in the OS keychain when
@@ -74,6 +77,14 @@ impl SecretStore {
     }
 
     pub fn get(&self, secret_ref: &str) -> Option<String> {
+        // VH namespace first; migration layer: fall back to the legacy
+        // "mj-desktop" keychain entries written by pre-19.5.1 builds.
+        if let Ok(entry) = keyring::Entry::new(SERVICE, secret_ref) {
+            if let Ok(v) = entry.get_password() { return Some(v); }
+        }
+        if let Ok(entry) = keyring::Entry::new(LEGACY_SERVICE, secret_ref) {
+            if let Ok(v) = entry.get_password() { return Some(v); }
+        }
         if let Ok(entry) = keyring::Entry::new(SERVICE, secret_ref) {
             if let Ok(v) = entry.get_password() {
                 return Some(v);

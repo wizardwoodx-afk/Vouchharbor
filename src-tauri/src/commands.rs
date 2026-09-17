@@ -261,7 +261,7 @@ pub fn execution_finish(state: State<Arc<AppState>>, execution_id: String, statu
 #[tauri::command]
 pub fn event_emit(app: AppHandle, state: State<Arc<AppState>>, execution_id: String, kind: String, level: String, node_id: Option<String>, data: Value) -> Result<Value, String> {
     let rec = db::event_emit(&*lock_db(&state)?, &execution_id, &kind, &level, node_id.as_deref(), &data).map_err(|e| e.to_string())?;
-    let _ = app.emit("mj://event", rec.clone());
+    let _ = app.emit("vh://event", rec.clone()); // 19.5.1: VH namespace (was mj://event — no internal listeners depended on the old name)
     Ok(rec)
 }
 #[tauri::command]

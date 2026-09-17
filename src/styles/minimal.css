@@ -1,0 +1,156 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   VH MINIMAL — 19.5.1 UI overhaul. The old decorative shell is retired.
+   This layer loads LAST and wins by specificity: porcelain canvas, gunmetal
+   ink, hairline borders, one accent. Quiet. Premium. Nothing decorative
+   survives unless it carries information.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --vh-paper: #f7f6f8;
+  --vh-card: #ffffff;
+  --vh-ink: #2d3142;
+  --vh-ink-2: #5c6070;
+  --vh-ink-3: #9a9dab;
+  --vh-line: #e4e2e8;
+  --vh-accent: #586a66;      /* Brooklyn sage — the only color with a job */
+  --vh-accent-soft: rgba(88, 106, 102, 0.10);
+}
+
+html, body, #root {
+  background: var(--vh-paper) !important;
+  color: var(--vh-ink) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── the decorative horizon goes away ──────────────────────────────────── */
+.horizon-arc { display: none !important; }
+
+.app { background: var(--vh-paper) !important; }
+.viewport { background: var(--vh-paper) !important; }
+.view-enter { animation: none !important; }
+
+/* ── sidebar: quiet, hairline, no ornament ─────────────────────────────── */
+.app aside, .app nav, .vh-sidebar {
+  background: var(--vh-paper) !important;
+  border-right: 1px solid var(--vh-line) !important;
+  box-shadow: none !important;
+}
+.app aside button, .vh-sidebar button {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: background-color 120ms ease !important;
+}
+.app aside button:hover { background: var(--vh-accent-soft) !important; }
+
+/* ── every card and panel: flat, hairline, generous radius ─────────────── */
+.px-door, .px-grid section, .px-thread, .px-bench, .px-side,
+.px-panel, .px-card, .streaming-shimmer {
+  background: var(--vh-card) !important;
+  border: 1px solid var(--vh-line) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+.px-door { border: none !important; background: transparent !important; }
+
+/* flatten gradient washes wherever they survive */
+.px-top, .px-hero, .px-bench-head, .px-side-head {
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--vh-line) !important;
+}
+.px-hero { border-bottom: none !important; }
+
+/* ── typography: tighter, calmer hierarchy ─────────────────────────────── */
+.px-door-title {
+  color: var(--vh-ink) !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 600 !important;
+}
+.px-door-sub { color: var(--vh-ink-2) !important; }
+.px-brand-name { color: var(--vh-ink) !important; letter-spacing: 0.02em !important; }
+.px-brand-sub { color: var(--vh-ink-3) !important; }
+.px-brand-mark { background: var(--vh-accent) !important; border-radius: 4px !important; box-shadow: none !important; }
+.px-kpi-value { color: var(--vh-ink) !important; }
+.px-kpi-label { color: var(--vh-ink-3) !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+
+/* ── buttons: pill or quiet; gunmetal primary ──────────────────────────── */
+button { box-shadow: none !important; }
+.px-send, .px-primary, .btn-primary {
+  background: var(--vh-ink) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 999px !important;
+}
+.px-send:hover, .px-primary:hover { background: #23263a !important; }
+.px-chip, .px-tag, .px-tool-chip {
+  background: var(--vh-paper) !important;
+  border: 1px solid var(--vh-line) !important;
+  color: var(--vh-ink-2) !important;
+  border-radius: 999px !important;
+}
+
+/* ── helm bar: one hairline, no glow ───────────────────────────────────── */
+.helm, .vh-helm {
+  background: var(--vh-paper) !important;
+  border-top: 1px solid var(--vh-line) !important;
+  box-shadow: none !important;
+}
+.helm textarea, .vh-helm textarea, .helm input, .vh-helm input {
+  background: var(--vh-card) !important;
+  border: 1px solid var(--vh-line) !important;
+  border-radius: 12px !important;
+}
+
+/* ── the new Agent Reach MCP panel ─────────────────────────────────────── */
+.reach-mcp {
+  margin: 18px auto 4px;
+  max-width: 980px;
+  padding: 16px 18px;
+  background: var(--vh-card);
+  border: 1px solid var(--vh-line);
+  border-radius: 14px;
+}
+.reach-mcp-head { display: flex; align-items: center; gap: 10px; }
+.reach-mcp-name { font-weight: 600; color: var(--vh-ink); letter-spacing: -0.01em; }
+.reach-mcp-tag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--vh-accent); background: var(--vh-accent-soft);
+  border: 1px solid rgba(88, 106, 102, 0.25);
+  padding: 2px 8px; border-radius: 999px;
+}
+.reach-mcp-sub { margin: 8px 0 10px; color: var(--vh-ink-2); font-size: 12.5px; line-height: 1.55; max-width: 72ch; }
+.reach-mcp-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.reach-mcp-chip {
+  font-size: 11px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--vh-ink-2); background: var(--vh-paper);
+  border: 1px solid var(--vh-line); border-radius: 999px; padding: 3px 10px;
+}
+
+/* ── scrollbars: invisible until needed ────────────────────────────────── */
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--vh-line); border-radius: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ── focus: calm and visible ───────────────────────────────────────────── */
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--vh-accent); outline-offset: 2px;
+}
+
+/* ── authority unlock row ────────────────────────────────────────────────── */
+.reach-mcp-auth { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.reach-mcp-sec { font-size: 11px; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--vh-line); color: var(--vh-ink-3); }
+.reach-mcp-sec-encrypted { color: var(--vh-accent); border-color: rgba(88,106,102,0.35); background: var(--vh-accent-soft); }
+.reach-mcp-sec-native { color: var(--vh-ink); border-color: var(--vh-ink-3); }
+.reach-mcp-unlock { display: inline-flex; gap: 6px; align-items: center; }
+.reach-mcp-pass {
+  font-size: 12px; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--vh-line); background: var(--vh-paper); color: var(--vh-ink);
+}
+.reach-mcp-unlock-btn {
+  font-size: 11px; padding: 4px 12px; border-radius: 999px;
+  background: var(--vh-ink); color: #fff; border: none; cursor: pointer;
+}
+.reach-mcp-unlock-btn:hover { background: #23263a; }
+.reach-mcp-note { font-size: 11px; color: var(--vh-ink-2); background: var(--vh-paper); border: 1px solid var(--vh-line); border-radius: 999px; padding: 3px 10px; }

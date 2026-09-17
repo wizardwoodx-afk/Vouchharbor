@@ -2409,7 +2409,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -2417,18 +2417,28 @@ var init_version = __esm({
 });
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -5851,9 +5861,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -5870,7 +5880,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -5882,7 +5892,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -24061,17 +24071,17 @@ var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
   inst.element = def.element;
 }, {
-  min(n2, params) {
-    return this.check(_minLength(n2, params));
+  min(n, params) {
+    return this.check(_minLength(n, params));
   },
   nonempty(params) {
     return this.check(_minLength(1, params));
   },
-  max(n2, params) {
-    return this.check(_maxLength(n2, params));
+  max(n, params) {
+    return this.check(_maxLength(n, params));
   },
-  length(n2, params) {
-    return this.check(_length(n2, params));
+  length(n, params) {
+    return this.check(_length(n, params));
   },
   unwrap() {
     return this.element;
@@ -25036,8 +25046,8 @@ function containsRef(value) {
     return Object.values(sub).some(containsRef);
   });
 }
-function plural(n2) {
-  return n2 === 1 ? "element" : "elements";
+function plural(n) {
+  return n === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
   const guard = z.transform((value) => value).check((payload) => {

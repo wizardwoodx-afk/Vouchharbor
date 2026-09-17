@@ -1,6 +1,78 @@
-# Vouch Harbor 19.3.0 "Vanguard" — feature sheet
+# Vouch Harbor 19.5.4 "Reach" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
+
+## 0. What 19.5.4 ships (the current release)
+
+```
+                    VH-19 GENERALIST (minimal premium door)
+                           │
+                 ┌─────────┴─────────┐
+                 │                   │
+          1,150 Specialists     Team / A2A / BYOA
+                 │                   │
+                 └─────────┬─────────┘
+                           │
+                      RSIRALS v5.0 (frozen governance plane)
+                           │
+                  Authority — ECDSA P-256 mandates
+                           │
+                     Intent / Receipts
+                           │
+                    VouchMesh (local trust fabric)
+                           │
+                  Agent Reach MCP (primary default MCP)
+                           │
+                 Computer Use / governed browser
+```
+
+- **The 1,150 fleet** — 460 seed + 160 broader + 140 reach + **390 matured**
+  specialists across 14 categories, each matured specialist individually
+  specified with named doctrine plus the uniform maturity contract (evidence
+  before claims, gate on risky moves, receipts on every tool call, failures
+  in words). Every domain has exactly one Captain (14/14). Composition is
+  self-proving from `catalogStats().byProvenance` — the number on screen is
+  the number in code.
+- **Agent Reach MCP — the app's primary default MCP server** (in-app +
+  stdio), exposing exactly six tools: `pc.exec`, `pc.browser.open`,
+  `pc.browser.screenshot`, `authority.issue`, `authority.verify`,
+  `authority.lookup`. Every call rides the governed pipeline:
+  risk tier → human gate → receipt.
+- **The computer-use plane** — allowlisted, injection-scanned, bounded
+  process execution; an honestly HYBRID browser (HTTPS fetch/snapshot,
+  injectable transport, real-binary screenshots — refusals in words, never a
+  faked page); central egress guard plus a stricter navigation rule for the
+  browser plane.
+- **Portable authority (ECDSA)** — owner-granted P-256 mission mandates with
+  clamped scope/budget/depth; `authority.issue` enforces mission-context
+  equality; a wrong owner passphrase is a HARD unlock failure (sealed keys
+  are never replaced); verification works with the public key alone. The
+  Generalist never self-grants broad authority — finished runs carry a run
+  attestation bounded to what actually executed.
+- **VouchMesh — the local collaboration trust fabric**, wired into the live
+  A2A handoff seam: every delegated handoff produces a joint receipt
+  co-signed by both participants; pair trust compounds across sessions;
+  refusals move trust down. Canonical scope, stated everywhere: **VouchMesh
+  is the LOCAL collaboration trust fabric; ECDSA provides portable authority
+  across instances** — both sides of a handoff are minted inside one VH
+  runtime, and no cross-instance handshake is claimed.
+- **CSPRNG mission ids** — `crypto.randomUUID()` / `getRandomValues()`,
+  122 bits of randomness per id; never text-derived, never a non-crypto RNG.
+- **Verification as a shipped product** — **125 probe suites**, **124
+  self-contained offline bundles** (`node verify/run.mjs`, zero npm deps),
+  41-pinned version-drift gate, byte-pinned engine bundles (MCP host + A2A
+  host recompute checks), offline-verifiable receipts.
+- **Native identity** — Vouch Harbor namespace end to end (`vh.sqlite`
+  migrated in place, `vh-desktop` keychain with legacy read-fallback,
+  `vh://event`), owner private keys never plaintext at rest.
+
+Gates at 19.5.4: tsc 0 · fleet 125/125 · offline 124/124 · door 70/70 ·
+agentic test 24/24 · reachPlane 31/31 · meshRuntime 17/17 · versionDrift 41/41.
+
+*Everything below the line is the lineage record — accurate for the release
+named in each section heading.*
+
+---
 
 ## A. VH-19 — the Generalist front door (the primary UI)
 
@@ -9,7 +81,7 @@ User (VH-19 door — the app opens here)
    ↓
 GuardRail content gate
    ↓
-MoE-style router → specialist bench (460 real specialists, 10 categories)
+MoE-style router → specialist bench (1,150 registered specialists, 14 categories)
    ↓
 Human gate (risky/critical work pauses; modal blocks the run)
    ↓
@@ -159,7 +231,7 @@ Probes: `shipyard` 22 · `captains` 37 (incl. the multi-member execution pins).
 
 ## E. Version integrity
 
-Every manifest agrees on **19.3.0 "Vanguard"**: `src/version.ts`,
+Every manifest agrees on **19.5.4 "Reach"**: `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.
@@ -173,5 +245,5 @@ npm install
 npm run dev          # web on :5173 (opens on the VH-19 door)
 npm run tauri dev    # native desktop
 npm run host         # mounts the A2A harbor (byte-pin verified)
-npm test             # runs every probe suite
+npm test             # runs all 125 probe suites
 ```

@@ -24,7 +24,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -32,18 +32,28 @@ var init_version = __esm({
 });
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 

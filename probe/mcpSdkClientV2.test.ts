@@ -100,7 +100,7 @@ describe("M1 the official v2 client speaks the MODERN era to the real server", (
 
   it("the full 20-tool governed surface is visible, deterministically ordered", async () => {
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 20, "the surface is still exactly 20 tools");
+    assert.equal(tools.length, 24, "the surface is still exactly 24 tools");
     const names = tools.map((t) => t.name);
     assert.deepStrictEqual([...names].sort(), names, "tool order is deterministic (sorted)");
     for (const expected of ["clock", "workspace_write", "approve_action", "call_status", "verify_receipt", "run_drill"]) {
@@ -201,7 +201,7 @@ describe("M4 dual-era from ONE official client library", () => {
       const v = legacy.getNegotiatedProtocolVersion();
       assert.equal(v, "2025-11-25", `the default legacy posture negotiated the 2025 revision, got ${v}`);
       const { tools } = await legacy.listTools();
-      assert.equal(tools.length, 20, "the legacy path sees the same 20-tool surface");
+      assert.equal(tools.length, 24, "the legacy path sees the same 24-tool surface");
     } finally {
       await legacy.close().catch(() => undefined);
     }

@@ -21,11 +21,20 @@
  * The browser transport is injectable so probes pin the driver logic
  * deterministically; the default transport uses the real fetch API.
  */
-import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
+import { checkEgressUrl } from "../security/guardrail";
 
-const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
+/* Runtime-agnostic by design: node-side defaults (process spawning, binary
+   detection, screenshots) are injected from computerUseNode.ts; browser
+   runtimes inject their own or receive honest refusals. */
+const sha256 = (t: string) => {
+  // synchronous FNV-1a stand-in is NOT cryptographic — digests here are
+  // receipt identifiers; the proof system's SHA-256 lives in the pipeline.
+  let h1 = 0x811c9dc5, h2 = 0x01000193;
+  for (let i = 0; i < t.length; i++) { h1 = Math.imul(h1 ^ t.charCodeAt(i), 16777619) >>> 0; h2 = Math.imul(h2 ^ t.charCodeAt(t.length - 1 - i), 16777619) >>> 0; }
+  let out = "";
+  for (let i = 0; i < 8; i++) { out += ((h1 = Math.imul(h1 ^ (h1 >>> 15), 2246822507) >>> 0).toString(16).padStart(8, "0")).slice(0, 4) + ((h2 = Math.imul(h2 ^ (h2 >>> 13), 3266489909) >>> 0).toString(16).padStart(8, "0")).slice(0, 4); h1 ^= h2; }
+  return out;
+};
 
 export type PcRisk = "safe" | "risky" | "critical";
 
@@ -95,9 +104,8 @@ export function pcExec(
   });
 }
 
-function defaultRun(bin: string, args: string[], timeoutMs: number) {
-  const r = spawnSync(bin, args, { timeout: timeoutMs, encoding: "utf-8", shell: false });
-  return { status: r.status, timedOut: Boolean(r.error && "code" in r.error && r.error.code === "ETIMEDOUT") || (r.signal === "SIGTERM" && r.status === null), stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+function defaultRun(_bin: string, _args: string[], _timeoutMs: number): { status: number | null; timedOut: boolean; stdout: string; stderr: string } {
+  throw new Error("no process runner attached to this runtime — node runtimes inject one from computerUseNode; this execution was refused, not faked");
 }
 
 function finalize<T extends object>(base: T): T & { digest: string } {
@@ -117,9 +125,38 @@ export function newProfile(missionId: string, name = "default"): BrowserProfile 
   return { name, missionId, userAgent: `VH-Reach/19.5 (accountable-agent; mission ${missionId})`, viewport: { width: 1280, height: 800 }, cookiesAllowed: false };
 }
 
+// ── mission browser registry — one live session per mission ───────────────
+/* P2 review fix: multi-step workflows (open → click → type → screenshot)
+   need the SAME browser across calls. Instances are cached per missionId;
+   the profile (identity/configuration) was always mission-scoped, now the
+   session object is too. */
+const missionBrowsers = new Map<string, HeadlessBrowser>();
+export function missionBrowser(
+  missionId: string,
+  transport?: BrowserTransport,
+  binary?: string | null,
+  spawn?: (bin: string, args: string[]) => { status: number | null; stderr: string },
+): HeadlessBrowser {
+  let b = missionBrowsers.get(missionId);
+  if (!b) {
+    b = new HeadlessBrowser(newProfile(missionId), transport ?? fetchTransport, binary ?? null, spawn);
+    missionBrowsers.set(missionId, b);
+  } else {
+    /* Review fix — session persistence must never pin stale bindings: an
+       explicitly-provided transport/binary/runner UPGRADES the live session
+       (page state is preserved; the bindings are configuration). */
+    if (transport && b.transport !== transport) b.transport = transport;
+    if (binary !== undefined && binary !== null && b.binary !== binary) b.binary = binary;
+    if (spawn && b.spawn !== spawn) b.spawn = spawn;
+  }
+  return b;
+}
+export function endMissionBrowser(missionId: string): void { missionBrowsers.delete(missionId); }
+
 // ── browser binary detection — honesty over pretending ──────────────────────
-export function detectBrowserBinary(paths: string[] = DEFAULT_BROWSER_PATHS): string | null {
-  for (const p of paths) if (existsSync(p)) return p;
+export function detectBrowserBinary(paths: string[] = DEFAULT_BROWSER_PATHS, exists?: (p: string) => boolean): string | null {
+  if (!exists) return null; // no filesystem probe in this runtime — honest null
+  for (const p of paths) if (exists(p)) return p;
   return null;
 }
 export const DEFAULT_BROWSER_PATHS = [
@@ -175,14 +212,18 @@ function parseSnapshot(url: string, status: number, html: string): PageSnapshot 
 
 export class HeadlessBrowser {
   readonly profile: BrowserProfile;
-  private transport: BrowserTransport;
-  readonly binary: string | null;
+  /* public so the mission registry can upgrade bindings on a live session */
+  transport: BrowserTransport;
+  binary: string | null;
   steps: BrowserStepReceipt[] = [];
 
-  constructor(profile: BrowserProfile, transport: BrowserTransport = fetchTransport, binary: string | null = detectBrowserBinary()) {
+  spawn?: (bin: string, args: string[]) => { status: number | null; stderr: string };
+
+  constructor(profile: BrowserProfile, transport: BrowserTransport = fetchTransport, binary: string | null = detectBrowserBinary(), spawn?: (bin: string, args: string[]) => { status: number | null; stderr: string }) {
     this.profile = profile;
     this.transport = transport;
     this.binary = binary;
+    this.spawn = spawn;
   }
 
   private record(receipt: Omit<BrowserStepReceipt, "digest" | "missionId">): BrowserStepReceipt {
@@ -193,6 +234,22 @@ export class HeadlessBrowser {
 
   private guardUrl(url: string): string | null {
     if (!url.startsWith("https://")) return "plain-http navigation refused — the browser plane is HTTPS-by-policy";
+    /* Review fix — ONE network policy everywhere: the browser plane rides the
+       central egress guard (metadata/link-local/scheme/suffix refusals)... */
+    const g = checkEgressUrl(url);
+    if (!g.ok) return `egress guard refused: ${g.reason}`;
+    /* ...PLUS a stricter navigation rule: net.fetch deliberately keeps local
+       services reachable (documented product surface), but NAVIGATING a page
+       at a loopback/private address is an SSRF shape — refused at the plane. */
+    let host = "";
+    try { host = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, ""); } catch { return "egress guard refused: not a parseable URL"; }
+    if (
+      host === "localhost" || host === "::1" || host === "0.0.0.0" ||
+      /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2[0-9]|3[01])\./.test(host) || /^[fu][cd][0-9a-f]{2}:/.test(host)
+    ) {
+      return "egress guard (browser plane): local/private address refused — navigation is stricter than general egress";
+    }
     return null;
   }
 
@@ -239,7 +296,10 @@ export class HeadlessBrowser {
     if (!last?.result) {
       return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: "no page is currently loaded — open a page before screenshotting" });
     }
-    const r = spawnSync(this.binary, ["--headless", "--disable-gpu", "--no-sandbox", `--screenshot=${outPath}`, `--window-size=${this.profile.viewport.width},${this.profile.viewport.height}`, last.result.url], { timeout: 30_000, encoding: "utf-8" });
+    if (!this.spawn) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: "browser binary present but no process runner attached to this runtime — screenshot refused, not faked" });
+    }
+    const r = this.spawn(this.binary, ["--headless", "--disable-gpu", "--no-sandbox", `--screenshot=${outPath}`, `--window-size=${this.profile.viewport.width},${this.profile.viewport.height}`, last.result.url]);
     if (r.status !== 0) {
       return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: `browser binary exited ${r.status}: ${(r.stderr ?? "").slice(0, 200)}` });
     }

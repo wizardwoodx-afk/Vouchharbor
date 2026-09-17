@@ -1,16 +1,16 @@
-Vouch Harbor 19.5.1 Reach
-built: 19.5.1 Reach
+Vouch Harbor 19.5.4 Reach
+built: 19.5.4 Reach
 ts:   2026-09-16T02:53:35Z
 git:  local
 protocol: vh-proof-receipt/2
 
-122 self-contained bundles in verify/suites (every probe suite except the pack's
+124 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 123 probe
-suites; the offline pack reproduces 122 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 125 probe
+suites; the offline pack reproduces 123 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-123 passed, 0 failed across 123 probe suites (node verify/run.mjs → 122 passed,
-0 failed for the offline-only subset). Suite 121 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 122 is probe/authority (the Authority Suite + VouchMesh) —
+125 passed, 0 failed across 125 probe suites (node verify/run.mjs → 124 passed,
+0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam) —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
 
 19.3.0 "Vanguard" — the fleet-becomes-real release:

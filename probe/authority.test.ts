@@ -15,9 +15,9 @@ import assert from "node:assert/strict";
 import {
   signMandate, verifyMandate, delegateAuthority, verifyChain, remainingBudget,
   declareIntent, gateIntent, buildWarrantyPack, liabilityMap,
-  generateOwnerKeys, signMandateAsymmetric, verifyMandateAsymmetric,
   bindAuthorityToReceipt, verifyAuthorityBinding,
 } from "../src/vh19/authority";
+import { generateOwnerKeysWeb, signMandateWeb, verifyMandateWeb, bindAuthorityToReceiptWeb, verifyAuthorityBindingWeb } from "../src/vh19/authorityWeb";
 import {
   registerPeer, attest, openChannel, buildJointReceipt, coSign, isFullyCoSigned,
   recordJointOutcome, pairKey, quarantinePeer, meshStanding,
@@ -224,32 +224,38 @@ test("authority + vouchmesh", async (t) => {
     assert.equal(q.reason, "injection flagged in reply");
   });
 
-  // ── asymmetric mandates — the portable trust root ─────────────────────────
-  const keys = generateOwnerKeys();
-  const asymMandate = signMandateAsymmetric({
+  // ── asymmetric mandates — the portable trust root (WebCrypto, live path) ──
+  const keys = await generateOwnerKeysWeb();
+  const asymMandate = await signMandateWeb({
     agentId: "vh-agent-9", owner: "sree", scope: ["pc.exec", "pc.browser"], budgetCap: 50, maxDepth: 1,
     issuedAt: now, expiresAt: now + 3_600_000,
-  }, keys.privateKeyPem);
+  }, keys);
 
-  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", () => {
-    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 1000);
+  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", async () => {
+    const r = await verifyMandateWeb(asymMandate, keys.publicKeyPem, now + 1000);
     assert.equal(r.ok, true);
   });
-  await t.test("the wrong public key refuses the mandate", () => {
-    const stranger = generateOwnerKeys();
-    const r = verifyMandateAsymmetric(asymMandate, stranger.publicKeyPem, now + 1000);
+  await t.test("the wrong public key refuses the mandate", async () => {
+    const stranger = await generateOwnerKeysWeb();
+    const r = await verifyMandateWeb(asymMandate, stranger.publicKeyPem, now + 1000);
     assert.equal(r.ok, false);
     if (!r.ok) assert.equal(r.reason, "bad-signature");
   });
-  await t.test("a symmetric HMAC mandate is refused as portable authority", () => {
-    const r = verifyMandateAsymmetric(mandate, keys.publicKeyPem, now + 1000);
+  await t.test("a symmetric HMAC mandate is refused as portable authority", async () => {
+    const r = await verifyMandateWeb(mandate, keys.publicKeyPem, now + 1000);
     assert.equal(r.ok, false);
     if (!r.ok) assert.match(r.detail, /asymmetric/);
   });
-  await t.test("an expired asymmetric mandate is refused", () => {
-    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 7_200_000);
+  await t.test("an expired asymmetric mandate is refused", async () => {
+    const r = await verifyMandateWeb(asymMandate, keys.publicKeyPem, now + 7_200_000);
     assert.equal(r.ok, false);
     if (!r.ok) assert.equal(r.reason, "expired");
+  });
+  await t.test("the portable binding round-trips offline (authorityWeb)", async () => {
+    const receiptDigest = "c".repeat(64);
+    const b = await bindAuthorityToReceiptWeb(receiptDigest, null, "sree");
+    assert.equal(await verifyAuthorityBindingWeb(b, receiptDigest, null), true);
+    assert.equal(await verifyAuthorityBindingWeb(b, "d".repeat(64), null), false);
   });
 
   // ── authority ⟷ receipt chain binding ─────────────────────────────────────

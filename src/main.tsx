@@ -10,6 +10,7 @@ import './styles/premium.css';
 
 // Import font declarations
 import './styles/fonts.css';
+import './styles/minimal.css';
 
 /* 18.3.0 — browser-build CSP. The desktop (Tauri) build enforces its own CSP in
  * tauri.conf.json; the plain-browser build previously had NONE. In dev/preview

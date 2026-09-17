@@ -10,18 +10,28 @@ var __export = (target, all) => {
 };
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -30,7 +40,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -5866,9 +5876,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -5885,7 +5895,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -5897,7 +5907,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -6002,8 +6012,8 @@ function persistCrew(current, team) {
 init_version();
 
 // src/mission/assuranceScore.ts
-var round2 = (n2) => Math.round(n2 * 100) / 100;
-var clamp = (n2, lo, hi) => Math.min(hi, Math.max(lo, n2));
+var round2 = (n) => Math.round(n * 100) / 100;
+var clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 function scoreAssurance(i) {
   if (!Number.isFinite(i.measuredRuns) || i.measuredRuns <= 0) {
     return {
@@ -6144,7 +6154,7 @@ function assuranceEvidence() {
     }
   }
   unrecorded.push("egress-violations");
-  const feedbackRatings = Object.values(state.feedbackByCycle ?? {}).map((f) => Number(f?.rating)).filter((n2) => Number.isFinite(n2) && n2 >= 1 && n2 <= 5);
+  const feedbackRatings = Object.values(state.feedbackByCycle ?? {}).map((f) => Number(f?.rating)).filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
   return {
     inputs: {
       measuredRuns: cycles.length,
@@ -24466,17 +24476,17 @@ var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
   inst.element = def.element;
 }, {
-  min(n2, params) {
-    return this.check(_minLength(n2, params));
+  min(n, params) {
+    return this.check(_minLength(n, params));
   },
   nonempty(params) {
     return this.check(_minLength(1, params));
   },
-  max(n2, params) {
-    return this.check(_maxLength(n2, params));
+  max(n, params) {
+    return this.check(_maxLength(n, params));
   },
-  length(n2, params) {
-    return this.check(_length(n2, params));
+  length(n, params) {
+    return this.check(_length(n, params));
   },
   unwrap() {
     return this.element;
@@ -25441,8 +25451,8 @@ function containsRef(value) {
     return Object.values(sub).some(containsRef);
   });
 }
-function plural(n2) {
-  return n2 === 1 ? "element" : "elements";
+function plural(n) {
+  return n === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
   const guard = z.transform((value) => value).check((payload) => {
@@ -26887,29 +26897,29 @@ describe3("buttonActions \u2014 Patina primary buttons mutate real state", () =>
     });
     const parsed = JSON.parse(payload);
     assert2.ok(Array.isArray(parsed.nodes), "topology carries a nodes array");
-    const nodes = parsed.nodes.map((n2) => ({
-      id: String(n2.id),
-      x: Number(n2.x) || 80,
-      y: Number(n2.y) || 80,
-      name: String(n2.name || "node"),
-      role: String(n2.role || "seat"),
-      harness: String(n2.harness || "vouch-brain"),
-      underWeigh: Boolean(n2.underWeigh),
-      kind: n2.kind
+    const nodes = parsed.nodes.map((n) => ({
+      id: String(n.id),
+      x: Number(n.x) || 80,
+      y: Number(n.y) || 80,
+      name: String(n.name || "node"),
+      role: String(n.role || "seat"),
+      harness: String(n.harness || "vouch-brain"),
+      underWeigh: Boolean(n.underWeigh),
+      kind: n.kind
     }));
     assert2.strictEqual(nodes.length, 3, "all three nodes parsed");
     assert2.strictEqual(nodes[0].name, "Helm");
     assert2.strictEqual(nodes[1].underWeigh, true, "underWeigh boolean preserved");
     const garbage = JSON.parse('{"nodes":[{"id":"x"}]}');
-    const gn = garbage.nodes.map((n2) => ({
-      id: String(n2.id),
-      x: Number(n2.x) || 80,
-      y: Number(n2.y) || 80,
-      name: String(n2.name || "node"),
-      role: String(n2.role || "seat"),
-      harness: String(n2.harness || "vouch-brain"),
-      underWeigh: Boolean(n2.underWeigh),
-      kind: n2.kind
+    const gn = garbage.nodes.map((n) => ({
+      id: String(n.id),
+      x: Number(n.x) || 80,
+      y: Number(n.y) || 80,
+      name: String(n.name || "node"),
+      role: String(n.role || "seat"),
+      harness: String(n.harness || "vouch-brain"),
+      underWeigh: Boolean(n.underWeigh),
+      kind: n.kind
     }));
     assert2.strictEqual(gn[0].name, "node", "missing name falls back to 'node'");
     assert2.strictEqual(gn[0].harness, "vouch-brain", "missing harness falls back to 'vouch-brain'");

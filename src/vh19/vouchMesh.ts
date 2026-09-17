@@ -31,11 +31,25 @@
  *
  * Honesty rules: no silent joins, no unsigned collaboration, no trust without
  * history. Everything here lands in the same ledger as everything else.
+ *
+ * RUNTIME STATUS (live since 19.5.3 final-freeze): wired into the production
+ * A2A handoff path through ./meshRuntime — every delegated handoff in the
+ * harbor produces a co-signed mesh joint receipt, and pair trust compounds
+ * across sessions. Hashing runs on ./pureHash (synchronous, works in the
+ * WebView and under Node, byte-identical to node:crypto — probe-pinned in
+ * probe/meshRuntime).
+ *
+ * SCOPE — read before quoting: VouchMesh is the LOCAL collaboration trust
+ * fabric; ECDSA provides portable authority across instances. Both peers of a
+ * handoff are registered, attested and co-signed INSIDE ONE VH runtime — no
+ * cross-instance network handshake happens here, and none is claimed. The
+ * mesh makes local collaboration tamper-evident; the ECDSA mandate plane
+ * (./missionAuthority) is what travels between instances.
  */
-import { createHash, createHmac } from "node:crypto";
+import { pureSha256, pureHmacSha256 } from "./pureHash";
 
-const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
-const hmac = (secret: string, t: string) => createHmac("sha256", secret).update(t).digest("hex");
+const sha256 = pureSha256;
+const hmac = pureHmacSha256;
 
 // ── peers ───────────────────────────────────────────────────────────────────
 export interface MeshPeer {

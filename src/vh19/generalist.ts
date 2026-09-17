@@ -34,6 +34,8 @@ import { buildCaptainReport, captainForRoute } from "./captains";
 import { buildSynthesisSystem, buildSynthesisUser, findDivergences } from "./synthesis";
 import { runMemberAgent } from "./agentLoop";
 import { stripToolBlocks } from "./tools";
+import { attestMissionRun, recordMissionAuthority, authorityOwnerIdentity } from "./missionAuthority";
+import { mandateCanonical } from "./authorityCore";
 import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
 import { complete, redactSecrets } from "./providers";
@@ -65,6 +67,7 @@ export function responseCanonical(r: Omit<GeneralistResponse, "provenanceDigest"
     synthesis: r.synthesis ?? null,
     memberRuns: r.memberRuns ?? null,
     workspace: r.workspace ?? null,
+    authority: r.authority ?? null,
   });
 }
 
@@ -80,6 +83,11 @@ export interface AskArgs {
 export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise<GeneralistResponse> {
   const userId = args.userId ?? "default";
   const text = sanitizeText(args.text, 8000);
+  /* Review fix (P0) — mission identity is a RANDOM per-run id, never derived
+     from the ask text: identical asks by different users/runs can never
+     collide into the same browser session or authority context. User/task
+     metadata rides the response (userId, routed, provenanceDigest). */
+  const missionId = uid("m");
   const now = deps.now ?? (() => new Date());
   void now; // reserved for receipt timestamps in the UI wiring phase
 
@@ -133,7 +141,26 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       }
     }
     const full = { ...r, workspace: r.workspace ?? workspaceView, reply, captain, failure, liveData };
-    return { ...full, provenanceDigest: await sha256Hex(responseCanonical(full)) };
+    /* Review hardening — the Generalist never SELF-GRANTS broad authority.
+       It signs a RUN ATTESTATION: scope = the tool classes actually executed
+       this run, budget = executed action count, depth 0. Nothing executed ⇒
+       authority is null — provenance without pretend permission. A-priori
+       grants exist only via the owner-gated Agent Reach MCP surface. */
+    const executedTools: string[] = [];
+    for (const run of full.memberRuns ?? []) {
+      for (const tr of run.toolReceipts) {
+        if (tr.outcome === "ok") executedTools.push(tr.tool);
+      }
+    }
+    const mandate = await attestMissionRun({ missionId, executedTools }, { identity: userId });
+    if (!mandate) return { ...full, authority: null, provenanceDigest: await sha256Hex(responseCanonical({ ...full, authority: null })) };
+    const mandateDigest = await sha256Hex(mandateCanonical(mandate));
+    const ident = await authorityOwnerIdentity({ identity: userId });
+    const authority = { mandateDigest, scheme: "ecdsa-p256" as const, owner: mandate.owner };
+    const full2 = { ...full, authority };
+    const provenanceDigest = await sha256Hex(responseCanonical(full2));
+    await recordMissionAuthority(missionId, provenanceDigest, mandate, mandateDigest, ident.keys.publicKeyPem);
+    return { ...full2, provenanceDigest };
   };
 
   /* 0 — content gate: the GuardRail scans before anything else exists. */
@@ -270,6 +297,14 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   const memberToolCtx = deps.workspaceRoot
     ? { workspaceRoot: deps.workspaceRoot, gate: deps.gate, fetchImpl: deps.fetchImpl, fsImpl: deps.fsImpl }
     : undefined;
+  /* 19.5.1 — the computer-use plane is attached to reach-provenance members
+     ONLY: the Generalist routes a reach specialist → the mission gets the
+     governed pc.* tools (gate + receipts unchanged). Everyone else keeps the
+     exact pre-Reach tool surface. */
+  const reachPc = { missionId, policy: { allowlist: ["ls", "cat", "echo", "grep"], maxRuntimeMs: 5000, maxOutputBytes: 64 * 1024 } };
+  const ctxFor = (s: { provenance?: string }) =>
+    memberToolCtx && s.provenance === "vh-19.5.1-reach" ? { ...memberToolCtx, pc: reachPc } : memberToolCtx;
+
 
   /* 19.2.0 — TRUE multi-member execution; 19.3.0 — with real member agent
      loops and Captain synthesis on top:
@@ -298,7 +333,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
         task: text,
         systemBase,
         fetchImpl: deps.fetchImpl,
-        toolCtx: memberToolCtx,
+        toolCtx: ctxFor(s),
         hash: sha256Hex,
       });
       memberRunViews.push({
@@ -398,7 +433,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       task: text,
       systemBase,
       fetchImpl: deps.fetchImpl,
-      toolCtx: memberToolCtx,
+      toolCtx: ctxFor(primary),
       hash: sha256Hex,
     });
     if (!run.ok) {

@@ -1,12 +1,16 @@
 /**
- * VH-19 — the A2A handoff ledger (18.7.0).
+ * VH-19 — the A2A handoff ledger (18.7.0 · meshed 19.5.3).
  *
  * Every delegation attempt through the peer seam gets a receipt — including
  * the refusals. A handoff that never ran is recorded as refused with the
- * reason in words; a handoff that ran carries the peer's receipt digest.
+ * reason in words; a handoff that ran carries the peer's receipt digest AND
+ * a VouchMesh joint receipt co-signed by both parties (see ./meshRuntime —
+ * the mesh fabric is wired into this seam, not just probed).
  * Nothing is recorded that did not happen, and nothing that happened goes
  * unrecorded. Module + localStorage only; no network, no fake transports.
  */
+import { meshForHandoff } from "./meshRuntime";
+import { uid } from "../app/id";
 
 const HANDOFFS_KEY = "vh19.handoffs.v1";
 const HANDOFF_CAP = 100;
@@ -18,6 +22,12 @@ export interface HandoffRecord {
   outcome: "delegated" | "refused";
   detail: string;
   receiptDigest?: string;
+  /** VouchMesh joint-receipt digest — present only when the handoff delegated. */
+  meshJointDigest?: string | null;
+  /** Pair standing after this handoff moved mesh trust. */
+  meshStanding?: "unknown" | "probation" | "vouched" | "proven";
+  /** The mesh decision in words. */
+  meshDetail?: string;
   at: string;
 }
 
@@ -45,7 +55,7 @@ export function recordHandoff(
   now: () => Date = () => new Date(),
 ): HandoffRecord {
   const rec: HandoffRecord = {
-    id: `ho-${now().getTime().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    id: uid("ho"),
     peer: input.peer,
     taskDigest: input.task.slice(0, 120),
     outcome: input.outcome,
@@ -53,6 +63,10 @@ export function recordHandoff(
     receiptDigest: input.receiptDigest,
     at: now().toISOString(),
   };
+  const mesh = meshForHandoff({ handoffId: rec.id, peer: rec.peer, outcome: rec.outcome, taskDigest: rec.taskDigest });
+  rec.meshJointDigest = mesh.meshJointDigest;
+  rec.meshStanding = mesh.meshStanding;
+  rec.meshDetail = mesh.meshDetail;
   storage()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
   return rec;
 }

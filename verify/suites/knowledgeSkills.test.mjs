@@ -5,15 +5,25 @@ var __esm = (fn, res) => function __init() {
 };
 
 // src/app/id.ts
-function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
 }
-var n;
+function uid(prefix) {
+  return `${prefix}-${cryptoToken()}`;
+}
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -625,7 +635,7 @@ var UNSTRUCTURED = "lorem ipsum dolor sit amet consectetur adipiscing elit sed d
 function scriptedDeps(opts) {
   return {
     resolveBin: async (bin) => opts.missing ? null : bin === "codex" && !opts.codexOk ? null : `/usr/local/bin/${bin}`,
-    readEnv: opts.env === void 0 ? void 0 : async (names) => names.map((n2) => opts.env ? opts.env[n2] ?? null : null),
+    readEnv: opts.env === void 0 ? void 0 : async (names) => names.map((n) => opts.env ? opts.env[n] ?? null : null),
     cliInvoke: async () => {
       if (opts.throwIt) throw new Error("harness crashed");
       if (opts.garbage) return { exitCode: 0, stdout: "I am not JSON at all", stderr: "", timedOut: false };

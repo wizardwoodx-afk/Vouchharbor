@@ -20,6 +20,7 @@
  * feeding the memory the exam is built from.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { setAuthorityPassphrase, authorityOwnerIdentity, authorityUnlocked } from '../vh19/missionAuthority';
 import { askVH19 } from '../vh19/generalist';
 import { advanceBuild, buildSummary, createBuild, listBuilds, runAllOrders, settleBuild, type Build, type RunResult } from '../vh19/shipyard';
 import { usageReport } from '../vh19/tokenOptim';
@@ -112,6 +113,25 @@ export const Vh19: React.FC = () => {
   // 19.5.0 — the user's identity drives their avatar. One face per handle, forever.
   const [userHandle, setUserHandle] = useState<string>(() => readUserHandle());
   const [editingHandle, setEditingHandle] = useState(false);
+  /* 19.5.1 — authority key unlock: web authority is session-scoped unless the
+     owner unlocks encrypted persistence with their passphrase. */
+  const [authorityPass, setAuthorityPass] = useState('');
+  const [authorityState, setAuthorityState] = useState<'session' | 'encrypted' | 'native'>(authorityUnlocked() ? 'encrypted' : 'session');
+  const [unlockNote, setUnlockNote] = useState<string | null>(null);
+  const unlockAuthority = async () => {
+    if (!authorityPass.trim()) return;
+    setAuthorityPassphrase(authorityPass);
+    const ident = await authorityOwnerIdentity({ identity: userHandle || undefined, passphrase: authorityPass });
+    if (ident.unlockFailed) {
+      setAuthorityPassphrase(null);
+      setAuthorityState('session');
+      setUnlockNote('unlock failed — the existing sealed keys are untouched; session keys in use');
+    } else {
+      setAuthorityState(ident.security === 'session' ? 'session' : ident.security);
+      setUnlockNote(null);
+    }
+    setAuthorityPass('');
+  };
   const [handleDraft, setHandleDraft] = useState('');
   const [errorNote, setErrorNote] = useState<string | null>(null);
   const [provider, setProvider] = useState<ProviderConfig | null>(() => loadRememberedProvider());
@@ -416,6 +436,43 @@ export const Vh19: React.FC = () => {
         <p className="px-door-sub">Chat with VH-19. It routes to the bench, executes real tools in your workspace, pauses at the human gate for risky work, and says in words when it did not execute.</p>
       </div>
 
+
+      {/* 19.5.1 — Agent Reach MCP: the primary default MCP, wired into the app */}
+      <section className="reach-mcp" aria-label="Agent Reach MCP">
+        <div className="reach-mcp-head">
+          <span className="reach-mcp-name">Agent Reach MCP</span>
+          <span className="reach-mcp-tag">primary · default</span>
+        </div>
+        <p className="reach-mcp-sub">
+          Computer-use + portable authority, served inside the app. Every risky call pauses at the human gate; every call lands a receipt.
+          The browser plane is hybrid — HTTPS fetch/snapshot, injectable transport, real-binary screenshots — never overstated as a full DOM browser.
+        </p>
+        <div className="reach-mcp-tools">
+          {["pc.exec", "pc.browser.open", "pc.browser.screenshot", "authority.issue", "authority.verify", "authority.lookup"].map((t) => (
+            <span key={t} className="reach-mcp-chip">{t}</span>
+          ))}
+        </div>
+        <div className="reach-mcp-auth">
+          <span className={`reach-mcp-sec reach-mcp-sec-${authorityState}`}>
+            authority keys: {authorityState === 'session' ? 'session-scoped (web)' : authorityState === 'encrypted' ? 'encrypted at rest' : 'OS keychain'}
+          </span>
+          {authorityState === 'session' && (
+            <span className="reach-mcp-unlock">
+              {unlockNote && <span className="reach-mcp-note">{unlockNote}</span>}
+              <input
+                type="password"
+                className="reach-mcp-pass"
+                placeholder="owner passphrase to persist keys encrypted"
+                value={authorityPass}
+                onChange={(e) => setAuthorityPass(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void unlockAuthority(); }}
+              />
+              <button className="reach-mcp-unlock-btn" onClick={() => void unlockAuthority()}>Unlock</button>
+            </span>
+          )}
+        </div>
+      </section>
+
       <div className="px-grid">
         {/* ══ the conversation ══ */}
         <section className="px-chat" aria-label="Conversation with VH-19">
@@ -424,7 +481,7 @@ export const Vh19: React.FC = () => {
               <div className="px-thread-empty">
                 <div className="px-thread-empty-title">Ask VH-19 anything.</div>
                 <div className="px-thread-empty-sub">
-                  Your task routes to the right specialists out of 760, runs with governed tools over your workspace, and comes back as one answer —
+                  Your task routes to the right specialists out of 1,150, runs with governed tools over your workspace, and comes back as one answer —
                   routed reasoning, every tool receipt, and the Captain's synthesis included.
                 </div>
                 <div className="px-row" style={{ justifyContent: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
@@ -1243,7 +1300,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('bench', (
                 <>
-                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach = {stats.count} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; counting seed() calls alone misses them).</div>
+                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach + {stats.byProvenance.matured} matured = {stats.count.toLocaleString("en-US")} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; the maturity tier adds finished professionals with explicit doctrine; counting seed() calls alone misses them).</div>
                   {showBench ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
                       {bench.map((s) => {

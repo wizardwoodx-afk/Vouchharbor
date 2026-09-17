@@ -1,5 +1,7 @@
 /**
- * VH-19 — RSIRALS v5.0: Trust-Rooted Recursive Self-Improvement (19.4.3).
+ * VH-19 — RSIRALS v5.0: Trust-Rooted Recursive Self-Improvement.
+ * Governance plane FROZEN at 19.4.4 (receipt-bound, no behavioral drift);
+ * header synced to the 19.5.1 train.
  * PROPRIETARY VOUCH HARBOR IMPLEMENTATION.
  *
  * RSIRALS = Recursive Self-Improvement + Reinforcement + Agentic Learning

@@ -154,7 +154,7 @@ async function main() {
   /* ── F. the catalog proves itself ──────────────────────────────────── */
   section("F · CATALOG — self-proving composition");
   const stats = catalogStats();
-  ok("760 registered specialists = 460 seed + 160 broader + 140 reach", stats.count === 760 && stats.byProvenance.seed === 460 && stats.byProvenance.broader === 160 && stats.byProvenance.reach === 140);
+  ok("1,150 registered specialists = 460 seed + 160 broader + 140 reach + 390 matured", stats.count === 1150 && stats.byProvenance.seed === 460 && stats.byProvenance.broader === 160 && stats.byProvenance.reach === 140 && stats.byProvenance.matured === 390);
   const d1 = await catalogDigest();
   const d2 = await catalogDigest();
   ok("the catalog digest is deterministic", d1 === d2 && d1.length === 64);

@@ -4,11 +4,69 @@ import { createRequire as __mjCreateRequire } from "node:module"; const require 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+// src/security/guardrail.ts
+var RateGate = class {
+  constructor(limit, windowMs, now = () => Date.now()) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+    this.now = now;
+  }
+  hits = /* @__PURE__ */ new Map();
+  /** Returns true when the action is within budget (and records it). */
+  check(key) {
+    const t = this.now();
+    const arr = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
+    if (arr.length >= this.limit) {
+      this.hits.set(key, arr);
+      return false;
+    }
+    arr.push(t);
+    this.hits.set(key, arr);
+    return true;
+  }
+};
+var BLOCKED_HOST_SUFFIXES = [".internal", ".local", ".localhost"];
+function checkEgressUrl(raw) {
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    return { ok: false, reason: "not a parseable URL" };
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    return { ok: false, reason: `scheme "${u.protocol}" refused \u2014 only http(s) egress is allowed` };
+  }
+  const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "169.254.169.254" || host === "metadata.google.internal") {
+    return { ok: false, reason: "cloud metadata endpoint refused (SSRF guard)" };
+  }
+  if (/^169\.254\./.test(host)) {
+    return { ok: false, reason: "link-local address refused (SSRF guard)" };
+  }
+  if (host === "0.0.0.0" || host === "::") {
+    return { ok: false, reason: "unspecified address refused" };
+  }
+  for (const sfx of BLOCKED_HOST_SUFFIXES) {
+    if (host.endsWith(sfx)) return { ok: false, reason: `host suffix "${sfx}" refused` };
+  }
+  return { ok: true, reason: "" };
+}
+var callRateGate = new RateGate(120, 6e4);
+
 // src/vh19/computerUse.ts
-import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
-var sha256 = (t) => createHash("sha256").update(t).digest("hex");
+var sha256 = (t) => {
+  let h1 = 2166136261, h2 = 16777619;
+  for (let i = 0; i < t.length; i++) {
+    h1 = Math.imul(h1 ^ t.charCodeAt(i), 16777619) >>> 0;
+    h2 = Math.imul(h2 ^ t.charCodeAt(t.length - 1 - i), 16777619) >>> 0;
+  }
+  let out = "";
+  for (let i = 0; i < 8; i++) {
+    out += (h1 = Math.imul(h1 ^ h1 >>> 15, 2246822507) >>> 0).toString(16).padStart(8, "0").slice(0, 4) + (h2 = Math.imul(h2 ^ h2 >>> 13, 3266489909) >>> 0).toString(16).padStart(8, "0").slice(0, 4);
+    h1 ^= h2;
+  }
+  return out;
+};
 var SHELL_META = /[;&|`$<>!*?\n\r]/;
 function pcExec(binary, args, policy2, risk, opts = {}) {
   const started = Date.now();
@@ -69,9 +127,8 @@ function pcExec(binary, args, policy2, risk, opts = {}) {
     durationMs: Date.now() - started
   });
 }
-function defaultRun(bin, args, timeoutMs) {
-  const r = spawnSync(bin, args, { timeout: timeoutMs, encoding: "utf-8", shell: false });
-  return { status: r.status, timedOut: Boolean(r.error && "code" in r.error && r.error.code === "ETIMEDOUT") || r.signal === "SIGTERM" && r.status === null, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+function defaultRun(_bin, _args, _timeoutMs) {
+  throw new Error("no process runner attached to this runtime \u2014 node runtimes inject one from computerUseNode; this execution was refused, not faked");
 }
 function finalize(base) {
   return { ...base, digest: sha256(JSON.stringify(base)) };
@@ -79,8 +136,9 @@ function finalize(base) {
 function newProfile(missionId, name = "default") {
   return { name, missionId, userAgent: `VH-Reach/19.5 (accountable-agent; mission ${missionId})`, viewport: { width: 1280, height: 800 }, cookiesAllowed: false };
 }
-function detectBrowserBinary(paths = DEFAULT_BROWSER_PATHS) {
-  for (const p of paths) if (existsSync(p)) return p;
+function detectBrowserBinary(paths = DEFAULT_BROWSER_PATHS, exists) {
+  if (!exists) return null;
+  for (const p of paths) if (exists(p)) return p;
   return null;
 }
 var DEFAULT_BROWSER_PATHS = [
@@ -112,13 +170,16 @@ function parseSnapshot(url, status, html) {
 }
 var HeadlessBrowser = class {
   profile;
+  /* public so the mission registry can upgrade bindings on a live session */
   transport;
   binary;
   steps = [];
-  constructor(profile, transport = fetchTransport, binary = detectBrowserBinary()) {
+  spawn;
+  constructor(profile, transport = fetchTransport, binary = detectBrowserBinary(), spawn) {
     this.profile = profile;
     this.transport = transport;
     this.binary = binary;
+    this.spawn = spawn;
   }
   record(receipt) {
     const full = finalize({ ...receipt, missionId: this.profile.missionId });
@@ -127,6 +188,17 @@ var HeadlessBrowser = class {
   }
   guardUrl(url) {
     if (!url.startsWith("https://")) return "plain-http navigation refused \u2014 the browser plane is HTTPS-by-policy";
+    const g = checkEgressUrl(url);
+    if (!g.ok) return `egress guard refused: ${g.reason}`;
+    let host = "";
+    try {
+      host = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    } catch {
+      return "egress guard refused: not a parseable URL";
+    }
+    if (host === "localhost" || host === "::1" || host === "0.0.0.0" || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2[0-9]|3[01])\./.test(host) || /^[fu][cd][0-9a-f]{2}:/.test(host)) {
+      return "egress guard (browser plane): local/private address refused \u2014 navigation is stricter than general egress";
+    }
     return null;
   }
   async open(url, risk = "risky") {
@@ -170,7 +242,10 @@ var HeadlessBrowser = class {
     if (!last?.result) {
       return this.record({ kind: "pc.browser", action, decision: "refused", result: null, reason: "no page is currently loaded \u2014 open a page before screenshotting" });
     }
-    const r = spawnSync(this.binary, ["--headless", "--disable-gpu", "--no-sandbox", `--screenshot=${outPath}`, `--window-size=${this.profile.viewport.width},${this.profile.viewport.height}`, last.result.url], { timeout: 3e4, encoding: "utf-8" });
+    if (!this.spawn) {
+      return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: "browser binary present but no process runner attached to this runtime \u2014 screenshot refused, not faked" });
+    }
+    const r = this.spawn(this.binary, ["--headless", "--disable-gpu", "--no-sandbox", `--screenshot=${outPath}`, `--window-size=${this.profile.viewport.width},${this.profile.viewport.height}`, last.result.url]);
     if (r.status !== 0) {
       return this.record({ kind: "pc.browser", action, decision: "refused", result: last.result, reason: `browser binary exited ${r.status}: ${(r.stderr ?? "").slice(0, 200)}` });
     }

@@ -46,7 +46,7 @@ test("specialist tools — real execution, gated and receipted (19.3.0)", async 
   fs.writeFileSync(path.join(root, "sub", "deep.txt"), "deep file", "utf8");
 
   console.log("\n── 1. the toolset is small, tiered and honestly described ──");
-  check("exactly five tools ship — a reviewer can read them all", TOOLS.length === 5, TOOLS.map((t) => t.id));
+  check("exactly seven tools ship — a reviewer can read them all", TOOLS.length === 7, TOOLS.map((t) => t.id));
   check("every tool states its purpose and input shape", TOOLS.every((t) => t.purpose.length > 20 && t.inputShape.includes("{")));
   check("fs.write and net.fetch are risky; readers are safe", getTool("fs.write")?.riskTier === "risky" && getTool("net.fetch")?.riskTier === "risky" && getTool("fs.read")?.riskTier === "safe" && getTool("fs.list")?.riskTier === "safe" && getTool("wiki.search")?.riskTier === "safe");
   check("every category binding stays ≤ 3 tools", ["code", "security", "testing", "review", "data", "devops", "research", "writing", "analysis", "design"].every((c) => toolsForCategory(c).length <= 3));

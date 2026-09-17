@@ -43,7 +43,7 @@ var require_react_production_min = __commonJS({
   "node_modules/react/cjs/react.production.min.js"(exports) {
     "use strict";
     var l = Symbol.for("react.element");
-    var n2 = Symbol.for("react.portal");
+    var n = Symbol.for("react.portal");
     var p = Symbol.for("react.fragment");
     var q = Symbol.for("react.strict_mode");
     var r2 = Symbol.for("react.profiler");
@@ -139,7 +139,7 @@ var require_react_production_min = __commonJS({
         case "object":
           switch (a.$$typeof) {
             case l:
-            case n2:
+            case n:
               h = true;
           }
       }
@@ -1048,11 +1048,11 @@ var require_react_development = __commonJS({
           return result;
         }
         function countChildren(children) {
-          var n2 = 0;
+          var n = 0;
           mapChildren(children, function() {
-            n2++;
+            n++;
           });
-          return n2;
+          return n;
         }
         function forEachChildren(children, forEachFunc, forEachContext) {
           mapChildren(children, function() {
@@ -2203,13 +2203,13 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     "use strict";
     var ea = require_react();
     var fa = __require("stream");
-    var n2 = Object.prototype.hasOwnProperty;
+    var n = Object.prototype.hasOwnProperty;
     var ha = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/;
     var ia = {};
     var ja = {};
     function ka(a) {
-      if (n2.call(ja, a)) return true;
-      if (n2.call(ia, a)) return false;
+      if (n.call(ja, a)) return true;
+      if (n.call(ia, a)) return false;
       if (ha.test(a)) return ja[a] = true;
       ia[a] = true;
       return false;
@@ -2399,7 +2399,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     function ua(a, b, c) {
       if ("object" !== typeof c) throw Error("The `style` prop expects a mapping from style properties to values, not a string. For example, style={{marginRight: spacing + 'em'}} when using JSX.");
       b = true;
-      for (var d in c) if (n2.call(c, d)) {
+      for (var d in c) if (n.call(c, d)) {
         var f = c[d];
         if (null != f && "boolean" !== typeof f && "" !== f) {
           if (0 === d.indexOf("--")) {
@@ -2409,7 +2409,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
             e = d;
             var g = ta.get(e);
             void 0 !== g ? e = g : (g = u(e.replace(pa, "-$1").toLowerCase().replace(qa, "-ms-")), ta.set(e, g), e = g);
-            f = "number" === typeof f ? 0 === f || n2.call(
+            f = "number" === typeof f ? 0 === f || n.call(
               t,
               d
             ) ? "" + f : f + "px" : u(("" + f).trim());
@@ -2487,7 +2487,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     function wa(a, b, c, d) {
       a.push(z(c));
       var f = c = null, e;
-      for (e in b) if (n2.call(b, e)) {
+      for (e in b) if (n.call(b, e)) {
         var g = b[e];
         if (null != g) switch (e) {
           case "children":
@@ -2520,7 +2520,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "select":
           a.push(z("select"));
           var e = null, g = null;
-          for (l in c) if (n2.call(c, l)) {
+          for (l in c) if (n.call(c, l)) {
             var h = c[l];
             if (null != h) switch (l) {
               case "children":
@@ -2544,7 +2544,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           a.push(z("option"));
           var k = h = null, m = null;
           var l = null;
-          for (e in c) if (n2.call(c, e)) {
+          for (e in c) if (n.call(c, e)) {
             var p = c[e];
             if (null != p) switch (e) {
               case "children":
@@ -2576,7 +2576,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "textarea":
           a.push(z("textarea"));
           l = g = e = null;
-          for (h in c) if (n2.call(c, h) && (k = c[h], null != k)) switch (h) {
+          for (h in c) if (n.call(c, h) && (k = c[h], null != k)) switch (h) {
             case "children":
               l = k;
               break;
@@ -2604,7 +2604,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "input":
           a.push(z("input"));
           k = l = h = e = null;
-          for (g in c) if (n2.call(c, g) && (m = c[g], null != m)) switch (g) {
+          for (g in c) if (n.call(c, g) && (m = c[g], null != m)) switch (g) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("input is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
@@ -2629,7 +2629,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           return null;
         case "menuitem":
           a.push(z("menuitem"));
-          for (var B in c) if (n2.call(c, B) && (e = c[B], null != e)) switch (B) {
+          for (var B in c) if (n.call(c, B) && (e = c[B], null != e)) switch (B) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("menuitems cannot have `children` nor `dangerouslySetInnerHTML`.");
@@ -2646,7 +2646,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "title":
           a.push(z("title"));
           e = null;
-          for (p in c) if (n2.call(c, p) && (g = c[p], null != g)) switch (p) {
+          for (p in c) if (n.call(c, p) && (g = c[p], null != g)) switch (p) {
             case "children":
               e = g;
               break;
@@ -2661,7 +2661,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "pre":
           a.push(z(b));
           g = e = null;
-          for (k in c) if (n2.call(c, k) && (h = c[k], null != h)) switch (k) {
+          for (k in c) if (n.call(c, k) && (h = c[k], null != h)) switch (k) {
             case "children":
               e = h;
               break;
@@ -2695,7 +2695,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "track":
         case "wbr":
           a.push(z(b));
-          for (var C in c) if (n2.call(c, C) && (e = c[C], null != e)) switch (C) {
+          for (var C in c) if (n.call(c, C) && (e = c[C], null != e)) switch (C) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error(b + " is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
@@ -2719,7 +2719,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           if (-1 === b.indexOf("-") && "string" !== typeof c.is) return wa(a, c, b, d);
           a.push(z(b));
           g = e = null;
-          for (m in c) if (n2.call(c, m) && (h = c[m], null != h)) switch (m) {
+          for (m in c) if (n.call(c, m) && (h = c[m], null != h)) switch (m) {
             case "children":
               e = h;
               break;
@@ -4164,7 +4164,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         case "option":
           g = f.selectedValue;
           a.push(N("option"));
-          var m = h = null, n2 = null;
+          var m = h = null, n = null;
           var p = null;
           for (e in c) if (y.call(c, e)) {
             var v = c[e];
@@ -4173,7 +4173,7 @@ var require_react_dom_server_node_production_min = __commonJS({
                 h = v;
                 break;
               case "selected":
-                n2 = v;
+                n = v;
                 break;
               case "dangerouslySetInnerHTML":
                 p = v;
@@ -4191,7 +4191,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             }
           }
           else "" + g === c && a.push(Ja);
-          else n2 && a.push(Ja);
+          else n && a.push(Ja);
           a.push(L);
           M(a, p, h);
           return h;
@@ -4226,24 +4226,24 @@ var require_react_dom_server_node_production_min = __commonJS({
         case "input":
           a.push(N("input"));
           m = p = h = e = null;
-          for (g in c) if (y.call(c, g) && (n2 = c[g], null != n2)) switch (g) {
+          for (g in c) if (y.call(c, g) && (n = c[g], null != n)) switch (g) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("input is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
             case "defaultChecked":
-              m = n2;
+              m = n;
               break;
             case "defaultValue":
-              h = n2;
+              h = n;
               break;
             case "checked":
-              p = n2;
+              p = n;
               break;
             case "value":
-              e = n2;
+              e = n;
               break;
             default:
-              K(a, d, g, n2);
+              K(a, d, g, n);
           }
           null !== p ? K(a, d, "checked", p) : null !== m && K(a, d, "checked", m);
           null !== e ? K(a, d, "value", e) : null !== h && K(a, d, "value", h);
@@ -4341,7 +4341,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           if (-1 === b.indexOf("-") && "string" !== typeof c.is) return Ka(a, c, b, d);
           a.push(N(b));
           g = e = null;
-          for (n2 in c) if (y.call(c, n2) && (h = c[n2], null != h)) switch (n2) {
+          for (n in c) if (y.call(c, n) && (h = c[n], null != h)) switch (n) {
             case "children":
               e = h;
               break;
@@ -4355,7 +4355,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             case "suppressHydrationWarning":
               break;
             default:
-              ha(n2) && "function" !== typeof h && "symbol" !== typeof h && a.push(I, n2, J, F(h), H);
+              ha(n) && "function" !== typeof h && "symbol" !== typeof h && a.push(I, n, J, F(h), H);
           }
           a.push(L);
           M(a, g, e);
@@ -4928,14 +4928,14 @@ var require_react_dom_server_node_production_min = __commonJS({
               var h = { id: null, rootSegmentID: -1, parentFlushed: false, pendingTasks: 0, forceClientRender: false, completedSegments: [], byteSize: 0, fallbackAbortableTasks: g, errorDigest: null }, m = Sc(a, f.chunks.length, h, f.formatContext, false, false);
               f.children.push(m);
               f.lastPushedText = false;
-              var n2 = Sc(a, 0, null, f.formatContext, false, false);
-              n2.parentFlushed = true;
+              var n = Sc(a, 0, null, f.formatContext, false, false);
+              n.parentFlushed = true;
               b.blockedBoundary = h;
-              b.blockedSegment = n2;
+              b.blockedSegment = n;
               try {
-                if (Yc(a, b, d), n2.lastPushedText && n2.textEmbedded && n2.chunks.push(za), n2.status = 1, Zc(h, n2), 0 === h.pendingTasks) break a;
+                if (Yc(a, b, d), n.lastPushedText && n.textEmbedded && n.chunks.push(za), n.status = 1, Zc(h, n), 0 === h.pendingTasks) break a;
               } catch (p) {
-                n2.status = 4, h.forceClientRender = true, h.errorDigest = Y(a, p);
+                n.status = 4, h.forceClientRender = true, h.errorDigest = Y(a, p);
               } finally {
                 b.blockedBoundary = c, b.blockedSegment = f;
               }
@@ -5119,8 +5119,8 @@ var require_react_dom_server_node_production_min = __commonJS({
                 Z(h, g, g.node), m.lastPushedText && m.textEmbedded && m.chunks.push(za), g.abortSet.delete(g), m.status = 1, bd(h, g.blockedBoundary, m);
               } catch (E) {
                 if (Ec(), "object" === typeof E && null !== E && "function" === typeof E.then) {
-                  var n2 = g.ping;
-                  E.then(n2, n2);
+                  var n = g.ping;
+                  E.then(n, n);
                 } else {
                   g.abortSet.delete(g);
                   m.status = 4;
@@ -5255,13 +5255,13 @@ var require_react_dom_server_node_production_min = __commonJS({
         for (e = 0; e < f.length; e++) {
           var g = f[e];
           d = b;
-          var h = a.responseState, m = g.id, n2 = g.errorDigest, p = g.errorMessage, v = g.errorComponentStack;
+          var h = a.responseState, m = g.id, n = g.errorDigest, p = g.errorMessage, v = g.errorComponentStack;
           r2(d, h.startInlineScript);
           h.sentClientRenderFunction ? r2(d, Kb) : (h.sentClientRenderFunction = true, r2(d, Jb));
           if (null === m) throw Error("An ID must have been assigned before we can complete the boundary.");
           r2(d, m);
           r2(d, Lb);
-          if (n2 || p || v) r2(d, Nb), r2(d, Pb(n2 || ""));
+          if (n || p || v) r2(d, Nb), r2(d, Pb(n || ""));
           if (p || v) r2(d, Nb), r2(d, Pb(p || ""));
           v && (r2(d, Nb), r2(d, Pb(v)));
           if (!w(d, Mb)) {
@@ -5384,7 +5384,7 @@ var require_react_dom_server_node_production_min = __commonJS({
       f = b ? b.progressiveChunkSize : void 0;
       d = b ? b.onError : void 0;
       h = b ? b.onAllReady : void 0;
-      var m = b ? b.onShellReady : void 0, n2 = b ? b.onShellError : void 0;
+      var m = b ? b.onShellReady : void 0, n = b ? b.onShellError : void 0;
       b = [];
       c = /* @__PURE__ */ new Set();
       g = {
@@ -5405,7 +5405,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         onError: void 0 === d ? Oc : d,
         onAllReady: void 0 === h ? X : h,
         onShellReady: void 0 === m ? X : m,
-        onShellError: void 0 === n2 ? X : n2,
+        onShellError: void 0 === n ? X : n,
         onFatalError: X
       };
       e = Sc(g, 0, null, e, false, false);
@@ -16494,7 +16494,7 @@ var require_react_jsx_runtime_production_min = __commonJS({
     var k = Symbol.for("react.element");
     var l = Symbol.for("react.fragment");
     var m = Object.prototype.hasOwnProperty;
-    var n2 = f.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+    var n = f.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
     var p = { key: true, ref: true, __self: true, __source: true };
     function q(c, a, g) {
       var b, d = {}, e = null, h = null;
@@ -16503,7 +16503,7 @@ var require_react_jsx_runtime_production_min = __commonJS({
       void 0 !== a.ref && (h = a.ref);
       for (b in a) m.call(a, b) && !p.hasOwnProperty(b) && (d[b] = a[b]);
       if (c && c.defaultProps) for (b in a = c.defaultProps, a) void 0 === d[b] && (d[b] = a[b]);
-      return { $$typeof: k, type: c, key: e, ref: h, props: d, _owner: n2.current };
+      return { $$typeof: k, type: c, key: e, ref: h, props: d, _owner: n.current };
     }
     exports.Fragment = l;
     exports.jsx = q;
@@ -17429,16 +17429,26 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "19.5.1";
+var VH_VERSION = "19.5.4";
 var VH_SHORT = "19.5";
 var VH_CODENAME = "Reach";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts
-var n = 0;
+var degradedSeq = 0;
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
@@ -20185,8 +20195,8 @@ function parseReportedUsage(harness, raw) {
     } else {
       tokens = t;
     }
-    const n2 = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
-    if (n2 !== null) turns = n2;
+    const n = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
+    if (n !== null) turns = n;
   }
   if (harness === "codex") costUsd = null;
   return { costUsd, tokens, turns, source: harness };

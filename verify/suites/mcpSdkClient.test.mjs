@@ -17641,9 +17641,9 @@ describe2("E1 the official client speaks to the real server", () => {
   });
 });
 describe2("E2 tools over the official client", () => {
-  it("listTools returns the full governed surface (20 tools, stable names)", async () => {
+  it("listTools returns the full governed surface (24 tools, stable names)", async () => {
     const r = await client.listTools();
-    assert2.equal(r.tools.length, 20, "the full governed surface");
+    assert2.equal(r.tools.length, 24, "the full governed surface");
     const names = r.tools.map((t) => t.name);
     for (const expected of ["clock", "workspace_write", "approve_action", "call_status", "verify_receipt", "run_drill"]) {
       assert2.ok(names.includes(expected), `tool "${expected}" is visible to the official client`);

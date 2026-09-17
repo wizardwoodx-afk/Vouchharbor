@@ -192,10 +192,10 @@ describe("M3 protocol — tools/mcp.mjs speaks MCP over stdio, governed", () => 
     notify("notifications/initialized");
   });
 
-  it("tools/list exposes the governed surface (20 tools, schemas, honest risk labels)", async () => {
+  it("tools/list exposes the governed surface (24 tools, schemas, honest risk labels — incl. Agent Reach MCP authority plane)", async () => {
     const r = await request("tools/list");
     const tools: Array<{ name: string; description: string }> = r.result.tools;
-    assert.equal(tools.length, 20);
+    assert.equal(tools.length, 24);
     const names = new Set(tools.map((t) => t.name));
     for (const n of ["calculator", "workspace_write", "dispatch_mission", "approve_action", "deny_action", "call_status", "mission_status", "verify_receipt", "system_info", "meta_propose", "meta_status", "meta_revert", "run_drill"]) {
       assert.ok(names.has(n), `tool ${n} exposed`);
@@ -354,7 +354,7 @@ describe("MCP 2026-07-28 — dual-era server: stateless modern + legacy, one thr
   it("modern tools/list: deterministic order + cache hints + resultType", async () => {
     const r = await request("tools/list", { _meta: META() });
     const tools: Array<{ name: string }> = r.result.tools;
-    assert.equal(tools.length, 20, "the full governed surface");
+    assert.equal(tools.length, 24, "the full governed surface — 20 legacy + reach_info + 3 authority tools");
     const names = tools.map((t) => t.name);
     assert.deepEqual(names, [...names].sort(), "deterministic (sorted) order for stable client caches");
     assert.equal(r.result.resultType, "complete");
@@ -461,7 +461,7 @@ describe("MCP 2026-07-28 — dual-era server: stateless modern + legacy, one thr
 
   it("era separation: legacy requests keep the exact 16.2-16.4 wire (no resultType, initialize handshake)", async () => {
     const leg = await request("tools/list", {});
-    assert.equal(leg.result.tools.length, 20);
+    assert.equal(leg.result.tools.length, 24);
     assert.equal("resultType" in leg.result, false, "legacy results carry no modern fields — old clients see their old wire");
     const init = await request("initialize", { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "probe", version: "0" } });
     assert.equal(init.result.protocolVersion, "2025-06-18");

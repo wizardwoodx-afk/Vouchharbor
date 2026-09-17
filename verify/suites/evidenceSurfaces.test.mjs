@@ -10,18 +10,28 @@ var __export = (target, all) => {
 };
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -2425,7 +2435,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -5933,9 +5943,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -5952,7 +5962,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -5964,7 +5974,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -6072,7 +6082,7 @@ async function sha256hex2(s) {
   const d = await crypto.subtle.digest("SHA-256", enc2.encode(s));
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-var round6 = (n2) => Math.round(n2 * 1e6) / 1e6;
+var round6 = (n) => Math.round(n * 1e6) / 1e6;
 function rowFor(input) {
   const ranSeats = input.measuredSeatUsd.length + input.tokensOnlySeats;
   const hasUsd = input.measuredSeatUsd.length > 0;
@@ -6117,8 +6127,8 @@ async function computeChargeback(inputs, issuedAt) {
 }
 
 // src/mission/assuranceScore.ts
-var round2 = (n2) => Math.round(n2 * 100) / 100;
-var clamp = (n2, lo, hi) => Math.min(hi, Math.max(lo, n2));
+var round2 = (n) => Math.round(n * 100) / 100;
+var clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 function scoreAssurance(i) {
   if (!Number.isFinite(i.measuredRuns) || i.measuredRuns <= 0) {
     return {

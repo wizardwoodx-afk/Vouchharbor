@@ -26,6 +26,6 @@
 
 > Orchestration is a commodity war between platform giants; the **assurance layer** —
 > who may do what, what actually happened, provable to a third party, on the customer's
-> own hardware — is unfunded whitespace where VH already has a 75-suite-tested,
+> own hardware — is unfunded whitespace where VH already has a 125-suite-tested,
 > cryptographically verified implementation and a regulatory forcing function that
 > started enforcing in August 2026.

@@ -146,10 +146,20 @@ function skillDigest(s) {
 }
 
 // src/app/id.ts
-var n = 0;
+var degradedSeq = 0;
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b2) => b2.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 
 // src/mission/autonomyStore.ts
@@ -425,7 +435,7 @@ ok("digest names rejected directions", /rejected direction: review:shallow/.test
 ok("digest reports the simulated-run exclusion when present", /excluded from posteriors/.test(skillDigest(recordOutcome(lopsided, first, true, true))), "");
 section("3. seeding informs the prior WITHOUT pretending pulls");
 var seeded = seedFromSeatStats(emptyBandit(), [{ runs: 10, verifiedRuns: 6, simulatedRuns: 4 }]);
-var pulls = Object.values(seeded.arms).reduce((n2, a) => n2 + a.pulls, 0);
+var pulls = Object.values(seeded.arms).reduce((n, a) => n + a.pulls, 0);
 ok("historical runs move NO pull counter (attribution honesty)", pulls === 0, String(pulls));
 ok("but the prior mass shifts toward the measured verified share (jump arm stays neutral)", Object.entries(seeded.arms).filter(([id]) => id !== JUMP_ARM).every(([, a]) => a.alpha > 1 && a.alpha / (a.alpha + a.beta) > 0.5) && seeded.arms[JUMP_ARM].alpha === 1, JSON.stringify(seeded.arms["review:deep"]));
 ok("prior mass is capped at 4 pseudo-observations per arm", Object.values(seeded.arms).every((a) => a.alpha - 1 + (a.beta - 1) <= 4), JSON.stringify(seeded.arms["review:deep"]));

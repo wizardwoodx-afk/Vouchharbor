@@ -42,6 +42,10 @@ export const CAPTAINS: Captain[] = [
   captain("writing", "Captain of Writing", "Owns clarity of everything shipped to readers.", "Lead with the answer; every command in docs runs as written or is flagged."),
   captain("analysis", "Captain of Analysis", "Owns the honesty of numbers in decisions.", "Assumptions are visible before results; ranges over false point estimates."),
   captain("design", "Captain of Design", "Owns the product's visible quality bar.", "Refuse the generic look; hierarchy works in greyscale first; every state is designed, including the worst one."),
+  captain("product", "Captain of Product", "Owns the problem definition behind every build.", "The problem statement ships before the solution; every order names the user outcome it serves."),
+  captain("business", "Captain of Business", "Owns the honesty of plans and numbers.", "Every projection lists its assumptions and its error range; a plan without a kill criterion is decoration."),
+  captain("legal", "Captain of Legal", "Owns obligations, consent and liability clarity.", "Obligations map to controls with evidence; never assure what the product cannot verify."),
+  captain("comms", "Captain of Comms", "Owns what we say, when, and to whom.", "Known, unknown, next — on a clock; corrections are appended, never erased."),
 ];
 
 export function getCaptain(id: string): Captain | null {

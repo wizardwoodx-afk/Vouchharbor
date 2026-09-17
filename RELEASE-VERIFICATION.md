@@ -1,4 +1,4 @@
-# Vouch Harbor 19.5.1 "Reach" — release verification record
+# Vouch Harbor 19.5.4 "Reach" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,7 +6,56 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
 
-## The 19.5.1 record — Reach: computer-use, the 760 fleet, hardened authority
+## The 19.5.4 record — release-quality close-out
+
+- **Reach MCP docs now name all six exposed tools**: `pc.exec`,
+  `pc.browser.open`, `pc.browser.screenshot`, `authority.issue`,
+  `authority.verify`, `authority.lookup` — the header and the runtime expose
+  the identical surface (probe-pinned in `probe/meshRuntime`).
+- **Release numbers at current truth**: the fleet is 125 probe suites / 124
+  offline bundles; every count line in this record, `BUILD-INFO.txt`,
+  `README.md` and the deck outline names exactly that.
+- **Version aligned everywhere**: `VH_VERSION` and `REACH_MCP_VERSION` are
+  both 19.5.4 (41 versionDrift pins + the Reach plane).
+
+Current gates (19.5.4): tsc 0 · fleet 125/125 · offline 124/124 ·
+meshRuntime 17/17 · door 70/70 · agentic test 24/24 · reachPlane 31/31 ·
+versionDrift 41/41 · offlinePack 17/17.
+
+## 19.5.3 FINAL-FREEZE hardening (review round 6)
+
+- **VouchMesh is LIVE, not just probed**: `src/vh19/meshRuntime.ts` wires the
+  mesh fabric into the production A2A handoff seam (`src/vh19/handoffs.ts` —
+  the same path the VH-19 door and RSI consume). Every DELEGATED handoff now
+  registers both parties as mesh peers, crosses mutual attestations, opens a
+  channel, and mints a JOINT RECEIPT co-signed by both participants; the
+  digest lands on the handoff record. Refused handoffs mint nothing but still
+  move pair trust down. Standing compounds across sessions in localStorage.
+  Hashing moved to `src/vh19/pureHash.ts` (synchronous SHA-256/HMAC, works in
+  the WebView AND under Node, byte-identical to `node:crypto` — probe-pinned).
+  Scope stays honest: mesh co-signatures are the trust fabric's tamper-
+  evidence layer; portable authority remains the ECDSA mandate plane.
+- **Ids are CSPRNG-born**: `uid()` now draws `crypto.randomUUID()` with a
+  `crypto.getRandomValues()` fallback — 122 bits of cryptographic randomness
+  per id. That is why cross-user or cross-run collision is not a planning
+  concern; where no Web Crypto exists at all, the fallback is a labelled
+  deterministic counter, never silent `Math.random()`.
+- **Reach MCP version aligned**: `REACH_MCP_VERSION` is 19.5.3, matching the
+  product line (component lineage no longer trails the release).
+- **Reach MCP doc honesty**: the header no longer lists `authority.bind` —
+  it is not an exposed Reach tool; the exposed set is exactly `pc.exec`,
+  `pc.browser.open`, `pc.browser.screenshot`, `authority.issue`,
+  `authority.verify`.
+- **Comment drift closed**: registry and fleet comments state 390 matured and
+  1,150 total, matching the live `catalogStats()` arithmetic.
+- **VouchMesh scope, stated canonically**: VouchMesh is the LOCAL
+  collaboration trust fabric; ECDSA provides portable authority across
+  instances. Both sides of a handoff are minted and co-signed inside ONE VH
+  runtime — no cross-instance network handshake happens and none is claimed.
+  This sentence now lives in `vouchMesh.ts`, `meshRuntime.ts`, this record,
+  and is probe-pinned in `probe/meshRuntime`.
+
+## The 19.5.3 record — Reach matured: computer-use, the 1,150 fleet, hardened authority
 
 19.5.1 introduced the Authority Suite (Mandate Passport, Chain of Authority,
 Intent Receipts, Warranty Pack, Liability Map) and VOUCHMESH™ — the bot-to-bot
@@ -17,9 +66,12 @@ release:
   allowlisted + injection-scanned + bounded `pc.exec`; built-in headless browser
   with per-mission isolated profiles, HTTPS-by-policy, critical-tier handover,
   and screenshots that refuse wordingly when no browser binary exists.
-- **The 760 fleet**: the reach bench (`src/vh19/reachBench.ts`) adds 140
-  individually specified specialists for the computer-use era; the count is
-  self-proving — 460 seed + 160 broader + 140 reach.
+- **The 1,150 fleet**: the reach bench (`src/vh19/reachBench.ts`) adds 140
+  computer-use-era specialists and the maturity bench (`src/vh19/maturityBench.ts`)
+  adds 390 individually specified MATURED professionals across all 14 categories —
+  each with named doctrine plus the uniform maturity contract (evidence before
+  claims, gate on risky moves, receipts on every tool call, failures in words).
+  Composition stays self-proving: 460 seed + 160 broader + 140 reach + 390 matured.
 - **Asymmetric mandates**: mandates now sign with ECDSA P-256 keypairs —
   anyone verifies with the public key; symmetric HMAC is explicitly refused as
   portable authority (`probe/authority` 34 pins).
@@ -28,8 +80,50 @@ release:
 - **Documentation at current truth**: release verification, changelog, upgrade
   notes and the adaptation record all name 19.5.1; the adaptation plan is now
   a shipped-code record with no forward-looking claims.
+- **Live wiring — integration close-out**: Agent Reach MCP (`src/vh19/reachMcp.ts`)
+  is the app's PRIMARY DEFAULT MCP (in-app surface + stdio via `tools/mcp.mjs`).
+  Its computer-use tools (`pc.exec`, `pc.browser.open/screenshot`) execute ONLY
+  through the governed VH-19 pipeline — risk tier → human gate → receipt — and
+  the VH-19 Generalist attaches the pc context solely to reach-provenance members
+  (`src/vh19/tools.ts`, seven tools). Every Generalist response rides an ECDSA
+  P-256 mission mandate bound to its provenance digest in a verifiable ledger
+  (`src/vh19/missionAuthority.ts` + `authorityWeb.ts`, WebCrypto: the live trust
+  path in browser and node; the HMAC signer in `authority.ts` is demoted to
+  local legacy). The browser plane remains honestly HYBRID — HTTPS fetch/snapshot,
+  injectable transport, real-binary screenshots; no binary ⇒ refusal in words,
+  never a faked page. UI overhauled to a minimal premium layer
+  (`src/styles/minimal.css`, loaded last; VH-19 door carries the Reach panel).
+  RSIRALS header drift fixed (governance plane frozen at 19.4.4, labelled).
+  New probe: `probe/reachPlane` (25 checks) pins the whole wiring.
+- **Review hardening (freeze-track)**: `authority.issue` is owner-granted and
+  human-gated on every surface (empty/out-of-set scope refused, budget ≤ 100 and
+  depth ≤ 1 clamped); ONE mandate per mission — response digest and ledger record
+  reference the identical mandate, and the verifier checks digest identity;
+  authority keys are DURABLE per VH identity handle (persisted JWK; a reload
+  reuses the same owner keys; mandates name the handle, not `local-owner`);
+  reach missions advertise `pc.exec` + `pc.browser` in member tool protocols via
+  explicit capability policy; browser sessions persist per mission
+  (`missionBrowser`) for multi-step open → act → screenshot workflows — and
+  adopt explicitly-upgraded transports/binaries, so persistence never pins
+  stale bindings.
+- **Review hardening — round 2**: the Generalist no longer mints broad
+  a-priori mandates — finished runs carry a signed RUN ATTESTATION (scope =
+  tool classes actually executed; budget = executed action count; depth 0;
+  nothing executed ⇒ `authority: null`), while a-priori grants remain
+  exclusively owner-gated at the MCP surface; the authority binding commits
+  to the mandate digest, and verification recomputes the stored mandate's
+  digest independently; owner private keys never persist plaintext —
+  production path is Tauri IPC → OS keychain, then AES-GCM passphrase
+  envelope (PBKDF2 150k), else honestly session-scoped keys.
+- **Review hardening — round 3**: mission ids are random per run (`uid`),
+  never text-derived; `pc.browser` navigation rides the central egress guard PLUS a
+  stricter plane rule (loopback/private/metadata refused for navigation while
+  `net.fetch` keeps its documented local-service surface); the door exposes
+  the authority-key security state and an owner passphrase unlock
+  (`setAuthorityPassphrase`) — web authority is session-scoped UNTIL the
+  owner unlocks encrypted persistence, and the docs say exactly that.
 
-Gates: tsc 0 · fleet 123/123 · offline 122/122 · door 70/70 · agentic test 24/24.
+Round-4 gates (at that freeze): tsc 0 · fleet 124/124 · offline 123/123 · door 70/70 · agentic test 24/24.
 
 ## Prior record — 19.4.5 — BYOA security hardening + product-focused polish
 

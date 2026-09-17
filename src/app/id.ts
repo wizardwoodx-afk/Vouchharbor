@@ -1,7 +1,28 @@
-let n = 0;
+/**
+ * VH ID — 19.5.3 final-freeze.
+ *
+ * Ids ride the security-sensitive mission plane, so they come from a CSPRNG:
+ * crypto.randomUUID() when present, crypto.getRandomValues() otherwise — each
+ * id carries 122 bits of cryptographic randomness, so collisions are not a
+ * planning concern. If an environment has no Web Crypto at all, the fallback
+ * is a labelled deterministic counter — never a non-cryptographic RNG.
+ */
+let degradedSeq = 0;
+
+function cryptoToken(): string {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
+
 export function uid(prefix: string): string {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 
 export function nowIso(): string {

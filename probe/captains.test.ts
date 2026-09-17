@@ -37,7 +37,7 @@ test("captains + failures — oversight that never fabricates", async () => {
   };
 
   console.log("\n── 1. the lead layer ──");
-  check("every domain has exactly one Captain", CAPTAINS.length === 10 && new Set(CAPTAINS.map((l) => l.domain)).size === 10);
+  check("every domain has exactly one Captain", CAPTAINS.length === 14 && new Set(CAPTAINS.map((l) => l.domain)).size === 14);
   check("captains have a mandate and their own playbook", CAPTAINS.every((l) => l.mandate.length > 10 && l.systemPrompt.includes(l.name)));
   check("captainForDomain resolves every category", ["code", "security", "design"].every((c) => captainForDomain(c as "code") !== null));
   check("captainForRoute picks the dominant domain", captainForRoute(["code.typescript", "code.debugging", "testing.unit"])?.domain === "code");

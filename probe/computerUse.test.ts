@@ -1,5 +1,5 @@
 /**
- * VH COMPUTER-USE — 19.5.1 "Reach" probe pin.
+ * VH COMPUTER-USE — 19.5.3 "Reach" probe pin.
  *
  * Pins the mechanics:
  *   · pc.exec — allowlist, injection scan, critical handover, bounds, receipts

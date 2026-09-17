@@ -19,13 +19,16 @@
  *     endpoint — arbitrary URLs stay gated behind net.fetch.
  *
  * Honest boundary: this is a deliberately small, inspectable toolset —
- * five tools a reviewer can read in one sitting. More tools belong in
- * future releases ONLY with their own receipts, gates and probes.
+ * seven tools a reviewer can read in one sitting. The two pc.* tools ride
+ * the 19.5.1 computer-use plane and exist ONLY when the Generalist attaches
+ * it to a reach mission; every call still goes through gate + receipt.
  */
 import { checkEgressUrl } from "../security/guardrail";
+import { pcExec, missionBrowser } from "./computerUse";
+import type { ExecPolicy, BrowserTransport } from "./computerUse";
 import type { GateAsk, GateDecision, RiskTier, VhFs } from "./types";
 
-export type ToolId = "fs.list" | "fs.read" | "fs.write" | "net.fetch" | "wiki.search";
+export type ToolId = "fs.list" | "fs.read" | "fs.write" | "net.fetch" | "wiki.search" | "pc.exec" | "pc.browser";
 
 export interface ToolDef {
   id: ToolId;
@@ -42,6 +45,8 @@ export const TOOLS: ToolDef[] = [
   { id: "fs.write", purpose: "Write a UTF-8 text file inside the mission workspace (creates parent dirs).", riskTier: "risky", inputShape: '{ "path": string, "content": string }' },
   { id: "net.fetch", purpose: "GET a single http(s) URL and return the body text (SSRF-guarded).", riskTier: "risky", inputShape: '{ "url": string }' },
   { id: "wiki.search", purpose: "Keyless Wikipedia summary search — pinned to the public REST endpoint, no arbitrary egress.", riskTier: "safe", inputShape: '{ "query": string }' },
+  { id: "pc.exec", purpose: "Run an allowlisted binary under the mission's computer-use policy — bounded, injection-scanned, receipted.", riskTier: "risky", inputShape: '{ "binary": string, "args": string[] }' },
+  { id: "pc.browser", purpose: "Built-in headless browser: open/navigate an HTTPS page or screenshot the loaded page under the mission profile.", riskTier: "risky", inputShape: '{ "action": "open" | "navigate" | "screenshot", "url"?: string, "outPath"?: string }' },
 ];
 
 export function getTool(id: string): ToolDef | null {
@@ -118,6 +123,11 @@ export interface ToolContext {
   now?: () => Date;
   /** Digest hasher injected by the pipeline so receipts share its SHA-256. */
   hash?: (text: string) => Promise<string>;
+  /**
+   * 19.5.1 — the computer-use plane, attached by the Generalist ONLY for
+   * reach-provenance missions. Absent → pc.* tools refuse, wordedly.
+   */
+  pc?: { missionId: string; policy: ExecPolicy; transport?: BrowserTransport; run?: (bin: string, args: string[], timeoutMs: number) => { status: number | null; timedOut: boolean; stdout: string; stderr: string } };
 }
 
 const MAX_READ_BYTES = 64 * 1024;
@@ -366,7 +376,47 @@ export async function executeTool(
       return execNetFetch(input, ctx);
     case "wiki.search":
       return execWikiSearch(input, ctx);
+    case "pc.exec":
+      return execPcExec(input, ctx);
+    case "pc.browser":
+      return execPcBrowser(input, ctx);
   }
+}
+
+// ── 19.5.1 — the computer-use plane, live in the governed pipeline ─────────
+function execPcExec(input: Record<string, unknown>, ctx: ToolContext): ToolExecResult {
+  if (!ctx.pc) return { outcome: "refused", output: "computer-use plane is not attached to this mission — the Generalist attaches it only for reach missions" };
+  const binary = input.binary;
+  const args = Array.isArray(input.args) ? (input.args as unknown[]).map(String) : [];
+  if (typeof binary !== "string" || !binary) return { outcome: "error", output: "pc.exec needs a string binary" };
+  const r = pcExec(binary, args, ctx.pc.policy, "risky", ctx.pc.run ? { run: ctx.pc.run } : {});
+  if (r.decision === "executed") return { outcome: "ok", output: `exit ${r.exitCode}${r.timedOut ? " (timed out)" : ""} — ${r.stdoutPreview || "(no output)"} — ${r.reason}` };
+  if (r.decision === "handover") return { outcome: "gated-out", output: r.reason };
+  return { outcome: "refused", output: r.reason };
+}
+
+async function execPcBrowser(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
+  if (!ctx.pc) return { outcome: "refused", output: "computer-use plane is not attached to this mission — the Generalist attaches it only for reach missions" };
+  const action = input.action;
+  const browser = missionBrowser(ctx.pc.missionId, ctx.pc.transport ?? undefined);
+  if (action === "open" || action === "navigate") {
+    const url = typeof input.url === "string" ? input.url : "";
+    if (!url) return { outcome: "error", output: "pc.browser open/navigate needs a url" };
+    const r = await browser.open(url);
+    if (r.decision === "executed" && r.result) return { outcome: "ok", output: `loaded ${r.result.url} (${r.result.status}) — title: ${r.result.title || "(none)"} — ${r.result.links.length} links` };
+    if (r.decision === "handover") return { outcome: "gated-out", output: r.reason };
+    return { outcome: "refused", output: r.reason };
+  }
+  if (action === "screenshot") {
+    const outPath = typeof input.outPath === "string" ? input.outPath : "";
+    if (!outPath) return { outcome: "error", output: "pc.browser screenshot needs an outPath" };
+    if (typeof input.url === "string" && input.url) await browser.open(input.url);
+    const r = browser.screenshot(outPath);
+    if (r.decision === "executed") return { outcome: "ok", output: r.reason };
+    if (r.decision === "handover") return { outcome: "gated-out", output: r.reason };
+    return { outcome: "refused", output: r.reason };
+  }
+  return { outcome: "error", output: `pc.browser action must be open | navigate | screenshot, got "${String(action)}"` };
 }
 
 /** Wrap executeTool with timing + a receipt. The digest is computed by the injected hasher so receipts chain into the member digest. */

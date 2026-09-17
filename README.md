@@ -1,4 +1,4 @@
-# Vouch Harbor 19.5.1 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.5.4 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -23,7 +23,7 @@ They watch the screen; we sign the work. The full RSI design — with the 2026 l
 ### The current product state (19.5.x)
 
 One chatbox-first door with the whole engine behind it: a Generalist that
-routes 760 registered specialists (460 seed-batch + 160 broader-batch + 140 reach-batch,
+routes 1,150 registered specialists (460 seed-batch + 160 broader-batch + 140 reach-batch + 390 maturity-batch,
 self-proving via `catalogStats().byProvenance`), real gated tool execution
 over a real workspace, Captain synthesis, signed A2A invitations, BYOA
 (external agents under a trust intersection), governed connector
@@ -121,9 +121,12 @@ provider, so it enforces disclosure honestly instead of faking freshness).
 
 **19.3.0 makes the fleet real.** Three review gaps closed in one release.
 (1) **Specialists are executors now**: with a workspace wired, each member
-runs a real act/observe loop over a category-bound toolset (fs.list,
-fs.read, fs.write, net.fetch, wiki.search — five tools, readable in one
-sitting). Every tool call is risk-tiered, rides the human gate, and lands
+runs a real act/observe loop over a governed toolset (fs.list, fs.read,
+fs.write, net.fetch, wiki.search — plus the reach missions' computer-use
+plane, pc.exec and pc.browser — seven tools, readable in one sitting; the
+pc.* tools are never category-bound: the Generalist attaches them only to
+reach-provenance missions). Every tool call is risk-tiered, rides the human
+gate, and lands
 its own receipt — including denials and parse errors; the model is told the
 gate's real reason, never a fabricated result; a step-limited loop stops
 labelled, never dressed as done. (2) **Captain synthesis**: after a
@@ -327,7 +330,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 123 suites
+npm test              # 125 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -335,7 +338,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (~2 min, Node alone — dependency-backed suites honestly
 #   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 122 bundles
+node verify/run.mjs   # 124 bundles
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -423,7 +426,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       123 probe suites, run by `npm test`
+probe/       125 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)

@@ -2409,7 +2409,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -2417,18 +2417,28 @@ var init_version = __esm({
 });
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -3366,7 +3376,7 @@ async function discoverChecks(repoDir, read, exists = (p) => existsViaRead(p, re
   return out;
 }
 function pickScript(scripts, names) {
-  for (const n2 of names) if (scripts[n2]) return { name: n2 };
+  for (const n of names) if (scripts[n]) return { name: n };
   return null;
 }
 async function tryRead(path, read) {
@@ -3504,7 +3514,7 @@ function testRunCheck(command, output, exitCode) {
     return unmeasuredCheck(`Test run: ${command}`, "TEST_RUN", "the command produced no output, so nothing was verified");
   }
   const failedCounts = [...output.matchAll(/(\d+)[ ,]+fail(?:ed|ing|ures?)?\b/gi)].map((m) => Number(m[1]));
-  const summaryFailed = failedCounts.some((n2) => n2 > 0) || /^not ok\b/m.test(output) || /^FAILED\b/m.test(output) || /\bpanic:/.test(output);
+  const summaryFailed = failedCounts.some((n) => n > 0) || /^not ok\b/m.test(output) || /^FAILED\b/m.test(output) || /\bpanic:/.test(output);
   const passed = exitCode === 0 && !summaryFailed;
   return check({
     name: `Test run: ${command}`,

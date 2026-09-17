@@ -30,7 +30,10 @@
  *  - Scope attenuation is mechanical; a hop cannot grant what it does not hold.
  *  - The governance plane stays frozen: none of this loosens the human gate.
  */
-import { createHash, createHmac, generateKeyPairSync, sign as ecSign, verify as ecVerify } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
+/* Portable cross-user authority lives in authorityWeb.ts (WebCrypto ECDSA
+   P-256) — the LIVE runtime path. This module keeps the local HMAC mandate
+   verifier as a legacy-compatibility surface, plus node-side bindings. */
 
 // ── primitives ──────────────────────────────────────────────────────────────
 const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
@@ -226,45 +229,9 @@ export function liabilityMap(root: Mandate, hops: AuthorityHop[]): LiabilityEntr
 }
 
 
-// ── 6 · ASYMMETRIC MANDATES (the portable trust root) ───────────────────────
-/**
- * HMAC mandates authenticate inside one trusted runtime. For portable,
- * cross-user authority the mandate must be signed ASYMMETRICALLY: the human
- * owner signs with a private key, and ANYONE can verify with the public key.
- * This unifies the Authority Suite with VH's existing ECDSA identity model
- * (collab invitations, Team-Evolve approvals) — one trust root, not two.
- */
-export interface OwnerKeyPair { privateKeyPem: string; publicKeyPem: string }
 
-export function generateOwnerKeys(): OwnerKeyPair {
-  const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
-  return {
-    privateKeyPem: privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
-    publicKeyPem: publicKey.export({ type: "spki", format: "pem" }).toString(),
-  };
-}
-
-export function signMandateAsymmetric(m: Omit<Mandate, "signature">, privateKeyPem: string): Mandate {
-  const sig = ecSign("sha256", Buffer.from(mandateCanonical(m)), { key: privateKeyPem, dsaEncoding: "der" });
-  return { ...m, signature: `ecdsa-p256:${sig.toString("base64")}` };
-}
-
-export function verifyMandateAsymmetric(m: Mandate, publicKeyPem: string, now = Date.now()): MandateCheck {
-  if (!m.owner) return { ok: false, reason: "no-owner", detail: "a mandate without a named human owner is not authority" };
-  if (now > m.expiresAt) return { ok: false, reason: "expired", detail: "mandate expired — re-issue it" };
-  if (!m.signature?.startsWith("ecdsa-p256:")) return { ok: false, reason: "bad-signature", detail: "not an asymmetric signature — refusing to treat symmetric HMAC as portable authority" };
-  const ok = ecVerify("sha256", Buffer.from(mandateCanonical(m)), { key: publicKeyPem, dsaEncoding: "der" }, Buffer.from(m.signature.slice("ecdsa-p256:".length), "base64"));
-  if (!ok) return { ok: false, reason: "bad-signature", detail: "asymmetric signature does not verify — treating as forged" };
-  return { ok: true, mandate: m };
-}
-
-// ── 7 · AUTHORITY ⟷ RECEIPT CHAIN BINDING ───────────────────────────────────
-/**
- * Authority proofs are attached to the existing VH receipt chain by binding
- * digests: the binding names a receipt digest and the authority hop that
- * produced it. Either side can be checked offline against the other; the
- * chain and the authority ledger become one evidence graph.
- */
+/* Node-side authority⟷receipt binding (legacy probes + node surfaces).
+   The portable, runtime-agnostic version lives in authorityWeb.ts. */
 export interface AuthorityBinding {
   receiptDigest: string;
   hopDigest: string | null;     // null = root mandate action
@@ -272,13 +239,12 @@ export interface AuthorityBinding {
   digest: string;
 }
 
-export function bindAuthorityToReceipt(receiptDigest: string, hop: AuthorityHop | null, mandateOwner: string): AuthorityBinding {
-  const hopDigest = hop?.digest ?? null;
+export const bindAuthorityToReceipt = (receiptDigest: string, hopDigest: string | null, mandateOwner: string): AuthorityBinding => {
   const base = { receiptDigest, hopDigest, mandateOwner };
   return { ...base, digest: sha256(JSON.stringify(base)) };
-}
+};
 
-export function verifyAuthorityBinding(binding: AuthorityBinding, receiptDigest: string, hop: AuthorityHop | null): boolean {
-  const want = sha256(JSON.stringify({ receiptDigest, hopDigest: hop?.digest ?? null, mandateOwner: binding.mandateOwner }));
+export const verifyAuthorityBinding = (binding: AuthorityBinding, receiptDigest: string, hopDigest: string | null): boolean => {
+  const want = sha256(JSON.stringify({ receiptDigest, hopDigest, mandateOwner: binding.mandateOwner }));
   return want === binding.digest && binding.receiptDigest === receiptDigest;
-}
+};

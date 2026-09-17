@@ -50,6 +50,7 @@ import {
   RISKY_TOOLS,
   runVouchToolCall,
   resolveVouchApproval,
+  requestVouchApproval,
   vouchToolCallStatus,
   vouchMissions,
   verifyVouchReceipt,
@@ -79,6 +80,11 @@ const LIST_TTL_MS = 3_600_000; // the tool set is static within a release
 const TASK_POLL_MS = 2_000;
 
 const SERVER_INFO = { name: "vouch-harbor", version: VH_VERSION };
+
+/* 19.5.1 — Agent Reach MCP: the portable authority plane is served on the
+   stdio surface too (safe tier; pc.* ride the governed VH-19 pipeline in-app). */
+import { reachMcpCall, reachMcpServerInfo } from "../../vh19/reachMcp";
+
 const INSTRUCTIONS =
   "Vouch Harbor's governed capabilities. Every action tool call is routed through the product's pipeline (risk classification, human gate on risky calls, signed receipt per completed call). " +
   "Modern clients (protocol 2026-07-28): gated calls return resultType 'input_required' (answer with inputResponses + requestState) or, when you declare the io.modelcontextprotocol/tasks extension, a durable task handle (poll tasks/get, answer tasks/update). " +
@@ -102,6 +108,11 @@ const toolDef = (name: string, description: string, props: Record<string, Json>,
 const str = { type: "string" };
 
 export const MCP_TOOLS: McpToolDef[] = [
+  toolDef("reach_info", "Agent Reach MCP — primary default server info: version, tools, governance model.", {}),
+  toolDef("authority.issue", "Issue an ECDSA P-256 mission mandate (portable authority plane).", { missionId: str }),
+  toolDef("authority.verify", "Verify a mandate with the public key alone.", { mandate: { type: "object" }, publicKeyPem: str }, ["mandate", "publicKeyPem"]),
+  toolDef("authority.lookup", "Look up + verify the authority record bound to a mission provenance digest.", { responseDigest: str }, ["responseDigest"]),
+
   toolDef("calculator", "Evaluate a math expression with the product's real parser (no eval). Safe; mints a receipt.", { expression: str }, ["expression"]),
   toolDef("clock", "Current date/time — Chennai (IST), UTC, and this machine. Safe; mints a receipt.", {}),
   toolDef("search", "Search the local offline knowledge base. Safe; mints a receipt.", { query: str }, ["query"]),
@@ -288,6 +299,28 @@ interface GovernedOutcome {
   pending: { approvalId: string; callId: string } | null;
 }
 async function governedTool(name: string, args: Json): Promise<GovernedOutcome> {
+  if (name === "reach_info") {
+    const info = reachMcpServerInfo();
+    return { text: `${info.name} v${info.version} — PRIMARY default MCP of Vouch Harbor. Tools: ${info.tools.map((t) => `${t.name} (${t.riskTier})`).join(", ")}. The pc.* tools execute inside the governed VH-19 pipeline (gate + receipts); the authority plane is served here.`, isError: false, pending: null };
+  }
+  if (name.startsWith("authority.")) {
+    /* P0 review fix — authority.issue is OWNER-GRANTED: over the wire it
+       pauses at the same human gate as every risky action (approve_action /
+       deny_action), then issues only for the explicit scope the owner named. */
+    const gate = async (ask: { action: string; riskTier: string }) => {
+      const approved = await requestVouchApproval(ask.action, `${ask.action} — ${ask.riskTier} authority-plane call; approve only if you are the owner granting this scope`);
+      return { approved, reason: approved ? "owner approved at the gate" : "owner declined at the gate" };
+    };
+    /* Review fix — every stdio Reach call rides a UNIQUE mission id, so
+       concurrent external operations never share a browser session. */
+    const stdioMission = `mcp-${typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`}`;
+    const r = await reachMcpCall(name, (args ?? {}) as Record<string, unknown>, { missionId: stdioMission, gate });
+    if (!r.ok && r.decision === "gated-out") {
+      return { text: `${r.output} — authority is owner-granted: approve_action to continue, or nothing is issued.`, isError: false, pending: null };
+    }
+    return { text: r.output + (r.receipt ? `\n${JSON.stringify(r.receipt).slice(0, 900)}` : ""), isError: !r.ok, pending: null };
+  }
+
   /* control surface — the gate's own tools and the audit reads */
   if (name === "approve_action") {
     const approvalId = String(args.approvalId ?? "");

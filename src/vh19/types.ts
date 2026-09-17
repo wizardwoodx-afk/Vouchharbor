@@ -307,6 +307,8 @@ export interface FailureInfo {
 
 export interface GeneralistResponse {
   reply: string;
+  /** 19.5.1 — the live ECDSA mission mandate this run rode under (portable authority plane). */
+  authority?: { mandateDigest: string; scheme: "ecdsa-p256"; owner: string } | null;
   routed: RouteDecision;
   /** True ONLY when a provider call (or delegated execution) actually completed. */
   executed: boolean;

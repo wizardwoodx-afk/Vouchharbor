@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.5.1 · September 2026*
+*Vouch Harbor Labs · v19.5.4 · September 2026*
 *The brand layer and the product story as shipped.*
 
 ---

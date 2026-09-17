@@ -7818,7 +7818,7 @@ describe("C2 modern era \u2014 server responses conform to the 2026-07-28 schema
     const r = await reply;
     conformsRequest(ajv2026, "mcp-2026", "ListToolsRequest", req, "tools/list request");
     conforms(ajv2026, "mcp-2026", "ListToolsResult", r.result, "tools/list response");
-    assert.equal(r.result.tools.length, 20, "the full governed surface");
+    assert.equal(r.result.tools.length, 24, "the full governed surface");
     const names = r.result.tools.map((t) => t.name);
     assert.deepEqual(names, [...names].sort(), "deterministic sorted order (stable client caches)");
     for (const t of r.result.tools) conforms(ajv2026, "mcp-2026", "Tool", t, `tool "${t.name}"`);

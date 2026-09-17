@@ -14,7 +14,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -57,18 +57,28 @@ var init_client = __esm({
 });
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -5223,7 +5233,7 @@ function deriveSessionId(seed) {
     h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
     h2 = Math.imul(h2 + c + i, 2246822519) >>> 0;
   }
-  const hex3 = (n2, len) => n2.toString(16).padStart(len, "0").slice(-len);
+  const hex3 = (n, len) => n.toString(16).padStart(len, "0").slice(-len);
   return `${hex3(h1, 8)}-${hex3(h2, 4)}-4${hex3(h1 >>> 8, 3)}-a${hex3(h2 >>> 12, 3)}-${hex3(h1 ^ h2, 8)}${hex3(h2 ^ h1, 4)}`;
 }
 var SessionStore = class {
@@ -7633,8 +7643,8 @@ var CapLedger = class {
   recordCapped(id, outcome, detail, at = (/* @__PURE__ */ new Date()).toISOString()) {
     this.state.cappedInvocations.push({ id, outcome, at, detail });
   }
-  addTurns(n2) {
-    this.state.turnsUsed += n2;
+  addTurns(n) {
+    this.state.turnsUsed += n;
   }
   snapshot() {
     return { ...this.state, cappedInvocations: [...this.state.cappedInvocations] };
@@ -7684,8 +7694,8 @@ function parseReportedUsage(harness, raw) {
     } else {
       tokens2 = t;
     }
-    const n2 = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
-    if (n2 !== null) turns = n2;
+    const n = findNumber(obj, ["num_turns", "turns", "total_turns"], 0);
+    if (n !== null) turns = n;
   }
   if (harness === "codex") costUsd = null;
   return { costUsd, tokens: tokens2, turns, source: harness };
@@ -8464,7 +8474,7 @@ Spent: $${(spentUsd2 || 0).toFixed(4)}`, "orchestrator", "finding");
     const gated2 = gateTheRun({
       status: status2,
       seats,
-      notRun: notRun.map((n2) => n2.seatId),
+      notRun: notRun.map((n) => n.seatId),
       snapshot: snapshot2,
       policy: req.gatePolicy ?? loadGatePolicy()
     });
@@ -8526,7 +8536,7 @@ Spent: $${(spentUsd2 || 0).toFixed(4)}`, "orchestrator", "finding");
   if (!packetGate.ok) {
     return finish("aborted", `Refused before any invocation by its action packet \u2014 ${packetGate.reason}`, 0, emptySnapshot, []);
   }
-  const arenaReport = await (deps.arenaRunner ?? ((n2) => runGovernanceArena({ now: n2 })))(t0);
+  const arenaReport = await (deps.arenaRunner ?? ((n) => runGovernanceArena({ now: n })))(t0);
   arenaStamp = {
     gate: arenaReport.gate,
     digest: arenaReport.digest,
@@ -8827,7 +8837,7 @@ ${lessonLines.map((l) => `- ${l}`).join("\n")}
   const gated = gateTheRun({
     status,
     seats,
-    notRun: notRun.map((n2) => n2.seatId),
+    notRun: notRun.map((n) => n.seatId),
     snapshot,
     policy: req.gatePolicy ?? loadGatePolicy()
   });
@@ -9208,10 +9218,10 @@ function summariseOutput(raw) {
   if (texts.length === 0) return raw.trim().slice(-800);
   return texts.join("\n").trim().slice(-800);
 }
-function tail(s, n2 = OUTPUT_TAIL_CHARS) {
+function tail(s, n = OUTPUT_TAIL_CHARS) {
   const t = s.trimEnd();
-  return t.length > n2 ? `\u2026(truncated ${t.length - n2} chars)\u2026
-${t.slice(-n2)}` : t;
+  return t.length > n ? `\u2026(truncated ${t.length - n} chars)\u2026
+${t.slice(-n)}` : t;
 }
 function unrunRecord(a, wt, outcome, reason) {
   const caps = resolveCaps(a.seat.harness).caps;
@@ -9254,7 +9264,7 @@ function buildSummary(o) {
   else if (o.snapshot.writerBranches.length === 0) parts.push("No review snapshot was built because no writer committed anything.");
   if (o.spentUsd > 0) parts.push(`Reported spend $${o.spentUsd.toFixed(4)}.`);
   else parts.push("No cost was reported by any CLI, so the true spend is unknown rather than zero.");
-  if (o.notRun.length) parts.push(`${o.notRun.length} seat(s) never ran: ${o.notRun.map((n2) => n2.seatId).join(", ")}.`);
+  if (o.notRun.length) parts.push(`${o.notRun.length} seat(s) never ran: ${o.notRun.map((n) => n.seatId).join(", ")}.`);
   if (o.briefings.some((f) => f.writtenTo.length === 0)) parts.push("At least one briefing could not be written, so some agents ran without the mission brief.");
   if (o.status === "blocked") parts.push("Nothing completed \u2014 this run produced no usable work.");
   return parts.join(" ");
@@ -10208,9 +10218,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -10227,7 +10237,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -10239,7 +10249,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -28991,17 +29001,17 @@ var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
   inst.element = def.element;
 }, {
-  min(n2, params) {
-    return this.check(_minLength(n2, params));
+  min(n, params) {
+    return this.check(_minLength(n, params));
   },
   nonempty(params) {
     return this.check(_minLength(1, params));
   },
-  max(n2, params) {
-    return this.check(_maxLength(n2, params));
+  max(n, params) {
+    return this.check(_maxLength(n, params));
   },
-  length(n2, params) {
-    return this.check(_length(n2, params));
+  length(n, params) {
+    return this.check(_length(n, params));
   },
   unwrap() {
     return this.element;
@@ -29966,8 +29976,8 @@ function containsRef(value) {
     return Object.values(sub).some(containsRef);
   });
 }
-function plural(n2) {
-  return n2 === 1 ? "element" : "elements";
+function plural(n) {
+  return n === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
   const guard = z.transform((value) => value).check((payload) => {
@@ -30734,9 +30744,9 @@ function deterministicRepair(tool, args, errors) {
   }
   if (tool === "workspace_write") {
     if (errs.includes("name") || errs.includes("too_small")) {
-      const n2 = typeof out.name === "string" ? out.name.trim() : "";
-      if (n2.includes("..")) out.name = n2.split(/[\\/]/).filter((s) => s && s !== "..").pop() ?? n2;
-      else if (n2) out.name = n2;
+      const n = typeof out.name === "string" ? out.name.trim() : "";
+      if (n.includes("..")) out.name = n.split(/[\\/]/).filter((s) => s && s !== "..").pop() ?? n;
+      else if (n) out.name = n;
     }
     if (errs.includes("content") && typeof out.content === "string" && out.content.length > 1e6) {
       out.content = out.content.slice(0, 1e6);
@@ -32570,8 +32580,8 @@ describe3("drill over the wire \u2014 run_drill through the MCP face", () => {
     await request("initialize", { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "probe", version: "0" } });
     const list = await request("tools/list");
     const names = new Set(list.result.tools.map((t) => t.name));
-    assert2.ok(names.has("run_drill"), "run_drill is exposed over the wire (20 tools total)");
-    assert2.equal(list.result.tools.length, 20);
+    assert2.ok(names.has("run_drill"), "run_drill is exposed over the wire (24 tools total)");
+    assert2.equal(list.result.tools.length, 24);
     const text = await call("run_drill", { scenario: "guard" });
     assert2.ok(text.includes("Paused at the human gate"), "the wire drill gates \u2014 " + text);
     const approval = text.match(/approval (a[0-9a-z]+)/)[1];

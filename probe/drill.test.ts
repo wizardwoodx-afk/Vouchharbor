@@ -294,8 +294,8 @@ describe("drill over the wire — run_drill through the MCP face", () => {
     await request("initialize", { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "probe", version: "0" } });
     const list = await request("tools/list");
     const names = new Set(list.result.tools.map((t: { name: string }) => t.name));
-    assert.ok(names.has("run_drill"), "run_drill is exposed over the wire (20 tools total)");
-    assert.equal(list.result.tools.length, 20);
+    assert.ok(names.has("run_drill"), "run_drill is exposed over the wire (24 tools total)");
+    assert.equal(list.result.tools.length, 24);
 
     const text = await call("run_drill", { scenario: "guard" });
     assert.ok(text.includes("Paused at the human gate"), "the wire drill gates — " + text);

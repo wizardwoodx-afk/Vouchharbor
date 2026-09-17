@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 // src/vh19/authority.ts
-import { createHash, createHmac, generateKeyPairSync, sign as ecSign, verify as ecVerify } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 var sha256 = (t) => createHash("sha256").update(t).digest("hex");
 var hmac = (secret, t) => createHmac("sha256", secret).update(t).digest("hex");
 var mandateCanonical = (m) => JSON.stringify({
@@ -110,39 +110,241 @@ function liabilityMap(root, hops) {
   for (const h of hops) entries.push({ principal: h.to, owedScope: h.grantedScope, owedBudget: h.grantedBudget, depth: h.depth });
   return entries;
 }
-function generateOwnerKeys() {
-  const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
-  return {
-    privateKeyPem: privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
-    publicKeyPem: publicKey.export({ type: "spki", format: "pem" }).toString()
-  };
-}
-function signMandateAsymmetric(m, privateKeyPem) {
-  const sig = ecSign("sha256", Buffer.from(mandateCanonical(m)), { key: privateKeyPem, dsaEncoding: "der" });
-  return { ...m, signature: `ecdsa-p256:${sig.toString("base64")}` };
-}
-function verifyMandateAsymmetric(m, publicKeyPem, now2 = Date.now()) {
-  if (!m.owner) return { ok: false, reason: "no-owner", detail: "a mandate without a named human owner is not authority" };
-  if (now2 > m.expiresAt) return { ok: false, reason: "expired", detail: "mandate expired \u2014 re-issue it" };
-  if (!m.signature?.startsWith("ecdsa-p256:")) return { ok: false, reason: "bad-signature", detail: "not an asymmetric signature \u2014 refusing to treat symmetric HMAC as portable authority" };
-  const ok = ecVerify("sha256", Buffer.from(mandateCanonical(m)), { key: publicKeyPem, dsaEncoding: "der" }, Buffer.from(m.signature.slice("ecdsa-p256:".length), "base64"));
-  if (!ok) return { ok: false, reason: "bad-signature", detail: "asymmetric signature does not verify \u2014 treating as forged" };
-  return { ok: true, mandate: m };
-}
-function bindAuthorityToReceipt(receiptDigest, hop, mandateOwner) {
-  const hopDigest = hop?.digest ?? null;
+var bindAuthorityToReceipt = (receiptDigest, hopDigest, mandateOwner) => {
   const base = { receiptDigest, hopDigest, mandateOwner };
   return { ...base, digest: sha256(JSON.stringify(base)) };
-}
-function verifyAuthorityBinding(binding, receiptDigest, hop) {
-  const want = sha256(JSON.stringify({ receiptDigest, hopDigest: hop?.digest ?? null, mandateOwner: binding.mandateOwner }));
+};
+var verifyAuthorityBinding = (binding, receiptDigest, hopDigest) => {
+  const want = sha256(JSON.stringify({ receiptDigest, hopDigest, mandateOwner: binding.mandateOwner }));
   return want === binding.digest && binding.receiptDigest === receiptDigest;
+};
+
+// src/vh19/authorityCore.ts
+var mandateCanonical2 = (m) => JSON.stringify({
+  v: "vh.mandate.v1",
+  agentId: m.agentId,
+  owner: m.owner,
+  scope: [...m.scope].sort(),
+  budgetCap: m.budgetCap,
+  maxDepth: m.maxDepth,
+  issuedAt: m.issuedAt,
+  expiresAt: m.expiresAt
+});
+function bytesToB64(bytes) {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return typeof btoa === "function" ? btoa(s) : Buffer.from(bytes).toString("base64");
+}
+function b64ToBytes(b64) {
+  const s = typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
+  const out = new Uint8Array(new ArrayBuffer(s.length));
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+
+// src/vh19/authorityWeb.ts
+var EC = { name: "ECDSA", namedCurve: "P-256" };
+async function generateOwnerKeysWeb() {
+  const pair = await crypto.subtle.generateKey(EC, true, ["sign", "verify"]);
+  const spki = await crypto.subtle.exportKey("spki", pair.publicKey);
+  return { privateKey: pair.privateKey, publicKey: pair.publicKey, publicKeyPem: pem("PUBLIC KEY", spki) };
+}
+function pem(label, der) {
+  const b64 = bytesToB64(new Uint8Array(der));
+  const lines = b64.match(/.{1,64}/g) ?? [b64];
+  return `-----BEGIN ${label}-----
+${lines.join("\n")}
+-----END ${label}-----
+`;
+}
+async function importPublicKeyWeb(publicKeyPem) {
+  const b64 = publicKeyPem.replace(/-----(BEGIN|END) [A-Z ]+-----/g, "").replace(/\s+/g, "");
+  return crypto.subtle.importKey("spki", b64ToBytes(b64).buffer, EC, false, ["verify"]);
+}
+async function signMandateWeb(m, keys) {
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keys.privateKey, new TextEncoder().encode(mandateCanonical2(m)).buffer);
+  return { ...m, signature: `ecdsa-p256:${bytesToB64(new Uint8Array(sig))}` };
+}
+async function verifyMandateWeb(m, publicKeyPem, now2 = Date.now()) {
+  if (!m) return { ok: false, reason: "missing", detail: "no mandate passport \u2014 the agent does not act" };
+  if (!m.owner) return { ok: false, reason: "no-owner", detail: "a mandate without a named human owner is not authority" };
+  if (now2 > m.expiresAt) return { ok: false, reason: "expired", detail: "mandate expired \u2014 re-issue it" };
+  if (!m.signature?.startsWith("ecdsa-p256:")) {
+    return { ok: false, reason: "bad-signature", detail: "not an asymmetric signature \u2014 refusing to treat symmetric HMAC as portable authority" };
+  }
+  try {
+    const pub = await importPublicKeyWeb(publicKeyPem);
+    const ok = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pub, b64ToBytes(m.signature.slice("ecdsa-p256:".length)), new TextEncoder().encode(mandateCanonical2(m)).buffer);
+    if (!ok) return { ok: false, reason: "bad-signature", detail: "asymmetric signature does not verify \u2014 treating as forged" };
+    return { ok: true, mandate: m };
+  } catch {
+    return { ok: false, reason: "bad-signature", detail: "public key or signature malformed \u2014 treating as forged" };
+  }
+}
+var sha256HexWeb = async (t) => {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+async function bindAuthorityToReceiptWeb(receiptDigest, hopDigest, mandateOwner, mandateDigest = null) {
+  const base = mandateDigest == null ? { receiptDigest, hopDigest, mandateOwner } : { receiptDigest, mandateDigest, hopDigest, mandateOwner };
+  return { receiptDigest, mandateDigest, hopDigest, mandateOwner, digest: await sha256HexWeb(JSON.stringify(base)) };
+}
+async function verifyAuthorityBindingWeb(binding, receiptDigest, hopDigest, expectedMandateDigest = null) {
+  const legacy = binding.mandateDigest == null;
+  const base = legacy ? { receiptDigest, hopDigest, mandateOwner: binding.mandateOwner } : { receiptDigest, mandateDigest: binding.mandateDigest, hopDigest, mandateOwner: binding.mandateOwner };
+  const want = await sha256HexWeb(JSON.stringify(base));
+  if (want !== binding.digest || binding.receiptDigest !== receiptDigest) return false;
+  if (expectedMandateDigest !== null && !legacy && binding.mandateDigest !== expectedMandateDigest) return false;
+  return true;
+}
+
+// src/vh19/pureHash.ts
+var K = [
+  1116352408,
+  1899447441,
+  3049323471,
+  3921009573,
+  961987163,
+  1508970993,
+  2453635748,
+  2870763221,
+  3624381080,
+  310598401,
+  607225278,
+  1426881987,
+  1925078388,
+  2162078206,
+  2614888103,
+  3248222580,
+  3835390401,
+  4022224774,
+  264347078,
+  604807628,
+  770255983,
+  1249150122,
+  1555081692,
+  1996064986,
+  2554220882,
+  2821834349,
+  2952996808,
+  3210313671,
+  3336571891,
+  3584528711,
+  113926993,
+  338241895,
+  666307205,
+  773529912,
+  1294757372,
+  1396182291,
+  1695183700,
+  1986661051,
+  2177026350,
+  2456956037,
+  2730485921,
+  2820302411,
+  3259730800,
+  3345764771,
+  3516065817,
+  3600352804,
+  4094571909,
+  275423344,
+  430227734,
+  506948616,
+  659060556,
+  883997877,
+  958139571,
+  1322822218,
+  1537002063,
+  1747873779,
+  1955562222,
+  2024104815,
+  2227730452,
+  2361852424,
+  2428436474,
+  2756734187,
+  3204031479,
+  3329325298
+];
+var rotr = (x, n) => (x >>> n | x << 32 - n) >>> 0;
+var utf8 = (text) => new TextEncoder().encode(text);
+function sha256Bytes(data) {
+  const bitLen = data.length * 8;
+  const padded = new Uint8Array((data.length + 8 >> 6 << 6) + 64);
+  padded.set(data);
+  padded[data.length] = 128;
+  const dv = new DataView(padded.buffer);
+  dv.setUint32(padded.length - 4, bitLen >>> 0);
+  dv.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296));
+  let h0 = 1779033703, h1 = 3144134277, h2 = 1013904242, h3 = 2773480762;
+  let h4 = 1359893119, h5 = 2600822924, h6 = 528734635, h7 = 1541459225;
+  const w = new Uint32Array(64);
+  for (let off = 0; off < padded.length; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ w[i - 15] >>> 3;
+      const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ w[i - 2] >>> 10;
+      w[i] = w[i - 16] + s0 + w[i - 7] + s1 >>> 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+      const ch = e & f ^ ~e & g;
+      const t1 = h + S1 + ch + K[i] + w[i] >>> 0;
+      const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+      const maj = a & b ^ a & c ^ b & c;
+      const t2 = S0 + maj >>> 0;
+      h = g;
+      g = f;
+      f = e;
+      e = d + t1 >>> 0;
+      d = c;
+      c = b;
+      b = a;
+      a = t1 + t2 >>> 0;
+    }
+    h0 = h0 + a >>> 0;
+    h1 = h1 + b >>> 0;
+    h2 = h2 + c >>> 0;
+    h3 = h3 + d >>> 0;
+    h4 = h4 + e >>> 0;
+    h5 = h5 + f >>> 0;
+    h6 = h6 + g >>> 0;
+    h7 = h7 + h >>> 0;
+  }
+  const out = new Uint8Array(32);
+  const ov = new DataView(out.buffer);
+  ov.setUint32(0, h0);
+  ov.setUint32(4, h1);
+  ov.setUint32(8, h2);
+  ov.setUint32(12, h3);
+  ov.setUint32(16, h4);
+  ov.setUint32(20, h5);
+  ov.setUint32(24, h6);
+  ov.setUint32(28, h7);
+  return out;
+}
+var toHex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+function pureSha256(text) {
+  return toHex(sha256Bytes(utf8(text)));
+}
+function pureHmacSha256(secret, text) {
+  let key = utf8(secret);
+  if (key.length > 64) key = sha256Bytes(key);
+  const ipad = new Uint8Array(64).fill(54);
+  const opad = new Uint8Array(64).fill(92);
+  for (let i = 0; i < key.length; i++) {
+    ipad[i] ^= key[i];
+    opad[i] ^= key[i];
+  }
+  const inner = new Uint8Array(64 + utf8(text).length);
+  inner.set(ipad);
+  inner.set(utf8(text), 64);
+  return toHex(sha256Bytes(new Uint8Array([...opad, ...sha256Bytes(inner)])));
 }
 
 // src/vh19/vouchMesh.ts
-import { createHash as createHash2, createHmac as createHmac2 } from "node:crypto";
-var sha2562 = (t) => createHash2("sha256").update(t).digest("hex");
-var hmac2 = (secret, t) => createHmac2("sha256", secret).update(t).digest("hex");
+var sha2562 = pureSha256;
+var hmac2 = pureHmacSha256;
 function registerPeer(p, now2 = Date.now()) {
   if (!p.endpoint.startsWith("https://")) {
     return { refused: `peer ${p.peerId}: plain-http endpoint refused \u2014 VouchMesh is TLS-by-default` };
@@ -396,8 +598,8 @@ test("authority + vouchmesh", async (t) => {
     assert.ok(q.digest.length === 64);
     assert.equal(q.reason, "injection flagged in reply");
   });
-  const keys = generateOwnerKeys();
-  const asymMandate = signMandateAsymmetric({
+  const keys = await generateOwnerKeysWeb();
+  const asymMandate = await signMandateWeb({
     agentId: "vh-agent-9",
     owner: "sree",
     scope: ["pc.exec", "pc.browser"],
@@ -405,26 +607,32 @@ test("authority + vouchmesh", async (t) => {
     maxDepth: 1,
     issuedAt: now,
     expiresAt: now + 36e5
-  }, keys.privateKeyPem);
-  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", () => {
-    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 1e3);
+  }, keys);
+  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", async () => {
+    const r = await verifyMandateWeb(asymMandate, keys.publicKeyPem, now + 1e3);
     assert.equal(r.ok, true);
   });
-  await t.test("the wrong public key refuses the mandate", () => {
-    const stranger = generateOwnerKeys();
-    const r = verifyMandateAsymmetric(asymMandate, stranger.publicKeyPem, now + 1e3);
+  await t.test("the wrong public key refuses the mandate", async () => {
+    const stranger = await generateOwnerKeysWeb();
+    const r = await verifyMandateWeb(asymMandate, stranger.publicKeyPem, now + 1e3);
     assert.equal(r.ok, false);
     if (!r.ok) assert.equal(r.reason, "bad-signature");
   });
-  await t.test("a symmetric HMAC mandate is refused as portable authority", () => {
-    const r = verifyMandateAsymmetric(mandate, keys.publicKeyPem, now + 1e3);
+  await t.test("a symmetric HMAC mandate is refused as portable authority", async () => {
+    const r = await verifyMandateWeb(mandate, keys.publicKeyPem, now + 1e3);
     assert.equal(r.ok, false);
     if (!r.ok) assert.match(r.detail, /asymmetric/);
   });
-  await t.test("an expired asymmetric mandate is refused", () => {
-    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 72e5);
+  await t.test("an expired asymmetric mandate is refused", async () => {
+    const r = await verifyMandateWeb(asymMandate, keys.publicKeyPem, now + 72e5);
     assert.equal(r.ok, false);
     if (!r.ok) assert.equal(r.reason, "expired");
+  });
+  await t.test("the portable binding round-trips offline (authorityWeb)", async () => {
+    const receiptDigest = "c".repeat(64);
+    const b = await bindAuthorityToReceiptWeb(receiptDigest, null, "sree");
+    assert.equal(await verifyAuthorityBindingWeb(b, receiptDigest, null), true);
+    assert.equal(await verifyAuthorityBindingWeb(b, "d".repeat(64), null), false);
   });
   await t.test("an authority binding attaches a hop to a receipt digest", () => {
     const d1 = delegateAuthority(root, "b", ["fs.read"], 40, null);

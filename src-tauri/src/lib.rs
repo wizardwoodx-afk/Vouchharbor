@@ -35,10 +35,17 @@ pub fn run() {
         // line goes; updates remain "download the new zip and reinstall".
         // Re-add ONLY together with a real `plugins.updater` config section.
         .setup(|app| {
-            let data = app.path().app_data_dir().unwrap_or_else(|_| std::env::temp_dir().join("mj"));
+            let data = app.path().app_data_dir().unwrap_or_else(|_| std::env::temp_dir().join("vouchharbor"));
             let _ = std::fs::create_dir_all(data.join("artifacts"));
             let _ = std::fs::create_dir_all(data.join("skills"));
-            let db_path = data.join("mj.sqlite");
+            /* 19.5.1 identity migration — the active store is vh.sqlite; a
+               legacy mj.sqlite from pre-19.5.1 builds is renamed in place
+               (data preserved, nothing re-created under the old name). */
+            let db_path = data.join("vh.sqlite");
+            if !db_path.exists() {
+                let legacy = data.join("mj.sqlite");
+                if legacy.exists() { let _ = std::fs::rename(&legacy, &db_path); }
+            }
             let conn = db::open(&db_path).expect("open sqlite");
             db::seed_mcp_if_empty(&conn).ok();
             let cwd = std::env::current_dir().unwrap_or_default();

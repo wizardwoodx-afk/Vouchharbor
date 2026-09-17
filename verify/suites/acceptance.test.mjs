@@ -10,18 +10,28 @@ var __export = (target, all) => {
 };
 
 // src/app/id.ts
+function cryptoToken() {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  if (c && typeof c.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  degradedSeq += 1;
+  return `nocrypto-fallback-${degradedSeq.toString(36)}`;
+}
 function uid(prefix) {
-  n += 1;
-  return `${prefix}-${Date.now().toString(36)}-${n.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}-${cryptoToken()}`;
 }
 function nowIso() {
   return (/* @__PURE__ */ new Date()).toISOString();
 }
-var n;
+var degradedSeq;
 var init_id = __esm({
   "src/app/id.ts"() {
     "use strict";
-    n = 0;
+    degradedSeq = 0;
   }
 });
 
@@ -108,7 +118,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.1";
+    VH_VERSION = "19.5.4";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -5195,13 +5205,13 @@ var ArtifactStore = class {
     const chain = [...visited.values()].sort((a, b) => a.at.localeCompare(b.at) || a.depth - b.depth);
     const ids = new Set(visited.keys());
     const decisions = recorder ? recorder.all().filter((e) => e.subjectId && ids.has(e.subjectId)) : [];
-    const unverified = chain.filter((n2) => n2.evaluation === "not evaluated").map((n2) => n2.name);
+    const unverified = chain.filter((n) => n.evaluation === "not evaluated").map((n) => n.name);
     return {
       artifactId,
       chain,
       decisions,
-      totalCostUsd: chain.reduce((s, n2) => s + n2.costUsd, 0),
-      totalLatencyMs: chain.reduce((s, n2) => s + n2.latencyMs, 0),
+      totalCostUsd: chain.reduce((s, n) => s + n.costUsd, 0),
+      totalLatencyMs: chain.reduce((s, n) => s + n.latencyMs, 0),
       versions: chain.length,
       hasUnverifiedAncestor: unverified.length > 0,
       unverified
@@ -8295,9 +8305,9 @@ var LocalTestHarness = class {
   }
   async invoke(task) {
     const started = Date.now();
-    const n2 = (this.attempts.get(task.taskId) ?? 0) + 1;
-    this.attempts.set(task.taskId, n2);
-    const shouldFail = this.failFirstAttemptFor.test(task.title) && n2 === 1;
+    const n = (this.attempts.get(task.taskId) ?? 0) + 1;
+    this.attempts.set(task.taskId, n);
+    const shouldFail = this.failFirstAttemptFor.test(task.title) && n === 1;
     await new Promise((r) => setTimeout(r, 5));
     if (shouldFail) {
       return {
@@ -8314,7 +8324,7 @@ var LocalTestHarness = class {
     return {
       ok: true,
       text: [
-        `[local-test simulation \u2014 attempt ${n2}]`,
+        `[local-test simulation \u2014 attempt ${n}]`,
         `Task: ${task.title}`,
         `Kind: ${task.kind}`,
         `Languages: ${task.languages.join(", ") || "n/a"}`,
@@ -8326,7 +8336,7 @@ var LocalTestHarness = class {
       latencyMs: Date.now() - started,
       costUsd: 0,
       simulated: true,
-      detail: `simulated attempt=${n2}`,
+      detail: `simulated attempt=${n}`,
       error: null
     };
   }
@@ -9063,8 +9073,8 @@ function medianOf(values) {
   const mid = Math.floor(s.length / 2);
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
-function round(n2) {
-  return Number.isInteger(n2) ? String(n2) : n2.toFixed(4);
+function round(n) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(4);
 }
 
 // src/mission/evaluation.ts
@@ -9182,7 +9192,7 @@ function testRunCheck(command, output, exitCode) {
     return unmeasuredCheck(`Test run: ${command}`, "TEST_RUN", "the command produced no output, so nothing was verified");
   }
   const failedCounts = [...output.matchAll(/(\d+)[ ,]+fail(?:ed|ing|ures?)?\b/gi)].map((m) => Number(m[1]));
-  const summaryFailed = failedCounts.some((n2) => n2 > 0) || /^not ok\b/m.test(output) || /^FAILED\b/m.test(output) || /\bpanic:/.test(output);
+  const summaryFailed = failedCounts.some((n) => n > 0) || /^not ok\b/m.test(output) || /^FAILED\b/m.test(output) || /\bpanic:/.test(output);
   const passed = exitCode === 0 && !summaryFailed;
   return check({
     name: `Test run: ${command}`,
@@ -9193,11 +9203,11 @@ function testRunCheck(command, output, exitCode) {
     evidence: [output.slice(0, 2e3)]
   });
 }
-function clamp01(n2) {
-  return Math.min(1, Math.max(0, n2));
+function clamp01(n) {
+  return Math.min(1, Math.max(0, n));
 }
-function round2(n2) {
-  return Math.round(n2 * 1e3) / 1e3;
+function round2(n) {
+  return Math.round(n * 1e3) / 1e3;
 }
 
 // src/mission/checkpoints.ts
@@ -9373,7 +9383,7 @@ init_id();
 // src/graph/validation.ts
 function validateWorkflow(graph) {
   const issues = [];
-  const nodes = new Map(graph.nodes.map((n2) => [n2.id, n2]));
+  const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
   const conns = graph.connections;
   if (graph.nodes.length === 0) {
     issues.push({ severity: "warning", message: "Workflow is empty." });
@@ -9484,7 +9494,7 @@ function validateWorkflow(graph) {
 }
 function findCycle(nodes, conns) {
   const adj = /* @__PURE__ */ new Map();
-  for (const n2 of nodes) adj.set(n2.id, []);
+  for (const n of nodes) adj.set(n.id, []);
   for (const c of conns) {
     if (adj.has(c.sourceNodeId)) adj.get(c.sourceNodeId).push(c.targetNodeId);
   }
@@ -9505,10 +9515,10 @@ function findCycle(nodes, conns) {
     state.set(id, 2);
     return false;
   };
-  for (const n2 of nodes) {
-    if ((state.get(n2.id) ?? 0) === 0) {
+  for (const n of nodes) {
+    if ((state.get(n.id) ?? 0) === 0) {
       stack.length = 0;
-      if (dfs(n2.id)) {
+      if (dfs(n.id)) {
         const last = stack[stack.length - 1];
         const at = stack.indexOf(last);
         return stack.slice(at);
@@ -9548,7 +9558,7 @@ function evaluationCheck(nextGraph) {
   };
 }
 function regressionCheck(req) {
-  const nextTitles = new Set(req.nextGraph.nodes.map((n2) => n2.title));
+  const nextTitles = new Set(req.nextGraph.nodes.map((n) => n.title));
   const lost = req.completedWork.filter((t) => !nextTitles.has(t));
   if (lost.length) {
     return {
@@ -9556,7 +9566,7 @@ function regressionCheck(req) {
       detail: `mutation would discard completed work: ${lost.join(", ")}. Roll back to a checkpoint instead of mutating.`
     };
   }
-  const before = new Set(req.graph.nodes.map((n2) => n2.title));
+  const before = new Set(req.graph.nodes.map((n) => n.title));
   const added = [...nextTitles].filter((t) => !before.has(t));
   const removed = [...before].filter((t) => !nextTitles.has(t));
   return {
@@ -9607,7 +9617,7 @@ function proposeMutation(req, recorder) {
   return { mutation, applied: mutation.applied, blockedBy };
 }
 function completedTitles(graph, completedNodeIds) {
-  return graph.nodes.filter((n2) => completedNodeIds.has(n2.id)).map((n2) => n2.title);
+  return graph.nodes.filter((n) => completedNodeIds.has(n.id)).map((n) => n.title);
 }
 
 // src/mission/checkRunner.ts
@@ -9654,7 +9664,7 @@ async function discoverChecks(repoDir, read, exists = (p2) => existsViaRead(p2, 
   return out;
 }
 function pickScript(scripts, names) {
-  for (const n2 of names) if (scripts[n2]) return { name: n2 };
+  for (const n of names) if (scripts[n]) return { name: n };
   return null;
 }
 async function tryRead(path3, read) {
@@ -10262,13 +10272,13 @@ function planMission(mission, req) {
   const specs = buildSteps(signals, request);
   const warnings = [];
   const perStepUsd = request.budgetUsd > 0 ? request.budgetUsd / Math.max(1, specs.length) : 0;
-  const steps = specs.map((s, n2) => {
+  const steps = specs.map((s, n) => {
     const def = DEFINITIONS_BY_ID.get(s.agentDefId);
     if (!def) warnings.push(`No node definition for ${s.agentDefId}; step "${s.title}" will be skipped at instantiation.`);
     const risk = classifyRisk(s.purpose, s.kind).risk;
     const needsHuman = s.kind === "release" || risk === "CRITICAL" || request.autonomy === "HUMAN_ONLY" || request.autonomy === "SUPERVISED" && risk === "HIGH";
     return {
-      id: `step-${n2 + 1}`,
+      id: `step-${n + 1}`,
       kind: s.kind,
       title: s.title,
       agentDefId: s.agentDefId,
@@ -11720,7 +11730,7 @@ Deliver the smallest increment that satisfies: ${this.mission.successCriteria[0]
         this.org.setState(taskId, state === "DONE" ? "PENDING" : state, { actor: "supervisor", reason });
       }
     }
-    this.completedNodeIds = new Set(this.graph.nodes.filter((n2) => cp.taskStates[taskForNode(this, n2.id)] === "DONE").map((n2) => n2.id));
+    this.completedNodeIds = new Set(this.graph.nodes.filter((n) => cp.taskStates[taskForNode(this, n.id)] === "DONE").map((n) => n.id));
     return true;
   }
   /* ------------------------------------------------------------------ §25 pause/resume */
@@ -11898,7 +11908,7 @@ Deliver the smallest increment that satisfies: ${this.mission.successCriteria[0]
   nodeIdForStep(stepId) {
     const step = this.plan?.steps.find((s) => s.id === stepId);
     if (!step) return null;
-    return this.graph.nodes.find((n2) => n2.templateKey === stepId)?.id ?? null;
+    return this.graph.nodes.find((n) => n.templateKey === stepId)?.id ?? null;
   }
   getFailures() {
     return [...this.failures];
@@ -11963,7 +11973,7 @@ function graphFromSteps(mission, steps) {
   for (const step of steps) {
     const target = byStep.get(step.id);
     if (!target) continue;
-    const upstream = step.dependsOn.map((d) => byStep.get(d)).filter((n2) => Boolean(n2));
+    const upstream = step.dependsOn.map((d) => byStep.get(d)).filter((n) => Boolean(n));
     for (const port of target.inputs) {
       if (!port.required || graph.connections.some((c) => c.targetNodeId === target.id && c.targetPortId === port.id)) continue;
       let done = false;
@@ -12288,23 +12298,23 @@ function instantiateTemplate(templateId, input) {
     endedAt: null
   };
 }
-function truncate(s, n2) {
-  return s.length <= n2 ? s : `${s.slice(0, n2 - 1)}\u2026`;
+function truncate(s, n) {
+  return s.length <= n ? s : `${s.slice(0, n - 1)}\u2026`;
 }
 
 // probe/acceptance.test.ts
 var pass = 0;
 var fail = 0;
 var results = [];
-function criterion(n2, name, fn) {
+function criterion(n, name, fn) {
   return Promise.resolve().then(fn).then(() => {
     pass += 1;
-    results.push([n2, name, true, ""]);
-    console.log(`  \u2713 ${String(n2).padStart(2)}. ${name}`);
+    results.push([n, name, true, ""]);
+    console.log(`  \u2713 ${String(n).padStart(2)}. ${name}`);
   }).catch((e) => {
     fail += 1;
-    results.push([n2, name, false, e instanceof Error ? e.message : String(e)]);
-    console.log(`  \u2717 ${String(n2).padStart(2)}. ${name}
+    results.push([n, name, false, e instanceof Error ? e.message : String(e)]);
+    console.log(`  \u2717 ${String(n).padStart(2)}. ${name}
        ${(e instanceof Error ? e.message : String(e)).split("\n").join("\n       ")}`);
   });
 }
@@ -12544,8 +12554,8 @@ async function main() {
     const last = artifacts[artifacts.length - 1];
     const explanation = services.artifacts.explainLineage(last.artifactId, rt.recorder);
     ok(explanation.chain.length >= 1, "lineage chain is empty");
-    ok(explanation.chain.every((n2) => Boolean(n2.createdBy)), "a lineage node has no author");
-    ok(explanation.chain.every((n2) => Boolean(n2.evaluation)), "a lineage node has no evaluation state");
+    ok(explanation.chain.every((n) => Boolean(n.createdBy)), "a lineage node has no author");
+    ok(explanation.chain.every((n) => Boolean(n.evaluation)), "a lineage node has no evaluation state");
     ok(explanation.decisions.length >= 1, "lineage shows no governance decisions");
     ok(typeof explanation.totalCostUsd === "number", "no cost rollup");
     for (let i = 1; i < explanation.chain.length; i++) {
@@ -12611,7 +12621,7 @@ async function main() {
     const r = new MissionRuntime(m, s, { allowSimulated: true });
     const p2 = r.prepare();
     const g = graphFromSteps(m, p2.steps);
-    const stepNodes = g.nodes.filter((n2) => n2.templateKey && p2.steps.some((x) => x.id === n2.templateKey));
+    const stepNodes = g.nodes.filter((n) => n.templateKey && p2.steps.some((x) => x.id === n.templateKey));
     ok(stepNodes.length === p2.steps.filter((x) => x.agentDefId).length, `node count ${stepNodes.length} does not match step count ${p2.steps.length}`);
     ok(g.nodes.length === stepNodes.length + 1, `expected exactly one non-step node (the objective source), got ${g.nodes.length - stepNodes.length}`);
     const issues = validateWorkflow(g).filter((i) => i.severity === "error");
@@ -12663,7 +12673,7 @@ ${"=".repeat(60)}`);
   console.log("=".repeat(60));
   if (fail) {
     console.log("\nFailed criteria:");
-    for (const [n2, name, okFlag, msg] of results) if (!okFlag) console.log(`  ${n2}. ${name}
+    for (const [n, name, okFlag, msg] of results) if (!okFlag) console.log(`  ${n}. ${name}
      ${msg}`);
     process.exit(1);
   }

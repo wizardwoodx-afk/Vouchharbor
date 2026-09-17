@@ -24,6 +24,14 @@
 import { complete, redactSecrets } from "./providers";
 import { estimateTokens, optimizeComposedPrompt, recordUsage } from "./tokenOptim";
 import { executeToolReceipted, stripToolBlocks, parseToolBlocks, toolProtocolText, toolsForCategory } from "./tools";
+/** Capability policy (review fix): a mission that attaches the computer-use
+    plane ADVERTISES pc.exec + pc.browser to the member's tool protocol —
+    explicit mission policy, never global category binding. */
+export function memberToolIds(category: string, toolCtx?: { pc?: unknown } | null) {
+  const base = toolsForCategory(category);
+  return toolCtx?.pc ? ([...base, "pc.exec", "pc.browser"] as typeof base) : base;
+}
+
 import type { ToolContext, ToolReceipt } from "./tools";
 import type { ProviderConfig, Specialist } from "./types";
 
@@ -70,7 +78,7 @@ export interface MemberRun {
 export async function runMemberAgent(opts: MemberRunOptions): Promise<MemberRun> {
   const { provider, specialist, task, systemBase } = opts;
   const maxSteps = opts.maxSteps ?? MAX_AGENT_STEPS;
-  const toolIds = opts.toolCtx ? toolsForCategory(specialist.category) : [];
+  const toolIds = memberToolIds(specialist.category, opts.toolCtx);
   const hasTools = toolIds.length > 0 && Boolean(opts.toolCtx);
 
   const system = hasTools

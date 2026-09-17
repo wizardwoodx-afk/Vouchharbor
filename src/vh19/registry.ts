@@ -12,6 +12,7 @@
 import { loadSelfOverrides } from "./selfOverrides";
 import { BROADER_SPECIALISTS } from "./broaderBench";
 import { REACH_SPECIALISTS } from "./reachBench";
+import { MATURED_SPECIALISTS } from "./maturityBench";
 import type { Specialist, SpecialistCategory, RiskTier } from "./types";
 
 const seed = (
@@ -26,10 +27,11 @@ const seed = (
 
 /*
  * The fleet's composition, stated once and verified by catalogStats():
- * this array is 460 seed specialists followed by a spread of
- * BROADER_SPECIALISTS (160, from ./broaderBench — the 19.4.0 product,
- * business, legal and comms bench). Total 620. Counting seed() calls
- * alone misses the spread — catalogStats().byProvenance is the check.
+ * this array is 460 seed specialists followed by spreads of
+ * BROADER_SPECIALISTS (160), REACH_SPECIALISTS (140) and
+ * MATURED_SPECIALISTS (390, from ./maturityBench). Total 1,150.
+ * Counting seed() calls alone misses the spreads —
+ * catalogStats().byProvenance is the check.
  */
 export const SPECIALISTS: Specialist[] = [
   /* ── code ───────────────────────────────────────────────────────────────── */
@@ -2034,6 +2036,8 @@ export const SPECIALISTS: Specialist[] = [
        real prompt. The bench count below is still the catalog's OWN count. */
   ...BROADER_SPECIALISTS,
   ...REACH_SPECIALISTS,
+  /* maturity tier — 390 matured specialists (individually specified; founding 240 + 19.5.3 horizon 150) */
+  ...MATURED_SPECIALISTS,
 ];
 
 const BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
@@ -2116,17 +2120,18 @@ export function catalogStats(): {
   count: number;
   categories: number;
   byRisk: Record<string, number>;
-  byProvenance: { seed: number; broader: number; reach: number };
+  byProvenance: { seed: number; broader: number; reach: number; matured: number };
 } {
   const byRisk: Record<string, number> = {};
   for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
   const broader = BROADER_SPECIALISTS.length;
   const reach = REACH_SPECIALISTS.length;
+  const matured = MATURED_SPECIALISTS.length;
   return {
     count: SPECIALISTS.length,
     categories: new Set(SPECIALISTS.map((s) => s.category)).size,
     byRisk,
-    byProvenance: { seed: SPECIALISTS.length - broader - reach, broader, reach },
+    byProvenance: { seed: SPECIALISTS.length - broader - reach - matured, broader, reach, matured },
   };
 }
 
