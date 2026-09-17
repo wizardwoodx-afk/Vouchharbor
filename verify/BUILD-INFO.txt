@@ -1,15 +1,15 @@
-Vouch Harbor 19.5.0 Authority
-built: 19.5.0 Authority
+Vouch Harbor 19.5.1 Reach
+built: 19.5.1 Reach
 ts:   2026-09-16T02:53:35Z
 git:  local
 protocol: vh-proof-receipt/2
 
-121 self-contained bundles in verify/suites (every probe suite except the pack's
+122 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 122 probe
-suites; the offline pack reproduces 121 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 123 probe
+suites; the offline pack reproduces 122 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-122 passed, 0 failed across 122 probe suites (node verify/run.mjs → 121 passed,
+123 passed, 0 failed across 123 probe suites (node verify/run.mjs → 122 passed,
 0 failed for the offline-only subset). Suite 121 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 122 is probe/authority (the Authority Suite + VouchMesh) —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
 

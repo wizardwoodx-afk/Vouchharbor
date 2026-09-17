@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 // src/vh19/authority.ts
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, generateKeyPairSync, sign as ecSign, verify as ecVerify } from "node:crypto";
 var sha256 = (t) => createHash("sha256").update(t).digest("hex");
 var hmac = (secret, t) => createHmac("sha256", secret).update(t).digest("hex");
 var mandateCanonical = (m) => JSON.stringify({
@@ -109,6 +109,34 @@ function liabilityMap(root, hops) {
   const entries = [{ principal: `${root.owner} (owner)`, owedScope: root.scope, owedBudget: root.budgetCap, depth: 0 }];
   for (const h of hops) entries.push({ principal: h.to, owedScope: h.grantedScope, owedBudget: h.grantedBudget, depth: h.depth });
   return entries;
+}
+function generateOwnerKeys() {
+  const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+  return {
+    privateKeyPem: privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
+    publicKeyPem: publicKey.export({ type: "spki", format: "pem" }).toString()
+  };
+}
+function signMandateAsymmetric(m, privateKeyPem) {
+  const sig = ecSign("sha256", Buffer.from(mandateCanonical(m)), { key: privateKeyPem, dsaEncoding: "der" });
+  return { ...m, signature: `ecdsa-p256:${sig.toString("base64")}` };
+}
+function verifyMandateAsymmetric(m, publicKeyPem, now2 = Date.now()) {
+  if (!m.owner) return { ok: false, reason: "no-owner", detail: "a mandate without a named human owner is not authority" };
+  if (now2 > m.expiresAt) return { ok: false, reason: "expired", detail: "mandate expired \u2014 re-issue it" };
+  if (!m.signature?.startsWith("ecdsa-p256:")) return { ok: false, reason: "bad-signature", detail: "not an asymmetric signature \u2014 refusing to treat symmetric HMAC as portable authority" };
+  const ok = ecVerify("sha256", Buffer.from(mandateCanonical(m)), { key: publicKeyPem, dsaEncoding: "der" }, Buffer.from(m.signature.slice("ecdsa-p256:".length), "base64"));
+  if (!ok) return { ok: false, reason: "bad-signature", detail: "asymmetric signature does not verify \u2014 treating as forged" };
+  return { ok: true, mandate: m };
+}
+function bindAuthorityToReceipt(receiptDigest, hop, mandateOwner) {
+  const hopDigest = hop?.digest ?? null;
+  const base = { receiptDigest, hopDigest, mandateOwner };
+  return { ...base, digest: sha256(JSON.stringify(base)) };
+}
+function verifyAuthorityBinding(binding, receiptDigest, hop) {
+  const want = sha256(JSON.stringify({ receiptDigest, hopDigest: hop?.digest ?? null, mandateOwner: binding.mandateOwner }));
+  return want === binding.digest && binding.receiptDigest === receiptDigest;
 }
 
 // src/vh19/vouchMesh.ts
@@ -367,5 +395,49 @@ test("authority + vouchmesh", async (t) => {
     const q = quarantinePeer("bot-c", "injection flagged in reply", now);
     assert.ok(q.digest.length === 64);
     assert.equal(q.reason, "injection flagged in reply");
+  });
+  const keys = generateOwnerKeys();
+  const asymMandate = signMandateAsymmetric({
+    agentId: "vh-agent-9",
+    owner: "sree",
+    scope: ["pc.exec", "pc.browser"],
+    budgetCap: 50,
+    maxDepth: 1,
+    issuedAt: now,
+    expiresAt: now + 36e5
+  }, keys.privateKeyPem);
+  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", () => {
+    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 1e3);
+    assert.equal(r.ok, true);
+  });
+  await t.test("the wrong public key refuses the mandate", () => {
+    const stranger = generateOwnerKeys();
+    const r = verifyMandateAsymmetric(asymMandate, stranger.publicKeyPem, now + 1e3);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.reason, "bad-signature");
+  });
+  await t.test("a symmetric HMAC mandate is refused as portable authority", () => {
+    const r = verifyMandateAsymmetric(mandate, keys.publicKeyPem, now + 1e3);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.match(r.detail, /asymmetric/);
+  });
+  await t.test("an expired asymmetric mandate is refused", () => {
+    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 72e5);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.reason, "expired");
+  });
+  await t.test("an authority binding attaches a hop to a receipt digest", () => {
+    const d1 = delegateAuthority(root, "b", ["fs.read"], 40, null);
+    assert.ok(d1.ok);
+    if (d1.ok) {
+      const receiptDigest = "a".repeat(64);
+      const binding = bindAuthorityToReceipt(receiptDigest, d1.hop, "sree");
+      assert.equal(verifyAuthorityBinding(binding, receiptDigest, d1.hop), true);
+      assert.equal(verifyAuthorityBinding(binding, "b".repeat(64), d1.hop), false);
+    }
+  });
+  await t.test("a root-mandate action binds with a null hop", () => {
+    const binding = bindAuthorityToReceipt("c".repeat(64), null, "sree");
+    assert.equal(verifyAuthorityBinding(binding, "c".repeat(64), null), true);
   });
 });

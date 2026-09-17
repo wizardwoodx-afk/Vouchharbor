@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.5.0 · September 2026*
+*Vouch Harbor Labs · v19.5.1 · September 2026*
 *The brand layer and the product story as shipped.*
 
 ---
@@ -29,7 +29,7 @@ machine, that signs what it did.**
 ## The product (shipped, v19.5.x "Authority" — this tree)
 
 One local-first app (Tauri v2 desktop + browser edition), one engine, six
-doors — plus the **VH-19 front door**: a chatbox-first Generalist over **620
+doors — plus the **VH-19 front door**: a chatbox-first Generalist over **760
 registered specialists** (460 seed + 160 broader, computed live from the
 registry), Captain synthesis, real gated tool execution, BYOA (external
 agents under a trust intersection), governed connector declarations, SKILL.md

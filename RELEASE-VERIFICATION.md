@@ -1,4 +1,4 @@
-# Vouch Harbor 19.4.5 "Broader" — release verification record
+# Vouch Harbor 19.5.1 "Reach" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
@@ -6,7 +6,32 @@ for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
 
-## The 19.4.5 record — BYOA security hardening + product-focused polish
+## The 19.5.1 record — Reach: computer-use, the 760 fleet, hardened authority
+
+19.5.1 introduced the Authority Suite (Mandate Passport, Chain of Authority,
+Intent Receipts, Warranty Pack, Liability Map) and VOUCHMESH™ — the bot-to-bot
+trust fabric. 19.5.1 gives VH hands and closes the documentation to the current
+release:
+
+- **Computer-use plane** (`src/vh19/computerUse.ts`, `probe/computerUse` 15 pins):
+  allowlisted + injection-scanned + bounded `pc.exec`; built-in headless browser
+  with per-mission isolated profiles, HTTPS-by-policy, critical-tier handover,
+  and screenshots that refuse wordingly when no browser binary exists.
+- **The 760 fleet**: the reach bench (`src/vh19/reachBench.ts`) adds 140
+  individually specified specialists for the computer-use era; the count is
+  self-proving — 460 seed + 160 broader + 140 reach.
+- **Asymmetric mandates**: mandates now sign with ECDSA P-256 keypairs —
+  anyone verifies with the public key; symmetric HMAC is explicitly refused as
+  portable authority (`probe/authority` 34 pins).
+- **Authority ⟷ receipt-chain binding**: every authority hop binds to a
+  receipt digest; both sides checkable offline.
+- **Documentation at current truth**: release verification, changelog, upgrade
+  notes and the adaptation record all name 19.5.1; the adaptation plan is now
+  a shipped-code record with no forward-looking claims.
+
+Gates: tsc 0 · fleet 123/123 · offline 122/122 · door 70/70 · agentic test 24/24.
+
+## Prior record — 19.4.5 — BYOA security hardening + product-focused polish
 
 BYOA gains an always-on security policy, probe-pinned: TLS by default (remote http refused), per-agent delegation rate ceiling (10/rolling minute), response containment (external replies size-capped and injection-scanned), scoped delegation-token receipts (identity + task + ceiling + time), and tamper-evident identity digests on registration. The product surface is polished capability-first: failure-framing copy is out, quick-start prompts are in, and the RSIRALS seal is documented at its exact scope (measurement integrity, not signed provenance). The pre-seed application document leaves the app repository — fundraising is a separate workstream. Gates: tsc 0 · door probe 70/70 · fleet 120/120 · offline 119/119.
 

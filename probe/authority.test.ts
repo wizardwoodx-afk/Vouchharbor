@@ -15,6 +15,8 @@ import assert from "node:assert/strict";
 import {
   signMandate, verifyMandate, delegateAuthority, verifyChain, remainingBudget,
   declareIntent, gateIntent, buildWarrantyPack, liabilityMap,
+  generateOwnerKeys, signMandateAsymmetric, verifyMandateAsymmetric,
+  bindAuthorityToReceipt, verifyAuthorityBinding,
 } from "../src/vh19/authority";
 import {
   registerPeer, attest, openChannel, buildJointReceipt, coSign, isFullyCoSigned,
@@ -220,5 +222,49 @@ test("authority + vouchmesh", async (t) => {
     const q = quarantinePeer("bot-c", "injection flagged in reply", now);
     assert.ok(q.digest.length === 64);
     assert.equal(q.reason, "injection flagged in reply");
+  });
+
+  // ── asymmetric mandates — the portable trust root ─────────────────────────
+  const keys = generateOwnerKeys();
+  const asymMandate = signMandateAsymmetric({
+    agentId: "vh-agent-9", owner: "sree", scope: ["pc.exec", "pc.browser"], budgetCap: 50, maxDepth: 1,
+    issuedAt: now, expiresAt: now + 3_600_000,
+  }, keys.privateKeyPem);
+
+  await t.test("an asymmetric mandate verifies with the PUBLIC key alone", () => {
+    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 1000);
+    assert.equal(r.ok, true);
+  });
+  await t.test("the wrong public key refuses the mandate", () => {
+    const stranger = generateOwnerKeys();
+    const r = verifyMandateAsymmetric(asymMandate, stranger.publicKeyPem, now + 1000);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.reason, "bad-signature");
+  });
+  await t.test("a symmetric HMAC mandate is refused as portable authority", () => {
+    const r = verifyMandateAsymmetric(mandate, keys.publicKeyPem, now + 1000);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.match(r.detail, /asymmetric/);
+  });
+  await t.test("an expired asymmetric mandate is refused", () => {
+    const r = verifyMandateAsymmetric(asymMandate, keys.publicKeyPem, now + 7_200_000);
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.reason, "expired");
+  });
+
+  // ── authority ⟷ receipt chain binding ─────────────────────────────────────
+  await t.test("an authority binding attaches a hop to a receipt digest", () => {
+    const d1 = delegateAuthority(root, "b", ["fs.read"], 40, null);
+    assert.ok(d1.ok);
+    if (d1.ok) {
+      const receiptDigest = "a".repeat(64);
+      const binding = bindAuthorityToReceipt(receiptDigest, d1.hop, "sree");
+      assert.equal(verifyAuthorityBinding(binding, receiptDigest, d1.hop), true);
+      assert.equal(verifyAuthorityBinding(binding, "b".repeat(64), d1.hop), false);
+    }
+  });
+  await t.test("a root-mandate action binds with a null hop", () => {
+    const binding = bindAuthorityToReceipt("c".repeat(64), null, "sree");
+    assert.equal(verifyAuthorityBinding(binding, "c".repeat(64), null), true);
   });
 });

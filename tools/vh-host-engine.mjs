@@ -13,9 +13,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.0";
+    VH_VERSION = "19.5.1";
     VH_SHORT = "19.5";
-    VH_CODENAME = "Authority";
+    VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

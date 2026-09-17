@@ -424,7 +424,7 @@ export const Vh19: React.FC = () => {
               <div className="px-thread-empty">
                 <div className="px-thread-empty-title">Ask VH-19 anything.</div>
                 <div className="px-thread-empty-sub">
-                  Your task routes to the right specialists out of 620, runs with governed tools over your workspace, and comes back as one answer —
+                  Your task routes to the right specialists out of 760, runs with governed tools over your workspace, and comes back as one answer —
                   routed reasoning, every tool receipt, and the Captain's synthesis included.
                 </div>
                 <div className="px-row" style={{ justifyContent: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
@@ -1243,7 +1243,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('bench', (
                 <>
-                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader = {stats.count} (the broader bench adds product, business, legal and comms; counting seed() calls alone misses them).</div>
+                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach = {stats.count} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; counting seed() calls alone misses them).</div>
                   {showBench ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
                       {bench.map((s) => {

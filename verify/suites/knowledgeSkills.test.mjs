@@ -23,7 +23,7 @@ var init_version = __esm({
   "src/version.ts"() {
     "use strict";
     VH_SHORT = "19.5";
-    VH_CODENAME = "Authority";
+    VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });

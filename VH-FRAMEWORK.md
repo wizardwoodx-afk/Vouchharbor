@@ -1,5 +1,5 @@
 # THE VH FRAMEWORK — text edition (PPT-ready)
-*Vouch Harbor Labs · VH 19.5.0 "Authority" · the complete product framework in one document.*
+*Vouch Harbor Labs · VH 19.5.1 "Reach" · the complete product framework in one document.*
 *Write your deck from this file. Every claim here is probe-pinned in this archive.*
 
 ---
@@ -16,7 +16,7 @@ Enterprises deploy agent fleets they cannot audit. Chat logs are not evidence. T
 ## 4 · THE INSIGHT
 Capability is commoditized — nine major frameworks all score 10/10 on tool use, and none ships a native policy gate. The 2026 question is PROOF. Proof is a runtime, not a feature. Ship the boundary as the product.
 
-## 5 · THE PRODUCT — six doors, one engine
+## 5 · THE PRODUCT — six doors, one engine, hands included
 | Door | Role |
 |---|---|
 | VH-19 Generalist | One chatbox front door over the whole engine; the face of the product |
@@ -32,8 +32,8 @@ Capability is commoditized — nine major frameworks all score 10/10 on tool use
 3. **EARNED AUTONOMY** — granted by exam from your own scenarios, category-scoped, revocable; self-improvement sealed, gated, auto-rolled-back (RSIRALS v5.0, frozen governance plane).
 4. **BRING YOUR OWN AGENT** — external agents join under a trust intersection: TLS-by-default, rate ceilings, injection-scanned, delegation receipted.
 
-## 7 · THE AUTHORITY SUITE (19.5.0) — the next moat
-*Answers the five unsolved gaps named by the 2026 agent-identity literature.*
+## 7 · THE AUTHORITY SUITE — the moat
+*Answers the five unsolved gaps named by the 2026 agent-identity literature. Mandates sign asymmetrically (ECDSA P-256): the owner signs, anyone verifies.*
 
 ### 7.1 MANDATE PASSPORT — Know Your Agent (KYA)
 A signed, portable mandate: scope, budget ceiling that DECAYS as the agent operates, expiry, and the human owner's signature. No passport, no action. Standards bodies are drafting this; VH ships it.
@@ -68,24 +68,28 @@ From a verified chain: the responsibility map across every principal, owner firs
 "The agent may evolve everything about itself — except the authority that judges whether its evolution is allowed."
 Evidence curriculum from five sources → human-gated apply → frozen digest-stamped playbooks → sealed receipt-bound promotion → canary auto-rollback → longitudinal monitor. Frozen governance plane (∂T/∂A = 0). Honest θ-arm: no in-product weight training.
 
-## 11 · PROOF MACHINERY
-The Drill (real git repos; a scenario that MUST fail) · 122 probe suites · 120 zero-install offline bundles · Agentic Test Protocol 24/24 · VH-Bench (40 tasks × 10 categories × failure injection × Pass@k) · independent source-level review ≈9.9/10.
+## 11 · THE COMPUTER-USE PLANE — hands, governed
+`pc.exec`: allowlisted binaries, injection-scanned arguments, hard timeouts, receipted runs.
+Built-in headless browser: per-mission isolated profiles, HTTPS-by-policy, critical actions hand over to the human gate, screenshots that refuse wordingly when no browser binary exists — a page is never faked.
 
-## 12 · NAMING GLOSSARY (use these words)
+## 12 · PROOF MACHINERY
+The Drill (real git repos; a scenario that MUST fail) · 123 probe suites · 122 zero-install offline bundles · Agentic Test Protocol 24/24 · VH-Bench (40 tasks × 10 categories × failure injection × Pass@k) · independent source-level review ≈9.9/10.
+
+## 13 · NAMING GLOSSARY (use these words)
 | Name | Meaning |
 |---|---|
 | VH | the product — the accountable agent OS |
 | The Generalist | the one agent at the door |
-| The Bench | 620 routed specialists underneath |
+| The Bench | 760 routed specialists underneath |
 | The Gate | the human approval point inside the run |
 | The Receipt | the signed, offline-verifiable evidence unit |
 | RSIRALS | the proprietary trust-rooted self-improvement architecture |
 | The Authority Suite | Mandate Passport · Chain of Authority · Intent Receipts · Warranty Pack · Liability Map |
 | VOUCHMESH™ | the bot-to-bot trust fabric |
+| The Reach Bench | the 140 computer-use-era specialists |
+| The Computer-Use Plane | pc.exec + the built-in headless browser |
 | The Drill | the product proving itself on demand |
 
-## 13 · ROADMAP
-Shipped: everything above. Next: live-workload validation with design partners (finance, legal, healthcare ops, defense-adjacent) · cross-network VouchMesh transport · verifier CLI public release.
 
 ## 14 · THE CLOSE
 **They watch the screen. We sign the work.**

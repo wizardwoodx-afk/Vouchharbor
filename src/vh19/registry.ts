@@ -11,6 +11,7 @@
  */
 import { loadSelfOverrides } from "./selfOverrides";
 import { BROADER_SPECIALISTS } from "./broaderBench";
+import { REACH_SPECIALISTS } from "./reachBench";
 import type { Specialist, SpecialistCategory, RiskTier } from "./types";
 
 const seed = (
@@ -2032,6 +2033,7 @@ export const SPECIALISTS: Specialist[] = [
        Same discipline as the seed: capabilities, vocabulary, honest tier,
        real prompt. The bench count below is still the catalog's OWN count. */
   ...BROADER_SPECIALISTS,
+  ...REACH_SPECIALISTS,
 ];
 
 const BY_ID = new Map(SPECIALISTS.map((s) => [s.id, s]));
@@ -2114,16 +2116,17 @@ export function catalogStats(): {
   count: number;
   categories: number;
   byRisk: Record<string, number>;
-  byProvenance: { seed: number; broader: number };
+  byProvenance: { seed: number; broader: number; reach: number };
 } {
   const byRisk: Record<string, number> = {};
   for (const s of SPECIALISTS) byRisk[s.riskTier] = (byRisk[s.riskTier] ?? 0) + 1;
   const broader = BROADER_SPECIALISTS.length;
+  const reach = REACH_SPECIALISTS.length;
   return {
     count: SPECIALISTS.length,
     categories: new Set(SPECIALISTS.map((s) => s.category)).size,
     byRisk,
-    byProvenance: { seed: SPECIALISTS.length - broader, broader },
+    byProvenance: { seed: SPECIALISTS.length - broader - reach, broader, reach },
   };
 }
 
