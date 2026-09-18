@@ -85,6 +85,11 @@ const buildInfoIdentity = read("verify/BUILD-INFO.txt");
 ok(`BUILD-INFO.txt opens as Vouch Harbor ${VH_VERSION} (no stale release identity)`,
   buildInfoIdentity.startsWith(`Vouch Harbor ${VH_VERSION}`),
   (buildInfoIdentity.split("\n")[0] ?? "missing").slice(0, 60));
+// 19.5.6 — closes the reviewer finding: the opening identity was pinned but the
+// `built:` line underneath it could still carry a stale release (19.5.4). Now both are pinned.
+ok(`BUILD-INFO.txt's built: line names ${VH_VERSION} (no stale build identity)`,
+  new RegExp(`^built:\\s*${VH_VERSION.replace(/\./g, "\\.")}\\b`, "m").test(buildInfoIdentity),
+  (buildInfoIdentity.split("\n").find((l) => l.startsWith("built:")) ?? "missing built: line").slice(0, 60));
 
 section("2. the app imports the version instead of hardcoding it");
 const ipcClient = read("src/ipc/client.ts");

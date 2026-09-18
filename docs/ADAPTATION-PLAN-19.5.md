@@ -1,4 +1,4 @@
-# VH 19.5.x — Adaptation Record: Computer-Use (OpenBot patterns) + Generalist Avatar (OneWorks)
+# VH 19.5.x — Adaptation Record: Computer-Use (multi-agent desktop patterns) + Generalist Avatar (OneWorks)
 
 *This document records what was ADAPTED AND SHIPPED, with the module and probe
 that prove it. Nothing here is forward-looking: every line names shipped code
@@ -9,7 +9,7 @@ local-first.*
 
 ## Part A — Computer-Use capability — SHIPPED in 19.5.1 (`src/vh19/computerUse.ts`, `probe/computerUse.test.ts` — 15 pins)
 
-### What OpenBot proved, and what VH shipped from it
+### What the multi-agent desktop genre proved, and what VH shipped from it
 1. **A computer per mission** → SHIPPED as **BrowserProfile**: one isolated
    profile per mission (own identity string, viewport, cookies OFF by
    default); state dies with the mission — `newProfile()`.
@@ -30,9 +30,9 @@ local-first.*
    binary exists — a page is never faked**.
 
 ### What was refused (and stays refused)
-| OpenBot | VH's decision |
+| Genre pattern | VH's decision |
 |---|---|
-| CopilotKit Intelligence (external SaaS) for threads/memory | **Refused.** VH memory + ledger stay local |
+| External SaaS threads/memory services | **Refused.** VH memory + ledger stay local |
 | PostgreSQL for policy/audit | **Refused.** Decisions and receipts flow into the existing hash-chained ledger — offline-verifiable |
 | Docker hard-requirement | **Refused.** Not part of this release; the plane degrades honestly instead |
 | Policy rules that could grant past the governance plane | **Refused.** The frozen governance plane decides; policy cannot widen it |
@@ -52,7 +52,9 @@ delegation receipts) already covers external agents today.
   with a deterministic fallback; staged above the chat in `src/views/Vh19.tsx`.
 - Reskinned to the 5-color light system (Gunmetal/Brooklyn/Platinum);
   `prefers-reduced-motion` respected; Apple-minimal: one face, subtle motion.
-- NOTICE credits OneWorks Avatar (MIT). No CopilotKit branding anywhere in VH.
+- NOTICE credits OneWorks Avatar (MIT). No third-party branding appears in
+  VH's UI — attribution lives in the vendored NOTICE, where the license
+  requires it.
 
 ---
 

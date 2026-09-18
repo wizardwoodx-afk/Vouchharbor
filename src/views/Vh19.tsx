@@ -36,6 +36,10 @@ import type { SelfProposal } from '../vh19/selfEvolve';
 import { allowCategoryForSession, answerGateWithRules, listSessionRules, revokeSessionRule } from '../vh19/gateRules';
 import { createGoal, executedProgress, goalProgress, goalStatus, loadGoals, nextPendingStep, resumeGoal, settleStep } from '../vh19/goals';
 import { listHandoffs, recordHandoff } from '../vh19/handoffs';
+import { teammatesFromResponse, coordinationFeed, playgroundMission, type TeammateRow, type TeammateStatus } from '../vh19/teammates';
+
+const pillFor = (s: TeammateStatus): string =>
+  s === 'done' ? 'px-pill px-pill-ok' : s === 'gated' ? 'px-pill px-pill-warn' : (s === 'error' || s === 'refused') ? 'px-pill px-pill-err' : 'px-pill';
 import type { HandoffRecord } from '../vh19/handoffs';
 import type { Goal, StepOutcome } from '../vh19/goals';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
@@ -174,6 +178,8 @@ export const Vh19: React.FC = () => {
   const [unlockedNow, setUnlockedNow] = useState(false);
   const [peers, setPeers] = useState<KnownIdentityRow[]>(() => allKnownIdentities());
   const [handoffs, setHandoffs] = useState<HandoffRecord[]>(() => listHandoffs());
+  const [teammates, setTeammates] = useState<TeammateRow[]>([]);
+  const [coord, setCoord] = useState<string[]>([]);
   const [received, setReceived] = useState('');
   const [parsed, setParsed] = useState<SignedInvitation | null>(null);
   const [parseErr, setParseErr] = useState<string | null>(null);
@@ -270,8 +276,8 @@ export const Vh19: React.FC = () => {
     return { executed: resp.executed, outcome: resp.outcome, note: resp.note ?? resp.reply.slice(0, 120), provenanceDigest: resp.provenanceDigest };
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (forced?: string) => {
+    const text = (forced ?? input).trim();
     if (!text || busy) return;
     setInput('');
     setBusy(true);
@@ -292,6 +298,8 @@ export const Vh19: React.FC = () => {
       }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: 'vh19', text: resp.reply, resp, scenario, ts: nowTime() }]);
+      setTeammates(teammatesFromResponse(resp));
+      setCoord(coordinationFeed(resp));
       refreshTeam();
       refresh();
     } catch (err) {
@@ -1117,6 +1125,51 @@ export const Vh19: React.FC = () => {
                       {examError && <div className="px-muted px-warn-text">{examError}</div>}
                       <button className="px-btn px-btn-primary px-btn-sm" onClick={startExam}>Propose exam</button>
                     </>
+                  )}
+                </>
+              ))}
+            </div>
+
+            {/* Teammates — 19.5.6 crew plane */}
+            <div className="px-desk" data-open={desk('teammates')}>
+              <button className="px-desk-head" onClick={() => toggleDesk('teammates')}>
+                Teammates · mission crew, verified trace digests <span className="px-desk-caret">▸</span>
+              </button>
+              {deskBody('teammates', (
+                <>
+                  <div className="px-row">
+                    <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { const pg = playgroundMission(); void send(pg.task); }}>
+                      Run sample mission (labelled demo)
+                    </button>
+                  </div>
+                  {coord.length > 0 && (
+                    <div className="tm-feed">
+                      {coord.map((l, i) => <div key={i} className="px-muted tm-feed-line">· {l}</div>)}
+                    </div>
+                  )}
+                  {teammates.length === 0 ? (
+                    <div className="px-muted">No crew yet — send a task or run the sample mission. After each run, the Chief Steward and every routed specialist appear here with their run status, their own queue and workspace (derived from what they actually carried), and a verified trace digest for every decision.</div>
+                  ) : (
+                    <div className="tm-grid">
+                      {teammates.map((t) => (
+                        <div key={t.id} className="tm-card">
+                          <div className="px-row">
+                            <span className="tm-name">{t.name}</span>
+                            <span className={pillFor(t.status)}>{t.status}</span>
+                          </div>
+                          <div className="px-muted tm-role">{t.role}</div>
+                          <div className="tm-chips">{t.context.map((c) => <span key={c} className="tm-chip">{c}</span>)}</div>
+                          <div className="px-muted tm-queue">{t.queue.length > 0 ? t.queue.join(' · ') : 'no steps this run'}</div>
+                          <div className="px-entry-digest">{t.workspace}</div>
+                          {t.authorityNote && (
+                            <div className="px-entry-digest">{t.authorityNote}</div>
+                          )}
+                          {t.traceDigests.slice(0, 2).map((d) => (
+                            <div key={d} className="px-entry-digest">trace digest {d.slice(0, 12)}…</div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </>
               ))}

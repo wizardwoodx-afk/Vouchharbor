@@ -13,7 +13,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.4";
+    VH_VERSION = "19.5.6";
     VH_SHORT = "19.5";
     VH_CODENAME = "Reach";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -11263,7 +11263,7 @@ async function verifyMissionAuthorityRecord(rec, expectedMandateDigest, now = Da
 
 // src/vh19/reachMcp.ts
 var REACH_MCP_NAME = "Agent Reach MCP";
-var REACH_MCP_VERSION = "19.5.4";
+var REACH_MCP_VERSION = "19.5.6";
 var REACH_MCP_DEFAULT_POLICY = {
   allowlist: ["ls", "cat", "echo", "grep"],
   maxRuntimeMs: 5e3,

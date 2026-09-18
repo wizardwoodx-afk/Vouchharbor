@@ -1,8 +1,8 @@
-# Vouch Harbor 19.5.4 "Reach" — feature sheet
+# Vouch Harbor 19.5.6 "Reach" — feature sheet
 
 **One agent at the front door, the whole governed harbor behind it.**
 
-## 0. What 19.5.4 ships (the current release)
+## 0. What 19.5.6 ships (the current release)
 
 ```
                     VH-19 GENERALIST (minimal premium door)
@@ -56,6 +56,15 @@
   is the LOCAL collaboration trust fabric; ECDSA provides portable authority
   across instances** — both sides of a handoff are minted inside one VH
   runtime, and no cross-instance handshake is claimed.
+- **Teammates plane (19.5.6)** — crew UX, VH-hardened: after each run, the
+  Chief Steward + every routed specialist appear as mission-crew cards
+  (run status, queue, scope, workspace DERIVED from the member's actual
+  tool surface + the run's stated seam, sha256 verified trace digests, and
+  a separate ECDSA P-256 authority line when the mandate exists). A
+  coordination feed narrates the run; a labelled one-click sample mission
+  demos the full pipeline. The rows are a run-derived crew view, not
+  persistent teammate instances — stated, not implied. Anyone can show a
+  trace; VH signs it.
 - **CSPRNG mission ids** — `crypto.randomUUID()` / `getRandomValues()`,
   122 bits of randomness per id; never text-derived, never a non-crypto RNG.
 - **Verification as a shipped product** — **125 probe suites**, **124
@@ -66,7 +75,11 @@
   migrated in place, `vh-desktop` keychain with legacy read-fallback,
   `vh://event`), owner private keys never plaintext at rest.
 
-Gates at 19.5.4: tsc 0 · fleet 125/125 · offline 124/124 · door 70/70 ·
+Gates at 19.5.6: tsc 0 · fleet 126/126 · offline 125/125 · teammates 14/14 ·
+door 70/70 · agentic test 24/24 · reachPlane 31/31 · meshRuntime 17/17 ·
+versionDrift 42/42 · offlinePack 17/17.
+
+Gates at 19.5.4 (lineage): tsc 0 · fleet 125/125 · offline 124/124 · door 70/70 ·
 agentic test 24/24 · reachPlane 31/31 · meshRuntime 17/17 · versionDrift 41/41.
 
 *Everything below the line is the lineage record — accurate for the release

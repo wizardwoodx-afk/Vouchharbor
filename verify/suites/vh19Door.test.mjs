@@ -47815,6 +47815,123 @@ function recordHandoff(input, now = () => /* @__PURE__ */ new Date()) {
   return rec;
 }
 
+// src/vh19/teammates.ts
+var CHIEF_STEWARD = "Chief Steward";
+var categoryOf = (specialistId) => {
+  const s = SPECIALISTS.find((x) => x.id === specialistId);
+  return s?.category ?? "specialist";
+};
+var nameOf = (specialistId, fallback) => {
+  const s = SPECIALISTS.find((x) => x.id === specialistId);
+  return s?.name ?? fallback ?? specialistId;
+};
+var statusFrom = (outcome, executed) => {
+  if (outcome === "answered") return "done";
+  if (outcome === "error") return "error";
+  if (outcome === "gated-out" || outcome === "gated") return "gated";
+  if (outcome === "refused") return "refused";
+  return executed ? "executing" : "idle";
+};
+function workspaceFor(run, resp) {
+  const tools = run?.tools ?? [];
+  if (tools.includes("pc.browser") || tools.includes("pc.exec")) {
+    return "Reach computer-use plane \xB7 per-mission exec/browser session \xB7 cookies off by default \xB7 gated";
+  }
+  if (tools.some((t) => t.startsWith("fs."))) {
+    const ws = resp.workspace;
+    if (!ws) return "fs tools bound \xB7 run workspace not stated (flagged, not hidden)";
+    if (ws.kind === "node") return `node workspace \xB7 ${ws.root}`;
+    if (ws.kind === "browser-memory") return "in-browser mission workspace (memory) \xB7 no disk writes";
+    if (ws.kind === "browser-fs-access") return `user-picked directory \xB7 File System Access \xB7 ${ws.root}`;
+    return `mission workspace \xB7 seam "${ws.kind}" stated by the run`;
+  }
+  if (tools.length > 0) return "research-only tools \xB7 no file workspace";
+  return "toolless \xB7 no workspace (stated)";
+}
+function chiefRow(resp) {
+  const routedNames = (resp.routed?.selected ?? []).map((c) => nameOf(c.id, c.id));
+  const queue = [
+    `routed \u2192 ${routedNames.length > 0 ? routedNames.join(", ") : "no specialists (stated)"}`
+  ];
+  if (resp.outcome === "gated-out") queue.push("risky step \u2192 HUMAN GATE (run paused)");
+  if (resp.authority) queue.push("mandate signed (ECDSA P-256)");
+  const trace = [];
+  if (resp.provenanceDigest) trace.push(resp.provenanceDigest);
+  if (resp.authority && typeof resp.authority.mandateDigest === "string") {
+    trace.push(resp.authority.mandateDigest);
+  }
+  return {
+    id: "vh19-chief-steward",
+    name: CHIEF_STEWARD,
+    role: "front door \xB7 routing \xB7 synthesis",
+    status: statusFrom(resp.outcome, resp.executed),
+    queue,
+    context: ["risk tier \u2192 gate", "honesty rule", resp.executed ? "executed" : "not executed"],
+    workspace: "no tool workspace \u2014 routing + synthesis only (stated)",
+    traceDigests: trace,
+    authorityNote: resp.authority ? `ECDSA P-256 mission authority \xB7 mandate digest ${resp.authority.mandateDigest.slice(0, 12)}\u2026 on record` : void 0
+  };
+}
+function teammateRows(resp) {
+  const runs = resp.memberRuns ?? [];
+  const results = resp.captain?.members ?? [];
+  const rows = [];
+  for (const m of results) {
+    const run = runs.find((r2) => r2.specialistId === m.specialistId);
+    const queue = (run?.toolReceipts ?? []).map((t) => `${t.tool} \u2192 ${t.outcome}`);
+    if (run && queue.length === 0) queue.push("no tool calls this run (stated)");
+    if (run?.truncated) queue.push("step limit reached \u2014 labelled honestly");
+    const tools = run?.tools ?? [];
+    rows.push({
+      id: m.specialistId,
+      name: nameOf(m.specialistId, m.specialistId),
+      role: categoryOf(m.specialistId),
+      status: statusFrom(m.outcome, m.outcome === "answered"),
+      queue,
+      context: [
+        categoryOf(m.specialistId),
+        tools.length > 0 ? `tools \u2264 ${tools.length} bound` : "toolless (stated)",
+        "receipts on every call"
+      ],
+      workspace: workspaceFor(run, resp),
+      traceDigests: [
+        ...m.memberDigest ? [m.memberDigest] : [],
+        ...(run?.toolReceipts ?? []).map((t) => t.digest).filter((d) => Boolean(d))
+      ]
+    });
+  }
+  return rows;
+}
+function teammatesFromResponse(resp) {
+  return [chiefRow(resp), ...teammateRows(resp)];
+}
+function coordinationFeed(resp) {
+  const lines = [];
+  const members = resp.captain?.members ?? [];
+  const n = members.length;
+  lines.push(n > 0 ? `Messaged ${n} agent${n === 1 ? "" : "s"} \u2014 routing decision shown and scored` : "No agents messaged \u2014 stated why");
+  for (const m of members) {
+    lines.push(`${nameOf(m.specialistId, m.specialistId)} \u2192 ${m.outcome}${m.note ? ` \xB7 ${m.note.slice(0, 80)}` : ""}`);
+  }
+  if (resp.synthesis) lines.push("Chief synthesis ready \u2014 divergences surfaced, not hidden");
+  if (resp.outcome === "gated-out") lines.push("RUN PAUSED at the human gate \u2014 nothing executes until resolved");
+  if (resp.liveData && resp.liveData.verified === false) lines.push("live-data check: unverified claims flagged in the reply");
+  return lines;
+}
+function playgroundMission() {
+  return {
+    task: "Prepare the launch plan: verify the evidence, check the rollout path, and keep every decision traceable.",
+    labelledSample: true,
+    plan: [
+      "Chief Steward routes to the research + product bench",
+      "each teammate runs its own queue with receipts",
+      "divergences surfaced in the synthesis",
+      "risky steps pause at the human gate",
+      "every decision lands a verified trace digest you can check offline"
+    ]
+  };
+}
+
 // src/vh19/avatar.tsx
 var import_react = __toESM(require_react(), 1);
 
@@ -48804,6 +48921,7 @@ function revertRsiMemory(draftId) {
 
 // src/views/Vh19.tsx
 var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
+var pillFor = (s) => s === "done" ? "px-pill px-pill-ok" : s === "gated" ? "px-pill px-pill-warn" : s === "error" || s === "refused" ? "px-pill px-pill-err" : "px-pill";
 var USER = "local";
 var PROVIDER_STORAGE_KEY = "vh.provider.remembered.v1";
 var USER_HANDLE_KEY = "vh.user.handle.v1";
@@ -48906,6 +49024,8 @@ var Vh19 = () => {
   const [unlockedNow, setUnlockedNow] = (0, import_react4.useState)(false);
   const [peers, setPeers] = (0, import_react4.useState)(() => allKnownIdentities());
   const [handoffs, setHandoffs] = (0, import_react4.useState)(() => listHandoffs());
+  const [teammates, setTeammates] = (0, import_react4.useState)([]);
+  const [coord, setCoord] = (0, import_react4.useState)([]);
   const [received, setReceived] = (0, import_react4.useState)("");
   const [parsed, setParsed] = (0, import_react4.useState)(null);
   const [parseErr, setParseErr] = (0, import_react4.useState)(null);
@@ -48989,8 +49109,8 @@ var Vh19 = () => {
     const resp = await askVH19({ text, userId: USER, team: { id: teamId, members: teamMembers } }, runDeps());
     return { executed: resp.executed, outcome: resp.outcome, note: resp.note ?? resp.reply.slice(0, 120), provenanceDigest: resp.provenanceDigest };
   };
-  const send = async () => {
-    const text = input.trim();
+  const send = async (forced) => {
+    const text = (forced ?? input).trim();
     if (!text || busy) return;
     setInput("");
     setBusy(true);
@@ -49010,6 +49130,8 @@ var Vh19 = () => {
       }
       seq.current += 1;
       setMessages((m) => [...m, { id: seq.current, role: "vh19", text: resp.reply, resp, scenario, ts: nowTime() }]);
+      setTeammates(teammatesFromResponse(resp));
+      setCoord(coordinationFeed(resp));
       refreshTeam();
       refresh();
     } catch (err) {
@@ -50037,6 +50159,38 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   examError && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-muted px-warn-text", children: examError }),
                   /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", onClick: startExam, children: "Propose exam" })
                 ] })
+              ] }))
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "px-desk", "data-open": desk("teammates"), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("button", { className: "px-desk-head", onClick: () => toggleDesk("teammates"), children: [
+                "Teammates \xB7 mission crew, verified trace digests ",
+                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "px-desk-caret", children: "\u25B8" })
+              ] }),
+              deskBody("teammates", /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-row", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
+                  const pg = playgroundMission();
+                  void send(pg.task);
+                }, children: "Run sample mission (labelled demo)" }) }),
+                coord.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "tm-feed", children: coord.map((l, i) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "px-muted tm-feed-line", children: [
+                  "\xB7 ",
+                  l
+                ] }, i)) }),
+                teammates.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-muted", children: "No crew yet \u2014 send a task or run the sample mission. After each run, the Chief Steward and every routed specialist appear here with their run status, their own queue and workspace (derived from what they actually carried), and a verified trace digest for every decision." }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "tm-grid", children: teammates.map((t) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "tm-card", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "px-row", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "tm-name", children: t.name }),
+                    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: pillFor(t.status), children: t.status })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-muted tm-role", children: t.role }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "tm-chips", children: t.context.map((c) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "tm-chip", children: c }, c)) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-muted tm-queue", children: t.queue.length > 0 ? t.queue.join(" \xB7 ") : "no steps this run" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-entry-digest", children: t.workspace }),
+                  t.authorityNote && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "px-entry-digest", children: t.authorityNote }),
+                  t.traceDigests.slice(0, 2).map((d) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "px-entry-digest", children: [
+                    "trace digest ",
+                    d.slice(0, 12),
+                    "\u2026"
+                  ] }, d))
+                ] }, t.id)) })
               ] }))
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "px-desk", "data-open": desk("team"), children: [

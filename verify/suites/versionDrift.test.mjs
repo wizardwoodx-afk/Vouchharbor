@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.5.4";
+var VH_VERSION = "19.5.6";
 var VH_SHORT = "19.5";
 var VH_CODENAME = "Reach";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
@@ -60,6 +60,11 @@ ok(
   `BUILD-INFO.txt opens as Vouch Harbor ${VH_VERSION} (no stale release identity)`,
   buildInfoIdentity.startsWith(`Vouch Harbor ${VH_VERSION}`),
   (buildInfoIdentity.split("\n")[0] ?? "missing").slice(0, 60)
+);
+ok(
+  `BUILD-INFO.txt's built: line names ${VH_VERSION} (no stale build identity)`,
+  new RegExp(`^built:\\s*${VH_VERSION.replace(/\./g, "\\.")}\\b`, "m").test(buildInfoIdentity),
+  (buildInfoIdentity.split("\n").find((l) => l.startsWith("built:")) ?? "missing built: line").slice(0, 60)
 );
 section("2. the app imports the version instead of hardcoding it");
 var ipcClient = read("src/ipc/client.ts");

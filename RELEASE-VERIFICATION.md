@@ -1,10 +1,43 @@
-# Vouch Harbor 19.5.4 "Reach" — release verification record
+# Vouch Harbor 19.5.6 "Reach" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.5.6 record — the Teammates plane (crew UX, VH-hardened)
+
+- **The crew is visible**: the VH-19 door gains a Teammates desk — the Chief
+  Steward plus every routed specialist rendered as mission-crew cards
+  (final run states — not streaming): status (done / gated / refused /
+  error, never dressed up), each member's own queue (tool attempts +
+  outcomes + honest step-limit labels), scope chips, workspace facts
+  derived from the member's actual tool surface + the run's stated seam,
+  and verified trace digests (sha256) of the run they describe — with
+  ECDSA P-256 shown on its own authority line when the mandate exists.
+- **Coordination is narrated**: a feed states how many agents were messaged,
+  what each returned, when the synthesis is ready, and when a run pauses at
+  the human gate.
+- **One-click sample mission**, labelled a demo — nothing simulated is ever
+  presented as executed.
+- **Adapted, not copied**: the crew interaction model of the multi-agent
+  desktop genre (named teammates, per-agent workspace/queue/context,
+  visible inter-agent messaging, traceable decisions) restyled in the VH
+  premium light system; and where others show a trace, VH signs one —
+  probe-pinned.
+- **Hardening pass (reviewer-driven)**: the workspace line is derived from
+  each member's ACTUAL tool surface + the run's stated workspace seam —
+  only reach-provenance members may display the Reach computer-use
+  session, a toolless member states "no workspace"; the desk is named
+  "mission crew" (final run states, not streaming); "signed trace" is now
+  "verified trace digest" (sha256), and ECDSA P-256 appears only on the
+  authority line; the rows are stated as a run-derived crew view, not
+  persistent teammate instances.
+
+Current gates (19.5.6): tsc 0 · fleet 126/126 · offline 125/125 ·
+teammates 14/14 · door 70/70 · agentic test 24/24 · reachPlane 31/31 ·
+versionDrift 42/42 · offlinePack 17/17.
 
 ## The 19.5.4 record — release-quality close-out
 

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.5.4 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.5.6 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -330,7 +330,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 125 suites
+npm test              # 126 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -338,7 +338,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (~2 min, Node alone — dependency-backed suites honestly
 #   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 124 bundles
+node verify/run.mjs   # 125 bundles
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -426,7 +426,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       125 probe suites, run by `npm test`
+probe/       126 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
