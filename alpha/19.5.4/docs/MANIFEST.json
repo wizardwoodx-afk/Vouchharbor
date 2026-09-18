@@ -1,0 +1,165 @@
+{
+  "product": "Vouch Harbor",
+  "version": "19.5.4-alpha",
+  "versionDisplay": "19.5.4 [Alpha]",
+  "codename": "Bridge",
+  "channel": "alpha",
+  "pagesOn": "19.5.4 \"Reach\"",
+  "released": "2026-09-18",
+  "engineUntouched": true,
+  "fleet": {
+    "total": 1350,
+    "prior": 1150,
+    "added": 200,
+    "addedModule": "catalog/federationBatch.ts",
+    "domains": 40,
+    "stations": 5
+  },
+  "additions": {
+    "agent-bridge": {
+      "entry": "src/bridge/bridge.ts",
+      "probe": "probe/bridge.test.ts",
+      "flag": "VH_BRIDGE"
+    },
+    "beacon": {
+      "entry": "src/beacon/beacon.ts",
+      "ui": "ui/Beacon.tsx",
+      "probe": "probe/beaconEvidence.test.ts",
+      "flag": "VH_BEACON"
+    },
+    "memory-channel": {
+      "entry": "src/memory/channel.ts",
+      "probe": "probe/memoryChannel.test.ts",
+      "flag": "VH_MEMORY_CHANNEL"
+    },
+    "policy-plane": {
+      "entry": "src/governance/policyGate.ts",
+      "probe": "probe/policyGate.test.ts",
+      "flag": "VH_POLICY_PLANE"
+    },
+    "evidence-pack": {
+      "entry": "src/evidence/pack.ts",
+      "probe": "probe/beaconEvidence.test.ts",
+      "flag": "VH_EVIDENCE_PACK"
+    }
+  },
+  "flags": {
+    "VH_POLICY_PLANE": false,
+    "VH_BRIDGE": false,
+    "VH_BRIDGE_REQUIRE_HUMAN_FIRST": true,
+    "VH_MEMORY_CHANNEL": false,
+    "VH_EVIDENCE_PACK": false,
+    "VH_BEACON": false
+  },
+  "thirdParty": [
+    {
+      "semantics": "CopilotKit/OpenBot docs/architecture.md \u2014 policy semantics, initiator attribution, action-boundary order",
+      "upstream": "https://github.com/CopilotKit/OpenBot",
+      "commit": "<pin the commit you read>",
+      "licence": "MIT \u00a9 2026 CopilotKit",
+      "howUsed": "clean-room reimplementation; no upstream code copied. Add a NOTICE row citing the commit."
+    }
+  ],
+  "ownAssets": [
+    "ui/Beacon.tsx beacon glyph (geometry, drawn here \u2014 no icon font, no borrowed SVG)"
+  ],
+  "docs": {
+    "featureSheet": "FEATURES.md",
+    "changelog": "CHANGELOG.md",
+    "alignment": "docs/ALIGNMENT.md",
+    "dropInGuide": "README-ALPHA.md",
+    "uiPreview": "ui/preview.html"
+  },
+  "probes": {
+    "runner": "tools/run-all-probes.mjs",
+    "suites": [
+      {
+        "path": "probe/policyGate.test.ts",
+        "checks": 66,
+        "covers": [
+          "governance/policyGate",
+          "governance/initiator"
+        ]
+      },
+      {
+        "path": "probe/bridge.test.ts",
+        "checks": 84,
+        "covers": [
+          "bridge/envelope",
+          "bridge/trust",
+          "bridge/bridge"
+        ]
+      },
+      {
+        "path": "probe/memoryChannel.test.ts",
+        "checks": 48,
+        "covers": [
+          "memory/channel"
+        ]
+      },
+      {
+        "path": "probe/beaconEvidence.test.ts",
+        "checks": 84,
+        "covers": [
+          "beacon/beacon",
+          "evidence/pack"
+        ]
+      },
+      {
+        "path": "probe/federationBatch.test.ts",
+        "checks": 50,
+        "covers": [
+          "catalog/federationBatch"
+        ]
+      }
+    ],
+    "totalChecks": 332,
+    "allGreen": true
+  },
+  "verification": {
+    "compiler": "tsc -p tsconfig.alpha.json",
+    "compilerSettings": [
+      "strict",
+      "noUncheckedIndexedAccess",
+      "noImplicitOverride",
+      "noUnusedLocals",
+      "noUnusedParameters",
+      "useUnknownInCatchVariables"
+    ],
+    "compilerErrors": 0,
+    "checksPassed": 332,
+    "checksFailed": 0,
+    "mutationsAttempted": 10,
+    "mutationsCaught": 10,
+    "bugsFoundAndFixedDuringBuild": [
+      "redactCommand read the regex offset as a capture group, so a bare sk- key survived redaction",
+      "mayAgentAct permitted agent action while a run was waiting on a person",
+      "federation specialists were tiered by domain while the docs tiered them by station; the rule is now riskForStation() and the data follows it"
+    ],
+    "notVerified": [
+      "no live streamed viewport",
+      "no shared pair-trust registry (deliberate)",
+      "the Evidence Pack maps clauses; it is not a certification",
+      "the 200 specialists have no per-specialist execution suites yet"
+    ],
+    "fleetGenerated": "catalog/federationBatch.ts is emitted by the generator; --check passes; output byte-identical to the previous hand-built data"
+  },
+  "coreUntouched": [
+    "src/mission/missionLoop.ts",
+    "src/vh19/{generalist,agentLoop,tools,synthesis,captains,tokenOptim,liveData}.ts",
+    "receipt protocol (vh-proof-receipt/2, ECDSA P-256)",
+    "authority protocol",
+    "RSIRALS v5.0",
+    "src/version.ts",
+    "probe/** pre-existing suites",
+    "verify/** bundles",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "tools": {
+    "probeRunner": "tools/run-all-probes.mjs",
+    "fleetGenerator": "tools/generate-federation-batch.mjs",
+    "fleetGeneratorCheck": "node tools/generate-federation-batch.mjs --check",
+    "verifyConfig": "tsconfig.alpha.json"
+  }
+}

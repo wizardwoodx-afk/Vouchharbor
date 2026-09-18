@@ -1,0 +1,26 @@
+{
+  "$comment": "Verification config for the 19.5.6-alpha increment only. It compiles the new modules, the probes and the UI components under the strictest settings this project's tooling uses. It is NOT the app's build config and does not replace it.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "typeRoots": ["/tmp/tsverify/node_modules/@types"]
+  },
+  "include": ["src/**/*.ts", "catalog/**/*.ts", "probe/**/*.ts", "ui/**/*.tsx"]
+}
