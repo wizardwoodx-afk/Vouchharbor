@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.6";
-    VH_SHORT = "19.5";
-    VH_CODENAME = "Reach";
+    VH_VERSION = "19.6.6";
+    VH_SHORT = "19.6";
+    VH_CODENAME = "Federation";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -32334,7 +32334,9 @@ describe3("M3 bundle \u2014 tools/mcp-engine.mjs is byte-pinned", () => {
       "--bundle",
       "--platform=node",
       "--format=esm",
-      "--packages=external",
+      /* 19.6.3: matches tools/build-mcp.mjs — dependencies are bundled in, so the
+         engine runs in a tree with no node_modules. Keep both sides in step or
+         this byte-compare fails. */
       "--outfile=" + out,
       "--log-level=error"
     ], { cwd: ROOT, shell: process.platform === "win32" });

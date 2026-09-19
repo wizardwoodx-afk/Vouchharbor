@@ -40,12 +40,23 @@ import { teammatesFromResponse, coordinationFeed, playgroundMission, type Teamma
 
 const pillFor = (s: TeammateStatus): string =>
   s === 'done' ? 'px-pill px-pill-ok' : s === 'gated' ? 'px-pill px-pill-warn' : (s === 'error' || s === 'refused') ? 'px-pill px-pill-err' : 'px-pill';
+
+/**
+ * A crew member's run status, as the Face reads it (19.6). `refused` and
+ * `error` stay distinct here on purpose: one is the harbor deciding, the other
+ * is a run that broke — same distinction the sigil draws with its slash and
+ * its cross, and the product already refuses to conflate them in words.
+ */
+const sigilStateFor = (s: TeammateStatus): 'idle' | 'thinking' | 'acting' | 'gate' | 'sealed' | 'refused' | 'failed' =>
+  s === 'done' ? 'sealed' : s === 'executing' ? 'acting' : s === 'gated' ? 'gate' : s === 'refused' ? 'refused' : s === 'error' ? 'failed' : 'idle';
 import type { HandoffRecord } from '../vh19/handoffs';
 import type { Goal, StepOutcome } from '../vh19/goals';
 import type { EvolvedTeamConfig, EvolutionProposal, TeamMemoryReport } from '../vh19/teamEvolve';
 import { complete } from '../vh19/providers';
 import { VhAvatar } from '../vh19/avatar';
-import { GeneralistFace, type GeneralistMood } from '../vh19/generalistFace';
+import { SigilFace, KeyFace } from '../vh19/federation/SigilFace';
+import { fleetClaim } from '../vh19/federation/fleet';
+import { GeneralistFace, type GeneralistMood } from '../vh19/face';
 import { PROVIDER_DEFAULTS } from '../vh19/providers';
 import { APP_CONNECTORS, connectorState, setConnectorConnected } from '../vh19/connectors';
 import { importedSkills, importSkillMd, removeImportedSkill, skillEligibility, SAMPLE_OPENCLAW_SKILL, SAMPLE_HERMES_SKILL } from '../vh19/skillsImport';
@@ -1154,6 +1165,10 @@ export const Vh19: React.FC = () => {
                       {teammates.map((t) => (
                         <div key={t.id} className="tm-card">
                           <div className="px-row">
+                            {/* Subject-derived: a crew member is a run-derived subject
+                                with no key of its own, so this mark tracks its id, and
+                                the hover text says exactly that. */}
+                            <SigilFace identity={t.id} size={20} state={sigilStateFor(t.status)} />
                             <span className="tm-name">{t.name}</span>
                             <span className={pillFor(t.status)}>{t.status}</span>
                           </div>
@@ -1278,6 +1293,11 @@ export const Vh19: React.FC = () => {
                       <div className="px-quiet-title" style={{ marginTop: 10 }}>Bound identities</div>
                       {peers.map((p) => (
                         <div key={p.memberId} className="px-row" style={{ marginTop: 4 }}>
+                          {/* The Face (19.6.1) — KEY-derived: the JWK you bound is
+                              re-encoded to the canonical SPKI form, so this is the
+                              same mark that peer's own anchor attests to, and it
+                              changes if they ever rotate their key. */}
+                          <KeyFace jwk={p.publicJwk} size={22} />
                           <span className="px-muted" style={{ flex: 1 }}><b>{p.memberId}</b> · {jwkFingerprint(p.publicJwk)} · via {p.source}</span>
                           {p.source !== 'a2a-card' && <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { unbindPeer(p.memberId); setPeers(allKnownIdentities()); }}>Unbind</button>}
                         </div>
@@ -1354,6 +1374,14 @@ export const Vh19: React.FC = () => {
               {deskBody('bench', (
                 <>
                   <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach + {stats.byProvenance.matured} matured = {stats.count.toLocaleString("en-US")} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; the maturity tier adds finished professionals with explicit doctrine; counting seed() calls alone misses them).</div>
+                  <div className="px-muted" style={{ marginTop: 4 }}>
+                    {/* The whole bench, stated as two numbers (19.6). Registered
+                        benches are catalogued with capabilities, vocabulary, risk
+                        tier and doctrine, and are NOT routed to — this line is the
+                        only place the fleet total is stated, and it always states
+                        both halves. */}
+                    Beyond the routed bench: {fleetClaim().sentence}. Registered means specified and catalogued, not fielded — a registered specialist never receives work until it is wired into the router on purpose.
+                  </div>
                   {showBench ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, maxHeight: 340, overflowY: 'auto' }}>
                       {bench.map((s) => {

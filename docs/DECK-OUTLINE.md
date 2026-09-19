@@ -57,7 +57,7 @@ item**, not a dev-tool line item.
 The receipt protocol ships open — the standard is the moat.
 
 **S8 — Traction & engineering as signal (honest slide)**
-Shipped: v19.5.6, 31+ releases, 126 probe suites + 125 offline bundles, byte-pinned offline
+Shipped: v19.6.6, 34+ releases, 137 probe suites + 136 offline bundles, byte-pinned offline
 verification pack, cross-platform CI, independent Sep-2026 audit of the
 receipt cryptography (zero integrity failures under deliberate tampering).
 Honest gaps (this is the roadmap, not a secret): lighthouse customers,

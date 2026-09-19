@@ -61,11 +61,11 @@ ok("HarborMaster has a Backtest tab (Drill + Replay Bench)", /'Backtest'/.test(h
 ok("HarborMaster Lineage shows the Delegation Chain", /Delegation Chain/.test(hb));
 var reg = fs.readFileSync(path.join(root, "src/views/Register.tsx"), "utf8");
 ok("Register has the Hindsight Ledger", /Hindsight Ledger/.test(reg));
-section("4. Helm submits through the real engine (sendVouchMessage)");
+section("4. the console submits through the real engine (askVH19) \u2014 19.6.6 redesign");
 var appSrc = fs.readFileSync(path.join(root, "src/App.tsx"), "utf8");
-var helmSrc = fs.readFileSync(path.join(root, "src/app/Helm.tsx"), "utf8");
-ok("App wires onSubmit to actions.sendMessage", /actions\.sendMessage/.test(appSrc));
-ok("Helm calls onSubmit on Enter (not just a pretty button)", /onSubmit\(/.test(helmSrc) && /handleKeyDown/.test(helmSrc));
+var consoleSrc = fs.readFileSync(path.join(root, "src/views/NextConsole.tsx"), "utf8");
+ok("App mounts the Federation Console as the whole shell", /<NextConsole\s*\/>/.test(appSrc));
+ok("the console sends through askVH19 on Enter (not just a pretty input)", /import\s*\{\s*askVH19\s*\}/.test(consoleSrc) && /if \(e\.key === "Enter"\) void send\(\)/.test(consoleSrc));
 section("5. semantic 'action' buttons actually call domain actions");
 var harborSrc = fs.readFileSync(path.join(root, "src/app/harbor.tsx"), "utf8");
 ok("musterHand calls harborMusterHand (real seat creation)", /harborMusterHand/.test(harborSrc));

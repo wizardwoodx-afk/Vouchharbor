@@ -1,5 +1,5 @@
 /**
- * AGENT REACH MCP — 19.5.6 "Reach"
+ * AGENT REACH MCP — 19.6.6 "Federation"
  *
  * The primary, default MCP server of Vouch Harbor, wired into the app itself.
  * It exposes the computer-use plane and the portable authority plane over an
@@ -26,7 +26,7 @@ import { verifyMandateWeb } from "./authorityWeb";
 import type { Mandate } from "./authorityCore";
 
 export const REACH_MCP_NAME = "Agent Reach MCP";
-export const REACH_MCP_VERSION = "19.5.6";
+export const REACH_MCP_VERSION = "19.6.6";
 
 export const REACH_MCP_DEFAULT_POLICY: ExecPolicy = {
   allowlist: ["ls", "cat", "echo", "grep"],

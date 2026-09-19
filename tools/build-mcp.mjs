@@ -7,6 +7,13 @@
  * build step needed at runtime, only Node. `probe/mcpRouter.test.ts`
  * rebuilds this bundle in a temp dir and byte-compares it against the
  * shipped one, so a stale bundle fails the gate.
+ *
+ * 19.6.3 — DEPENDENCIES ARE BUNDLED IN (no `--packages=external`). Shipping the
+ * engine with `import "zod"` left it unable to start in a tree without
+ * node_modules, which is how a reviewer received the archive: the MCP host —
+ * and every suite that spawns it — could only run after `npm ci`. The engine is
+ * the product's own transport, so it now carries what it needs. zod is MIT; the
+ * bundled copy is noted in NOTICE.
  */
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -19,7 +26,6 @@ execFileSync(esbuild, [
   "--bundle",
   "--platform=node",
   "--format=esm",
-  "--packages=external",
   "--outfile=tools/mcp-engine.mjs",
   "--log-level=warning",
 ], { cwd: root, stdio: "inherit" });

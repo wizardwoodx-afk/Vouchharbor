@@ -499,7 +499,9 @@ describe("M3 bundle — tools/mcp-engine.mjs is byte-pinned", () => {
       "--bundle",
       "--platform=node",
       "--format=esm",
-      "--packages=external",
+      /* 19.6.3: matches tools/build-mcp.mjs — dependencies are bundled in, so the
+         engine runs in a tree with no node_modules. Keep both sides in step or
+         this byte-compare fails. */
       "--outfile=" + out,
       "--log-level=error",
     ], { cwd: ROOT, shell: process.platform === "win32" });

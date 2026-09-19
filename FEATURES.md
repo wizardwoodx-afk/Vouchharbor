@@ -1,86 +1,370 @@
-# Vouch Harbor 19.5.6 "Reach" — feature sheet
+# Vouch Harbor 19.6.6 "Federation" — feature sheet
 
-**One agent at the front door, the whole governed harbor behind it.**
+**Your agents work directly with your customer's agents — with a human on both
+sides and evidence either side can verify offline.**
 
-## 0. What 19.5.6 ships (the current release)
+### The full gate, in whatever window you have
 
-```
-                    VH-19 GENERALIST (minimal premium door)
-                           │
-                 ┌─────────┴─────────┐
-                 │                   │
-          1,150 Specialists     Team / A2A / BYOA
-                 │                   │
-                 └─────────┬─────────┘
-                           │
-                      RSIRALS v5.0 (frozen governance plane)
-                           │
-                  Authority — ECDSA P-256 mandates
-                           │
-                     Intent / Receipts
-                           │
-                    VouchMesh (local trust fabric)
-                           │
-                  Agent Reach MCP (primary default MCP)
-                           │
-                 Computer Use / governed browser
+The offline gate is 134 bundles and about 80 seconds on two cores, and it runs
+**with nothing installed** — the archive extracted alone reaches the whole pack
+(`134 passed, 0 failed`, and `sh VERIFY.sh` says the same in 82s). If even that
+window is too short, it runs in pieces:
+
+```bash
+node verify/run.mjs --shard 2/4 --time-budget 90   # a deterministic slice
+node verify/collect.mjs                            # the whole verdict, merged
 ```
 
-- **The 1,150 fleet** — 460 seed + 160 broader + 140 reach + **390 matured**
+A shard is a slice of the *sorted* suite list, so two machines shard identically
+and a merged verdict is a verdict about the tree. A time budget decides what is
+**started**, never what is **judged** — a running suite always finishes. A run
+that stops early exits **3, never 0**, and names every suite it did not reach;
+`collect` returns 0 only when the union covers all 134. One shard of four merges
+to `34 passed, 100 not covered` → exit 3. Four merge to `134 passed, 0 not
+covered` → exit 0.
+
+Nothing in that path needs an install. The batch generators fall back to
+pre-compiled specs in `verify/specs/` (sha256 in `verify/MANIFEST.json`);
+`tools/drill-benchmark.mjs` and `tools/external-model-validation.mjs` do the
+same; and the MCP engine `tools/mcp-engine.mjs` **carries its own runtime
+dependencies**, so `node tools/mcp.mjs` answers an `initialize` handshake from a
+directory containing nothing but itself. Every fallback announces the path it
+took, and every pre-compiled artefact's hash is pinned in the manifest.
+
+### A catalog entry is not regulatory authority
+
+The regulated benches cover domains where the governing rule matters as much as
+the technique. Those entries carry specification, vocabulary, risk tier and
+doctrine — and they are **registered, not routed**: they receive no work until
+the owner wires them in. On top of that, `federation/regulatedPolicy.ts` states
+the rule the reviewer asked for:
+
+- a regulated bench is **never** enabled by default, by upgrade or by a caller;
+- activation names a **jurisdiction** and a **context**, by a **named person**,
+  with a date it **must be reconsidered**;
+- every way of leaving it vague is a refusal with its own name (`no-owner`,
+  `no-domains`, `no-jurisdiction`, `weak-jurisdiction`, `no-context`,
+  `no-renewal`, `expired`);
+- activation `attests` who enabled what, where and until when — and explicitly
+  does **not** attest that the jurisdiction accepted the use.
+
+
+### Approve once, then run autonomously — with the evidence unchanged
+
+A crossing stops for a human decision on each side, every time. That is right for
+the first crossing and for anything unusual; it is untenable for the tenth crossing
+of the same kind in the same day, which is the case that actually exists between a
+working pair of harbors. So both owners can now approve **once**, and the pair works
+on its own from there (`federation/standing.ts`).
+
+What is removed is the human from the loop. What is **not** removed is the evidence:
+
+- every crossing still carries its own envelope, its own nonces, its own receipt;
+- each crossing is individually authorised under the grant by an acknowledgement
+  bound to *that* envelope digest and *that* side's nonce;
+- a grant is **bounded** — enumerated capabilities (never `*`), a total budget, a
+  rate window, an expiry — and out-of-scope work **escalates back to a human**
+  rather than proceeding;
+- either side may revoke, at any time, with the reason on the record;
+- the acknowledgement prints what it proves *and what it does not*: it attests that
+  the owner's key authorised this crossing in advance under a grant naming the
+  humans who set its bounds, and it explicitly does **not** attest that a human
+  reviewed this particular crossing.
+
+### One common place to check — two independent stores
+
+Both users should be able to check the same thing from one place. A shared *server*
+would be a shared trust anchor — whoever holds it could drop a row or show each side
+a different history — so the common place is a derived **view**, not a shared store
+(`federation/ledger.ts`):
+
+- both sides record the same joint row for a crossing, into their **own** store;
+- each side independently derives a **root** over its own entries; the roots are
+  compared — equal means both hold the same set, and each proved it rather than asserted it;
+- a divergence is named **in words, down to the crossing id**, and a missing row and
+  a changed row are different findings, each with its own sentence;
+- the shared screen is the union in time order: a row only one side holds is
+  *marked*, a row the two hold differently is *flagged and shown unmerged* — never
+  averaged away;
+- a neutral third party may hold the agreed root. That mirror can prove the sides
+  diverged; it can never assert what is true, because it holds one number, not the records.
+
+### Activation is owner-key bound, not a named string
+
+`federation/regulatedPolicy.ts` now signs activation with the harbor's owner
+authority key, bound to the exact content — `enabledBy`, jurisdiction, context,
+renewal date and the domain list — and files it with the same `attests` /
+`notAttested` discipline as an approval. An unsigned activation is **refused by
+name** ("a name is not an authorisation"), a signature that does not cover the
+content cannot be re-aimed at another bench, and completeness is still judged
+before anything is signed.
+
+
+## 0. What 19.6.6 ships (the current release)
+
+**The federation plane moves from probed subsystem to live path, and the app
+becomes one console.**
+
+- **One console, and it IS the app** — the 19.6.6 redesign deleted the
+  multi-dock atelier shell outright. The Generalist's dark operations console
+  is the whole product: crew rail on the left, run stream in the main pane,
+  handoff ledger and federation plane one click away. Every run bubble rides
+  its honesty chips (provenance digest, ECDSA mandate, gate banners that
+  never skip silently). `src/App.tsx` mounts the console and nothing else.
+- **The Generalist keeps ONE face** — deterministic, derived from the name
+  its owner gives it (rename it and the face changes); every specialist
+  carries a deterministic mark of its own. `src/vh19/face.tsx`; pinned by
+  `probe/face` (10 checks).
+- **Standing authority on the LIVE crossing** — the console issues a grant
+  both owners sign once, and the pair crosses under it: each crossing keeps
+  its own envelope and nonces and mints one acknowledgement per side, bound
+  to that envelope digest. Out-of-scope, spent, lapsed or revoked grants
+  ESCALATE to a per-crossing human decision — escalation is designed
+  behaviour, never an error, and a grant never overrides earned pair
+  standing (it adds one co-signed trust unit to the mesh's own ladder).
+  The seam's owner key resolves through the hardened authority service —
+  native keychain > passphrase-encrypted > session-only; no raw private
+  key at rest. `src/vh19/federation/live.ts`; pinned by `probe/fedWired`
+  (18 checks).
+- **One common place to check, on the receipt** — every outcome (crossed AND
+  refused) lands as the same joint row in BOTH stores with both receipts,
+  and the roots over each store are compared on the receipt itself; the
+  shared screen is a derived view, byte-identical by construction.
+- **Regulated activation on the routing path** — the registered regulated
+  bench (230 specialists) stays unrouted until a signed, complete, current
+  activation exists; the refusal names every gap, and the unsigned case is
+  named exactly: a name is not an authorisation. `generalist.ts` consults
+  the gate over its selected specialists; `probe/fedWired` pins it.
+- **Provider onboarding in the console** — first-time users connect
+  OpenAI-compatible, Anthropic or Gemini right in the console (remembered
+  under one named local record, forgettable); the legacy surface is not
+  needed. `navAlign` pins it.
+
+The 19.6.4 subsystem record stands unchanged beneath:
+
+```
+                        VH-19 GENERALIST (one console door)
+                               │
+                     ┌─────────┴─────────┐
+                     │                   │
+             1,790 specialists      Team / A2A / BYOA
+             (1,150 established         │
+              + 640 registered)         │
+                     └─────────┬─────────┘
+                               │
+                        RSIRALS v5.0 (frozen governance plane)
+                               │
+                    Authority — ECDSA P-256 mandates
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+              Intent / Receipts    ★ FEDERATION PLANE (19.6, new)
+                    │                     │
+             VouchMesh (local      identity → anchors
+              trust fabric)        approval → signed human decisions
+                    │              bridge   → crossings, both humans
+                    │              sigil    → the Face, derived
+                    │              fleet    → one honest count
+                    └──────────┬──────────┘
+                               │
+                       Agent Reach MCP (primary default MCP)
+                               │
+                      Computer Use / governed browser
+```
+
+★ = new in 19.6.0. Everything else is the frozen 19.5.6 "Reach" engine,
+unchanged — this release adds a layer beside the core, not inside it.
+
+### ★ The Federation plane — a crossing both humans decided
+
+- **`identity.ts` — one identity system.** The federation identity is the
+  harbor's *existing* authority identity: the same owner keypair that signs
+  mandates, resolved through the same keystore (native OS credential store →
+  AES-256-GCM envelope → session, honestly flagged `session`). The planner
+  layer mints nothing. A peer pins an **anchor** carrying a *proof of
+  possession* — an ECDSA self-signature over the anchor body, bound to the
+  derived face — because a claimed public key proves nothing about who holds
+  the private half. A session-scoped anchor is refused outright when a caller
+  requires durability.
+- **`approval.ts` — an owner-key approval, not a memory, and named as such.**
+  A `FederationApproval` is ECDSA P-256 by the harbor's **owner authority key**
+  over a body bound to `{ pair, side, capability, envelopeDigest, nonce }` with an
+  expiry, spendable exactly once — *naming the human the key acts on behalf of*.
+  Every way of re-aiming it has its own refusal: `wrong-pair`, `wrong-side`,
+  `wrong-capability`, `wrong-envelope`, `wrong-nonce`, `expired`, `bad-signature`,
+  `replayed-approval`. A decision that fails verification is **not** burned — the
+  human keeps it.
+  **What that proves is stated, never implied** (19.6.2): `APPROVAL_ATTESTATION`
+  — *the owner's authority key approved, naming who authorised it* — beside
+  `APPROVAL_NOT_ATTESTED` — *not that the named human authenticated with a
+  credential distinct from the owner key*. Both sentences travel on every filed
+  record, next to `signedBy` and the signing key's `ownerKeyHandle` (which key
+  signed, beside which human it named), and they sit inside the crossing
+  outcome's digest, so a receipt cannot be re-worded.
+- **`bridge.ts` — the crossing.** An envelope is minted first (CSPRNG id, one
+  nonce per side), digested, and only then does each human decide *against that
+  digest*. The crossing proceeds only if both approvals verify, both policies
+  lend the capability, and both decisions are still unspent — otherwise the
+  refusal names the side and the rule. **A prior `success` row is not an
+  approval**, pinned by probe. Standing is **read**, never written, and read
+  **per side**: `standingInitiator` / `standingResponder` each consult their own
+  harbor's local store, and the outcome records which store each tier came from
+  (`standingSource { initiator, responder, shared }`, inside the digest). A
+  single-machine caller passes one reader and the receipt says `shared: true`
+  instead of implying two stores agreed. That is *distributed evidence, local
+  trust state* — now true of the runtime, not only of the prose.
+- **`sigil.ts` — the Face, redesigned.** A heraldic device derived from the
+  identity's own SHA-256: field, division, semé, chief, charge, tincture,
+  ground, bordure, tilt, plus a 16-hex handle beside it. **No gallery, no
+  colour picker, no "new set"** — a face you can re-roll is a costume, and a
+  costume is an impersonation surface. **No eyes and no mouth:** the renderer
+  has no code path that puts two charges on one row (the first draft did, and
+  it rendered as a smiley — that is now a probe). **Seven states** ride a crest
+  so the field never emotes: at rest · working (three dots) · acting (a play
+  triangle) · awaiting a human (a padlock) · verified (a heavier rim and a
+  verdict seal) · refused (a slash through the field) · failed (a cross above
+  it). Refused and failed are deliberately different marks: one is the harbor
+  deciding, the other is a run that broke, and VH does not conflate them. The
+  state list is exported (`SIGIL_STATES`) and read by the sheet, the montage and
+  the app, so no surface can show a state the module does not define. Palette is
+  strictly VH's own tokens.
+- **The mark is KEY-derived.** The face a counterparty pins comes from the
+  **canonical public key**, not the owner's name: rotate the key and the mark
+  changes; swap the key and the old mark cannot come with it. Key material is
+  canonicalised to the Base64 body of the SPKI PEM, so a PEM and a JWK of the
+  same key draw the same mark however either is wrapped. Two kinds of mark
+  exist and are **labelled, not confused**: *key-derived* for a harbor identity
+  (whose identity of record is its key) and *subject-derived* for a run-derived
+  subject with no key of its own. Hover text says which one you are looking at.
+- **The Face is on screen, not just in a module.** `federation/SigilFace.tsx`
+  renders both kinds: the mission-crew cards in the VH-19 door carry each
+  member's *subject-derived* mark in the state their run ended in, and every
+  **bound peer identity** in the collaboration desk carries the *key-derived*
+  mark of the key you bound — re-encoded to the canonical form, so it is the
+  same mark that peer's own anchor attests to. Hover text says what it is: *a
+  recognition mark — the key is the proof*.
+- **`fleet.ts` — one honest count.** `fleetClaim()` is the only way to state the
+  number and it always prints both halves:
+  **1,150 established specialists + 640 registered specialists = 1,790
+  catalogued, 1,150 routed today.**
+
+### ★ The fleet: 1,150 established + 640 registered = 1,790 catalogued
+
+- **1,150 established** — the 19.5.6 bench (460 seed + 160 broader + 140 reach
+  + 390 matured) across 14 categories, every category with a Captain (14/14).
+  These are routed by the Generalist today.
+- **+200 registered (19.5.6-reach batch)** — forty industry domains × five
+  stations of work (assess · design · build · verify · sustain): energy, water,
+  manufacturing, telecom, robotics, embedded, simulation, logistics, supply
+  chain, retail, agriculture, climate, fisheries, insurance, banking, disaster
+  modelling, payments, hospitality, real estate, clinical trials, tax, public
+  sector, financial crime, critical infrastructure, identity, automotive, rail,
+  medical devices, aerospace, pharma, aviation, streaming, games, media,
+  journalism, publishing, advertising, PR, nonprofit — census 120 safe / 40
+  risky / 40 critical.
+- **+230 registered (19.6.2-regulated batch)** — forty-six *regulated-field*
+  domains × the same five stations, the band where **the governing rule matters
+  as much as the technique**: regulated software (avionics DO-178C, medical
+  IEC 62304, industrial control IEC 61508), occupational/process/fire safety and
+  physical security, certification, environmental testing, calibration and
+  metrology, structural/electrical/food inspections, official statistics, census
+  and public records, grid/refinery/hospital operations, public health,
+  epidemiology, biosecurity, veterinary medicine, regulatory and standards
+  writing, plain language, actuarial and pensions, audit and assurance,
+  cost-benefit analysis, forensic accounting, urban and transport planning,
+  accessible design, benefits administration, permitting and licensing, civic
+  technology, facilities and building services, waste management, emergency
+  management, courts, immigration, customs and trade, and emergency, crisis and
+  consultation communications — census 138 safe / 46 risky / 46 critical, with
+  **128 distinct domains across the three registered benches**, checked domain by
+  domain so a new bench cannot re-slice ground the fleet already holds.
+- **+210 registered (19.6-federation batch)** — forty-two *practice* domains ×
+  the same five stations: quantum software, kernel systems, compilers,
+  supply-chain security, zero trust, hardware security, chaos engineering,
+  performance, accessibility, architecture/model/contract review, data
+  engineering, geospatial, time series, platform engineering, observability,
+  edge, scientific computing, materials, genomics, technical writing,
+  curriculum, localization, financial modelling, risk, operations research,
+  service/industrial/motion design, API product, developer experience,
+  marketplaces, revenue ops, partnerships, procurement, privacy law, IP, export
+  control, internal comms, investor and developer relations — census 126 safe /
+  42 risky / 42 critical.
+- **Registered is not a euphemism for missing.** Every registered specialist
+  carries capabilities, routing vocabulary, an honest risk tier and a real
+  system prompt; the gate checks each one. What it does not carry is a claim of
+  runtime depth, and no surface may make one. Wiring them in is one spread in
+  `registry.ts` — the owner's decision, and a probe fails if a registered bench
+  ever joins silently.
+- **All three batches come from one compile step**
+  (`src/vh19/federation/batchKit.ts`) and are **generated from reviewed specs and
+  drift-gated**: `node tools/generate-batch.mjs --all --check` fails if any
+  snapshot and its spec disagree by a single byte — from the CLI or from the
+  gate. The two older entry-point names still work as shims.
+
+### The 19.5.6 "Reach" engine (unchanged in 19.6)
+
+- **The 1,150 fleet** — 460 seed + 160 broader + 140 reach + 390 matured
   specialists across 14 categories, each matured specialist individually
   specified with named doctrine plus the uniform maturity contract (evidence
-  before claims, gate on risky moves, receipts on every tool call, failures
-  in words). Every domain has exactly one Captain (14/14). Composition is
-  self-proving from `catalogStats().byProvenance` — the number on screen is
-  the number in code.
-- **Agent Reach MCP — the app's primary default MCP server** (in-app +
-  stdio), exposing exactly six tools: `pc.exec`, `pc.browser.open`,
-  `pc.browser.screenshot`, `authority.issue`, `authority.verify`,
-  `authority.lookup`. Every call rides the governed pipeline:
-  risk tier → human gate → receipt.
-- **The computer-use plane** — allowlisted, injection-scanned, bounded
-  process execution; an honestly HYBRID browser (HTTPS fetch/snapshot,
-  injectable transport, real-binary screenshots — refusals in words, never a
-  faked page); central egress guard plus a stricter navigation rule for the
-  browser plane.
-- **Portable authority (ECDSA)** — owner-granted P-256 mission mandates with
-  clamped scope/budget/depth; `authority.issue` enforces mission-context
-  equality; a wrong owner passphrase is a HARD unlock failure (sealed keys
-  are never replaced); verification works with the public key alone. The
-  Generalist never self-grants broad authority — finished runs carry a run
-  attestation bounded to what actually executed.
-- **VouchMesh — the local collaboration trust fabric**, wired into the live
-  A2A handoff seam: every delegated handoff produces a joint receipt
-  co-signed by both participants; pair trust compounds across sessions;
-  refusals move trust down. Canonical scope, stated everywhere: **VouchMesh
-  is the LOCAL collaboration trust fabric; ECDSA provides portable authority
-  across instances** — both sides of a handoff are minted inside one VH
-  runtime, and no cross-instance handshake is claimed.
+  before claims, gate on risky moves, receipts on every tool call, failures in
+  words). Composition is self-proving from `catalogStats().byProvenance` — the
+  number on screen is the number in code.
+- **Agent Reach MCP — the app's primary default MCP server** (in-app + stdio),
+  six tools: `pc.exec`, `pc.browser.open`, `pc.browser.screenshot`,
+  `authority.issue`, `authority.verify`, `authority.lookup`. Every call rides
+  the governed pipeline: risk tier → human gate → receipt.
+- **The computer-use plane** — allowlisted, injection-scanned, bounded process
+  execution; an honestly HYBRID browser (HTTPS fetch/snapshot, injectable
+  transport, real-binary screenshots — refusals in words, never a faked page);
+  central egress guard plus a stricter navigation rule for the browser plane.
+- **Portable authority (ECDSA P-256)** — owner-granted mission mandates with
+  clamped scope/budget/depth; a wrong owner passphrase is a HARD unlock failure
+  (sealed keys are never replaced); verification works with the public key
+  alone. Finished runs carry a run attestation bounded to what actually
+  executed.
+- **VouchMesh — the local collaboration trust fabric**, wired into the live A2A
+  handoff seam: every delegated handoff produces a joint receipt co-signed by
+  both participants; pair trust compounds across sessions; refusals move trust
+  down. Scope stated everywhere: **VouchMesh is the LOCAL collaboration trust
+  fabric; ECDSA provides portable authority across instances.** 19.6 adds the
+  portability layer above it without redefining it.
 - **Teammates plane (19.5.6)** — crew UX, VH-hardened: after each run, the
-  Chief Steward + every routed specialist appear as mission-crew cards
-  (run status, queue, scope, workspace DERIVED from the member's actual
-  tool surface + the run's stated seam, sha256 verified trace digests, and
-  a separate ECDSA P-256 authority line when the mandate exists). A
-  coordination feed narrates the run; a labelled one-click sample mission
-  demos the full pipeline. The rows are a run-derived crew view, not
-  persistent teammate instances — stated, not implied. Anyone can show a
-  trace; VH signs it.
-- **CSPRNG mission ids** — `crypto.randomUUID()` / `getRandomValues()`,
-  122 bits of randomness per id; never text-derived, never a non-crypto RNG.
-- **Verification as a shipped product** — **125 probe suites**, **124
-  self-contained offline bundles** (`node verify/run.mjs`, zero npm deps),
-  41-pinned version-drift gate, byte-pinned engine bundles (MCP host + A2A
-  host recompute checks), offline-verifiable receipts.
+  Chief Steward + every routed specialist appear as mission-crew cards (run
+  status, queue, scope, workspace DERIVED from the member's actual tool surface
+  + the run's stated seam, sha256 verified trace digests, and a separate ECDSA
+  P-256 authority line when the mandate exists). A coordination feed narrates
+  the run; a labelled one-click sample mission demos the pipeline. Anyone can
+  show a trace; VH signs it.
+- **CSPRNG mission ids** — `crypto.randomUUID()` / `getRandomValues()`, 122 bits
+  of randomness per id; never text-derived, never a non-crypto RNG.
+- **Verification as a shipped product** — **137 probe suites**, **136
+  self-contained offline bundles** (`node verify/run.mjs`, zero npm deps; the
+  eleven headline suites also run in ~1.3s via `node tools/quick-verify.mjs`),
+  a version-drift gate that pins every manifest, the BUILD-INFO provenance
+  identity and the operational doc titles, byte-pinned engine bundles (MCP host
+  + A2A host recompute checks), offline-verifiable receipts.
 - **Native identity** — Vouch Harbor namespace end to end (`vh.sqlite`
   migrated in place, `vh-desktop` keychain with legacy read-fallback,
   `vh://event`), owner private keys never plaintext at rest.
 
-Gates at 19.5.6: tsc 0 · fleet 126/126 · offline 125/125 · teammates 14/14 ·
-door 70/70 · agentic test 24/24 · reachPlane 31/31 · meshRuntime 17/17 ·
-versionDrift 42/42 · offlinePack 17/17.
+Gates at 19.6.6: tsc 0 · 137 probe suites green · offline 136/136 (also
+shardable: four parts, merged by `verify/collect.mjs`) · versionDrift green ·
+offlinePack green · fleet 126/126 · teammates 14/14 · face 10/10 ·
+fedWired 18/18 · reachPlane 31/31 · meshRuntime 17/17.
 
-Gates at 19.5.4 (lineage): tsc 0 · fleet 125/125 · offline 124/124 · door 70/70 ·
-agentic test 24/24 · reachPlane 31/31 · meshRuntime 17/17 · versionDrift 41/41.
+Gates at 19.6.4 (lineage): tsc 0 · 135 probe suites green · offline 134/134 ·
+versionDrift 42/42 · offlinePack 17/17 · fleet 126/126 · teammates 14/14 ·
+door 70/70 · reachPlane 31/31 · meshRuntime 17/17.
+New at 19.6: fedSigil 8 · fedApproval 7 · fedCrossing 13 · fedIdentity 7 ·
+fedFleet 9 · reachBeacon 9 · reachGrant 7 · reachPairMemory 9 · reachBatch 6.
+A reviewer with a short execution window can reproduce the headline set with
+`node tools/quick-verify.mjs` — eleven suites, ~1.3s, zero install.
+The Face renders on screen in the mission-crew cards and the bound-peer list
+(`src/vh19/federation/SigilFace.tsx`).
+
+Gates at 19.5.6 (lineage): tsc 0 · fleet 126/126 · offline 125/125 ·
+teammates 14/14 · door 70/70 · agentic 24/24 · reachPlane 31/31 ·
+versionDrift 42/42.
 
 *Everything below the line is the lineage record — accurate for the release
 named in each section heading.*
@@ -244,7 +528,8 @@ Probes: `shipyard` 22 · `captains` 37 (incl. the multi-member execution pins).
 
 ## E. Version integrity
 
-Every manifest agrees on **19.5.4 "Reach"**: `src/version.ts`,
+Every manifest agrees on **19.6.6 "Federation"** (and on every release since this
+mechanism shipped): `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,
 `verify/MANIFEST.json` and the current-facing docs.

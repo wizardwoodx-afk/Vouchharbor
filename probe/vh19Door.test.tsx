@@ -52,15 +52,11 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-section("1. the shell routes the user to VH-19 first");
+section("1. the shell opens on the Federation Console — the Generalist is the front door");
 const appSrc = read("src/App.tsx");
-const navSrc = read("src/app/nav.ts");
-const sidebarSrc = read("src/app/Sidebar.tsx");
-ok("App.tsx registers the Vh19 view", /Comp:\s*Vh19\b/.test(appSrc));
-ok("the app OPENS on the VH-19 dock (the front door is the Generalist)", /useState<ViewKey>\(['"]vh19['"]\)/.test(appSrc));
-ok("NAV lists VH-19", /key:\s*['"]vh19['"]/.test(navSrc));
-ok("the sidebar surfaces the VH-19 dock", /label="VH-19"/.test(sidebarSrc));
-ok("the nav comment names six docks — no stale five-docks drift", /Six docks/i.test(navSrc) && !/five docks/i.test(navSrc));
+ok("App.tsx renders the console as the whole app", /import\s*\{\s*NextConsole\s*\}\s*from\s*["']\.\/views\/NextConsole["']/.test(appSrc) && /<NextConsole\s*\/>/.test(appSrc));
+ok("the legacy multi-dock shell is gone from the app entry", !/Comp:\s*Vh19\b/.test(appSrc) && !/Sidebar/.test(appSrc) && !/Helm/.test(appSrc));
+ok("the console carries the Generalist's one face and name", /GeneralistFace/.test(read("src/views/NextConsole.tsx")) && /generalistName\(\)/.test(read("src/views/NextConsole.tsx")));
 
 section("2. the door imports the real engine — the reviewer's grep, enforced");
 const doorSrc = read("src/views/Vh19.tsx");
@@ -68,7 +64,7 @@ ok("the door imports askVH19 from the engine", /import\s*\{[^}]*askVH19[^}]*\}\s
 ok("the door imports the exam, memory, registry and provider surfaces",
   /from ['"]\.\.\/vh19\/exam['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/memory['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/registry['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/providers['"]/.test(doorSrc));
 ok("at least one APPLICATION file (not just probes) imports askVH19",
-  /askVH19/.test(doorSrc) && /views\/Vh19/.test(appSrc));
+  /askVH19/.test(doorSrc) && /import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")));
 
 section("3. the door renders — real component, react-dom/server");
 const stats = catalogStats();

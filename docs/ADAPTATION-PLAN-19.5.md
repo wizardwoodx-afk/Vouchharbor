@@ -1,4 +1,4 @@
-# VH 19.5.x — Adaptation Record: Computer-Use (multi-agent desktop patterns) + Generalist Avatar (OneWorks)
+# VH 19.5.x — Adaptation Record: Computer-Use (multi-agent desktop patterns) + Generalist Face
 
 *This document records what was ADAPTED AND SHIPPED, with the module and probe
 that prove it. Nothing here is forward-looking: every line names shipped code
@@ -44,17 +44,18 @@ delegation receipts) already covers external agents today.
 
 ---
 
-## Part B — The Generalist Avatar (adapted from OneWorks Avatar, MIT) — SHIPPED in 19.4.5 (dev stream)
+## Part B — The Generalist Face — SUPERSEDED in 19.6.6
 
-- Vendored engine: `src/vendor/oneworks-avatar/` (24 files incl. NOTICE.md).
-- The Generalist's face: `src/vh19/generalistFace.tsx` — lazy-loaded barn-owl
-  preset via `resolveNativeAvatarPreset()` + `<InteractiveAvatar>`, SSR-safe
-  with a deterministic fallback; staged above the chat in `src/views/Vh19.tsx`.
-- Reskinned to the 5-color light system (Gunmetal/Brooklyn/Platinum);
-  `prefers-reduced-motion` respected; Apple-minimal: one face, subtle motion.
-- NOTICE credits OneWorks Avatar (MIT). No third-party branding appears in
-  VH's UI — attribution lives in the vendored NOTICE, where the license
-  requires it.
+- 19.4.5 shipped a vendored avatar engine for the Generalist's face. That
+  engine was DELETED in 19.6.6: its module and its vendored sources are gone
+  from this tree.
+- The face now on screen is deterministic and name-derived: one face for the
+  Generalist, derived from the name its owner gives it; one deterministic
+  mark per specialist (`src/vh19/face.tsx`; pinned by `probe/face`, 10
+  checks). No uploaded image, no selectable preset — the face is a hash of
+  identity, stated on screen.
+- The record keeps its honesty rule: what shipped is named, what was refused
+  is named, and what was deleted says so here.
 
 ---
 

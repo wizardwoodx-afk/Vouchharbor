@@ -209,11 +209,11 @@ describe("merge — one mission ID, one chain, one state (16.0)", () => {
     assert.ok(!/localStorage/.test(bridge), "the bridge writes no storage of its own (it is a seam, not a store)");
   });
 
-  it("the shell join: Patina mounts the Harbor view and the Helm drives Vouch", () => {
+  it("the shell join: the app mounts the Federation Console and it drives the real engine (19.6.6)", () => {
     const app = read("src/App.tsx");
-    assert.ok(/(?:from|import\()\s*['"].\/views\/Harbor['"]/.test(app), "the shell mounts Harbor view (eager or lazy chunk)");
-    assert.ok(/HarborProvider/.test(app), "the HarborProvider wraps the shell");
-    assert.ok(/sendMessage/.test(app) || /actions\.sendMessage/.test(read("src/app/Helm.tsx")), "the Helm drives the real sendVouchMessage path");
+    assert.ok(/from\s*['"]\.\/views\/NextConsole['"]/.test(app), "the app mounts the Federation Console");
+    assert.ok(/<NextConsole\s*\/>/.test(app), "the console IS the app shell");
+    assert.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")), "the console drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json")) as { name: string; version: string };
     assert.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
     assert.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");

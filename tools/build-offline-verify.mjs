@@ -80,12 +80,41 @@ export function buildOfflinePack({ root, outDir }) {
     buildSync(offlineBundleOptions(path.join(probeDir, f), outfile));
     suites[path.basename(outfile)] = crypto.createHash("sha256").update(fs.readFileSync(outfile)).digest("hex");
   }
+  /* SPEC BUNDLES (19.6.3). The reviewer could not run the batch generators in a tree
+     without node_modules, because compiling a .ts spec needs esbuild. The DRIFT CHECK
+     was always available offline — `probe/fedFleet` and `probe/reachBatch` build each
+     batch from its spec and compare it to the shipped snapshot inside their bundles —
+     but the generator itself was not. These three small bundles make it so: they are
+     the compiled specs, and `tools/generate-batch.mjs` falls back to them when esbuild
+     is absent. Same source, same compile, one artefact. */
+  const specsDir = path.join(root, "verify", "specs");
+  fs.mkdirSync(specsDir, { recursive: true });
+  for (const f of fs.readdirSync(specsDir)) {
+    if (f.endsWith(".mjs")) fs.rmSync(path.join(specsDir, f));
+  }
+  const specSources = {
+    reach: path.join(root, "src", "vh19", "reach", "batchSpec.ts"),
+    federation: path.join(root, "src", "vh19", "federation", "federationSpec.ts"),
+    regulated: path.join(root, "src", "vh19", "federation", "regulatedSpec.ts"),
+    /* The two command-line entries that used to refuse without esbuild. Compiling
+       them here is what lets a no-node_modules tree run them for real. */
+    "drill-benchmark": path.join(root, "tools", "drill-benchmark.entry.ts"),
+    "external-model-validation": path.join(root, "tools", "external-model-validation.entry.ts"),
+  };
+  const specs = {};
+  for (const [name, entry] of Object.entries(specSources)) {
+    const outfile = path.join(specsDir, `${name}.spec.mjs`);
+    buildSync(offlineBundleOptions(entry, outfile));
+    specs[`${name}.spec.mjs`] = crypto.createHash("sha256").update(fs.readFileSync(outfile)).digest("hex");
+  }
+
   const manifest = {
     mjVersion,
     esbuild: esbuildPkg.version,
     suiteCount: files.length,
-    note: "Self-contained bundles of every probe suite except offlinePack.test.ts (the pack's own freshness gate). Run with: node verify/run.mjs from the tree root. Built by tools/build-offline-verify.mjs.",
+    note: "Self-contained bundles of every probe suite except offlinePack.test.ts (the pack's own freshness gate). Run with: node verify/run.mjs from the tree root. Built by tools/build-offline-verify.mjs. verify/specs/ holds pre-compiled entry points (the three batch specs and two command-line tools) so they run without node_modules.",
     suites,
+    specs,
   };
   if (!outDir) {
     fs.writeFileSync(path.join(root, "verify", "MANIFEST.json"), JSON.stringify(manifest, null, 2) + "\n");

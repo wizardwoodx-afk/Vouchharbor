@@ -66,7 +66,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "MJ ${{ github.ref_name }} (Windows)"
-          releaseBody: "Windows NSIS installer (x64). No auto-update — download the new zip and reinstall. See VH-19.5-UPGRADE.md for what is proven and what is not."
+          releaseBody: "Windows NSIS installer (x64). No auto-update — download the new zip and reinstall. See VH-19.6-UPGRADE.md for what is proven and what is not."
           releaseDraft: false
           prerelease: false
 

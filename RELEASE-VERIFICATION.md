@@ -1,10 +1,256 @@
-# Vouch Harbor 19.5.6 "Reach" — release verification record
+# Vouch Harbor 19.6.6 "Federation" — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.6.6 record — the console release, with the federation plane ON the live path
+
+**Tree.** `19.6.6 "Federation"`, working tree at build time, then the packaged archive
+extracted alone into an empty directory for the dependency-free checks.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Build | `npm run build` | ok (tsc + vite) |
+| Provider probes | `npm test` (137 suites) | **137 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` | **136 passed, 0 failed** |
+| Zero-install wrapper | `sh VERIFY.sh` | the offline pack, zero npm deps |
+| Fast path | `node tools/quick-verify.mjs` | **11/11** |
+| New suites | `probe/face` · `probe/fedWired` | **10 passed** · **18 passed** |
+| Rewired bundles | `mcpRouter` · `a2aRuntime` | **22 passed** · **48 passed** (rebuilt shipped engines, sha-pinned) |
+
+**What this release wired.**
+
+19.6.4 shipped standing authority, the common ledger and regulated activation as
+verified subsystems. 19.6.6 puts them on the crossing the console actually runs:
+
+- **Standing authority on the live crossing** (`src/vh19/federation/live.ts`,
+  consumed by `bridge.ts`): the console issues a grant both owners sign once;
+  each crossing under it keeps its own envelope and nonces and mints one
+  acknowledgement per side, bound to that envelope digest. Out-of-scope, spent,
+  lapsed and revoked grants ESCALATE to a per-crossing human decision
+  (`reason: "escalated-to-human"`), and a grant never overrides earned pair
+  standing — it adds one co-signed trust unit to the mesh's own ladder.
+- **The common ledger rides every outcome**: crossed AND refused rows land in
+  both stores with both receipts; the roots over each store plus that row are
+  compared on the receipt itself (`compareRoots` inside `finish()`).
+- **Regulated activation on the routing path**: the registered regulated bench
+  (230 specialists) stays unrouted until a signed, complete, current activation
+  exists; the refusal names every gap — a name is not an authorisation.
+- **The console**: one dark operations console IS the app; the Generalist keeps
+  one deterministic face derived from the name its owner gives it; every
+  specialist carries a deterministic mark. The multi-dock shell is retired.
+  The console also carries provider onboarding (OpenAI-compatible, Anthropic,
+  Gemini) so a first-time user can connect a model without any legacy surface.
+
+**Pins.** `probe/fedWired` (18) exercises the live seam end to end — grant
+issuance and two-owner verification, a covered crossing under standing
+authority, jointly-held rows compounding the pair's standing up the mesh
+ladder, out-of-scope escalation spending nothing, the tier floor holding
+against the grant, exhaustion and revocation escalating to humans, the
+no-grant per-crossing refusal, regulated routing gated unsigned/signed/tampered,
+and the routing/console source wiring itself — including that the federation
+owner key resolves through the hardened authority seam (native keychain >
+passphrase-encrypted > session-only) and never through raw storage.
+`probe/face` (10) pins the face system and the console door.
+
+## The 19.6.4 record — autonomy with the evidence kept, and a provenance file that cannot drift
+
+**Tree.** `19.6.4 "Federation"`, working tree at build time, then the packaged archive
+extracted alone into an empty directory for the dependency-free checks.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Provider probes | `npm test` (135 suites) | **135 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` | **134 passed, 0 failed** — 78.7s |
+| Offline gate, sharded | `--shard 1/4 … 4/4` then `verify/collect.mjs` | **134 passed, 0 failed, 0 not covered** |
+| Zero-install wrapper | `sh VERIFY.sh` | **134 passed, 0 failed** — 79.3s |
+| Fast path | `node tools/quick-verify.mjs` | **11/11** |
+| Batch drift | `node tools/generate-batch.mjs --all --check` | three benches OK (200/210/230) |
+| Federation suites | `fedCrossing` · `fedFleet` | **13 passed** (was 11) · **9 passed** (was 7) |
+
+**What the two new federation sections pin.**
+
+`fedCrossing` §10 — *approve once, then autonomous*: a grant is issued and verified
+under both owners' keys; three crossings run with no further human decision; the rate
+bound refuses a burst inside the window (`window-exceeded`); the budget refuses once
+spent (`grant-exhausted`); a capability outside the grant **escalates** rather than
+proceeding; one side's revocation is honoured with its reason; an expired grant stops
+being authority; and a wildcard capability, an unbounded budget or a one-sided grant
+is refused at issue time. It also pins that a grant signed by one key and presented as
+two fails verification (`bad-signature`, naming the responder side).
+
+`fedCrossing` §11 — *the common view*: two stores holding the same rows derive the
+same root; a store that recorded a different decision diverges with the crossing named
+(`same crossing, different record`); a store missing a row diverges with its own,
+different sentence (`holds no record of crossing …`); the shared view marks
+single-holder rows and flags differing ones **unmerged**; and the auditor's mirror
+verifies a match and reports a later change in words.
+
+`fedFleet` §4c — *activation is owner-key bound*: a signed activation verifies under
+the owner key; an **unsigned** one is refused by name ("a name is not an
+authorisation"); a tampered jurisdiction or a swapped domain list breaks the
+signature; a foreign key does not verify it; completeness is judged **before** signing;
+and the record's `attests`/`notAttested` pair never claims the jurisdiction approved
+the use.
+
+`fedFleet` §2b — *the provenance file states the same census the code does*: this is
+the pin that would have caught the reviewer's find. `verify/BUILD-INFO.txt` must state
+the fleet on a `fleet:` line carrying the code's own numbers, and the stale
+"1,560 census" phrasing fails the gate outright.
+
+## The 19.6.3 record — the full gate, reproducible inside a short window
+
+**Tree.** `19.6.3 "Federation"`, working tree at build time, and the packaged
+archive extracted alone into an empty directory.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Provider probes | `npm test` (135 suites) | **135 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` | **134 passed, 0 failed** |
+| Offline gate, sharded | `--shard 1/4 … 4/4`, then `verify/collect.mjs` | **134 passed, 0 failed, 0 not covered** |
+| Fast path | `node tools/quick-verify.mjs` | **11/11** (~1.3s, zero install) |
+| **Offline gate, dependency-free** | `node verify/run.mjs` in the extracted archive (no `node_modules`) | **134 passed, 0 failed, 0 skipped — 80.5s** |
+| **Zero-install wrapper** | `sh VERIFY.sh` in the extracted archive | **134 passed, 0 failed — 82.0s** |
+| Batch drift, no esbuild | `node tools/generate-batch.mjs --all --check --verbose` | three benches OK from `verify/specs/`, sha256 matching MANIFEST |
+| Command-line tools, no esbuild | `node tools/drill-benchmark.mjs` · `node tools/external-model-validation.mjs` | both run from `verify/specs/`, and say which path they took |
+| MCP host, no `node_modules` | `node tools/mcp.mjs` with an `initialize` frame | answers the handshake (the engine carries zod) |
+| Pack integrity | `unzip -t` both archives | no errors |
+
+**The requirement this record answers.** A reviewer could not reproduce the
+134/134 offline gate: the archive ships no `node_modules`, and ~86 seconds on
+two cores did not fit their window, so the claim stayed *archive-reported*. It is
+now *independently reproducible* inside a normal window, in four pieces:
+
+```
+$ node verify/run.mjs --shard 1/4 --time-budget 90
+OFFLINE VERIFY SUMMARY: 34 passed, 0 failed. [shard 1/4 of 134]
+$ node verify/run.mjs --shard 2/4 --time-budget 90
+OFFLINE VERIFY SUMMARY: 34 passed, 0 failed. [shard 2/4 of 134]
+$ node verify/run.mjs --shard 3/4 --time-budget 90
+OFFLINE VERIFY SUMMARY: 33 passed, 0 failed. [shard 3/4 of 134]
+$ node verify/run.mjs --shard 4/4 --time-budget 90
+OFFLINE VERIFY SUMMARY: 33 passed, 0 failed. [shard 4/4 of 134]
+
+$ node verify/collect.mjs
+collect: 96.1s of runner time across the records
+MERGED VERIFY SUMMARY: 134 passed, 0 failed, 0 not covered. (4 record(s))
+verified: all 134 bundles covered, 0 failed.
+```
+
+**What a partial run looks like**, so nobody mistakes it for a pass — one shard
+of four, merged:
+
+```
+MERGED VERIFY SUMMARY: 34 passed, 0 failed, 100 not covered. (1 record(s))
+NOT VERIFIED: the records do not cover the whole pack. Run the remaining shards.
+$ echo $?  → 3
+```
+
+**Exit codes.** 0 pass · 1 failed · 2 usage · 3 incomplete. A sharded or
+budgeted run is never a pass on its own; only `collect` can say 0, and only when
+the union covers all 134 bundles. A time budget decides what is *started* —
+a suite that has begun always finishes and is judged on its result.
+
+**Dependency-free is the point.** Every command above runs on a bare Node
+install: the suites are pre-built `.mjs`, the specs are pre-compiled into
+`verify/specs/`, and `npm ci` is only ever needed to add or rebuild bundles.
+
+**The full gate, in one window, with nothing installed.** The archive extracted
+alone (1,591 files, no `node_modules`) reaches the whole pack:
+
+```
+$ node verify/run.mjs
+OFFLINE VERIFY SUMMARY: 134 passed, 0 failed. (node v20.20.2)
+real 1m20.535s        # two cores, one window
+```
+
+**Running the condition exposed three real dependency leaks** — the claim
+"dependency-free" was checked by extracting the archive and running it, not by
+reading it. Each is fixed here, not restated:
+
+| What leaked | How it showed | Fix |
+|---|---|---|
+| `tools/mcp-engine.mjs` imported `zod` | the MCP host would not start without `node_modules`; five suites that spawn it (`mcpRouter`, `mcpConformance`, `mcpSdkClient`, `mcpSdkClientV2`, `metaLoop`) timed out | the engine now **bundles its runtime dependencies** (`tools/build-mcp.mjs`, no `--packages=external`); 1.36 MB, self-contained; `NOTICE` discloses the bundled copy |
+| `tools/drill-benchmark.mjs` / `tools/external-model-validation.mjs` needed `esbuild` to compile their entries | both refused in words ("REFUSED (needs node_modules)"), so `drill` self-skipped instead of being judged | the pack compiles both entries into `verify/specs/` (sha256 in the manifest) and the tools fall back to them, **announcing the path taken**; the refusal remains only when neither path exists |
+| `probe/mcpSdkClient.test.ts` E4 read `node_modules/@modelcontextprotocol/sdk/package.json` | the suite skipped when the install was absent | E4 verifies the **declared** devDependency pin in every environment and the **resolved** version only where an install exists, saying which — the conformance claim itself (E1–E3 drive the real server through the bundled client) always runs |
+
+The reviewer's condition was the right test: it failed against 19.6.2, and it
+passes here for reasons a reader can check rather than take on faith.
+
+**One honest boundary.** The 135-suite *development* gate (`npm test`) compiles
+TypeScript probes and therefore still needs `npm ci`; it is green (135 passed, 0
+failed) in the working tree. The archive's zero-install path is the 134-bundle
+offline pack, which now covers everything except `offlinePack.test.ts` — the
+suite that verifies the pack itself.
+
+## The 19.6.2 record — the Federation plane
+
+- **Cross-owner crossings with a human on both sides.** `federation/bridge.ts`
+  mints an envelope (CSPRNG id, one nonce per side) and digests it BEFORE either
+  human decides; each side then presents a signed approval bound to that exact
+  digest. A crossing proceeds only when both approvals verify, both policies
+  lend the capability at the pair's live standing, and both decisions are
+  unspent. `probe/fedCrossing` pins the sequence, the symmetric enforcement,
+  replay refusal, envelope expiry, and — the regression that matters — that a
+  prior `success` ledger row is NOT an approval.
+- **One identity system, with proof of possession.** `federation/identity.ts`
+  resolves the same owner keypair `missionAuthority` uses; `probe/fedIdentity`
+  asserts the federation public key is byte-identical to the authority's, that
+  an anchor's self-signature is required, that re-pointing the face fails
+  verification, and that a session-scoped anchor is refused when durability is
+  required.
+- **The Face, derived and measured — and now on screen.** `federation/sigil.ts`
+  derives the whole device from the identity's SHA-256 via the harbor's own
+  `pureSha256`; `probe/fedSigil` pins determinism, palette membership, the
+  no-face charge arrangement (no two charges on one row, ever), every state in
+  `SIGIL_STATES` (including that `refused` and `failed` render differently), and
+  the distinctness report including its own honest collision count.
+  `federation/SigilFace.tsx` renders it in the VH-19 door: a derived mark on
+  each mission-crew card and each bound peer identity, with hover text that
+  states plainly that this is a recognition aid and the key is the proof.
+- **1,560, stated as two numbers.** `federation/fleet.ts` + `probe/fedFleet`
+  pin the arithmetic (1,150 + 200 + 210), zero duplicate ids across six
+  benches, per-entry specification for all 210 new specialists, and that the
+  registry's OWN count is unchanged — registered benches are not routed.
+- **Two local stores, in the runtime.** `probe/fedCrossing` §9 runs the same
+  envelope twice with the two sides' local stores swapped and requires opposite
+  outcomes — only possible if the two readers are genuinely independent — and
+  requires a single-reader caller to be reported as `shared: true`. The outcome
+  digest commits to `standingSource`, so a receipt shows which store each tier
+  came from.
+- **The mark tracks the key.** `probe/fedIdentity` §2 rotates a key under one
+  owner name and requires a NEW mark, and requires the old mark to fail
+  verification when re-pointed at the new key; §3 pins that a JWK and a PEM of
+  one key — and the same PEM re-wrapped — derive one mark.
+- **What an approval proves, and what it does not.** `probe/fedApproval` pins
+  the vocabulary (`APPROVAL_SIGNER`, `APPROVAL_ATTESTATION`,
+  `APPROVAL_NOT_ATTESTED`), requires both sentences on every filed record, and
+  proves the semantic: one owner key approving twice, naming two different
+  humans, produces two records that verify under the same key handle and stay
+  distinguishable. `probe/fedCrossing` §8b requires the success line to name the
+  key as the approver and puts both sentences inside the outcome digest.
+- **The third registered bench.** `probe/fedFleet` §4a checks all 230 entries of
+  the regulated bench (46 domains, 15/20 per category, every mission distinct),
+  §2 pins the arithmetic (1,150 + 200 + 210 + 230 = 1,790). Each snapshot is
+  drift-gated against its spec by `node tools/generate-batch.mjs --all --check`.
+- **A short-window verification path.** `node tools/quick-verify.mjs` runs the
+  eleven headline bundles in ~1.3s, zero install, printing each suite's own
+  count. Verified from the packaged tree.
+- **Gates at 19.6.2:** `tsc --noEmit -p tsconfig.json` 0 ·
+  `node tools/run-all-probes.mjs` 135 suites green ·
+  `node verify/run.mjs` 134/134 with zero npm dependencies ·
+  `sh VERIFY.sh` green · both batch generators `--check` clean ·
+  `versionDrift` 42/42 · `offlinePack` 17/17.
+- **Not claimed:** no cross-instance transport is added or claimed — a crossing
+  is a governed, receipted decision between two owners, and the wire that
+  carries it is the integrator's. No central reputation service exists or is
+  planned. The 410 registered specialists are catalogued, not routed.
 
 ## The 19.5.6 record — the Teammates plane (crew UX, VH-hardened)
 

@@ -1,9 +1,10 @@
 /**
  * VH Avatar Engine — 19.5.0 "The Face"
  *
- * Adapted from the OneWorks Avatar concept (MIT, oneworks-ai/avatar):
- * procedural geometric avatars, generated deterministically from an identity
- * seed, rendered as pure SVG. No network, no 3D runtime, no dependencies.
+ * VH's own procedural geometric avatars: generated deterministically from an
+ * identity seed, rendered as pure SVG. No network, no 3D runtime, no
+ * dependencies. (Superseded as the product face in 19.6.6 by the deterministic
+ * system in ./face; this module remains the federation sigil's geometry.)
  *
  * VH law applied:
  *  - Only the 5-color light system (plus its pinned extensions) — never an

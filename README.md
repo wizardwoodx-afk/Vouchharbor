@@ -1,4 +1,4 @@
-# Vouch Harbor 19.5.6 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.6.6 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,12 +20,32 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.5.x)
+### The current product state (19.6.x)
 
-One chatbox-first door with the whole engine behind it: a Generalist that
-routes 1,150 registered specialists (460 seed-batch + 160 broader-batch + 140 reach-batch + 390 maturity-batch,
-self-proving via `catalogStats().byProvenance`), real gated tool execution
-over a real workspace, Captain synthesis, signed A2A invitations, BYOA
+One console, and it IS the app (19.6.6 redesigned the whole surface): a dark
+operations console with the crew on the left rail — the Generalist keeps ONE
+deterministic face derived from the name its owner gives it, and every
+specialist carries a deterministic mark — and the run stream in the main pane,
+where every bubble rides its honesty chips (provenance digests, ECDSA mandate,
+gate banners that never skip silently). Behind it: a Generalist that
+routes 1,150 specialists (460 seed-batch + 160 broader-batch + 140 reach-batch
++ 390 maturity-batch, self-proving via `catalogStats().byProvenance`) out of a
+**1,790-strong catalogued bench — 1,150 established specialists plus 640
+registered specialists** (the 19.5.6-reach batch of 200, the 19.6-federation
+batch of 210 and the 19.6.2-regulated batch of 230; registered means specified,
+catalogued and honestly NOT routed, stated by `fleetClaim()` and pinned by
+`probe/fedFleet`), real gated tool execution
+over a real workspace, Captain synthesis, signed A2A invitations, and the **Federation plane ON the live path** (19.6.6): a cross-owner crossing that
+needs an approval from BOTH sides — or a standing grant BOTH owners signed
+once, spent per crossing, with out-of-scope / spent / lapsed / revoked grants
+escalating to a per-crossing human decision; a common ledger where both stores
+write the same joint row and the roots are compared on the receipt itself; and
+regulated activation gating the registered regulated bench at the router (a
+name is not an authorisation). A crossing still needs
+an approval signed by each harbor's owner authority key
+naming the human it acts on behalf of, bound to that exact envelope and spent
+once; standing read per side from each harbor's own local store; derived sigil
+Faces — key-derived for peers, subject-derived for crew — plus BYOA
 (external agents under a trust intersection), governed connector
 declarations, SKILL.md ecosystem import, a live-data GuardRail on one
 shared egress policy, and **RSIRALS v5.0** — the proprietary trust-rooted
@@ -330,15 +350,19 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 126 suites
+npm test              # 137 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
 npm run tauri:build   # nsis / dmg / appimage / deb
 
-# offline verification (~2 min, Node alone — dependency-backed suites honestly
-#   fail/skip on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs   # 125 bundles
+# offline verification (Node alone — dependency-backed suites honestly fail/skip
+#   on a bare extraction; with `npm ci` everything runs)
+node verify/run.mjs            # 136 bundles, the full gate (~80s, no install needed)
+node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
+# shorter window? run the same gate in pieces and merge:
+#   node verify/run.mjs --shard 1/4 --time-budget 30   (…2/4, 3/4, 4/4)
+#   node verify/collect.mjs                            (0 only when all 136 are covered)
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -426,7 +450,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       126 probe suites, run by `npm test`
+probe/       137 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
@@ -480,7 +504,7 @@ RULE 5 (a capability claim is not a licence) and RULE 6 (rotation possession +
 revocation authority). The v0.10.2 "Fix1" history is preserved further down
 that file.
 
-- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — release notes 19.5.1–19.4.1: [VH-19.4-UPGRADE.md](VH-19.4-UPGRADE.md) · 19.3.0: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md) · 19.2.0: [VH-19.2-UPGRADE.md](VH-19.2-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md) and [docs/history/](docs/history/) — 19.6.2: [VH-19.6-UPGRADE.md](VH-19.6-UPGRADE.md) · release notes 19.5.1–19.4.1: [VH-19.4-UPGRADE.md](VH-19.4-UPGRADE.md) · 19.3.0: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md) · 19.2.0: [VH-19.2-UPGRADE.md](VH-19.2-UPGRADE.md) · 17.10.5: [VH-17.10-UPGRADE.md](VH-17.10-UPGRADE.md) · 16.9.7: [docs/history/VH-16.9.7-UPGRADE.md](docs/history/VH-16.9.7-UPGRADE.md) · 16.9.5: [docs/history/VH-16.9.5-UPGRADE.md](docs/history/VH-16.9.5-UPGRADE.md) · 16.9.1: [docs/history/VH-16.9.1-UPGRADE.md](docs/history/VH-16.9.1-UPGRADE.md) · 16.8.1: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.8.0: [docs/history/VH-16.8-UPGRADE.md](docs/history/VH-16.8-UPGRADE.md) · 16.7.0: [docs/history/VH-16.7-UPGRADE.md](docs/history/VH-16.7-UPGRADE.md) · 16.6.0: [docs/history/VH-16.6-UPGRADE.md](docs/history/VH-16.6-UPGRADE.md) · 16.5.0: [docs/history/VH-16.5-UPGRADE.md](docs/history/VH-16.5-UPGRADE.md) · 16.4.1: [docs/history/VH-16.4-UPGRADE.md](docs/history/VH-16.4-UPGRADE.md) · 16.3.0: [docs/history/VH-16.3-UPGRADE.md](docs/history/VH-16.3-UPGRADE.md) · 16.2.0: [docs/history/VH-16.2-UPGRADE.md](docs/history/VH-16.2-UPGRADE.md) · 16.1.0: [docs/history/VH-16.1-UPGRADE.md](docs/history/VH-16.1-UPGRADE.md)
 - Problem map (what each feature exists to solve): [docs/PROBLEM-FOCUS.md](docs/PROBLEM-FOCUS.md)
 - Information architecture (one product, one spine): [docs/INFORMATION-ARCHITECTURE.md](docs/INFORMATION-ARCHITECTURE.md)
 

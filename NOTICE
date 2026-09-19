@@ -9,6 +9,13 @@ only and are reproduced in full alongside this notice.
 | `vendor/mcp-servers-reference` | https://github.com/modelcontextprotocol/servers | MIT → Apache-2.0 transition (mixed) | `vendor/mcp-servers-reference/LICENSE` |
 | `vendor/mcp-github` | https://github.com/github/github-mcp-server | MIT © 2025 GitHub | `vendor/mcp-github/LICENSE` |
 
+## Bundled dependencies in shipped artefacts
+
+`tools/mcp-engine.mjs` (the MCP router engine, built by `tools/build-mcp.mjs`) and the offline
+verification bundles under `verify/suites/` are self-contained: npm dependencies are compiled
+into them so they run with no `node_modules`. The engine bundles **zod** (MIT © Colin McDonnell)
+and the offline bundles bundle the same runtime dependencies as the product's `package.json`.
+
 ## Note on `mcp-servers-reference`
 
 Upstream is mid-transition from MIT to Apache-2.0: contributions without relicensing consent remain

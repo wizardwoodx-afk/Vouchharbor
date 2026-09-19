@@ -15,6 +15,21 @@
  * bundle via the esbuild devDependency. Without node_modules those tools now REFUSE IN
  * WORDS, and this runner honestly marks such bundles `SKIP (needs node_modules)` —
  * counted separately, never as passes, never as verification failures.
+ *
+ * SHARDING AND TIME BUDGETS (19.6.3). A reviewer whose execution window cannot fit the
+ * whole pack (it is ~86s on a two-core box, and four suites are most of it) previously
+ * had no way to reproduce the gate at all. Now the same gate can be completed in
+ * bounded pieces, and the pieces are honest about being pieces:
+ *
+ *     node verify/run.mjs                      the whole gate, unchanged
+ *     node verify/run.mjs --shard 1/4           quarter 1 of 4 (deterministic split)
+ *     node verify/run.mjs --time-budget 30      run until 30s are nearly spent
+ *     node verify/collect.mjs                   merge every shard, print the whole verdict
+ *
+ * A shard writes `verify/shards/shard-<i>-of-<n>.json`. `--time-budget` stops early and
+ * exits with code 3 — INCOMPLETE, never 0 — so no CI can mistake a partial run for a
+ * pass. Suites not reached are NAMED in the summary. The default invocation prints
+ * exactly what it always printed.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -22,7 +37,37 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const suitesDir = path.join(root, "verify", "suites");
-const suites = fs.readdirSync(suitesDir).filter((f) => f.endsWith(".mjs")).sort();
+const allSuites = fs.readdirSync(suitesDir).filter((f) => f.endsWith(".mjs")).sort();
+
+const argv = process.argv.slice(2);
+const flag = (name, fallback = null) => {
+  const i = argv.indexOf(name);
+  return i >= 0 && argv[i + 1] !== undefined ? argv[i + 1] : fallback;
+};
+const shardArg = flag("--shard");
+const budgetSec = flag("--time-budget") === null ? null : Number(flag("--time-budget"));
+
+/* A shard is a deterministic slice of the sorted suite list: shard i of n takes every
+   suite whose index ≡ i-1 (mod n). Sorting first means two machines with the same tree
+   shard identically, so a merged verdict is a verdict about the tree, not the machine. */
+let shard = null;
+if (shardArg) {
+  const m = /^(\d+)\/(\d+)$/.exec(shardArg);
+  if (!m) {
+    console.error("--shard must look like i/n (e.g. --shard 1/4)");
+    process.exit(2);
+  }
+  const index = Number(m[1]);
+  const count = Number(m[2]);
+  if (index < 1 || index > count || count < 1) {
+    console.error(`--shard ${shardArg} is out of range: index must be 1..${count}`);
+    process.exit(2);
+  }
+  shard = { index, count };
+}
+const suites = shard
+  ? allSuites.filter((_, i) => i % shard.count === shard.index - 1)
+  : allSuites;
 
 let pass = 0;
 let fail = 0;
@@ -66,18 +111,29 @@ async function runSuite(s) {
   }
 }
 
+const started = Date.now();
+const deadline = budgetSec === null ? null : started + budgetSec * 1000;
+/* A suite already started is always allowed to finish — killing one mid-flight would
+   turn a time limit into a false failure. The budget decides what is STARTED, never
+   what is judged. */
+const ran = new Set();
 let cursor = 0;
 await Promise.all(
   Array.from({ length: Math.min(POOL, suites.length) }, async () => {
     while (cursor < suites.length) {
+      if (deadline !== null && Date.now() >= deadline) return;
       const next = suites[cursor++];
+      ran.add(next);
       await runSuite(next);
     }
   }),
 );
+const elapsed = (Date.now() - started) / 1000;
+const notRun = suites.filter((s) => !ran.has(s));
 
 for (const s of suites) {
   const res = results.get(s);
+  if (!res) continue; // never started: named in the summary, never counted
   if (res.status === "pass") {
     process.stdout.write(res.stdout);
     console.log(`PASS: ${s}\n`);
@@ -97,12 +153,45 @@ for (const s of suites) {
 
 console.log("========================================");
 const skipNote = skippedNeedDeps > 0 ? `, ${skippedNeedDeps} skipped (need node_modules — esbuild)` : "";
-console.log(`OFFLINE VERIFY SUMMARY: ${pass} passed, ${fail} failed${skipNote}. (node ${process.version})`);
+const partial = notRun.length > 0;
+const scopeNote = shard && !partial ? ` [shard ${shard.index}/${shard.count} of ${allSuites.length}]` : "";
+console.log(`OFFLINE VERIFY SUMMARY: ${pass} passed, ${fail} failed${skipNote}${partial ? `, ${notRun.length} not run` : ""}. (node ${process.version})${scopeNote}`);
 console.log("========================================");
 if (skipped.length > 0) {
   console.error("Skipped (environment, not a verification failure):", skipped);
 }
 if (failures.length > 0) {
   console.error("Failed suites:", failures);
+}
+
+/* The shard record. Written for an explicit --shard, and for a budgeted run that
+   stopped early — a partial run is exactly the thing worth recording, so it can be
+   merged later instead of repeated. */
+const shardsDir = path.join(root, "verify", "shards");
+const shouldRecord = shard !== null || partial;
+if (shouldRecord && !process.argv.includes("--no-record")) {
+  fs.mkdirSync(shardsDir, { recursive: true });
+  const label = shard ? `shard-${shard.index}-of-${shard.count}` : `partial-${Date.now()}`;
+  const record = {
+    label, at: new Date().toISOString(), node: process.version, tree: [
+      ["package.json version", (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version; } catch { return "unknown"; } })()],
+    ][0][1],
+    shard: shard ?? null,
+    ran: [...ran].sort(), notRun: [...notRun].sort(),
+    passed: results.size > 0 ? [...results].filter(([, r]) => r.status === "pass").map(([s]) => s).sort() : [],
+    failed: failures, skipped, elapsedSec: Number(elapsed.toFixed(1)),
+  };
+  fs.writeFileSync(path.join(shardsDir, `${label}.json`), JSON.stringify(record, null, 2) + "\n");
+  console.log(`shard record: verify/shards/${label}.json — merge with: node verify/collect.mjs`);
+}
+
+if (failures.length > 0) {
   process.exit(1);
+}
+if (partial) {
+  console.error(`NOT VERIFIED: ${notRun.length} suite(s) were not reached inside the time budget.`);
+  console.error("Continue with: node verify/run.mjs --shard k/n   then:  node verify/collect.mjs");
+  /* Exit 3, never 0. A partial run that exits 0 is the exact failure this whole
+     runner exists to prevent: a gate that says "passed" about suites it never ran. */
+  process.exit(3);
 }

@@ -1,17 +1,57 @@
-Vouch Harbor 19.5.6 Reach
-built: 19.5.6 Reach
-ts:   2026-09-18T03:45:00Z
+Vouch Harbor 19.6.6 Federation
+built: 19.6.6 Federation
+ts:   2026-09-19T10:57:48Z
 git:  local
 protocol: vh-proof-receipt/2
+fleet: 1,150 established specialists (routed today) + 640 registered specialists (not routed) = 1,790 catalogued
 
-125 self-contained bundles in verify/suites (every probe suite except the pack's
+136 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 126 probe
-suites; the offline pack reproduces 125 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 137 probe
+suites; the offline pack reproduces 136 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-126 passed, 0 failed across 126 probe suites (node verify/run.mjs → 125 passed,
-0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened) —
+137 passed, 0 failed across 137 probe suites (node verify/run.mjs → 136 passed,
+0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the 1,790 census); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
+
+19.6.6 "Federation" — the release that put the federation plane ON the live path, and the app ON one console:
+  · UI rebuilt end to end: the app IS one dark console — crew rail, run
+    stream, handoff ledger and federation plane; the multi-dock shell is
+    retired. The Generalist keeps ONE deterministic face derived from the
+    name its owner gives it; every specialist carries a deterministic mark
+    (src/views/NextConsole.tsx · src/vh19/face.tsx; probe/face, 10 checks)
+  · standing authority on the LIVE crossing: the console issues two-owner
+    grants and spends them per crossing; out-of-scope, spent, lapsed or
+    revoked grants escalate to a per-crossing human decision — escalation is
+    designed behaviour, never an error (src/vh19/federation/live.ts ·
+    bridge.ts; probe/fedWired, 18 checks)
+  · the common ledger rides EVERY outcome: both stores write the same joint
+    row with both receipts, and the roots over each store are compared on
+    the receipt itself (bridge.ts finish(); probe/fedWired)
+  · regulated activation on the routing path: the registered regulated bench
+    stays unrouted until a signed, complete, current activation exists; the
+    refusal names every gap, and the unsigned case is named exactly — a name
+    is not an authorisation (generalist.ts; probe/fedWired)
+  · the tier floor holds against the grant: a standing grant never overrides
+    earned pair standing; it adds one co-signed trust unit to the mesh's own
+    ladder (probe/fedWired §8)
+  · the federation key rides the hardened authority seam (native keychain >
+    passphrase-encrypted > session-only) — no raw private key at rest; the
+    console carries provider onboarding for first-time users (navAlign pins)
+
+19.6.0 "Federation" — the cross-owner release (new plane, frozen core):
+  · a crossing needs BOTH humans: a signed approval bound to
+    {pair, side, capability, envelopeDigest, nonce}, expiring, spent once
+    (src/vh19/federation/approval.ts · bridge.ts; probe/fedApproval,
+    probe/fedCrossing — the regression that matters is that a prior success
+    ledger row is NOT an approval)
+  · one identity system: the federation anchor resolves the SAME owner keypair
+    missionAuthority uses and carries proof of possession (probe/fedIdentity)
+  · the Face, redesigned: derived from the identity's own SHA-256, never
+    selectable, no eyes and no mouth by construction (probe/fedSigil)
+  · the fleet stated as two numbers — 1,790 today = 1,150 established + 640
+    registered (1,560 at 19.6.0: 1,150 + 410), registered never routed
+    silently (probe/fedFleet)
 
 19.3.0 "Vanguard" — the fleet-becomes-real release:
   · specialists are executors: real act/observe tool loops, five gated tools,

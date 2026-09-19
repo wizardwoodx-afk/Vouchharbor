@@ -22,37 +22,51 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 
-// offline-honesty patch (16.9.0): the engine-bundle rebuild needs the esbuild
-// devDependency. Without node_modules the tool now REFUSES IN WORDS (a clean,
-// greppable refusal) instead of dying with ERR_MODULE_NOT_FOUND — never faked.
+// offline-honesty patch (16.9.0): the entry needs a build step, so without
+// node_modules the tool REFUSES IN WORDS — never faked.
+//
+// 19.6.3: as in tools/drill-benchmark.mjs, a tree with no node_modules runs the
+// pinned pre-compiled bundle verify/specs/external-model-validation.spec.mjs
+// instead (sha256 in verify/MANIFEST.json), announced on stderr.
 const require = createRequire(import.meta.url);
-let buildSync;
+let buildSync = null;
 try {
   ({ buildSync } = require("esbuild"));
 } catch {
-  console.error(
-    "REFUSED (needs node_modules): this tool rebuilds the engine bundle with the esbuild devDependency, which is not installed here. Run `npm ci` first, then re-run. Refused in words, never faked."
-  );
-  process.exit(2);
+  buildSync = null;
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entry = path.join(root, "tools", "external-model-validation.entry.ts");
+const precompiled = path.join(root, "verify", "specs", "external-model-validation.spec.mjs");
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vh-extval-"));
-const out = path.join(tmp, "external-model-validation.mjs");
+let tmp = null;
+let out = precompiled;
 try {
-  buildSync({
-    entryPoints: [entry],
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    /* 17.1.3: bundle npm deps inline so the temp bundle runs standalone
-     * out of /tmp (zod etc. are not in /tmp's resolution path). */
-    packages: "bundle",
-    outfile: out,
-    logLevel: "error",
-  });
+  if (buildSync) {
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vh-extval-"));
+    out = path.join(tmp, "external-model-validation.mjs");
+    buildSync({
+      entryPoints: [entry],
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      /* 17.1.3: bundle npm deps inline so the temp bundle runs standalone
+       * out of /tmp (zod etc. are not in /tmp's resolution path). */
+      packages: "bundle",
+      outfile: out,
+      logLevel: "error",
+    });
+  } else if (fs.existsSync(precompiled)) {
+    console.error(
+      "external-model validation: esbuild is unavailable — running the pre-compiled verify/specs/external-model-validation.spec.mjs (sha256 pinned in verify/MANIFEST.json)"
+    );
+  } else {
+    console.error(
+      "REFUSED (needs node_modules): this tool rebuilds the engine bundle with the esbuild devDependency, which is not installed here, and this tree ships no pre-compiled copy of the validation entry. Run `npm ci` first, then re-run. Refused in words, never faked."
+    );
+    process.exit(2);
+  }
   const passArgs = process.argv.slice(2);
   let code = 0;
   const runOpts = { cwd: root, encoding: "utf8" };
@@ -66,5 +80,5 @@ try {
   }
   process.exit(code);
 } finally {
-  fs.rmSync(tmp, { recursive: true, force: true });
+  if (tmp) fs.rmSync(tmp, { recursive: true, force: true });
 }

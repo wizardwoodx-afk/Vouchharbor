@@ -918,7 +918,7 @@ a { color: inherit; }
 .card { transition: border-color 160ms linear, transform 160ms var(--ease-out-soft); }
 .card:hover { border-color: rgba(45, 49, 66, 0.22); }
 
-/* ── VH Avatars (19.5.0, adapted from OneWorks Avatar, MIT) ─────────────── */
+/* ── VH Avatars (19.5.0) — legacy geometry, superseded by the 19.6.6 face system ── */
 .px-avatar-slot { display: inline-flex; margin-left: 10px; vertical-align: middle; }
 .px-row-user { display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; }
 .vh-avatar { flex: none; }
@@ -939,7 +939,7 @@ a { color: inherit; }
 .px-identity-input { font: inherit; font-size: 13px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-elev); color: var(--text); width: 180px; }
 .px-identity-input:focus { outline: none; border-color: var(--accent); }
 
-/* ── The Generalist's face (OneWorks Avatar engine, MIT) ─────────────────── */
+/* ── The Generalist's face (legacy — superseded by the 19.6.6 face system) ─────────── */
 .vh-face-stage { display: flex; justify-content: center; padding: 14px 0 4px; }
 .vh-face { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .vh-face-render { border-radius: 18px; overflow: hidden; border: 1px solid var(--border-soft); background: var(--bg-elev); }

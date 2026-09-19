@@ -42,6 +42,7 @@ import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
 import { applyTeamPreference, autoProposeIfReady, recordTeamRun } from "./teamEvolve";
 import { autonomyCovers } from "./exam";
+import { regulatedRoutingVerdict } from "./federation/live";
 import type { GeneralistDeps, GeneralistResponse, MemberRunView, ProviderConfig, RouteDecision, SynthesisRecord } from "./types";
 
 async function sha256Hex(text: string): Promise<string> {
@@ -229,6 +230,24 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
   }
   const specialists = routed.selected.map((c) => getSpecialist(c.id)!).filter(Boolean);
+
+  /* 2b — 19.6.6: regulated activation on the ROUTING path. The registered
+     regulated bench stays unrouted until a signed, complete, current
+     activation exists; the refusal names every gap, and the unsigned case is
+     named exactly: a name is not an authorisation. */
+  {
+    const reg = await regulatedRoutingVerdict(specialists.map((s) => s.id));
+    if (!reg.ok) {
+      return finish({
+        reply: reg.notice,
+        routed,
+        executed: false,
+        outcome: "refused",
+        specialistIds: specialists.map((s) => s.id),
+        note: `regulated activation incomplete — gaps: ${reg.gaps.join(", ") || "signature"}`,
+      });
+    }
+  }
 
   /* 3 — the human gate. Risky/critical output without an approved gate does
          not execute. Autonomy (the 90% exam) downgrades ONLY "safe" work to

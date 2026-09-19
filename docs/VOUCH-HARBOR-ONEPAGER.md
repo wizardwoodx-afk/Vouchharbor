@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.5.6 · September 2026*
+*Vouch Harbor Labs · v19.6.6 · September 2026*
 *The brand layer and the product story as shipped.*
 
 ---
@@ -26,14 +26,16 @@ bots are not a security boundary — their own docs say so.*
 **Nobody owns the quadrant: a teammate you can talk to, running on YOUR
 machine, that signs what it did.**
 
-## The product (shipped, v19.5.x "Authority" — this tree)
+## The product (shipped, v19.6.x "Federation" — this tree)
 
 One local-first app (Tauri v2 desktop + browser edition), one engine, six
-doors — plus the **VH-19 front door**: a chatbox-first Generalist over **760
-registered specialists** (460 seed + 160 broader, computed live from the
-registry), Captain synthesis, real gated tool execution, BYOA (external
-agents under a trust intersection), governed connector declarations, SKILL.md
-ecosystem import, and **RSIRALS v5.0** — the proprietary trust-rooted
+doors — plus the **VH-19 front door**: a chatbox-first Generalist over **1,150
+established specialists** (460 seed + 160 broader + 140 reach + 390 matured,
+computed live from the registry) with **640 more registered** in the federation
+catalog, Captain synthesis, real gated tool execution, BYOA (external agents
+under a trust intersection), governed connector declarations, SKILL.md
+ecosystem import, the **Federation plane** (cross-owner crossings that need a
+signed human decision from BOTH sides), and **RSIRALS v5.0** — the proprietary trust-rooted
 recursive self-improvement architecture (frozen governance plane, sealed
 receipt-bound promotion, canary auto-rollback, longitudinal monitor):
 
@@ -156,8 +158,8 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
 
 ## Traction & stage (honest)
 
-- Complete, working product — v19.5.x, 31+ releases, **120 probe
-  suites / 119 offline verification bundles**, byte-pinned offline
+- Complete, working product — v19.6.x, 34+ releases, **137 probe
+  suites / 134 offline verification bundles**, byte-pinned offline
   verification pack (runs in ~2.5 min with zero network), CI on the
   Windows pre-seed platform (Node 22, the supported runtime) plus
   certification under both Node v22.23.2 and v20.20.2 on the Linux build

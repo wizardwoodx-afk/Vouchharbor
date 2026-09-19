@@ -11,6 +11,10 @@ import './styles/premium.css';
 // Import font declarations
 import './styles/fonts.css';
 import './styles/minimal.css';
+// 19.6.6 — the Federation console design system (Tailwind v4 + nx tokens).
+import './styles/vh-next.css';
+// face idle motion (the sheet that makes animate="hover" move) — app layer only.
+import 'blobatar/motion.css';
 
 /* 18.3.0 — browser-build CSP. The desktop (Tauri) build enforces its own CSP in
  * tauri.conf.json; the plain-browser build previously had NONE. In dev/preview

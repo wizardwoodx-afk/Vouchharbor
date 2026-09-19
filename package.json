@@ -1,8 +1,8 @@
 {
   "name": "vouchharbor",
   "private": true,
-  "version": "19.5.6",
-  "description": "Vouch Harbor — one mission, one vouched chain: govern · execute · verify · learn.",
+  "version": "19.6.6",
+  "description": "Vouch Harbor \u2014 one mission, one vouched chain: govern \u00b7 execute \u00b7 verify \u00b7 learn.",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
@@ -20,15 +20,20 @@
     "web:build": "vite build && rm -rf web-build && cp -r dist web-build"
   },
   "dependencies": {
+    "@blobatar/react": "^2.7.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2.9.0",
     "@tauri-apps/plugin-dialog": "^2.4.0",
     "@tauri-apps/plugin-notification": "^2.3.0",
     "@tauri-apps/plugin-opener": "^2.5.0",
     "@tauri-apps/plugin-os": "^2.3.0",
     "@tauri-apps/plugin-process": "^2.3.0",
+    "blobatar": "^2.7.0",
+    "boring-avatars": "^2.0.4",
     "playwright": "^1.63.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "tailwindcss": "^4.3.3",
     "zod": "^4.6.2",
     "zustand": "^5.0.8"
   },

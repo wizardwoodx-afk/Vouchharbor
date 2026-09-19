@@ -23,41 +23,58 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 
-// offline-honesty patch (16.9.0): the engine-bundle rebuild needs the esbuild
-// devDependency. Without node_modules the tool now REFUSES IN WORDS (a clean,
-// greppable refusal) instead of dying with ERR_MODULE_NOT_FOUND — never faked.
+// offline-honesty patch (16.9.0): the entry needs a build step, so without
+// node_modules the tool REFUSES IN WORDS (a clean, greppable refusal) instead of
+// dying with ERR_MODULE_NOT_FOUND — never faked.
+//
+// 19.6.3: it no longer has to refuse. tools/build-offline-verify.mjs compiles
+// this entry into verify/specs/drill-benchmark.spec.mjs (sha256 in
+// verify/MANIFEST.json), so a tree with no node_modules runs the pinned
+// pre-compiled bundle and reaches a real verdict. The path taken is announced
+// on stderr; the refusal below stays for the case where neither path exists.
 const require = createRequire(import.meta.url);
-let buildSync;
+let buildSync = null;
 try {
   ({ buildSync } = require("esbuild"));
 } catch {
-  console.error(
-    "REFUSED (needs node_modules): this tool rebuilds the engine bundle with the esbuild devDependency, which is not installed here. Run `npm ci` first, then re-run. Refused in words, never faked."
-  );
-  process.exit(2);
+  buildSync = null;
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entry = path.join(root, "tools", "drill-benchmark.entry.ts");
+const precompiled = path.join(root, "verify", "specs", "drill-benchmark.spec.mjs");
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vh-drill-bench-"));
-const out = path.join(tmp, "drill-benchmark.mjs");
+let tmp = null;
+let out = precompiled;
 try {
-  buildSync({
-    entryPoints: [entry],
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    /* 17.1.3: bundle npm deps (zod etc.) inline so the temp bundle runs
-     * standalone out of /tmp without NODE_PATH. Native node built-ins stay
-     * external via platform:"node". */
-    packages: "bundle",
-    outfile: out,
-    logLevel: "error",
-  });
+  if (buildSync) {
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vh-drill-bench-"));
+    out = path.join(tmp, "drill-benchmark.mjs");
+    buildSync({
+      entryPoints: [entry],
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      /* 17.1.3: bundle npm deps (zod etc.) inline so the temp bundle runs
+       * standalone out of /tmp without NODE_PATH. Native node built-ins stay
+       * external via platform:"node". */
+      packages: "bundle",
+      outfile: out,
+      logLevel: "error",
+    });
+  } else if (fs.existsSync(precompiled)) {
+    console.error(
+      "drill benchmark: esbuild is unavailable — running the pre-compiled verify/specs/drill-benchmark.spec.mjs (sha256 pinned in verify/MANIFEST.json)"
+    );
+  } else {
+    console.error(
+      "REFUSED (needs node_modules): this tool rebuilds the engine bundle with the esbuild devDependency, which is not installed here, and this tree ships no pre-compiled copy of the benchmark. Run `npm ci` first, then re-run. Refused in words, never faked."
+    );
+    process.exit(2);
+  }
   const passArgs = process.argv.slice(2);
   const stdout = execFileSync(process.execPath, [out, ...passArgs], { cwd: root, encoding: "utf8" });
   process.stdout.write(stdout);
 } finally {
-  fs.rmSync(tmp, { recursive: true, force: true });
+  if (tmp) fs.rmSync(tmp, { recursive: true, force: true });
 }

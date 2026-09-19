@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -25,7 +26,7 @@ const browserBuiltin = (name: string): string =>
   fileURLToPath(new URL(`./src/browser/nodeStubs/${name}.ts`, import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   clearScreen: false,
   // Anchored regexes, deliberately: a bare string key like "node:fs" is a PREFIX match, so
   // `checkRunner.ts`'s `await import("node:fs/promises")` was being rewritten to

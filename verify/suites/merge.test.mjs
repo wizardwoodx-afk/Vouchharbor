@@ -2435,9 +2435,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.5.6";
-    VH_SHORT = "19.5";
-    VH_CODENAME = "Reach";
+    VH_VERSION = "19.6.6";
+    VH_SHORT = "19.6";
+    VH_CODENAME = "Federation";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -32492,11 +32492,11 @@ describe3("merge \u2014 one mission ID, one chain, one state (16.0)", () => {
     const bridge = read("src/vouch/engine/bridge.ts");
     assert2.ok(!/localStorage/.test(bridge), "the bridge writes no storage of its own (it is a seam, not a store)");
   });
-  it("the shell join: Patina mounts the Harbor view and the Helm drives Vouch", () => {
+  it("the shell join: the app mounts the Federation Console and it drives the real engine (19.6.6)", () => {
     const app = read("src/App.tsx");
-    assert2.ok(/(?:from|import\()\s*['"].\/views\/Harbor['"]/.test(app), "the shell mounts Harbor view (eager or lazy chunk)");
-    assert2.ok(/HarborProvider/.test(app), "the HarborProvider wraps the shell");
-    assert2.ok(/sendMessage/.test(app) || /actions\.sendMessage/.test(read("src/app/Helm.tsx")), "the Helm drives the real sendVouchMessage path");
+    assert2.ok(/from\s*['"]\.\/views\/NextConsole['"]/.test(app), "the app mounts the Federation Console");
+    assert2.ok(/<NextConsole\s*\/>/.test(app), "the console IS the app shell");
+    assert2.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")), "the console drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json"));
     assert2.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
     assert2.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");
