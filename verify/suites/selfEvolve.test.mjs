@@ -15200,6 +15200,97 @@ function effectiveRiskTier(s) {
   return loadSelfOverrides().tierTightens[s.id] ?? s.riskTier;
 }
 
+// src/vh19/rsirals.ts
+var GOVERNANCE_PLANE = Object.freeze({
+  id: "vh.rsirals.T",
+  version: 5,
+  objectiveContract: "Improvements must tighten discretion, trace to real ledger evidence, and never trade user authority for agent convenience.",
+  promotionRules: [
+    "apply is always a human decision",
+    "trust requires a measured comparison: candidate beats baseline",
+    "measurements must be receipt-bound (exam/receipts) or explicitly marked externally supplied",
+    "losing measurements retire the change and revert its frozen memory exactly"
+  ],
+  safetyPolicies: [
+    "the human gate and its risk tiers",
+    "the autonomy exam and its pass threshold",
+    "the probe and verification suites and their pins",
+    "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
+    "the RSI floor (RSI_FLOOR)",
+    "this governance plane \u2014 the loop cannot loosen the loop"
+  ],
+  evaluationStandards: [
+    "independent verifier held out of the generation path (the autonomy exam)",
+    "deterministic evidence: ledger ids, digests, receipt stamps",
+    "intrinsic self-assessment is never a verifier"
+  ],
+  resourceCeilings: { providerCallsPerCycle: 8, topicsPerCycle: 10, maxDraftBytes: 2400 },
+  rollbackAuthority: "human-only"
+});
+var FIREWALL_TRIGGERS = [
+  "risk tier",
+  "risk-tier",
+  "gate threshold",
+  "pass threshold",
+  "exam threshold",
+  "disable the gate",
+  "bypass the gate",
+  "lower the bar",
+  "self-evolution floor",
+  "rsi_floor",
+  "verification suite",
+  "probe pin",
+  "governance plane",
+  "grant myself",
+  "approve myself",
+  "autonomy without exam"
+];
+function controlPlaneFirewall(candidate) {
+  const text = `${candidate.name}
+${candidate.description}
+${candidate.body}`.toLowerCase();
+  for (const t of FIREWALL_TRIGGERS) {
+    if (text.includes(t)) return { allowed: false, reason: `control-plane firewall: candidate touches the governance plane ("${t}") \u2014 rejected before verification` };
+  }
+  if (candidate.body.length > GOVERNANCE_PLANE.resourceCeilings.maxDraftBytes * 4) {
+    return { allowed: false, reason: "control-plane firewall: candidate exceeds governed size ceilings" };
+  }
+  return { allowed: true, reason: "no governance-plane contact" };
+}
+
+// src/vh19/rsiralsV6.ts
+var AUTHORITY_PATTERN = /\b(approve|authoris|authoriz|consent|permission|grant|vault|owner key|human gate)\b/i;
+var EVIDENCE_PATTERN = /\b(receipt|exam|canary|ledger|evidence|digest|baseline)\b/i;
+var V6_CONSTITUTION = Object.freeze([
+  {
+    id: "c1.no-self-governance",
+    doctrine: "no change may touch, reinterpret, or route around the governance plane, the canary battery, the constitution, or the ledger",
+    check: (c) => {
+      if (["governance", "canary", "ledger", "constitution", "verifier", "gate"].includes(c.target)) {
+        return `scope creep: '${c.target}' is part of the frozen verifier or the governance plane`;
+      }
+      const fw = controlPlaneFirewall({ name: c.name, description: c.declares, body: c.body });
+      return fw.allowed ? null : `protected target: ${fw.reason}`;
+    }
+  },
+  {
+    id: "c2.discretion-tightening",
+    doctrine: "a change must tighten or preserve discretion \u2014 authority-granting language must trace to an explicit declared authority source",
+    check: (c) => !AUTHORITY_PATTERN.test(c.body) ? null : AUTHORITY_PATTERN.test(c.declares) && /v\d+|signed|owner/i.test(c.declares) ? null : "authority language in the body without a declared, versioned authority source"
+  },
+  {
+    id: "c3.evidence-bound",
+    doctrine: "every change declares how its effect will be evidenced \u2014 no change ships on vibes",
+    check: (c) => EVIDENCE_PATTERN.test(c.declares) ? null : "the declaration does not name its evidence (receipt/exam/canary/baseline)"
+  },
+  {
+    id: "c4.human-door-intact",
+    doctrine: "a change may add automation below the human gate; it may never claim to BE the human gate",
+    check: (c) => /\b(replaces?|bypass(es|ing)?|skips?)\s+(the\s+)?(human|owner|gate|approval)\b/i.test(c.body) ? "the body claims to replace or bypass the human gate" : null
+  }
+]);
+var DRIFT_WINDOW_MS = 24 * 60 * 60 * 1e3;
+
 // src/vh19/selfEvolve.ts
 var PROPOSALS_KEY = "vh19.self.proposals.v1";
 var SELF_EVOLUTION_FLOOR = [

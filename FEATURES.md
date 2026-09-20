@@ -1,5 +1,35 @@
 # Vouch Harbor 19.7.0 "Recall" — feature sheet
 
+### NEW in 19.7.7 [Verifier] — RSIRALS v6 goes LIVE (the verifier leaves the building)
+
+- **External canary verifier** — the held-out battery moved OUT of `src/`
+  into `verifier/vh-verifier.mjs`, a separate zero-dependency process
+  outside the self-modifiable surface (the constitution refuses candidates
+  targeting it by name). Fresh nonce per call, SHA-256 signature binding
+  nonce·verdict·battery-digest; replays and tampered verdicts are refused;
+  no process → honest `unavailable`, never a pretend pass.
+- **The live promotion path is v6-gated** — `applySelfChangeGuarded()` runs
+  every self-evolution apply through external canaries → constitution →
+  measured drift (the mutation, not the justification) → BLOCK-with-reasons
+  or human-completed fail-closed promotion. Reverts land on both ledgers.
+
+```
+live self-evolution apply (the Apply button)
+      │ proposal
+      ▼
+  canaryClient ──spawn──► verifier/vh-verifier.mjs  (OUTSIDE src/)
+      │  nonce + signed verdict    │ 6 hidden checks, held out
+      ▼                            ▼
+  governChange: constitution → drift budget → EXTERNAL canaries
+      │                                    (scan the FULL submission)
+      ├─ BLOCK ──► refusal names the rule; proposal stays pending
+      └─ ESCALATE ──► the HUMAN click = the promotion decision
+                         ▼
+       regression gate (fail-closed: tighten-only · human-approved)
+                         ▼
+       override lands · v5 archive applied/reverted · v6 ledger
+```
+
 ### NEW in 19.7.6 [Office] — RSIRALS v6: the strengthened verifier · the office · the real crossing seam
 
 **RSIRALS v6 — the trust plane gets the upgrade, plane T stays frozen at v5.**

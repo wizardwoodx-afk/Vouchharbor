@@ -268,9 +268,9 @@ function receiptToJsonl(rc) {
 }
 
 // src/version.ts
-var VH_VERSION = "19.7.6";
+var VH_VERSION = "19.7.7";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Office";
+var VH_CODENAME = "Verifier";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/vouch/engine/crossHarbor.ts

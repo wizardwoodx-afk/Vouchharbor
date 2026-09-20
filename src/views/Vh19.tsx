@@ -31,7 +31,7 @@ import { approveTeamEvolution, autoProposeIfReady, evolvedConfig, pendingProposa
 import { acceptInvitation, allKnownIdentities, createInvitation, ensureIdentity, jwkFingerprint, parseInvitation, serializeInvitation, signApproval, unbindPeer } from '../vh19/collabInvite';
 import type { KnownIdentityRow } from '../vh19/collabRegistry';
 import type { SignedInvitation } from '../vh19/collabInvite';
-import { applySelfChange, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChange, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
+import { applySelfChangeGuarded, loadSelfOverrides, proposeSelfChanges, rejectSelfChange, revertAppliedChangeGuarded, SELF_EVOLUTION_FLOOR, selfProposals } from '../vh19/selfEvolve';
 import type { SelfProposal } from '../vh19/selfEvolve';
 import { allowCategoryForSession, answerGateWithRules, listSessionRules, revokeSessionRule } from '../vh19/gateRules';
 import { createGoal, executedProgress, goalProgress, goalStatus, loadGoals, nextPendingStep, resumeGoal, settleStep } from '../vh19/goals';
@@ -1351,7 +1351,7 @@ export const Vh19: React.FC = () => {
                       <div className="px-quiet-title">{p.kind} → {p.target} = {String(p.to)}</div>
                       <div className="px-quiet-sub">{p.rationale}</div>
                       <div className="px-row" style={{ marginTop: 6 }}>
-                        <button className="px-btn px-btn-primary px-btn-sm" onClick={() => { const r = applySelfChange(p.id); setSelfNote(r.ok ? null : r.error); setSelfList(selfProposals()); }}>Apply</button>
+                        <button className="px-btn px-btn-primary px-btn-sm" onClick={() => { void applySelfChangeGuarded(p.id).then((r) => { setSelfNote(r.ok ? (r.v6 ? `applied — RSIRALS v6: ${r.v6.verdict} · canaries ${r.v6.canarySource} · ledger seq ${r.v6.ledgerSeq ?? "—"}` : null) : (r.error ?? null)); setSelfList(selfProposals()); }); }}>Apply</button>
                         <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { rejectSelfChange(p.id, 'user declined'); setSelfList(selfProposals()); }}>Reject</button>
                       </div>
                     </div>
@@ -1359,7 +1359,7 @@ export const Vh19: React.FC = () => {
                   {loadSelfOverrides().history.slice(-4).reverse().map((h) => (
                     <div key={h.id} className="px-row" style={{ opacity: 0.75 }}>
                       <span className="px-muted" style={{ flex: 1 }}>{h.kind} · {h.target} (applied {h.at.slice(0, 10)})</span>
-                      <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertAppliedChange(h.id); setSelfList(selfProposals()); }}>Revert</button>
+                      <button className="px-btn px-btn-ghost px-btn-sm" onClick={() => { revertAppliedChangeGuarded(h.id); setSelfList(selfProposals()); }}>Revert</button>
                     </div>
                   ))}
                 </>

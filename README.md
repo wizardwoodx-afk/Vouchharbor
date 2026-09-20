@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.6 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.7 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.6 [Office])
+### The current product state (19.7.7 [Verifier])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -72,6 +72,35 @@ glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
 20 · 17 checks) — 156 suites total.
+
+### NEW in 19.7.7 [Verifier] — RSIRALS v6 goes LIVE: the verifier leaves the building
+
+**The 19.7.6 review verdict, shipped:** wire `governChange()` into the real
+promotion path, and move the canary battery outside the agent-visible
+source. Both, exactly:
+
+- **The canary battery is now an EXTERNAL PROCESS** — `verifier/
+  vh-verifier.mjs`, a separate zero-dependency Node program OUTSIDE `src/`
+  (outside the self-modifiable surface; the constitution refuses any
+  candidate targeting it BY NAME). Six deterministic checks, public in
+  size only. Protocol: fresh NONCE per call → verdict → SHA-256 signature
+  binding nonce·result·battery-digest. Replayed or tampered verdicts are
+  refused; where no process can run (the browser console), the gate says
+  `unavailable` and NEVER pretends — the candidate simply cannot pass
+  canaries without the verifier, so it stays at the human gate.
+- **The live promotion path runs the full v6 gate.** `applySelfChange
+  Guarded()` — the Apply button in the evolution surface — drives every
+  self-evolution proposal through: EXTERNAL canaries → constitution →
+  measured drift (the budget measures the MUTATION against the current
+  state, not the justification) → BLOCK names the rule and the proposal
+  stays pending → the human's click completes the staged promotion
+  (fail-closed: tighten-only + human-approved) → the override lands →
+  v5's archive records applied/reverted alongside v6's ledger. Both
+  planes, one loop, closed both ways.
+
+probe/rsiralsV6: 38 checks — including a REAL verifier spawn, signature
+tamper + replay refusal, and the live apply of a real proposal through the
+production path (plus its hostile twin, refused by name).
 
 ### NEW in 19.7.6 [Office] — RSIRALS v6 (the strengthened verifier), the office, the real crossing seam
 

@@ -38209,9 +38209,9 @@ async function recordMissionAuthority(missionId, responseDigest, mandate, mandat
     at: now
   };
   try {
-    const ledger = loadLedger();
-    ledger.push(rec);
-    globalThis.localStorage?.setItem(KEY, JSON.stringify(ledger.slice(-200)));
+    const ledger2 = loadLedger();
+    ledger2.push(rec);
+    globalThis.localStorage?.setItem(KEY, JSON.stringify(ledger2.slice(-200)));
   } catch {
   }
   return rec;
@@ -55555,11 +55555,11 @@ var TOKEN_RE = /[a-z0-9][a-z0-9+#.-]*/g;
 function tokenize(text) {
   return (text.toLowerCase().match(TOKEN_RE) ?? []).filter((t) => t.length >= 3);
 }
-function scoreSpecialist(s, request, tokens) {
+function scoreSpecialist(s, request, tokens2) {
   const reasons = [];
   let score = 0;
   const lower = request.toLowerCase();
-  const tokenSet = new Set(tokens);
+  const tokenSet = new Set(tokens2);
   for (const kw of s.keywords) {
     if (tokenSet.has(kw)) {
       score += 3;
@@ -55581,11 +55581,11 @@ function scoreSpecialist(s, request, tokens) {
   return { score, reasons };
 }
 function routeDeterministic(request, k2 = MAX_K) {
-  const tokens = tokenize(request);
+  const tokens2 = tokenize(request);
   const bar = MIN_SCORE + loadSelfOverrides().minScoreDelta;
   const scored = [];
   for (const s of enabledSpecialists()) {
-    const { score, reasons } = scoreSpecialist(s, request, tokens);
+    const { score, reasons } = scoreSpecialist(s, request, tokens2);
     if (score >= bar) scored.push({ id: s.id, score, reasons });
   }
   scored.sort((a, b3) => b3.score - a.score || a.id.localeCompare(b3.id));
@@ -56585,9 +56585,9 @@ function isFullyCoSigned(receipt) {
   return receipt.participants.every((p) => Boolean(receipt.coSignatures[p]));
 }
 var pairKey = (a, b3) => [a, b3].sort().join("\u2194");
-function recordJointOutcome(ledger, a, b3, outcome) {
+function recordJointOutcome(ledger2, a, b3, outcome) {
   const key = pairKey(a, b3);
-  const cur = ledger.get(key) ?? { pairKey: key, trust: 0, jointReceipts: 0, divergences: 0 };
+  const cur = ledger2.get(key) ?? { pairKey: key, trust: 0, jointReceipts: 0, divergences: 0 };
   if (outcome === "clean") {
     cur.trust += 1;
     cur.jointReceipts += 1;
@@ -56599,7 +56599,7 @@ function recordJointOutcome(ledger, a, b3, outcome) {
   if (outcome === "refused") {
     cur.trust = Math.max(0, cur.trust - 1);
   }
-  ledger.set(key, cur);
+  ledger2.set(key, cur);
   return cur;
 }
 var meshStanding = (t) => !t ? "unknown" : t.trust < 3 ? "probation" : t.trust < 10 ? "vouched" : "proven";
@@ -56648,20 +56648,20 @@ function loadTrust() {
     return /* @__PURE__ */ new Map();
   }
 }
-function saveTrust(ledger) {
+function saveTrust(ledger2) {
   try {
-    globalThis.localStorage?.setItem(TRUST_KEY, JSON.stringify([...ledger.values()]));
+    globalThis.localStorage?.setItem(TRUST_KEY, JSON.stringify([...ledger2.values()]));
   } catch {
   }
 }
 function meshForHandoff(input2) {
-  const ledger = loadTrust();
+  const ledger2 = loadTrust();
   if (input2.outcome === "refused") {
-    recordJointOutcome(ledger, HARBOR_PEER_ID, input2.peer, "refused");
-    saveTrust(ledger);
+    recordJointOutcome(ledger2, HARBOR_PEER_ID, input2.peer, "refused");
+    saveTrust(ledger2);
     return {
       meshJointDigest: null,
-      meshStanding: meshStanding(ledger.get(pairKey(HARBOR_PEER_ID, input2.peer))),
+      meshStanding: meshStanding(ledger2.get(pairKey(HARBOR_PEER_ID, input2.peer))),
       meshDetail: "no joint receipt minted \u2014 the handoff was refused before any joint execution; pair trust adjusted"
     };
   }
@@ -56686,11 +56686,11 @@ function meshForHandoff(input2) {
   if (!isFullyCoSigned(receipt)) {
     return { meshJointDigest: null, meshStanding: "unknown", meshDetail: "joint receipt left partially signed \u2014 refused, not shipped" };
   }
-  recordJointOutcome(ledger, harbor.peerId, remote.peerId, "clean");
-  saveTrust(ledger);
+  recordJointOutcome(ledger2, harbor.peerId, remote.peerId, "clean");
+  saveTrust(ledger2);
   return {
     meshJointDigest: receipt.digest,
-    meshStanding: meshStanding(ledger.get(pairKey(harbor.peerId, remote.peerId))),
+    meshStanding: meshStanding(ledger2.get(pairKey(harbor.peerId, remote.peerId))),
     meshDetail: `co-signed joint receipt ${receipt.digest.slice(0, 12)}\u2026 across channel ${channel.channelDigest.slice(0, 12)}\u2026`
   };
 }
@@ -66157,6 +66157,435 @@ function buildSummary(build) {
   return `${build.orders.length} work orders (${parts.join(", ")}) \u2014 ${verdict}`;
 }
 
+// src/domain/artifact.ts
+function hashString(str) {
+  let bytes;
+  if (typeof Buffer !== "undefined") {
+    bytes = Buffer.from(str, "utf8");
+  } else {
+    bytes = new TextEncoder().encode(str);
+  }
+  let h = 2166136261 >>> 0;
+  for (let i2 = 0; i2 < bytes.length; i2++) {
+    h ^= bytes[i2];
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+// src/vh19/rsirals.ts
+var GOVERNANCE_PLANE = Object.freeze({
+  id: "vh.rsirals.T",
+  version: 5,
+  objectiveContract: "Improvements must tighten discretion, trace to real ledger evidence, and never trade user authority for agent convenience.",
+  promotionRules: [
+    "apply is always a human decision",
+    "trust requires a measured comparison: candidate beats baseline",
+    "measurements must be receipt-bound (exam/receipts) or explicitly marked externally supplied",
+    "losing measurements retire the change and revert its frozen memory exactly"
+  ],
+  safetyPolicies: [
+    "the human gate and its risk tiers",
+    "the autonomy exam and its pass threshold",
+    "the probe and verification suites and their pins",
+    "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
+    "the RSI floor (RSI_FLOOR)",
+    "this governance plane \u2014 the loop cannot loosen the loop"
+  ],
+  evaluationStandards: [
+    "independent verifier held out of the generation path (the autonomy exam)",
+    "deterministic evidence: ledger ids, digests, receipt stamps",
+    "intrinsic self-assessment is never a verifier"
+  ],
+  resourceCeilings: { providerCallsPerCycle: 8, topicsPerCycle: 10, maxDraftBytes: 2400 },
+  rollbackAuthority: "human-only"
+});
+var FIREWALL_TRIGGERS = [
+  "risk tier",
+  "risk-tier",
+  "gate threshold",
+  "pass threshold",
+  "exam threshold",
+  "disable the gate",
+  "bypass the gate",
+  "lower the bar",
+  "self-evolution floor",
+  "rsi_floor",
+  "verification suite",
+  "probe pin",
+  "governance plane",
+  "grant myself",
+  "approve myself",
+  "autonomy without exam"
+];
+function controlPlaneFirewall(candidate) {
+  const text = `${candidate.name}
+${candidate.description}
+${candidate.body}`.toLowerCase();
+  for (const t of FIREWALL_TRIGGERS) {
+    if (text.includes(t)) return { allowed: false, reason: `control-plane firewall: candidate touches the governance plane ("${t}") \u2014 rejected before verification` };
+  }
+  if (candidate.body.length > GOVERNANCE_PLANE.resourceCeilings.maxDraftBytes * 4) {
+    return { allowed: false, reason: "control-plane firewall: candidate exceeds governed size ceilings" };
+  }
+  return { allowed: true, reason: "no governance-plane contact" };
+}
+var EVIDENCE_STACK = [
+  { id: "V_replay", name: "held-out replay", how: "trial records carry inputs + receipt digests, frozen at run time" },
+  { id: "V_independent", name: "independent verifier", how: "the autonomy exam is held out of the generation path \u2014 the judge that scores is never the drafter" },
+  { id: "V_regression", name: "regression testing", how: "the probe fleet pins behavior; any change that breaks a pin cannot ship" },
+  { id: "V_safety", name: "safety / policy testing", how: "control-plane firewall + the GuardRail (SSRF egress, injection scan, rate gates)" },
+  { id: "V_anti_hack", name: "anti-reward-hacking", how: "promotion settles only on receipt-bound measurements, or is explicitly marked externally supplied" },
+  { id: "V_anti_collapse", name: "anti-collapse", how: "diversity check over applied playbooks \u2014 the loop may not converge on one repeated category" },
+  { id: "V_cost", name: "cost / resource budget", how: "T's resource ceilings bound provider calls, topics and draft size per cycle" }
+];
+var PROTECTED_TARGETS = ["governance", "gate", "exam", "verification", "risk-tier", "floor"];
+function validateChangeContract(c) {
+  if (PROTECTED_TARGETS.includes(c.target)) {
+    return { allowed: false, reason: `structural firewall: target "${c.target}" is protected \u2014 the loop may never write it, by any authority` };
+  }
+  if (!c.field.trim()) return { allowed: false, reason: "structural firewall: contract has no field" };
+  if (!c.scope.trim()) return { allowed: false, reason: "structural firewall: contract has no scope" };
+  if (c.authority !== "human" && c.authority !== "rsi-loop") return { allowed: false, reason: "structural firewall: authority must be human or rsi-loop" };
+  if (c.risk !== "safe" && c.risk !== "risky") return { allowed: false, reason: "structural firewall: unknown risk tier" };
+  return { allowed: true, reason: "contract valid \u2014 target is writable" };
+}
+function draftContract(topicSubject) {
+  return {
+    target: "playbook",
+    field: "specialist playbook (prompt composition)",
+    authority: "human",
+    scope: topicSubject.slice(0, 120),
+    risk: "safe"
+  };
+}
+function attributeEvidence(subject) {
+  const s = subject.toLowerCase();
+  const theta = /(model|provider|completion|empty reply|token|llm|api error|http 5|rate limit)/.test(s);
+  const sigma = /(playbook|routing|tool|prompt|skill|egress|workspace|gate|retrieval|synthesis|captain)/.test(s);
+  if (theta && sigma) return "joint";
+  if (theta) return "theta";
+  return "sigma";
+}
+var KEY5 = "vh19.rsirals.v1";
+function storage13() {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+var session2 = { archive: [], canary: [], baselines: {}, examScores: [], providerCalls: 0 };
+function load2() {
+  const s = storage13();
+  if (!s) return session2;
+  try {
+    const p = JSON.parse(s.getItem(KEY5) ?? "");
+    return { archive: p.archive ?? [], canary: p.canary ?? [], baselines: p.baselines ?? {}, examScores: p.examScores ?? [], providerCalls: p.providerCalls ?? 0 };
+  } catch {
+    return session2;
+  }
+}
+function save4(st2) {
+  const s = storage13();
+  if (s) {
+    try {
+      s.setItem(KEY5, JSON.stringify(st2));
+      return;
+    } catch {
+    }
+  }
+  Object.assign(session2, st2);
+}
+function rsiArchive() {
+  return load2().archive;
+}
+function canaryWatchlist() {
+  return load2().canary;
+}
+function appendArchive(st2, event, name, detail) {
+  st2.archive = [...st2.archive, { id: `arc.${st2.archive.length + 1}`, event, name, detail: detail.slice(0, 200), at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-80);
+}
+function rsiralsOnApply(draft, currentExamScore) {
+  const st2 = load2();
+  st2.canary = [...st2.canary, { name: draft.name, draftId: draft.id, category: draft.category, since: (/* @__PURE__ */ new Date()).toISOString() }].slice(-12);
+  if (currentExamScore !== null) st2.baselines[`promo.${draft.id}`] = currentExamScore;
+  appendArchive(st2, "applied", draft.name, `canary armed${currentExamScore !== null ? ` \xB7 baseline exam ${Math.round(currentExamScore * 100)}%` : " \xB7 no exam baseline recorded yet"}`);
+  save4(st2);
+}
+function rsiralsOnFirewallBlock(name, reason) {
+  const st2 = load2();
+  appendArchive(st2, "firewall-blocked", name, reason);
+  save4(st2);
+}
+function rsiralsOnSettle(name, state, settledBy) {
+  const st2 = load2();
+  st2.canary = st2.canary.filter((c) => c.name !== name);
+  appendArchive(st2, state, name, settledBy);
+  save4(st2);
+}
+function rsiralsOnRevert(name) {
+  const st2 = load2();
+  st2.canary = st2.canary.filter((c) => c.name !== name);
+  appendArchive(st2, "reverted", name, "human revert \u2014 exact");
+  save4(st2);
+}
+function rsiralsRecordExamScore(score) {
+  const st2 = load2();
+  st2.examScores = [...st2.examScores, { score, at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-20);
+  save4(st2);
+}
+function rsiralsExamScores() {
+  return load2().examScores;
+}
+function rsiralsCanaryCheck(signal) {
+  if (signal.kind !== "failure" && signal.kind !== "livedata" && signal.kind !== "gate") return [];
+  const st2 = load2();
+  const route = attributeEvidence(signal.subject);
+  if (route === "theta") return [];
+  const hit = st2.canary.filter((c) => !signal.category || !c.category || c.category === signal.category);
+  if (hit.length === 0) return [];
+  st2.canary = st2.canary.filter((c) => !hit.includes(c));
+  for (const h of hit) appendArchive(st2, "canary-rollback", h.name, `live regression attributed (${signal.kind}): ${signal.subject.slice(0, 120)}`);
+  save4(st2);
+  return hit.map((h) => h.name);
+}
+var SEAL_SALT = "vh.rsirals.measurement.v1";
+function sealMeasurement(e2) {
+  return hashString(`${SEAL_SALT}|${e2.promoId}|${e2.baseline}|${e2.candidate}|${e2.source}|${e2.producedAt}`);
+}
+function bindSettlementEvidence(promoId) {
+  const st2 = load2();
+  const baseline = st2.baselines[promoId];
+  const latest = st2.examScores[st2.examScores.length - 1];
+  if (typeof baseline !== "number") return { ok: false, error: "no exam baseline was recorded when this playbook was applied \u2014 settlement refused (measurements must be receipt-bound)" };
+  if (!latest) return { ok: false, error: "no exam run since apply \u2014 settlement refused (there is no candidate measurement yet)" };
+  const source = `exam receipts (bound) \xB7 baseline at apply ${Math.round(baseline * 100)}% \xB7 latest exam ${Math.round(latest.score * 100)}%`;
+  const producedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const partial2 = { promoId, baseline, candidate: latest.score, source, producedAt };
+  return { ok: true, evidence: { ...partial2, digest: sealMeasurement(partial2) } };
+}
+function exportThetaPairs(decisions) {
+  const pairs = [];
+  const byScenario = /* @__PURE__ */ new Map();
+  for (const d2 of decisions) {
+    const key = (d2.scenario ?? "").slice(0, 120);
+    if (!key) continue;
+    const slot = byScenario.get(key) ?? {};
+    if (d2.kind === "accept") slot.accepted = `${d2.action ?? ""}${d2.reason ? ` \u2014 ${d2.reason}` : ""}`.slice(0, 300);
+    if (d2.kind === "reject") slot.rejected = `${d2.action ?? ""}${d2.reason ? ` \u2014 ${d2.reason}` : ""}`.slice(0, 300);
+    byScenario.set(key, slot);
+  }
+  for (const [prompt, v2] of byScenario) {
+    if (v2.accepted || v2.rejected) pairs.push({ prompt, chosen: v2.accepted, rejected: v2.rejected });
+  }
+  return pairs.slice(-100);
+}
+function longitudinalMonitor() {
+  const st2 = load2();
+  const applied = st2.archive.filter((a) => a.event === "applied" || a.event === "adopted").length;
+  const gone = st2.archive.filter((a) => a.event === "retired" || a.event === "reverted" || a.event === "canary-rollback").length;
+  const families = new Set(st2.archive.filter((a) => a.event === "applied").map((a) => a.name.split(".").slice(0, 2).join(".")));
+  return {
+    generations: st2.archive.length,
+    capabilityDrift: st2.examScores.map((e2) => Math.round(e2.score * 100) / 100),
+    verifierDrift: { applied, rejectedOrRetired: gone },
+    diversityDrift: families.size,
+    costDrift: { providerCallsBudget: GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle },
+    rollbacks: st2.archive.filter((a) => a.event === "canary-rollback" || a.event === "reverted").length
+  };
+}
+var RSIRALS_LIFECYCLE = [
+  "OBSERVE",
+  "ATTRIBUTE",
+  "IMPROVE",
+  "VERIFY",
+  "PROMOTE",
+  "CANARY",
+  "REMEMBER",
+  "MONITOR",
+  "REPEAT"
+];
+var RSIRALS_GOVERNANCE_CHANNEL = ["HUMAN GOVERN", "VERSION", "SIGN", "DEPLOY TRUST POLICY"];
+
+// src/vh19/rsiralsV6.ts
+var AUTHORITY_PATTERN = /\b(approve|authoris|authoriz|consent|permission|grant|vault|owner key|human gate)\b/i;
+var EVIDENCE_PATTERN = /\b(receipt|exam|canary|ledger|evidence|digest|baseline)\b/i;
+var V6_CONSTITUTION = Object.freeze([
+  {
+    id: "c1.no-self-governance",
+    doctrine: "no change may touch, reinterpret, or route around the governance plane, the canary battery, the constitution, or the ledger",
+    check: (c) => {
+      if (["governance", "canary", "ledger", "constitution", "verifier", "gate"].includes(c.target)) {
+        return `scope creep: '${c.target}' is part of the frozen verifier or the governance plane`;
+      }
+      const fw = controlPlaneFirewall({ name: c.name, description: c.declares, body: c.body });
+      return fw.allowed ? null : `protected target: ${fw.reason}`;
+    }
+  },
+  {
+    id: "c2.discretion-tightening",
+    doctrine: "a change must tighten or preserve discretion \u2014 authority-granting language must trace to an explicit declared authority source",
+    check: (c) => !AUTHORITY_PATTERN.test(c.body) ? null : AUTHORITY_PATTERN.test(c.declares) && /v\d+|signed|owner/i.test(c.declares) ? null : "authority language in the body without a declared, versioned authority source"
+  },
+  {
+    id: "c3.evidence-bound",
+    doctrine: "every change declares how its effect will be evidenced \u2014 no change ships on vibes",
+    check: (c) => EVIDENCE_PATTERN.test(c.declares) ? null : "the declaration does not name its evidence (receipt/exam/canary/baseline)"
+  },
+  {
+    id: "c4.human-door-intact",
+    doctrine: "a change may add automation below the human gate; it may never claim to BE the human gate",
+    check: (c) => /\b(replaces?|bypass(es|ing)?|skips?)\s+(the\s+)?(human|owner|gate|approval)\b/i.test(c.body) ? "the body claims to replace or bypass the human gate" : null
+  }
+]);
+function checkConstitution(change) {
+  const violations = [];
+  for (const rule of V6_CONSTITUTION) {
+    const finding = rule.check(change);
+    if (finding) violations.push({ rule: rule.id, doctrine: rule.doctrine, finding });
+  }
+  return { ok: violations.length === 0, violations };
+}
+var DRIFT_WINDOW_MS = 24 * 60 * 60 * 1e3;
+function tokens(text) {
+  return new Set(text.toLowerCase().split(/[^a-z0-9_.]+/).filter((t) => t.length > 1));
+}
+function driftDelta(before, after) {
+  const a = tokens(before);
+  const b3 = tokens(after);
+  if (a.size === 0 && b3.size === 0) return 0;
+  let inter = 0;
+  for (const t of a) if (b3.has(t)) inter += 1;
+  const union2 = a.size + b3.size - inter;
+  return union2 === 0 ? 0 : 1 - inter / union2;
+}
+var DEFAULT_DRIFT_BUDGET = { maxPerChange: 0.6, maxPerWindow: 1.5 };
+var driftLog = [];
+function driftUsed(now = Date.now()) {
+  while (driftLog.length > 0 && now - driftLog[0].at > DRIFT_WINDOW_MS) driftLog.shift();
+  return driftLog.reduce((n, e2) => n + e2.delta, 0);
+}
+function admitDrift(before, after, target, budget = DEFAULT_DRIFT_BUDGET, now = Date.now()) {
+  const delta = driftDelta(before, after);
+  if (delta > budget.maxPerChange) {
+    return { ok: false, delta, reason: `drift ${delta.toFixed(2)} exceeds the per-change bound ${budget.maxPerChange.toFixed(2)} \u2014 shrink the step until a human can review it in one sitting` };
+  }
+  const used = driftUsed(now);
+  if (used + delta > budget.maxPerWindow) {
+    return { ok: false, delta, reason: `window budget ${budget.maxPerWindow.toFixed(2)} would be busted (${used.toFixed(2)} used + ${delta.toFixed(2)}) \u2014 the fleet slows down; it does not drift through` };
+  }
+  driftLog.push({ at: now, delta, target });
+  return { ok: true, delta };
+}
+function regressionGate(scores, baseline) {
+  const dropped = [];
+  for (const [dim, floor] of Object.entries(baseline.floors)) {
+    const v2 = scores.scores[dim];
+    if (v2 === void 0 || !Number.isFinite(v2)) dropped.push(`${dim}: unmeasured`);
+    else if (v2 < floor) dropped.push(`${dim}: ${v2} < floor ${floor}`);
+  }
+  return { ok: dropped.length === 0, dropped };
+}
+var ledger = [];
+var V6_POLICY = "vh.rsirals.T_v5 + v6-verifier-addendum/1";
+function ledgerAppend(kind, actor, target, detail, candidateDigest, at2) {
+  const prevHash = ledger.length === 0 ? "GENESIS" : ledger[ledger.length - 1].hash;
+  const seq = ledger.length + 1;
+  const hash2 = pureSha256(JSON.stringify({ seq, at: at2, kind, actor, target, policy: V6_POLICY, detail, candidateDigest, prevHash }));
+  const ev = { seq, at: at2, kind, actor, target, policy: V6_POLICY, detail, candidateDigest, prevHash, hash: hash2 };
+  ledger.push(ev);
+  return ev;
+}
+var lastKnownGood = /* @__PURE__ */ new Map();
+function governChange(c, canary = { ran: 0, failed: [], batteryDigest: "", source: "unavailable" }, at2 = Date.now()) {
+  const candidateDigest = pureSha256(JSON.stringify({ name: c.name, target: c.target, body: c.body, declares: c.declares }));
+  const reasons = [];
+  const constitution = checkConstitution(c);
+  ledgerAppend("proposed", c.actor, c.target, `candidate ${c.name} entered the gate`, candidateDigest, at2);
+  if (!constitution.ok) {
+    for (const v2 of constitution.violations) reasons.push(`${v2.rule}: ${v2.finding}`);
+    const event2 = ledgerAppend("blocked", c.actor, c.target, `constitution: ${reasons.join("; ")}`, candidateDigest, at2);
+    return { verdict: "BLOCK", stage: "shadow", reasons, constitution, drift: { ok: true, delta: 0 }, canaries: { ran: 0, failed: [], batteryDigest: "", source: "unavailable" }, event: event2 };
+  }
+  const drift = admitDrift(c.currentText ?? "", c.body, c.target, DEFAULT_DRIFT_BUDGET, at2);
+  if (!drift.ok) {
+    reasons.push(drift.reason ?? "drift budget refused");
+    const event2 = ledgerAppend("blocked", c.actor, c.target, `drift budget: ${drift.reason}`, candidateDigest, at2);
+    return { verdict: "BLOCK", stage: "shadow", reasons, constitution, drift, canaries: { ran: 0, failed: [], batteryDigest: "", source: "unavailable" }, event: event2 };
+  }
+  ledgerAppend("canaried", c.actor, c.target, `canary source ${canary.source}: ${canary.ran} ran \u2014 ${canary.failed.length} failed`, candidateDigest, at2);
+  if (canary.failed.length > 0) {
+    for (const f3 of canary.failed) reasons.push(`${f3.id}: ${f3.finding}`);
+    const event2 = ledgerAppend("blocked", c.actor, c.target, `hidden canaries: ${reasons.join("; ")}`, candidateDigest, at2);
+    return { verdict: "BLOCK", stage: "shadow", reasons, constitution, drift, canaries: { ...canary }, event: event2 };
+  }
+  if (canary.source === "unavailable") {
+    reasons.push("external verifier unavailable in this runtime \u2014 machine canaries cannot pass, the human decides without them");
+  }
+  reasons.push("machine gates passed \u2014 promotion to fleet is a human decision");
+  const event = ledgerAppend("escalated", c.actor, c.target, `machine gates passed \u2014 human promotion decision required`, candidateDigest, at2);
+  return { verdict: "ESCALATE", stage: "canary", reasons, constitution, drift, canaries: { ...canary }, event };
+}
+function promoteToFleet(c, scores, baseline, at2 = Date.now()) {
+  const candidateDigest = pureSha256(JSON.stringify({ name: c.name, target: c.target, body: c.body, declares: c.declares }));
+  const reg = regressionGate(scores, baseline);
+  if (!reg.ok) {
+    const event2 = ledgerAppend("blocked", "human", c.target, `regression fail-closed: ${reg.dropped.join("; ")}`, candidateDigest, at2);
+    return { ok: false, line: `refused \u2014 fail-closed on: ${reg.dropped.join("; ")} (ledger seq ${event2.seq})` };
+  }
+  lastKnownGood.set(c.target, { body: c.currentText ?? "", digest: pureSha256(c.currentText ?? ""), at: at2 });
+  const event = ledgerAppend("promoted", "human", c.target, `${c.name} promoted shadow\u2192canary\u2192fleet; last-known-good snapshot kept`, candidateDigest, at2);
+  return { ok: true, line: `promoted to FLEET (ledger seq ${event.seq}); rollback point kept for ${c.target}` };
+}
+
+// src/vh19/canaryClient.ts
+var VERIFIER_PATH = "verifier/vh-verifier.mjs";
+function verifierSignature(nonce, ran, failed2, batteryDigest) {
+  return pureSha256(`vh-verifier/1|${nonce}|${ran}|${JSON.stringify(failed2)}|${batteryDigest}`);
+}
+function validateVerifierOutput(out, expectedNonce, expectedBattery) {
+  if (!out || typeof out !== "object") return { ok: false, reason: "verifier output is not an object" };
+  if (out.nonce !== expectedNonce) return { ok: false, reason: "verdict nonce mismatch \u2014 replay refused" };
+  if (!Array.isArray(out.failed)) return { ok: false, reason: "verdict failed-list malformed" };
+  if (typeof out.ran !== "number" || typeof out.batteryDigest !== "string" || out.batteryDigest.length !== 64) return { ok: false, reason: "verdict payload malformed" };
+  if (expectedBattery && out.batteryDigest !== expectedBattery) return { ok: false, reason: "verdict came from a different battery \u2014 refused" };
+  const expect = verifierSignature(out.nonce, out.ran, out.failed, out.batteryDigest);
+  if (out.sig !== expect) return { ok: false, reason: "verdict signature mismatch \u2014 tamper refused" };
+  return {
+    ok: true,
+    report: { ran: out.ran, failed: out.failed.map((f3) => ({ id: String(f3.id), finding: String(f3.finding) })), batteryDigest: out.batteryDigest, source: "external-verifier" }
+  };
+}
+function verifyExternal(candidate) {
+  try {
+    const proc = globalThis.process;
+    const getBuiltin = proc?.getBuiltinModule;
+    if (typeof getBuiltin !== "function" || typeof proc?.execPath !== "function" && typeof proc?.execPath !== "string" || typeof proc?.cwd !== "function") {
+      return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: "no node runtime \u2014 the external verifier cannot run here" };
+    }
+    const cp = getBuiltin("node:child_process");
+    const fs2 = getBuiltin("node:fs");
+    const pathMod = getBuiltin("node:path");
+    const verifierPath = pathMod.resolve(proc.cwd(), VERIFIER_PATH);
+    if (!fs2.existsSync(verifierPath)) {
+      return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: `verifier binary not found at ${VERIFIER_PATH}` };
+    }
+    const nonce = pureSha256(`${Date.now()}-${Math.random()}-vh-canary`).slice(0, 32);
+    const raw = cp.execFileSync(proc.execPath, [verifierPath], {
+      input: JSON.stringify({ nonce, candidate }),
+      encoding: "utf8",
+      timeout: 15e3
+    });
+    const out = JSON.parse(raw);
+    const res = validateVerifierOutput(out, nonce);
+    if (!res.ok) return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: res.reason };
+    return res.report;
+  } catch (err) {
+    return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: `verifier run failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
 // src/vh19/selfEvolve.ts
 var PROPOSALS_KEY = "vh19.self.proposals.v1";
 var SELF_EVOLUTION_FLOOR = [
@@ -66165,7 +66594,7 @@ var SELF_EVOLUTION_FLOOR = [
   "the honesty contract (executed:false when nothing ran)",
   "any LOOSENING of any control (tiers, bars, ceilings)"
 ];
-function storage13() {
+function storage14() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66177,7 +66606,7 @@ async function sha256Hex5(t) {
   return Array.from(new Uint8Array(buf)).map((b3) => b3.toString(16).padStart(2, "0")).join("");
 }
 function selfProposals() {
-  const s = storage13();
+  const s = storage14();
   if (!s) return [];
   try {
     return JSON.parse(s.getItem(PROPOSALS_KEY) ?? "[]");
@@ -66186,7 +66615,7 @@ function selfProposals() {
   }
 }
 function saveProposals(list) {
-  storage13()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
+  storage14()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
 }
 async function proposeSelfChanges(userId = "default", now = () => /* @__PURE__ */ new Date()) {
   const report = patternReport(userId);
@@ -66292,6 +66721,58 @@ function revertAppliedChange(entryId) {
   }
   return ovr;
 }
+function governCandidateFor(p) {
+  const body = `${p.kind} of ${p.target} to ${JSON.stringify(p.to)}`;
+  const ovr = loadSelfOverrides();
+  const current = p.kind === "tighten-tier" ? `tighten-tier of ${p.target} to ${getSpecialist(p.target)?.riskTier ?? "safe"}` : p.kind === "raise-min-score" ? `raise-min-score to base + ${ovr.minScoreDelta}` : `suppress-category of ${p.target}: currently routing freely`;
+  return {
+    name: `self.${p.kind}.${p.target}`,
+    target: "self-overrides",
+    body,
+    declares: `rationale: ${p.rationale} \u2014 evidence: rejection-ledger counts and the pattern report back this change; receipt: the self-overrides history digest; baseline: tighten-only floor`,
+    currentText: current,
+    actor: "human-apply"
+  };
+}
+async function applySelfChangeGuarded(proposalId, now = () => /* @__PURE__ */ new Date()) {
+  const list = selfProposals();
+  const p = list.find((x2) => x2.id === proposalId);
+  if (!p) return { ok: false, error: `unknown proposal ${proposalId}` };
+  if (p.state !== "pending") return { ok: false, error: `proposal already ${p.state}` };
+  const candidate = governCandidateFor(p);
+  const canary = verifyExternal(candidate);
+  const verdict = governChange(candidate, canary, now().getTime());
+  if (verdict.verdict === "BLOCK") {
+    rsiralsOnFirewallBlock(candidate.name, verdict.reasons.join("; "));
+    return { ok: false, error: `refused by RSIRALS v6 \u2014 ${verdict.reasons.join("; ")}` };
+  }
+  const promo = promoteToFleet(
+    candidate,
+    { scores: { "tighten-only": 1, "human-approved": 1 } },
+    { floors: { "tighten-only": 1, "human-approved": 1 } },
+    now().getTime()
+  );
+  if (!promo.ok) return { ok: false, error: promo.line };
+  const res = applySelfChange(proposalId, now);
+  if (!res.ok) return { ok: false, error: res.error };
+  rsiralsOnApply({ id: p.id, name: candidate.name }, null);
+  return {
+    ok: true,
+    overrides: res.overrides,
+    v6: {
+      verdict: verdict.verdict,
+      drift: Math.round(verdict.drift.delta * 1e3) / 1e3,
+      canarySource: canary.source,
+      ledgerSeq: verdict.event?.seq,
+      promotion: promo.line
+    }
+  };
+}
+function revertAppliedChangeGuarded(entryId) {
+  const entry = loadSelfOverrides().history.find((h) => h.id === entryId);
+  if (entry) rsiralsOnRevert(`self.${entry.kind}.${entry.target}`);
+  return revertAppliedChange(entryId);
+}
 
 // src/vh19/gateRules.ts
 var rules = /* @__PURE__ */ new Map();
@@ -66323,7 +66804,7 @@ function answerGateWithRules(ask, now = () => /* @__PURE__ */ new Date()) {
 var GOALS_KEY = "vh19.goals.v1";
 var GOAL_CAP = 50;
 var MAX_STEPS = 5;
-function storage14() {
+function storage15() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66331,7 +66812,7 @@ function storage14() {
   }
 }
 function loadGoals() {
-  const raw = storage14()?.getItem(GOALS_KEY) ?? null;
+  const raw = storage15()?.getItem(GOALS_KEY) ?? null;
   if (!raw) return [];
   try {
     const g = JSON.parse(raw);
@@ -66340,8 +66821,8 @@ function loadGoals() {
     return [];
   }
 }
-function save4(goals) {
-  storage14()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
+function save5(goals) {
+  storage15()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
 }
 function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
   const route = routeDeterministic(text);
@@ -66364,7 +66845,7 @@ function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
     createdAt: now().toISOString(),
     updatedAt: now().toISOString()
   };
-  save4([...loadGoals(), goal]);
+  save5([...loadGoals(), goal]);
   return goal;
 }
 function nextPendingStep(goal) {
@@ -66389,7 +66870,7 @@ function settleStep(goalId, stepId, outcome, now = () => /* @__PURE__ */ new Dat
     goal.state = "active";
   }
   goal.updatedAt = now().toISOString();
-  save4(goals);
+  save5(goals);
   return goal;
 }
 function resumeGoal(goalId, now = () => /* @__PURE__ */ new Date()) {
@@ -66399,7 +66880,7 @@ function resumeGoal(goalId, now = () => /* @__PURE__ */ new Date()) {
   for (const s of goal.steps) if (s.status === "gated") s.status = "pending";
   goal.state = "active";
   goal.updatedAt = now().toISOString();
-  save4(goals);
+  save5(goals);
   return goal;
 }
 function goalProgress(goal) {
@@ -66426,7 +66907,7 @@ function goalStatus(goal) {
 // src/vh19/handoffs.ts
 var HANDOFFS_KEY = "vh19.handoffs.v1";
 var HANDOFF_CAP = 100;
-function storage15() {
+function storage16() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66434,7 +66915,7 @@ function storage15() {
   }
 }
 function listHandoffs() {
-  const raw = storage15()?.getItem(HANDOFFS_KEY) ?? null;
+  const raw = storage16()?.getItem(HANDOFFS_KEY) ?? null;
   if (!raw) return [];
   try {
     const h = JSON.parse(raw);
@@ -66457,7 +66938,7 @@ function recordHandoff(input2, now = () => /* @__PURE__ */ new Date()) {
   rec.meshJointDigest = mesh.meshJointDigest;
   rec.meshStanding = mesh.meshStanding;
   rec.meshDetail = mesh.meshDetail;
-  storage15()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
+  storage16()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
   return rec;
 }
 
@@ -67166,24 +67647,6 @@ async function openDirectoryWorkspace() {
 
 // src/vh19/byoa.ts
 init_guardrail();
-
-// src/domain/artifact.ts
-function hashString(str) {
-  let bytes;
-  if (typeof Buffer !== "undefined") {
-    bytes = Buffer.from(str, "utf8");
-  } else {
-    bytes = new TextEncoder().encode(str);
-  }
-  let h = 2166136261 >>> 0;
-  for (let i2 = 0; i2 < bytes.length; i2++) {
-    h ^= bytes[i2];
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  return h.toString(16).padStart(8, "0");
-}
-
-// src/vh19/byoa.ts
 var BYOA_SECURITY_POLICY = [
   "TLS by default \u2014 plain http is refused except for localhost dev endpoints",
   "the shared SSRF/egress guard applies to every brought endpoint",
@@ -67194,35 +67657,35 @@ var BYOA_SECURITY_POLICY = [
   "identity digests \u2014 a tampered registration fails the trust check",
   "session keys live in memory only"
 ];
-var KEY5 = "vh19.byoa.agents.v1";
-function storage16() {
+var KEY6 = "vh19.byoa.agents.v1";
+function storage17() {
   try {
     return typeof localStorage !== "undefined" ? localStorage : null;
   } catch {
     return null;
   }
 }
-var session2 = [];
+var session3 = [];
 function listByoaAgents() {
-  const s = storage16();
-  if (!s) return session2;
+  const s = storage17();
+  if (!s) return session3;
   try {
-    return JSON.parse(s.getItem(KEY5) ?? "[]");
+    return JSON.parse(s.getItem(KEY6) ?? "[]");
   } catch {
-    return session2;
+    return session3;
   }
 }
 function persist(all) {
-  const s = storage16();
+  const s = storage17();
   if (s) {
     try {
-      s.setItem(KEY5, JSON.stringify(all));
+      s.setItem(KEY6, JSON.stringify(all));
       return;
     } catch {
     }
   }
-  session2.length = 0;
-  session2.push(...all);
+  session3.length = 0;
+  session3.push(...all);
 }
 function byoaIdentityDigest(a) {
   return hashString(`vh.byoa.identity.v1|${a.name}|${a.kind}|${a.endpoint}|${a.ceiling}`);
@@ -67361,241 +67824,6 @@ function byoaDelegate(agent, opts = {}) {
     return { ok: ok2, detail, receiptDigest, ...findings && findings.length > 0 ? { findings } : {} };
   };
 }
-
-// src/vh19/rsirals.ts
-var GOVERNANCE_PLANE = Object.freeze({
-  id: "vh.rsirals.T",
-  version: 5,
-  objectiveContract: "Improvements must tighten discretion, trace to real ledger evidence, and never trade user authority for agent convenience.",
-  promotionRules: [
-    "apply is always a human decision",
-    "trust requires a measured comparison: candidate beats baseline",
-    "measurements must be receipt-bound (exam/receipts) or explicitly marked externally supplied",
-    "losing measurements retire the change and revert its frozen memory exactly"
-  ],
-  safetyPolicies: [
-    "the human gate and its risk tiers",
-    "the autonomy exam and its pass threshold",
-    "the probe and verification suites and their pins",
-    "the self-evolution floor (SELF_EVOLUTION_FLOOR)",
-    "the RSI floor (RSI_FLOOR)",
-    "this governance plane \u2014 the loop cannot loosen the loop"
-  ],
-  evaluationStandards: [
-    "independent verifier held out of the generation path (the autonomy exam)",
-    "deterministic evidence: ledger ids, digests, receipt stamps",
-    "intrinsic self-assessment is never a verifier"
-  ],
-  resourceCeilings: { providerCallsPerCycle: 8, topicsPerCycle: 10, maxDraftBytes: 2400 },
-  rollbackAuthority: "human-only"
-});
-var FIREWALL_TRIGGERS = [
-  "risk tier",
-  "risk-tier",
-  "gate threshold",
-  "pass threshold",
-  "exam threshold",
-  "disable the gate",
-  "bypass the gate",
-  "lower the bar",
-  "self-evolution floor",
-  "rsi_floor",
-  "verification suite",
-  "probe pin",
-  "governance plane",
-  "grant myself",
-  "approve myself",
-  "autonomy without exam"
-];
-function controlPlaneFirewall(candidate) {
-  const text = `${candidate.name}
-${candidate.description}
-${candidate.body}`.toLowerCase();
-  for (const t of FIREWALL_TRIGGERS) {
-    if (text.includes(t)) return { allowed: false, reason: `control-plane firewall: candidate touches the governance plane ("${t}") \u2014 rejected before verification` };
-  }
-  if (candidate.body.length > GOVERNANCE_PLANE.resourceCeilings.maxDraftBytes * 4) {
-    return { allowed: false, reason: "control-plane firewall: candidate exceeds governed size ceilings" };
-  }
-  return { allowed: true, reason: "no governance-plane contact" };
-}
-var EVIDENCE_STACK = [
-  { id: "V_replay", name: "held-out replay", how: "trial records carry inputs + receipt digests, frozen at run time" },
-  { id: "V_independent", name: "independent verifier", how: "the autonomy exam is held out of the generation path \u2014 the judge that scores is never the drafter" },
-  { id: "V_regression", name: "regression testing", how: "the probe fleet pins behavior; any change that breaks a pin cannot ship" },
-  { id: "V_safety", name: "safety / policy testing", how: "control-plane firewall + the GuardRail (SSRF egress, injection scan, rate gates)" },
-  { id: "V_anti_hack", name: "anti-reward-hacking", how: "promotion settles only on receipt-bound measurements, or is explicitly marked externally supplied" },
-  { id: "V_anti_collapse", name: "anti-collapse", how: "diversity check over applied playbooks \u2014 the loop may not converge on one repeated category" },
-  { id: "V_cost", name: "cost / resource budget", how: "T's resource ceilings bound provider calls, topics and draft size per cycle" }
-];
-var PROTECTED_TARGETS = ["governance", "gate", "exam", "verification", "risk-tier", "floor"];
-function validateChangeContract(c) {
-  if (PROTECTED_TARGETS.includes(c.target)) {
-    return { allowed: false, reason: `structural firewall: target "${c.target}" is protected \u2014 the loop may never write it, by any authority` };
-  }
-  if (!c.field.trim()) return { allowed: false, reason: "structural firewall: contract has no field" };
-  if (!c.scope.trim()) return { allowed: false, reason: "structural firewall: contract has no scope" };
-  if (c.authority !== "human" && c.authority !== "rsi-loop") return { allowed: false, reason: "structural firewall: authority must be human or rsi-loop" };
-  if (c.risk !== "safe" && c.risk !== "risky") return { allowed: false, reason: "structural firewall: unknown risk tier" };
-  return { allowed: true, reason: "contract valid \u2014 target is writable" };
-}
-function draftContract(topicSubject) {
-  return {
-    target: "playbook",
-    field: "specialist playbook (prompt composition)",
-    authority: "human",
-    scope: topicSubject.slice(0, 120),
-    risk: "safe"
-  };
-}
-function attributeEvidence(subject) {
-  const s = subject.toLowerCase();
-  const theta = /(model|provider|completion|empty reply|token|llm|api error|http 5|rate limit)/.test(s);
-  const sigma = /(playbook|routing|tool|prompt|skill|egress|workspace|gate|retrieval|synthesis|captain)/.test(s);
-  if (theta && sigma) return "joint";
-  if (theta) return "theta";
-  return "sigma";
-}
-var KEY6 = "vh19.rsirals.v1";
-function storage17() {
-  try {
-    return typeof localStorage !== "undefined" ? localStorage : null;
-  } catch {
-    return null;
-  }
-}
-var session3 = { archive: [], canary: [], baselines: {}, examScores: [], providerCalls: 0 };
-function load2() {
-  const s = storage17();
-  if (!s) return session3;
-  try {
-    const p = JSON.parse(s.getItem(KEY6) ?? "");
-    return { archive: p.archive ?? [], canary: p.canary ?? [], baselines: p.baselines ?? {}, examScores: p.examScores ?? [], providerCalls: p.providerCalls ?? 0 };
-  } catch {
-    return session3;
-  }
-}
-function save5(st2) {
-  const s = storage17();
-  if (s) {
-    try {
-      s.setItem(KEY6, JSON.stringify(st2));
-      return;
-    } catch {
-    }
-  }
-  Object.assign(session3, st2);
-}
-function rsiArchive() {
-  return load2().archive;
-}
-function canaryWatchlist() {
-  return load2().canary;
-}
-function appendArchive(st2, event, name, detail) {
-  st2.archive = [...st2.archive, { id: `arc.${st2.archive.length + 1}`, event, name, detail: detail.slice(0, 200), at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-80);
-}
-function rsiralsOnApply(draft, currentExamScore) {
-  const st2 = load2();
-  st2.canary = [...st2.canary, { name: draft.name, draftId: draft.id, category: draft.category, since: (/* @__PURE__ */ new Date()).toISOString() }].slice(-12);
-  if (currentExamScore !== null) st2.baselines[`promo.${draft.id}`] = currentExamScore;
-  appendArchive(st2, "applied", draft.name, `canary armed${currentExamScore !== null ? ` \xB7 baseline exam ${Math.round(currentExamScore * 100)}%` : " \xB7 no exam baseline recorded yet"}`);
-  save5(st2);
-}
-function rsiralsOnFirewallBlock(name, reason) {
-  const st2 = load2();
-  appendArchive(st2, "firewall-blocked", name, reason);
-  save5(st2);
-}
-function rsiralsOnSettle(name, state, settledBy) {
-  const st2 = load2();
-  st2.canary = st2.canary.filter((c) => c.name !== name);
-  appendArchive(st2, state, name, settledBy);
-  save5(st2);
-}
-function rsiralsOnRevert(name) {
-  const st2 = load2();
-  st2.canary = st2.canary.filter((c) => c.name !== name);
-  appendArchive(st2, "reverted", name, "human revert \u2014 exact");
-  save5(st2);
-}
-function rsiralsRecordExamScore(score) {
-  const st2 = load2();
-  st2.examScores = [...st2.examScores, { score, at: (/* @__PURE__ */ new Date()).toISOString() }].slice(-20);
-  save5(st2);
-}
-function rsiralsExamScores() {
-  return load2().examScores;
-}
-function rsiralsCanaryCheck(signal) {
-  if (signal.kind !== "failure" && signal.kind !== "livedata" && signal.kind !== "gate") return [];
-  const st2 = load2();
-  const route = attributeEvidence(signal.subject);
-  if (route === "theta") return [];
-  const hit = st2.canary.filter((c) => !signal.category || !c.category || c.category === signal.category);
-  if (hit.length === 0) return [];
-  st2.canary = st2.canary.filter((c) => !hit.includes(c));
-  for (const h of hit) appendArchive(st2, "canary-rollback", h.name, `live regression attributed (${signal.kind}): ${signal.subject.slice(0, 120)}`);
-  save5(st2);
-  return hit.map((h) => h.name);
-}
-var SEAL_SALT = "vh.rsirals.measurement.v1";
-function sealMeasurement(e2) {
-  return hashString(`${SEAL_SALT}|${e2.promoId}|${e2.baseline}|${e2.candidate}|${e2.source}|${e2.producedAt}`);
-}
-function bindSettlementEvidence(promoId) {
-  const st2 = load2();
-  const baseline = st2.baselines[promoId];
-  const latest = st2.examScores[st2.examScores.length - 1];
-  if (typeof baseline !== "number") return { ok: false, error: "no exam baseline was recorded when this playbook was applied \u2014 settlement refused (measurements must be receipt-bound)" };
-  if (!latest) return { ok: false, error: "no exam run since apply \u2014 settlement refused (there is no candidate measurement yet)" };
-  const source = `exam receipts (bound) \xB7 baseline at apply ${Math.round(baseline * 100)}% \xB7 latest exam ${Math.round(latest.score * 100)}%`;
-  const producedAt = (/* @__PURE__ */ new Date()).toISOString();
-  const partial2 = { promoId, baseline, candidate: latest.score, source, producedAt };
-  return { ok: true, evidence: { ...partial2, digest: sealMeasurement(partial2) } };
-}
-function exportThetaPairs(decisions) {
-  const pairs = [];
-  const byScenario = /* @__PURE__ */ new Map();
-  for (const d2 of decisions) {
-    const key = (d2.scenario ?? "").slice(0, 120);
-    if (!key) continue;
-    const slot = byScenario.get(key) ?? {};
-    if (d2.kind === "accept") slot.accepted = `${d2.action ?? ""}${d2.reason ? ` \u2014 ${d2.reason}` : ""}`.slice(0, 300);
-    if (d2.kind === "reject") slot.rejected = `${d2.action ?? ""}${d2.reason ? ` \u2014 ${d2.reason}` : ""}`.slice(0, 300);
-    byScenario.set(key, slot);
-  }
-  for (const [prompt, v2] of byScenario) {
-    if (v2.accepted || v2.rejected) pairs.push({ prompt, chosen: v2.accepted, rejected: v2.rejected });
-  }
-  return pairs.slice(-100);
-}
-function longitudinalMonitor() {
-  const st2 = load2();
-  const applied = st2.archive.filter((a) => a.event === "applied" || a.event === "adopted").length;
-  const gone = st2.archive.filter((a) => a.event === "retired" || a.event === "reverted" || a.event === "canary-rollback").length;
-  const families = new Set(st2.archive.filter((a) => a.event === "applied").map((a) => a.name.split(".").slice(0, 2).join(".")));
-  return {
-    generations: st2.archive.length,
-    capabilityDrift: st2.examScores.map((e2) => Math.round(e2.score * 100) / 100),
-    verifierDrift: { applied, rejectedOrRetired: gone },
-    diversityDrift: families.size,
-    costDrift: { providerCallsBudget: GOVERNANCE_PLANE.resourceCeilings.providerCallsPerCycle },
-    rollbacks: st2.archive.filter((a) => a.event === "canary-rollback" || a.event === "reverted").length
-  };
-}
-var RSIRALS_LIFECYCLE = [
-  "OBSERVE",
-  "ATTRIBUTE",
-  "IMPROVE",
-  "VERIFY",
-  "PROMOTE",
-  "CANARY",
-  "REMEMBER",
-  "MONITOR",
-  "REPEAT"
-];
-var RSIRALS_GOVERNANCE_CHANNEL = ["HUMAN GOVERN", "VERSION", "SIGN", "DEPLOY TRUST POLICY"];
 
 // src/vh19/rsi.ts
 var RSI_FLOOR = [
@@ -67908,7 +68136,7 @@ var Vh19 = () => {
   const [teamPeer, setTeamPeer] = (0, import_react8.useState)("qwen");
   const [shipBrief, setShipBrief] = (0, import_react8.useState)("");
   const [builds, setBuilds] = (0, import_react8.useState)(() => listBuilds());
-  const [tokens, setTokens] = (0, import_react8.useState)(() => usageReport());
+  const [tokens2, setTokens] = (0, import_react8.useState)(() => usageReport());
   const [teamReport, setTeamReport] = (0, import_react8.useState)(null);
   const [teamProposal, setTeamProposal] = (0, import_react8.useState)(null);
   const [teamConfig, setTeamConfig] = (0, import_react8.useState)(null);
@@ -69333,9 +69561,10 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                   /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "px-quiet-sub", children: p.rationale }),
                   /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "px-row", style: { marginTop: 6 }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "px-btn px-btn-primary px-btn-sm", onClick: () => {
-                      const r3 = applySelfChange(p.id);
-                      setSelfNote(r3.ok ? null : r3.error);
-                      setSelfList(selfProposals());
+                      void applySelfChangeGuarded(p.id).then((r3) => {
+                        setSelfNote(r3.ok ? r3.v6 ? `applied \u2014 RSIRALS v6: ${r3.v6.verdict} \xB7 canaries ${r3.v6.canarySource} \xB7 ledger seq ${r3.v6.ledgerSeq ?? "\u2014"}` : null : r3.error ?? null);
+                        setSelfList(selfProposals());
+                      });
                     }, children: "Apply" }),
                     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
                       rejectSelfChange(p.id, "user declined");
@@ -69353,7 +69582,7 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                     ")"
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("button", { className: "px-btn px-btn-ghost px-btn-sm", onClick: () => {
-                    revertAppliedChange(h.id);
+                    revertAppliedChangeGuarded(h.id);
                     setSelfList(selfProposals());
                   }, children: "Revert" })
                 ] }, h.id))
@@ -69488,15 +69717,15 @@ Nothing here overstates itself \u2014 this run produced no receipt.`, scenario, 
                 ] }, b3.id)),
                 /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "px-muted", children: [
                   "prompt-budget optimizer \xB7 token estimates (\u22484 chars/token \u2014 an estimate, not a tokenizer): ",
-                  tokens.calls,
+                  tokens2.calls,
                   " provider calls \xB7 ",
-                  tokens.promptTokens,
+                  tokens2.promptTokens,
                   " prompt / ",
-                  tokens.replyTokens,
+                  tokens2.replyTokens,
                   " reply tokens \xB7 ",
-                  tokens.optimizedCalls,
+                  tokens2.optimizedCalls,
                   " prompts trimmed \xB7 ~",
-                  tokens.savedTokens,
+                  tokens2.savedTokens,
                   " tokens saved"
                 ] })
               ] }))

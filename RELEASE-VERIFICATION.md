@@ -1,10 +1,27 @@
-# Vouch Harbor 19.7.6 [Office] — release verification record
+# Vouch Harbor 19.7.7 [Verifier] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.7 record — the live verifier
+
+The fourth review confirmed 19.7.6's fixes and named two caveats, both
+shipped here: (1) RSIRALS v6 was verified but not wired into the live
+promotion path — now `applySelfChangeGuarded()` gates EVERY self-evolution
+apply through the full v6 stack, with the drift budget measuring the
+mutation against a comparable rendering of the current state; (2) the
+hidden canaries were readable in shipped source — the battery now lives in
+`verifier/vh-verifier.mjs`, a separate zero-dependency process outside the
+agent's evolvable surface (constitution-protected by name), producing
+nonce-bound, SHA-256-signed verdicts; replays and tampering are refused,
+and where no process can run the gate honestly reports `unavailable` and
+keeps the human door as the only promotion path. probe/rsiralsV6 grew to
+38 checks, including a real verifier spawn and the live production apply.
+
+**Tree.** `19.7.7 "Verifier"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.6 record — the strengthened verifier
 

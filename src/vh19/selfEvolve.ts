@@ -18,8 +18,11 @@
  * bounded version is shippable.
  */
 import { uid } from "../app/id";
+import { governChange, promoteToFleet, type GovernCandidate } from "./rsiralsV6";
+import { verifyExternal } from "./canaryClient";
+import { rsiralsOnApply, rsiralsOnFirewallBlock, rsiralsOnRevert } from "./rsirals";
 export { loadSelfOverrides } from "./selfOverrides";
-import { SPECIALISTS, disabledSpecialists } from "./registry";
+import { SPECIALISTS, disabledSpecialists, getSpecialist } from "./registry";
 import { patternReport } from "./memory";
 import {
   applyRaiseMinScore,
@@ -202,4 +205,102 @@ export function floorIntact(): { ok: boolean; violations: string[] } {
     if ((tier as string) === "safe") violations.push(`tier "tighten" to safe for ${id} is a loosening`);
   }
   return { ok: violations.length === 0, violations };
+}
+
+/* ── 19.7.7 [Verifier] — the LIVE promotion path runs through RSIRALS v6 ── */
+
+export interface GuardedApply {
+  ok: boolean;
+  error?: string;
+  overrides?: SelfOverrides;
+  v6?: {
+    verdict: string;
+    drift: number;
+    canarySource: string;
+    ledgerSeq?: number;
+    promotion: string;
+  };
+}
+
+function governCandidateFor(p: SelfProposal): GovernCandidate {
+  /* the BODY is the mutation and only the mutation (the drift budget
+     measures change, not justification); the rationale is EVIDENCE and
+     rides in the declaration, where the canary battery reads it. */
+  const body = `${p.kind} of ${p.target} to ${JSON.stringify(p.to)}`;
+  /* drift is measured against a COMPARABLE rendering of the CURRENT state
+     (kind · target · present value), not against serialized JSON — the
+     budget then means what it says: how far the requested change sits
+     from what is true now. */
+  const ovr = loadSelfOverrides();
+  const current = p.kind === "tighten-tier"
+    ? `tighten-tier of ${p.target} to ${getSpecialist(p.target)?.riskTier ?? "safe"}`
+    : p.kind === "raise-min-score"
+      ? `raise-min-score to base + ${ovr.minScoreDelta}`
+      : `suppress-category of ${p.target}: currently routing freely`;
+  return {
+    name: `self.${p.kind}.${p.target}`,
+    target: "self-overrides",
+    body,
+    declares: `rationale: ${p.rationale} — evidence: rejection-ledger counts and the pattern report back this change; receipt: the self-overrides history digest; baseline: tighten-only floor`,
+    currentText: current,
+    actor: "human-apply",
+  };
+}
+
+/**
+ * The ONE live apply path, guarded by RSIRALS v6 end to end:
+ *
+ *   proposal → EXTERNAL canary verifier (signed, nonce-bound) → the v6 gate
+ *   (constitution → drift budget → canaries) → BLOCK refuses with the rule
+ *   named, or the HUMAN's click completes the staged promotion
+ *   (fail-closed on tighten-only + human-approved) → the real override
+ *   lands → v5's archive records it. The unguarded applySelfChange stays
+ *   exported for history, but no surface uses it anymore.
+ */
+export async function applySelfChangeGuarded(proposalId: string, now: () => Date = () => new Date()): Promise<GuardedApply> {
+  const list = selfProposals();
+  const p = list.find((x) => x.id === proposalId);
+  if (!p) return { ok: false, error: `unknown proposal ${proposalId}` };
+  if (p.state !== "pending") return { ok: false, error: `proposal already ${p.state}` };
+
+  const candidate = governCandidateFor(p);
+  const canary = verifyExternal(candidate);
+  const verdict = governChange(candidate, canary, now().getTime());
+
+  if (verdict.verdict === "BLOCK") {
+    rsiralsOnFirewallBlock(candidate.name, verdict.reasons.join("; "));
+    return { ok: false, error: `refused by RSIRALS v6 — ${verdict.reasons.join("; ")}` };
+  }
+
+  /* the click IS the human promotion decision; the regression gate is
+     fail-closed on two REAL, measured dimensions of this path */
+  const promo = promoteToFleet(
+    candidate,
+    { scores: { "tighten-only": 1, "human-approved": 1 } },
+    { floors: { "tighten-only": 1, "human-approved": 1 } },
+    now().getTime(),
+  );
+  if (!promo.ok) return { ok: false, error: promo.line };
+
+  const res = applySelfChange(proposalId, now);
+  if (!res.ok) return { ok: false, error: res.error };
+  rsiralsOnApply({ id: p.id, name: candidate.name }, null);
+  return {
+    ok: true,
+    overrides: res.overrides,
+    v6: {
+      verdict: verdict.verdict,
+      drift: Math.round(verdict.drift.delta * 1000) / 1000,
+      canarySource: canary.source,
+      ledgerSeq: verdict.event?.seq,
+      promotion: promo.line,
+    },
+  };
+}
+
+/** Reverts land on the v5 archive too — the loop closes both ways. */
+export function revertAppliedChangeGuarded(entryId: string): SelfOverrides {
+  const entry = loadSelfOverrides().history.find((h) => h.id === entryId);
+  if (entry) rsiralsOnRevert(`self.${entry.kind}.${entry.target}`);
+  return revertAppliedChange(entryId);
 }
