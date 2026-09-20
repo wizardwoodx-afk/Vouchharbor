@@ -57,7 +57,7 @@ const read = (p: string): string => fs.readFileSync(path.join(root, p), "utf8");
 const json = <T,>(p: string): T => JSON.parse(read(p)) as T;
 
 section("0. the single source of truth is well formed");
-ok("VH_VERSION looks like a semver release", /^\d+\.\d+\.\d+$/.test(VH_VERSION), VH_VERSION);
+ok("VH_VERSION looks like a semver release (3 or 4 numeric parts — 19.7.2.1 ships a patch-of-patch)", /^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), VH_VERSION);
 ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".").slice(0, 2).join("."), `${VH_VERSION} -> ${VH_SHORT}`);
 // The codename is owned by version.ts, so assert the RELATIONSHIP rather than a
 // literal. This check previously hardcoded "Patina", which meant a codename bump
@@ -108,7 +108,7 @@ for (const doc of docs) {
   // form, so "VH 11.14.1" passed while the release was 11.14.11: DESKTOP-NATIVE.md and
   // INSTALL-ON-LAPTOP.md shipped titles three releases old with versionDrift still green.
   const stale = firstLine.match(/VH (\d+\.\d+)/);
-  const staleFull = firstLine.match(/VH (\d+\.\d+\.\d+)/);
+  const staleFull = firstLine.match(/VH (\d+(?:\.\d+){2,3})/);
   ok(`${doc} title does not name a stale release`, stale === null || stale[1] === VH_SHORT, firstLine.slice(0, 70));
   ok(`${doc} title carries the exact release patch (${VH_VERSION})`,
     staleFull === null || staleFull[1] === VH_VERSION,
@@ -129,7 +129,7 @@ for (const doc of OPERATIONAL_DOCS) {
   // The net now catches every product-named version token: VH/VH/Vouch Harbor
   // prefixes AND bare artifact names (`<version>_x64-setup`).
   const staleTokens = [...new Set(
-    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)]
+    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+(?:\.\d+){2,3})|(\d+(?:\.\d+){2,3})_x64/gi)]
       .map((m) => (m[1] ?? m[2] ?? "").trim())
       .filter((v) => v.length > 0 && v !== VH_VERSION),
   )];

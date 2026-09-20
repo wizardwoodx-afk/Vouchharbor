@@ -209,7 +209,10 @@ export type CrossingRefusal =
   | "responder-unknown-capability"
   /* 19.6.6 — a standing grant existed but did not cover THIS crossing; the
      designed behaviour is a return to a per-crossing human decision. */
-  | "escalated-to-human";
+  | "escalated-to-human"
+  /* 19.7.0 — the replay guard refused a duplicate submission inside its
+     window; nothing was signed twice. */
+  | "replay";
 
 export interface CrossingOutcome {
   crossingId: string;

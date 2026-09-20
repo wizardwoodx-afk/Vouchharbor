@@ -1,18 +1,63 @@
-Vouch Harbor 19.6.6 Federation
-built: 19.6.6 Federation
-ts:   2026-09-19T10:57:48Z
+Vouch Harbor 19.7.3 Agent
+built: 19.7.3 Agent
+ts:   2026-09-20T08:11:54Z
 git:  local
 protocol: vh-proof-receipt/2
-fleet: 1,150 established specialists (routed today) + 640 registered specialists (not routed) = 1,790 catalogued
+agent: heartbeat acts ride the SHARED production executor (engineExecutor — same deps as chat: provider/gate/handoff/evidence) into the real engine; integration probe drives real member loops on a scripted wire; BEW = runtime-enforced PHASE/PROVENANCE discipline; Agentic MoE = sparse specialist routing over the whole 1,850 fleet
+offline: full gate shards deterministically — node verify/run.mjs --shard 1/4 … 4/4 (merge the summaries)
+fleet: 1,850 established specialists (routed today) + 640 registered specialists (not routed) = 2,490 catalogued
 
-136 self-contained bundles in verify/suites (every probe suite except the pack's
+149 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 137 probe
-suites; the offline pack reproduces 136 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 150 probe
+suites; the offline pack reproduces 149 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-137 passed, 0 failed across 137 probe suites (node verify/run.mjs → 136 passed,
-0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the 1,790 census); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring —
+150 passed, 0 failed across 150 probe suites (node verify/run.mjs → 149 passed,
+0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the fleet census (2,490 today)); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring; suites 137–140 are the Recall probes (the memory graph · the MCP market · the token pipeline · auto-repair + the A2A replay guard); suites 141–142 are the 19.7.1 security probes (the owner vault + encrypted memory · the MCP runtime); suite 143 is the 19.7.2 console-policy probe (the Steward rename · no version chrome · the noir/cream finishes · provider memory semantics · the operator doctrine); suite 144 is the BEW probe (the Behaviour Enforcement Workflow — in-prompt AND the runtime phase machine — on every sub-agent); suites 145–149 are the 19.7.2.2 [Agent] probes (the Agentic MoE · the initiative autonomy loop with its execution bridge · the 3D memory graph · the 350-finance bench · the 350-silicon bench) —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
+
+19.7.2 "Noir" — the maturity release:
+  · the operator doctrine rides every specialist prompt (src/vh19/skills.ts;
+    probe/consolePolicy): verify before claiming · evidence over prose ·
+    fail forward with one labelled retry · self-review marks INCOMPLETE
+    rather than guessing · scope past the safe tier returns to the human
+  · the maturity budget: member loops run up to five act/observe/adjust
+    steps (agentLoop.ts MAX_AGENT_STEPS 3 → 5), so a specialist that misses
+    adjusts instead of stopping
+  · the center agent is the STEWARD everywhere it renders — the Generalist
+    name is gone from every rendered surface (probe/consolePolicy +
+    probe/navAlign pin it); internal code identifiers are unchanged
+  · nothing fake, nothing versioned on screen: the console renders no
+    version numbers and no demo/simulated surfaces — the product speaks as
+    itself (probe/consolePolicy)
+  · two honest finishes, one layout: matured noir (default) + light cream
+    gray (html[data-theme="cream"]), chosen in Settings → Appearance and
+    applied before first paint (main.tsx pre-paint boot; probe/consolePolicy
+    pins both token sets and the boot)
+  · a minimal Settings plane — Appearance · Security · Memory · Data — with
+    memory-ON-without-a-vault guidance that points at vault creation
+  · exact provider memory semantics: "session only" = the key lives in
+    memory and the stored copy is removed, NEVER sealed; "on this machine"
+    = requires the unlocked vault, then seals (probe/consolePolicy)
+
+19.7.0 "Recall" — the memory-and-mastery release:
+  · the preview fix at the root: a permissive dev-CORS plugin + a cannot-lie
+    sandboxed-frame detector boot the console inside opaque-origin embeds;
+    the strict CSP is skipped only there and says so (observed, reproduced)
+  · the console v2: chat-first redesign — welcome hero, composer with focus
+    ring, avatars + timestamps on every row, conversations in the rail
+  · the memory graph (src/vh19/memoryGraph.ts; probe/memoryGraph, 26):
+    every chat becomes a keyword graph — deterministic extraction,
+    keyword+date recall, MARKED rehydration, idempotent upsert
+  · the token pipeline (tokenOptim.ts at the providers.complete() choke
+    point; probe/tokenPipeline, 20): normalize → marked dedup → measured
+    cache-alignment → budget; the per-run delta rides every reply
+  · the MCP market (probe/mcpMarket, 21): ANY server — 12 curated + user
+    registry, zod-validated, SSRF-guarded, env names only, standard export
+  · the A2A replay guard (probe/autoRepairReplay): a duplicate crossing
+    submission inside a 60s window is refused before anything is signed
+  · auto-repair (probe/autoRepairReplay): a member's transient provider
+    failure gets ONE situation-changing retry, no human pause, labelled
 
 19.6.6 "Federation" — the release that put the federation plane ON the live path, and the app ON one console:
   · UI rebuilt end to end: the app IS one dark console — crew rail, run
@@ -49,7 +94,7 @@ the pre-seed Agentic Test Protocol v1 (24/24 on this build).
     missionAuthority uses and carries proof of possession (probe/fedIdentity)
   · the Face, redesigned: derived from the identity's own SHA-256, never
     selectable, no eyes and no mouth by construction (probe/fedSigil)
-  · the fleet stated as two numbers — 1,790 today = 1,150 established + 640
+  · the fleet stated as two numbers — 2,490 today = 1,850 established + 640
     registered (1,560 at 19.6.0: 1,150 + 410), registered never routed
     silently (probe/fedFleet)
 

@@ -26,12 +26,12 @@ ok("App renders the console and nothing else", /import\s*\{\s*NextConsole\s*\}\s
 ok("the multi-dock shell is gone from the app entry", !/Sidebar/.test(appSrc) && !/Helm/.test(appSrc) && !/VIEWS/.test(appSrc), "stale shell chrome in App.tsx");
 ok("the console carries the crew rail", /nx-sidebar/.test(consoleSrc) && /Crew/.test(consoleSrc), "no crew rail");
 ok("the rail lists the planes: run stream, handoff ledger, federation", /Run stream/.test(consoleSrc) && /Handoff ledger/.test(consoleSrc) && /Federation/.test(consoleSrc), "a plane is missing");
-ok("the Generalist keeps exactly one face, derived from its name", /GeneralistFace/.test(consoleSrc) && /generalistName\(\)/.test(consoleSrc) && /Rename Generalist/.test(consoleSrc), "face/name wiring missing");
+ok("the Steward keeps exactly one face, derived from its name", /GeneralistFace/.test(consoleSrc) && /generalistName\(\)/.test(consoleSrc) && /Rename Steward/.test(consoleSrc), "face/name wiring missing");
 ok("the input bar is the single command surface", /nx-inputbar/.test(consoleSrc) && /onKeyDown=\{\(e\) => \{ if \(e\.key === "Enter"\) void send\(\); \}\}/.test(consoleSrc), "input bar not wired to send");
 ok("the human gate is a banner with approve and deny, never a silent skip", /HUMAN GATE/.test(consoleSrc) && /Approve/.test(consoleSrc) && /Deny/.test(consoleSrc), "gate banner missing");
 ok("every run bubble rides its honesty chips", /provenance \{m\.resp\.provenanceDigest/.test(consoleSrc) && /ECDSA mandate/.test(consoleSrc), "evidence chips missing");
 ok("the federation panel runs the live seam", /issueLiveGrant/.test(consoleSrc) && /runLiveCrossing/.test(consoleSrc) && /enableRegulatedBench/.test(consoleSrc), "federation panel not wired to live.ts");
-ok("first-time users can connect a model provider inside the console", /Model provider/.test(consoleSrc) && /rememberProvider/.test(consoleSrc) && /PROVIDER_DEFAULTS/.test(consoleSrc), "provider onboarding missing");
+ok("first-time users can connect a model provider inside the console", /Model provider/.test(consoleSrc) && /saveProviderPersist/.test(consoleSrc) && /PROVIDER_DEFAULTS/.test(consoleSrc), "provider onboarding missing");
 ok("the federation key resolves through the hardened authority seam", /authorityOwnerIdentity/.test(read("src/vh19/federation/live.ts")) && !/exportKey\(["']jwk["']\)/.test(read("src/vh19/federation/live.ts")), "raw key storage in the live seam");
 console.log(`
 ${passed} passed, ${failed} failed`);

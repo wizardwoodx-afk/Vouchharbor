@@ -28,11 +28,11 @@
  * the other benches use, and every entry is derived — a spec cannot give one
  * station a nicer prompt or a softer risk tier than it carries.
  *
- *     SPECIALISTS (established)            1,150
+ *     SPECIALISTS (established)            1,850
  *   + reach batch (registered)               200
  *   + federation batch (registered)          210
  *   + regulated batch (registered)           230
- *   = fleet                                1,790   — 1,150 established, 640 registered
+ *   = fleet                                2,490   — 1,850 established, 640 registered
  */
 import { REACH_BATCH_STATIONS } from "../reach/batchSpec";
 import {

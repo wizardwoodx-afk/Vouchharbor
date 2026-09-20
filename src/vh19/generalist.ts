@@ -38,6 +38,7 @@ import { attestMissionRun, recordMissionAuthority, authorityOwnerIdentity } from
 import { mandateCanonical } from "./authorityCore";
 import { classifyFailure } from "./failures";
 import { routeDeterministic, routeWithModel } from "./router";
+import { selectCrew, moeLine, type MoEReport } from "./moe";
 import { complete, redactSecrets } from "./providers";
 import { memoryBriefing } from "./memory";
 import { applyTeamPreference, autoProposeIfReady, recordTeamRun } from "./teamEvolve";
@@ -226,6 +227,15 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
   } else {
     routed = routeDeterministic(text);
   }
+  /* 19.7.2.1 [Agent] — AGENTIC MoE: the sparse-selection law runs on every
+     task, autonomously. The ranked decision is pruned to the FEWEST experts
+     with full marginal coverage; the accounting rides the reply. */
+  let moeReport: MoEReport | null = null;
+  {
+    const m = selectCrew(routed, text);
+    routed = m.decision;
+    moeReport = m.report;
+  }
   if (args.team) {
     routed = { ...routed, selected: applyTeamPreference(args.team.id, routed.selected) };
   }
@@ -297,7 +307,8 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
     return finish({
       reply:
         `No provider key is configured, so nothing was executed. Here is the plan I would run:\n\n${plan}\n\n` +
-        `Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of ${routed.considered} specialists considered).` +
+        `Routing: ${routed.strategy} via ${routed.routedBy} (${routed.selected.length} of ${routed.considered} specialists considered). ` +
+        (moeReport ? moeLine(moeReport) : "") +
         (routed.fallbackReason ? ` Note: ${routed.fallbackReason}.` : ""),
       routed,
       executed: false,
@@ -366,17 +377,17 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
       if (run.ok) {
         const digest = await sha256Hex(JSON.stringify({
           v: "vh19-member/1", specialistId: s.id, outcome: "answered", model: run.model, text: run.text,
-          tools: run.tools, truncated: run.truncated,
+          tools: run.tools, truncated: run.truncated, bew: run.bew,
           toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, digest: t.digest ?? null })),
         }));
         memberResults.push({ specialistId: s.id, outcome: "answered", memberDigest: digest });
         memberAnswers.push({ specialistId: s.id, text: run.text });
         const toolLine = run.toolReceipts.length > 0 ? ` · ${run.toolReceipts.length} tool call(s) receipted` : "";
         const truncLine = run.truncated ? "\n[agent loop reached its step limit — labelled honestly, not dressed as done]" : "";
-        sections.push(`── ${s.name} (${s.id}) · answered · ${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · member receipt ${digest.slice(0, 12)}\n${run.text}${truncLine}`);
+        sections.push(`── ${s.name} (${s.id}) · answered · ${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · member receipt ${digest.slice(0, 12)}\n[bew ${run.bew.phases.join("→")} · verify ${run.bew.verify} · verdict ${run.bew.verdict}${run.bew.violations.length ? ` · violations: ${run.bew.violations.join("; ")}` : ""}]\n${run.text}${truncLine}`);
       } else {
-        const note = `${run.errorKind}: ${run.error}`;
-        const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note }));
+        const note = `${run.errorKind}: ${run.error} [bew ${run.bew.phases.join("→")} · verdict ${run.bew.verdict}]`;
+        const digest = await sha256Hex(JSON.stringify({ v: "vh19-member/1", specialistId: s.id, outcome: "error", note, bew: run.bew }));
         memberResults.push({ specialistId: s.id, outcome: "error", note, memberDigest: digest });
         sections.push(`── ${s.name} (${s.id}) · ERROR — this member's own provider call failed\n${note}`);
       }
@@ -480,7 +491,7 @@ export async function askVH19(args: AskArgs, deps: GeneralistDeps = {}): Promise
         tools: run.tools,
         toolReceipts: run.toolReceipts.map((t) => ({ tool: t.tool, outcome: t.outcome, inputPreview: t.inputCanonical.slice(0, 300), outputPreview: t.output.slice(0, 200), digest: t.digest })),
       }],
-      note: `provider ${provider.kind}/${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · accept or reject this answer so I can learn${
+      note: `provider ${provider.kind}/${run.model} · ${run.latencyMs}ms · ${run.calls} provider call(s)${toolLine} · BEW ${run.bew.phases.join("→")} · verify ${run.bew.verify} · verdict ${run.bew.verdict} · accept or reject this answer so I can learn${
         autonomyEarned ? " · running under earned autonomy (override always available)" : ""
       }`,
     });

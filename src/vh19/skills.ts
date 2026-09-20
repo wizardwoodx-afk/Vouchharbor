@@ -11,6 +11,7 @@
  * impressive.
  */
 import type { Specialist } from "./types";
+import { BEW_BLOCK } from "./bew";
 import { importedSkills, skillEligibility } from "./skillsImport";
 import { connectorSkills } from "./connectors";
 
@@ -170,6 +171,49 @@ Checklist: Can every displayed number be traced to source in two hops? Does any 
 3. Every blocking comment states the risk concretely — "this feels off" is not a review finding.
 4. Approve with the residual risks named; an approval that hides its doubts is not an approval.
 Checklist: Did the riskiest line get the most attention? Could you defend the approval to someone who found the bug later?`),
+
+  /* ── 19.7.2.1 [Agent] domain packs — bound to the finance and silicon
+     categories in CATEGORY_SKILLS below ── */
+
+  skill("finance.reconcile-first", "Reconciliation Proof",
+    "Ties every statement to a register and itemises every difference. Use for GST/TDS/bank/payment reconciliation and any matching work.",
+    `Procedure:
+1. Name the two (or more) registers being matched and the KEY fields (invoice number, date, party id, amount, period) before touching data.
+2. Match exactly; near-matches are listed, never netted off. An unexplained difference is a finding, not noise.
+3. Itemise every mismatch with its direction (missing / extra / value-mismatch / timing), its ageing and the party that owns the fix.
+4. State the tolerance used and prove that the residual (matched + explained + open = total) closes to zero.
+5. Date-stamp the source extracts; a reconciliation without source snapshots cannot be reproduced.
+Quality checklist: does the residual close? Is every open item owned and aged? Could a stranger re-run it from the named extracts?`),
+
+  skill("finance.statute-current", "Statute-Dated Compliance",
+    "Cites the exact return, section and period, and flags where rules may have moved. Use for any tax/GST/statutory filing or advice.",
+    `Procedure:
+1. Lead with the citation: form/return, section or rule, the period, and the due date (with the late-fee consequence).
+2. Separate what the statute says from what practice does; mark anything that depends on a notification or circular as "verify against the current notification".
+3. State the taxpayer's own facts the conclusion rests on; change a fact, change the answer — say which facts drive it.
+4. Compute with the rates and thresholds of the relevant period; never mix periods in one computation.
+5. End with a filing checklist: data source, preparer check, approver, portal step, acknowledgement number to archive.
+Checklist: citation present? period-pure arithmetic? verification flags where the law may have moved? acknowledgement path stated?`),
+
+  skill("silicon.signoff-discipline", "Sign-off Discipline",
+    "No stage passes on hope: closed means closed with the command, the corners and the waiver owner named. Use for STA/DRC/LVS/coverage/test sign-off.",
+    `Procedure:
+1. State the sign-off criterion in numbers (slack >= 0 across named corners; coverage >= target with the waiver list attached) before running anything.
+2. Every "closed" claim carries the exact command/version and the results file it came from; a number without its command is a rumour.
+3. Corners, modes and instances in scope are enumerated; out-of-scope items are listed as out-of-scope, never silently dropped.
+4. A waiver needs an owner, a reason and an expiry; "temporary" waivers with no owner are treated as open.
+5. Report the delta since the last sign-off: what changed, what re-ran, what the change could have broken and whether it did.
+Checklist: criterion numeric? commands archived? corners enumerated? waivers owned? delta stated?`),
+
+  skill("silicon.reproduce-first", "Reproduce-First Silicon Debug",
+    "Minimise, vary one thing, then conclude. Use for simulation failures, post-silicon bring-up, ATE fails and yield excursions.",
+    `Procedure:
+1. Reproduce with the smallest vector/dataset; a failure that cannot be reproduced is a measurement problem first, a design problem second.
+2. Scope clocks, resets, power rails and temperature explicitly; an unscooped variable is a confound.
+3. Bisect by ONE variable at a time (vector, corner, voltage, lot, mask step); record the table as you go.
+4. Separate electrical from logical: the same symptom can be timing, power or a genuine bug — name the evidence that discriminates.
+5. Conclude with the narrowest reproducible condition and the next experiment that would falsify your leading theory.
+Checklist: minimal repro? variables scooped? one-at-a-time bisection? discriminating evidence named? falsifier proposed?`),
 ];
 
 /** Default skill bindings per category; specific ids can add on top. */
@@ -189,6 +233,10 @@ const CATEGORY_SKILLS: Record<string, string[]> = {
   legal: ["analysis.assumptions-visible", "research.triangulation"],
   comms: ["writing.pyramid-first", "design.typographic-hierarchy"],
   ops: ["devops.blast-radius"],
+  /* 19.7.2.1 [Agent] — the two new specialist categories carry their own
+     domain playbooks, the same way every existing category does. */
+  finance: ["finance.reconcile-first", "finance.statute-current"],
+  silicon: ["silicon.signoff-discipline", "silicon.reproduce-first"],
 };
 
 const EXTRA_SKILLS: Record<string, string[]> = {
@@ -237,9 +285,42 @@ export function skillsFor(specialist: Pick<Specialist, "id" | "category">): VhSk
  * skill playbooks. This is what actually reaches the provider — the skill
  * layer is not documentation, it is instruction.
  */
+/**
+ * 19.7.2 — the operator doctrine. Every specialist, regardless of domain,
+ * works like a senior operator, not a text generator. The five rules are
+ * the maturity contract the fleet is held to (formatted so the token
+ * pipeline's condenser keeps them: a "### Skill:" header, a Checklist
+ * line, numbered rules):
+ *
+ *   1. verify-before-claim — every factual statement traces to a real tool
+ *      result, the task, or a labelled assumption;
+ *   2. evidence over prose — if a tool can check it, call it; never
+ *      narrate what you would check;
+ *   3. fail forward — a failed or gated call is information; state it,
+ *      adjust, continue; never invent a tool's output;
+ *   4. self-review — before answering, re-read the task, confirm every
+ *      requirement is addressed, mark anything unfinished INCOMPLETE with
+ *      the reason;
+ *   5. scope — do the specialist work asked; anything risky beyond it
+ *      rides the human gate.
+ */
+const OPERATOR_DOCTRINE = [
+  "### Skill: Operator doctrine",
+  "Checklist: verify-before-claim · evidence-over-prose · fail-forward · self-review · scope",
+  "1. Verify before you claim: every factual statement in your answer traces to a tool result you actually received, to the task text, or is explicitly labelled an assumption.",
+  "2. Evidence over prose: when a tool can check something, call it — never narrate what you would check instead of checking it.",
+  "3. Fail forward: a failed or gated call is information. State what happened, adjust the approach, and continue. Never invent a tool's output.",
+  "4. Self-review before answering: re-read the task, confirm every requirement is addressed, and mark anything you could not complete as INCOMPLETE with the reason in words.",
+  "5. Stay in scope: do the specialist work asked of you; anything risky beyond it rides the human gate, never your own judgement.",
+].join("\n");
+
 export function buildSpecialistPrompt(specialist: Specialist): string {
   const skills = skillsFor(specialist);
-  if (skills.length === 0) return specialist.systemPrompt;
+  const base = specialist.systemPrompt;
+  // 19.7.2.1 [Agent] — BEW (Behaviour Enforcement Workflow) closes every
+  // composed prompt, after the doctrine and the domain skills, so the
+  // workflow, the doctrine and the playbooks travel together.
+  if (skills.length === 0) return `${base}\n\n${OPERATOR_DOCTRINE}\n\n${BEW_BLOCK}`;
   const blocks = skills.map((s) => `### Skill: ${s.name}\n${s.body}`).join("\n\n");
-  return `${specialist.systemPrompt}\n\n## Bound skills — follow these playbooks and their checklists\n\n${blocks}`;
+  return `${base}\n\n## Bound skills — follow these playbooks and their checklists\n\n${blocks}\n\n${OPERATOR_DOCTRINE}\n\n${BEW_BLOCK}`;
 }

@@ -403,16 +403,30 @@ function skillsFor(specialist) {
   const connectors = connectorSkills().filter((s) => s.binds.includes(specialist.category));
   return [...seeded, ...imported, ...connectors];
 }
+var OPERATOR_DOCTRINE = [
+  "### Skill: Operator doctrine",
+  "Checklist: verify-before-claim \xB7 evidence-over-prose \xB7 fail-forward \xB7 self-review \xB7 scope",
+  "1. Verify before you claim: every factual statement in your answer traces to a tool result you actually received, to the task text, or is explicitly labelled an assumption.",
+  "2. Evidence over prose: when a tool can check something, call it \u2014 never narrate what you would check instead of checking it.",
+  "3. Fail forward: a failed or gated call is information. State what happened, adjust the approach, and continue. Never invent a tool's output.",
+  "4. Self-review before answering: re-read the task, confirm every requirement is addressed, and mark anything you could not complete as INCOMPLETE with the reason in words.",
+  "5. Stay in scope: do the specialist work asked of you; anything risky beyond it rides the human gate, never your own judgement."
+].join("\n");
 function buildSpecialistPrompt(specialist) {
   const skills = skillsFor(specialist);
-  if (skills.length === 0) return specialist.systemPrompt;
+  const base = specialist.systemPrompt;
+  if (skills.length === 0) return `${base}
+
+${OPERATOR_DOCTRINE}`;
   const blocks = skills.map((s) => `### Skill: ${s.name}
 ${s.body}`).join("\n\n");
-  return `${specialist.systemPrompt}
+  return `${base}
 
 ## Bound skills \u2014 follow these playbooks and their checklists
 
-${blocks}`;
+${blocks}
+
+${OPERATOR_DOCTRINE}`;
 }
 
 // src/vh19/broaderBench.ts

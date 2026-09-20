@@ -188,8 +188,8 @@ const TASKS: BenchTask[] = [
     (ws) => fileHas(ws, "roster/all.txt", "Ada,Alan"), { seed: { "roster/first.txt": "Ada", "roster/second.txt": "Alan" }, goldenTools: ["fs.read", "fs.read", "fs.write"] }),
 
   // multi-agent — two specialist categories must both contribute (VH routes; single-shot systems answer directly)
-  T("ma1", "multi-agent", "Review file review/draft.txt for the factual claim it makes (read it), then give the corrected one-line version of that claim.", ["```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"review/draft.txt\"}}\n```", "The draft claims the fleet has 600 specialists; the corrected claim: the fleet has 1,150 registered specialists."],
-    (ws, a) => answerHas(a, "1,150") || answerHas(a, "1150"), { seed: { "review/draft.txt": "The fleet has 600 specialists." } }),
+  T("ma1", "multi-agent", "Review file review/draft.txt for the factual claim it makes (read it), then give the corrected one-line version of that claim.", ["```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"review/draft.txt\"}}\n```", "The draft claims the fleet has 600 specialists; the corrected claim: the fleet has 2,490 registered specialists."],
+    (ws, a) => answerHas(a, "2,490") || answerHas(a, "2490"), { seed: { "review/draft.txt": "The fleet has 600 specialists." } }),
   T("ma2", "multi-agent", "Two inputs: facts/price.txt and facts/qty.txt. Multiply them and state the total as a business figure.", ["```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"facts/price.txt\"}}\n```", "```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"facts/qty.txt\"}}\n```", "The total is $500."],
     (ws, a) => answerHas(a, "500"), { seed: { "facts/price.txt": "25", "facts/qty.txt": "20" }, goldenTools: ["fs.read", "fs.read"] }),
   T("ma3", "multi-agent", "Draft a two-sentence status update from status/done.txt and status/next.txt — read both first.", ["```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"status/done.txt\"}}\n```", "```tool\n{\"tool\": \"fs.read\", \"input\": {\"path\": \"status/next.txt\"}}\n```", "Shipped the gate receipts. Next: the canary rollout."],

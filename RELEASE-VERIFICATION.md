@@ -1,10 +1,179 @@
-# Vouch Harbor 19.6.6 "Federation" — release verification record
+# Vouch Harbor 19.7.2.2 [Agent] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.3 record — the integration-hardening release
+
+The second external review (of 19.7.2.2) scored the build ~9.6 and named
+one implementation bug plus two honesty refinements. All three shipped:
+
+| Review finding | Fix shipped | Proof it is real |
+|---|---|---|
+| "The production executor calls askVH19() WITHOUT the normal deps — the heartbeat only ever plans" | The executor moved OUT of the console into the shared `initiativeBridge.ts`: `engineExecutor()` carries the SAME dep set a typed chat message takes (provider · human gate `gateFn` · handoff recorder · evidenceFetch · userId) into the real engine; the console builds it, the probe drives it — one factory, no copy-paste, nothing left to half-wire | probe/initiative **35**, including the TRUE INTEGRATION TEST: a scripted provider, the real askVH19 → routing → Agentic MoE → member agent loops, **4 real wire calls** observed, the engine's own accounting ("2 of 2 routed members executed · member receipt …") landing in the act receipt; plus the honest no-provider case (planned-only, stated in the receipt) |
+| "'Runtime-enforced BEW' should read as phase/provenance discipline" | Wording locked everywhere: the machine enforces the workflow and its evidence trail; semantic correctness is judged by the specialist's own VERIFY against the acceptance check declared at INTAKE | README + FEATURES carry the exact sentence; BEW_BLOCK's enforcement line already said "receipts your evidence per phase" |
+| README said "keys in memory only", contradicting the vault | The comparison line and the provider-seam line now say: session-only by default, or encrypted at rest in the local owner vault | README lines pinned by the drift gates |
+
+**Tree.** `19.7.3 "Agent"`, working tree at build time, node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (150 suites) | **150 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` (pack rebuilt to 149) | **149 passed, 0 failed** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.3; byte-identity probes green |
+| Census | `catalogStats()` | **1,850 established** (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon) + 640 registered = **2,490 catalogued** |
+
+Short execution window? `node verify/run.mjs --shard 1/4` … `--shard 4/4`
+(merge the summaries), or `--time-budget 60`.
+
+## The 19.7.2.2 record — the review-fold release
+
+The external review of 19.7.2.1 scored the build 9.5–9.7 and named three
+fixes before freezing. All three shipped; each carries its own proof:
+
+| Review finding | Fix shipped | Proof it is real |
+|---|---|---|
+| "Initiative is a wake planner, not an executor — no bridge, no production callers" | The EXECUTION BRIDGE: the heartbeat runs safe acts through the real engine (askVH19 → routing → MoE → member loops → gated tools → receipts); failures feed the circuit breaker, partials reschedule capped verify check-backs, proposals never self-execute, gate-blocked user runs leave a capped check-back automatically | `executeWakeActs` / `reportSuccess` in `initiative.ts`; production callers for `scheduleFollowUp` + `reportFailure` + `reportSuccess` in NextConsole; probe/initiative **30** (the bridge section pins each verdict path) |
+| "BEW is prompt-enforced, not runtime-enforced" | The member agent loop carries `BewRun` — a runtime six-phase machine: the trail records as the loop executes, a run that cannot prove VERIFY cannot claim done (truncated ⇒ machine-downgraded partial), recoveries cap at one, every run ships a BEW receipt with violations | `BewRun` in `bew.ts`, wired in `agentLoop.ts` (every MemberRun requires a `bew` receipt — type-enforced); probe/bew **24** |
+| "Say Agentic MoE / sparse specialist routing, and say what it spans" | The line itself reads "Agentic MoE (sparse specialist routing over the whole fleet)"; docs state agent-level routing, not a transformer MoE; the pool is probe-pinned to span ALL 1,850 established specialists, every category — not only the new 700 | probe/moe **17** (scope pins: category-span + no provenance filter) |
+
+**Tree.** `19.7.2.2 "Agent"`, working tree at build time, node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (150 suites) | **150 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` (pack rebuilt to 149) | **149 passed, 0 failed** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.2.2; byte-identity probes green |
+| Census | `catalogStats()` | **1,850 established** (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon) + 640 registered = **2,490 catalogued** |
+
+Short execution window? The offline gate shards deterministically:
+`node verify/run.mjs --shard 1/4` … `--shard 4/4` (same tree ⇒ same
+shards; merge the four summaries for the full verdict), or
+`node verify/run.mjs --time-budget 60`.
+
+## The 19.7.2.1 record — the [Agent] release (superseded in-tree by 19.7.2.2)
+
+**Tree.** `19.7.2.1 "Agent"`, working tree at build time, node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (150 suites) | **150 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` (pack rebuilt to 149) | **149 passed, 0 failed** |
+| New suites | `probe/bew · moe · initiative · graph3d · financeBench · siliconBench` | **24 · 17 · 30 · 17 · 20 · 17** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.2.1; byte-identity probes green |
+| Census | `catalogStats()` | **1,850 established** (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon) + 640 registered = **2,490 catalogued** |
+
+**What this release wired.** BEW enforced TWICE — in every composed
+prompt AND at runtime (the member loop's `BewRun` phase machine: recorded
+trail, verify-or-not-done, capped recoveries, per-run BEW receipts with
+violations) — the Agentic MoE (sparse specialist routing over the whole
+1,850 fleet, marginal-coverage pruning) on both routing paths, the
+initiative heartbeat that EXECUTES safe acts through the real engine
+(askVH19 → member loops → gated tools → receipts; failures feed the
+breaker; partials reschedule capped check-backs; proposals never
+self-execute; production callers for scheduleFollowUp/reportFailure/
+reportSuccess) with the Settings → Autonomy card, the zero-dependency 3D
+memory graph with the glossy-black/silver finish, the +700
+finance/silicon benches with domain playbooks, and the platinum/graphite
+noir identity pass.
+
+**Short execution window?** The offline gate shards deterministically:
+`node verify/run.mjs --shard 1/4` … `--shard 4/4` (same tree ⇒ same
+shards; merge the four summaries for the full verdict), or
+`node verify/run.mjs --time-budget 60` for a bounded run.
+
+## The 19.7.2 record — the maturity release
+
+**Tree.** `19.7.2 "Noir"`, working tree at build time, node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (144 suites) | **144 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` (pack rebuilt to 143) | **143 passed, 0 failed** |
+| New suite | `probe/consolePolicy` | **16** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.2; byte-identity probes green |
+| Visual pass | headless Chromium, dev server, both themes | noir + cream render clean; mission strip intact; Settings plane verified; **0 page errors** |
+
+**What this release wired.** The operator doctrine appended to every
+specialist prompt (`skills.ts` → `buildSpecialistPrompt`), the maturity
+budget (`MAX_AGENT_STEPS` 3 → 5), the Steward rename on every rendered
+surface, the removal of all version chrome and demo props, the flat noir +
+cream-gray finishes with pre-paint theme boot, the minimal Settings plane
+(Appearance · Security · Memory · Data) with vault-before-memory guidance,
+and exact provider memory semantics (session-only never seals; on-this-
+machine requires the unlocked vault and seals).
+
+## The 19.7.1 record — the review-hardening patch
+
+**Tree.** `19.7.1 "Recall"`, working tree at build time, node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (143 suites) | **143 passed, 0 failed** |
+| Offline gate | `node verify/run.mjs` (pack rebuilt) | **142 passed, 0 failed** |
+| New suites | `probe/vaultSecurity` · `probe/mcpRuntime` | **27** · **22** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.1; byte-identity probes green |
+
+**What this patch wired.** The owner vault (AES-256-GCM + PBKDF2-310k, no
+stored passphrase, legacy-plaintext purge), memory encryption at rest with
+the ON/OFF switch and honest mode naming, the MCP runtime (enabled market
+servers → `mcp.call` → gate → receipts; real JSON-RPC for HTTP, host-bridge
+or refusal for stdio), and the UI review's hierarchy notes (mission strip,
+infrastructure grouping, cache caveat in the tooltip, accent restraint).
+
+## The 19.7.0 record — the Recall release: memory graphs, the token pipeline, the MCP market
+
+**Tree.** `19.7.0 "Recall"`, working tree at build time. Every number below was
+produced by running the named command in this tree on node v20.20.2, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `tsc --noEmit` | 0 errors |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Provider probes | `npm test` (141 suites) | **141 passed, 0 failed** |
+| Offline gate | rebuilt then run: `node tools/build-offline-verify.mjs && node verify/run.mjs` | **140 passed, 0 failed** |
+| New suites | `probe/memoryGraph` · `probe/mcpMarket` · `probe/tokenPipeline` · `probe/autoRepairReplay` | **26** · **21** · **20** · **12** |
+| Version drift | `probe/versionDrift` (via `npm test`) | green — 19.7.0 "Recall" on all thirteen surfaces |
+| Preview parity | headless Chromium, `sandbox="allow-scripts"` opaque-origin frame vs direct load | both mount `html.nx`, **0 page errors**, chat + memory + market verified interactively |
+
+**What this release wired.**
+
+- **The preview fix at the root**: the `vh-preview-cors` dev plugin (permissive
+  CORS + preflights, `server.cors: false`), a cannot-lie sandboxed-frame
+  detector in `src/main.tsx` (opaque frames cannot reach `window.top`), the
+  strict CSP skipped only inside such frames (stated in the console), and the
+  splash light-canvas retired on mount. Reproduced before/after headlessly.
+- **The memory graph** (`src/vh19/memoryGraph.ts`, `probe/memoryGraph` 26):
+  deterministic keyword extraction, co-occurrence edges, dated sessions,
+  keyword + date recall, MARKED rehydration, idempotent upsert, storage-less
+  mirror. The console's rail lists conversations; the Memory Graphs plane
+  renders the graph (SVG) and the sessions with Continue/forget.
+- **The token pipeline** (`src/vh19/tokenOptim.ts` at the `providers.complete()`
+  choke point, `probe/tokenPipeline` 20): normalize → dedup (marked) →
+  cache-alignment measured → budget guard; per-run `optimDelta` rendered as the
+  `⚡ est −N tok (P%)` chip on every reply.
+- **The MCP market** (`src/vh19/mcpMarket.ts`, `probe/mcpMarket` 21): 12
+  curated servers + user registry (stdio/HTTP), zod-validated, SSRF-guarded,
+  env names only, standard `mcpServers` export.
+- **The A2A replay guard** (`federation/live.ts` + `"replay"` refusal,
+  `probe/autoRepairReplay`): duplicate crossing submissions inside a 60s window
+  refused before signing, with the full attestation contract on the refusal.
+- **Auto-repair** (`agentLoop.ts`, `probe/autoRepairReplay`): transient member
+  failures get ONE situation-changing retry, no human pause, labelled;
+  non-transient failures are never blind-retried.
 
 ## The 19.6.6 record — the console release, with the federation plane ON the live path
 

@@ -1,48 +1,48 @@
 /* ===========================================================================
-   VH NEXT — 19.6.6 "Federation console" design system.
+   VH NEXT — 19.7.0 console design system (v2).
 
-   The old premium/atelier look is retired by this sheet. The language is the
-   dark multi-agent console the product now wears: near-black canvas, quiet
-   panels, hairline borders, generous radii, one type face, and the ONLY
-   colour on screen comes from the deterministic faces (the face engine and the
-   mark engine) and the honest state pills. No gradient theatre, no glow —
-   evidence reads as evidence.
+   The 19.6 console was honest and flat. This is honest and CRAFTED: a deep
+   layered canvas, one accent thread (harbor teal → signal violet) used like
+   a highlighter, real elevation, glass on the chrome, motion only when the
+   user allows it. Evidence still reads as evidence — colour never decorates
+   a claim, it only marks state.
 
-   Tailwind v4 is the utility layer; this sheet owns the tokens, the base
-   surface and the few structural pieces (sidebar / stream / input) that are
-   shared by every screen. prefers-reduced-motion is law: nothing here moves
+   Tailwind v4 is the utility layer; this sheet owns tokens, surfaces and
+   every structural piece. prefers-reduced-motion is law: nothing moves
    unless the user allows it.
    =========================================================================== */
 @import "tailwindcss";
 
 @theme {
-  /* canvas + panels — charcoal scale, never pure black */
-  --color-nx-bg: #0d0e10;
-  --color-nx-side: #121316;
-  --color-nx-panel: #17181c;
-  --color-nx-card: #1c1e23;
-  --color-nx-raise: #23252b;
-  --color-nx-line: #26282e;        /* hairline */
-  --color-nx-line-2: #33363d;      /* raised hairline */
+  /* canvas + panels — layered charcoal, never pure black */
+  --color-nx-bg: #0a0b0e;
+  --color-nx-side: #0e1013;
+  --color-nx-panel: #14161b;
+  --color-nx-card: #191c22;
+  --color-nx-raise: #20242c;
+  --color-nx-line: #23262e;        /* hairline */
+  --color-nx-line-2: #32363f;      /* raised hairline */
 
   /* ink */
-  --color-nx-ink: #eceef1;
-  --color-nx-mute: #9aa1ab;
-  --color-nx-dim: #6b727c;
+  --color-nx-ink: #e9ecf1;   /* silver-white */
+  --color-nx-mute: #9ba3af;
+  --color-nx-dim: #667080;
 
   /* state — the honest pills */
-  --color-nx-ok: #3fb974;
-  --color-nx-warn: #d9a13c;
-  --color-nx-err: #e0604f;
+  --color-nx-ok: #3ecf8e;
+  --color-nx-warn: #e0a83e;
+  --color-nx-err: #e2604f;
   --color-nx-info: #6aa5e8;
 
-  /* the one brand thread: VH Brooklyn, used at 1-2% presence */
-  --color-nx-brand: #38b2a3;
+  /* the accent thread: harbor teal → signal violet (1–2% presence, highlights only) */
+  --color-nx-brand: #c7cdd8;   /* platinum — the house accent */
+  --color-nx-brand-2: #8b93a2;   /* graphite-silver */
 
   --font-nx: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-nx-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
-  --radius-nx: 14px;
-  --radius-nx-sm: 10px;
+  --radius-nx: 16px;
+  --radius-nx-sm: 11px;
 }
 
 /* ── base ─────────────────────────────────────────────────────────────── */
@@ -52,23 +52,55 @@ html.nx, html.nx body {
   font-family: var(--font-nx);
   font-size: 14px;
   letter-spacing: -0.01em;
+  height: 100%;
 }
+
+/* 19.7.2 — minimal: no canvas decoration. Depth comes from elevation and
+   hairlines, not glow. The cream theme below is the one alternative. */
+html.nx #root { position: relative; z-index: 1; height: 100vh; }
 
 /* slim, quiet scrollbars */
 html.nx * { scrollbar-width: thin; scrollbar-color: var(--color-nx-line-2) transparent; }
 html.nx *::-webkit-scrollbar { width: 8px; height: 8px; }
 html.nx *::-webkit-scrollbar-thumb { background: var(--color-nx-line-2); border-radius: 8px; }
+html.nx *::-webkit-scrollbar-thumb:hover { background: #3d4250; }
 html.nx *::-webkit-scrollbar-track { background: transparent; }
 
+::selection { background: color-mix(in srgb, var(--color-nx-brand) 30%, transparent); }
+
 /* ── structural pieces ────────────────────────────────────────────────── */
-.nx-shell { display: grid; grid-template-columns: 264px 1fr; height: 100vh; }
+.nx-shell { display: grid; grid-template-columns: 288px 1fr; height: 100vh; background: var(--color-nx-bg); }
 
 .nx-sidebar {
   background: var(--color-nx-side);
   border-right: 1px solid var(--color-nx-line);
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 14px 12px;
+  overflow-y: auto;
 }
+
+.nx-brandrow { display: flex; align-items: center; gap: 10px; padding: 2px 4px 10px; }
+.nx-brandrow .nx-h1 { font-size: 14.5px; }
+.nx-ver { font-family: var(--font-nx-mono); font-size: 10px; color: var(--color-nx-dim); border: 1px solid var(--color-nx-line); border-radius: 999px; padding: 1px 7px; margin-left: auto; }
+
+.nx-newchat {
+  display: flex; align-items: center; gap: 9px;
+  border-radius: var(--radius-nx-sm);
+  padding: 9px 12px;
+  font-size: 13.5px; font-weight: 550; letter-spacing: -0.01em;
+  color: #12151b;
+  background: var(--color-nx-brand);
+  cursor: pointer; user-select: none; border: none;
+  transition: filter .14s ease, transform .14s ease;
+}
+.nx-newchat:hover { filter: brightness(1.07); }
+.nx-newchat:active { transform: translateY(1px); }
+
+.nx-sec { margin-top: 10px; padding: 0 6px 4px; color: var(--color-nx-dim); font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+/* 19.7.1 — infrastructure sits BELOW the mission planes, visibly secondary */
+.nx-sec-infra { color: color-mix(in srgb, var(--color-nx-dim) 72%, transparent); font-size: 9.5px; margin-top: 14px; }
+.nx-side-item.nx-infra { font-size: 12.8px; padding: 6.5px 10px; color: color-mix(in srgb, var(--color-nx-mute) 82%, transparent); }
+.nx-side-item.nx-infra[data-active="true"] { color: var(--color-nx-ink); }
 
 .nx-side-item {
   display: flex; align-items: center; gap: 10px;
@@ -77,58 +109,148 @@ html.nx *::-webkit-scrollbar-track { background: transparent; }
   color: var(--color-nx-mute);
   cursor: pointer; user-select: none;
   border: 1px solid transparent;
+  font-size: 13.5px;
+  position: relative;
+  transition: background .12s ease, color .12s ease;
 }
 .nx-side-item:hover { background: var(--color-nx-panel); color: var(--color-nx-ink); }
 .nx-side-item[data-active="true"] { background: var(--color-nx-panel); color: var(--color-nx-ink); border-color: var(--color-nx-line); }
+.nx-side-item[data-active="true"]::before {
+  content: ""; position: absolute; left: -12px; top: 20%; bottom: 20%; width: 3px;
+  border-radius: 3px; background: var(--color-nx-brand);
+}
+
+/* session rows in the rail */
+.nx-sess { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nx-sess .t { font-size: 13px; color: var(--color-nx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nx-sess .k { font-size: 10.5px; color: var(--color-nx-dim); font-family: var(--font-nx-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .nx-topbar {
   display: flex; align-items: center; gap: 12px;
-  padding: 12px 18px;
+  padding: 11px 20px;
   border-bottom: 1px solid var(--color-nx-line);
-  background: var(--color-nx-bg);
+  background: color-mix(in srgb, var(--color-nx-bg) 72%, transparent);
+  backdrop-filter: blur(10px);
+  position: sticky; top: 0; z-index: 5;
 }
 
-.nx-stream { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+/* ── the stream: chat-first, generous, readable ───────────────────────── */
+.nx-main { display: flex; flex-direction: column; min-width: 0; height: 100vh; }
+.nx-stream { flex: 1; overflow-y: auto; padding: 26px 30px 18px; display: flex; flex-direction: column; gap: 16px; }
 
 .nx-bubble {
-  max-width: 760px;
+  max-width: 780px;
   background: var(--color-nx-panel);
   border: 1px solid var(--color-nx-line);
   border-radius: 4px var(--radius-nx) var(--radius-nx) var(--radius-nx);
-  padding: 14px 16px;
-  line-height: 1.55;
+  padding: 14px 18px;
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0,0,0,.28), 0 8px 24px -18px rgba(0,0,0,.7);
 }
 .nx-bubble[data-who="user"] {
   align-self: flex-end;
   background: var(--color-nx-card);
+  border-color: var(--color-nx-line-2); /* restraint: user messages are neutral; the accent marks active/authority/primary only */
   border-radius: var(--radius-nx) 4px var(--radius-nx) var(--radius-nx);
 }
+.nx-msgrow { display: flex; gap: 12px; align-items: flex-start; }
+.nx-msgrow[data-who="user"] { flex-direction: row-reverse; }
+.nx-msgmeta { font-size: 11px; color: var(--color-nx-dim); margin-bottom: 4px; display: flex; gap: 8px; align-items: baseline; }
+.nx-msgbody { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.8px; }
 
-.nx-inputbar { padding: 12px 18px 16px; }
-.nx-input {
-  width: 100%;
+/* typing indicator — three patient dots */
+.nx-typing { display: inline-flex; gap: 5px; align-items: center; padding: 10px 16px; }
+.nx-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--color-nx-mute); animation: nxwatch 1.3s ease-in-out infinite; }
+.nx-typing i:nth-child(2) { animation-delay: .15s; }
+.nx-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes nxwatch { 0%,100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+
+/* ── the welcome hero ─────────────────────────────────────────────────── */
+.nx-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 7vh 20px 20px; }
+.nx-hero .halo {
+  width: 108px; height: 108px; border-radius: 30px; display: grid; place-items: center;
+  background: var(--color-nx-panel);
+  border: 1px solid var(--color-nx-line-2);
+}
+.nx-hero h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.025em; margin: 4px 0 0; }
+.nx-hero h1 em { font-style: normal; color: var(--color-nx-brand); }
+.nx-hero .sub { color: var(--color-nx-mute); font-size: 13.5px; max-width: 560px; line-height: 1.6; }
+
+.nx-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; width: 100%; max-width: 780px; margin-top: 10px; }
+.nx-card {
+  text-align: left; cursor: pointer; user-select: none;
   background: var(--color-nx-panel);
   border: 1px solid var(--color-nx-line);
-  border-radius: 999px;
-  color: var(--color-nx-ink);
-  padding: 12px 20px;
-  outline: none;
+  border-radius: var(--radius-nx);
+  padding: 13px 15px;
+  transition: border-color .14s ease, transform .14s ease, background .14s ease;
 }
-.nx-input:focus { border-color: var(--color-nx-line-2); }
+.nx-card:hover { border-color: color-mix(in srgb, var(--color-nx-brand) 40%, var(--color-nx-line)); background: var(--color-nx-card); transform: translateY(-2px); }
+.nx-card .c1 { font-size: 13px; font-weight: 560; color: var(--color-nx-ink); margin-bottom: 3px; }
+.nx-card .c2 { font-size: 11.8px; color: var(--color-nx-dim); line-height: 1.45; }
+
+/* ── input bar / composer ─────────────────────────────────────────────── */
+.nx-inputbar { padding: 10px 30px 20px; position: relative; }
+.nx-composer {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--color-nx-card);
+  border: 1px solid var(--color-nx-line-2);
+  border-radius: 18px;
+  padding: 8px 8px 8px 18px;
+  box-shadow: 0 10px 34px -22px rgba(0,0,0,.9);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.nx-composer:focus-within {
+  border-color: color-mix(in srgb, var(--color-nx-brand) 55%, var(--color-nx-line-2));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-nx-brand) 14%, transparent), 0 10px 34px -22px rgba(0,0,0,.9);
+}
+.nx-send {
+  flex: none; width: 38px; height: 38px; border-radius: 12px; border: none; cursor: pointer;
+  display: grid; place-items: center;
+  color: #12151b;
+  background: var(--color-nx-brand);
+  transition: filter .13s ease, transform .13s ease, opacity .13s ease;
+}
+.nx-send:hover { filter: brightness(1.08); }
+.nx-send:active { transform: scale(.96); }
+.nx-send:disabled { opacity: .45; cursor: default; transform: none; }
+.nx-hint { text-align: center; font-size: 10.8px; color: var(--color-nx-dim); margin-top: 7px; }
+
+.nx-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-nx-ink);
+  padding: 10px 4px;
+  outline: none;
+  font-size: 14px;
+  font-family: var(--font-nx);
+}
 .nx-input::placeholder { color: var(--color-nx-dim); }
 
+/* free inputs outside the composer (panels/forms) */
+.nx-input.panel-input, input.nx-input.panel-input, select.nx-input.panel-input {
+  background: var(--color-nx-panel);
+  border: 1px solid var(--color-nx-line);
+  border-radius: var(--radius-nx-sm);
+  padding: 10px 13px;
+  font-size: 13px;
+}
+.nx-input.panel-input:focus { border-color: color-mix(in srgb, var(--color-nx-brand) 45%, var(--color-nx-line)); }
+
+/* ── chips, pills, digests ────────────────────────────────────────────── */
 .nx-chip {
   display: inline-flex; align-items: center; gap: 6px;
   border: 1px solid var(--color-nx-line);
   background: var(--color-nx-panel);
   border-radius: 999px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   font-size: 12px;
   color: var(--color-nx-mute);
   cursor: pointer;
   transition: border-color .12s ease, color .12s ease, background .12s ease;
 }
-.nx-chip:hover { border-color: var(--color-nx-line-hi, rgba(255,255,255,.28)); color: var(--color-nx-ink); }
+.nx-chip:hover { border-color: color-mix(in srgb, var(--color-nx-brand) 40%, var(--color-nx-line)); color: var(--color-nx-ink); }
 .nx-chip[data-on="true"] {
   color: var(--color-nx-ok);
   border-color: color-mix(in srgb, var(--color-nx-ok) 45%, transparent);
@@ -137,25 +259,131 @@ html.nx *::-webkit-scrollbar-track { background: transparent; }
 
 .nx-pill {
   display: inline-flex; align-items: center; gap: 5px;
-  border-radius: 999px; padding: 2px 9px;
+  border-radius: 999px; padding: 2.5px 10px;
   font-size: 11.5px; font-weight: 500;
   border: 1px solid var(--color-nx-line);
   color: var(--color-nx-mute);
 }
-.nx-pill[data-s="done"], .nx-pill[data-s="sealed"], .nx-pill[data-s="proven"] { color: var(--color-nx-ok); border-color: color-mix(in srgb, var(--color-nx-ok) 45%, transparent); }
-.nx-pill[data-s="gated"], .nx-pill[data-s="probation"] { color: var(--color-nx-warn); border-color: color-mix(in srgb, var(--color-nx-warn) 45%, transparent); }
-.nx-pill[data-s="error"], .nx-pill[data-s="refused"] { color: var(--color-nx-err); border-color: color-mix(in srgb, var(--color-nx-err) 45%, transparent); }
-.nx-pill[data-s="vouched"], .nx-pill[data-s="executing"] { color: var(--color-nx-info); border-color: color-mix(in srgb, var(--color-nx-info) 45%, transparent); }
+.nx-pill[data-s="done"], .nx-pill[data-s="sealed"], .nx-pill[data-s="proven"], .nx-pill[data-s="answered"] { color: var(--color-nx-ok); border-color: color-mix(in srgb, var(--color-nx-ok) 45%, transparent); background: color-mix(in srgb, var(--color-nx-ok) 7%, transparent); }
+.nx-pill[data-s="gated"], .nx-pill[data-s="probation"], .nx-pill[data-s="planned"] { color: var(--color-nx-warn); border-color: color-mix(in srgb, var(--color-nx-warn) 45%, transparent); background: color-mix(in srgb, var(--color-nx-warn) 7%, transparent); }
+.nx-pill[data-s="error"], .nx-pill[data-s="refused"] { color: var(--color-nx-err); border-color: color-mix(in srgb, var(--color-nx-err) 45%, transparent); background: color-mix(in srgb, var(--color-nx-err) 7%, transparent); }
+.nx-pill[data-s="vouched"], .nx-pill[data-s="executing"], .nx-pill[data-s="peer-delegated"] { color: var(--color-nx-info); border-color: color-mix(in srgb, var(--color-nx-info) 45%, transparent); background: color-mix(in srgb, var(--color-nx-info) 7%, transparent); }
 
-.nx-digest { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: var(--color-nx-dim); }
+/* the token-savings chip — the accent thread's day job */
+.nx-tok {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 999px; padding: 2.5px 10px;
+  font-family: var(--font-nx-mono); font-size: 10.8px;
+  color: var(--color-nx-brand);
+  border: 1px solid color-mix(in srgb, var(--color-nx-brand) 38%, transparent);
+  background: color-mix(in srgb, var(--color-nx-brand) 8%, transparent);
+}
+
+.nx-digest { font-family: var(--font-nx-mono); font-size: 11px; color: var(--color-nx-dim); }
 
 .nx-h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 .nx-mute { color: var(--color-nx-mute); }
 
-/* faces never decorate more than they inform */
-.nx-face { border-radius: 10px; flex: none; }
+.nx-face { border-radius: 12px; flex: none; }
+
+/* ── the human gate banner — amber, unmissable, calm ──────────────────── */
+.nx-gate {
+  margin: 14px 30px 0;
+  border-radius: var(--radius-nx);
+  border: 1px solid color-mix(in srgb, var(--color-nx-warn) 55%, transparent);
+  background: var(--color-nx-panel);
+  padding: 13px 16px;
+  font-size: 13.5px;
+}
+
+/* ── the mission strip: the Generalist's last run as the center of gravity ── */
+.nx-mission {
+  margin: 14px 30px 0;
+  border: 1px solid var(--color-nx-line);
+  border-radius: var(--radius-nx);
+  background: var(--color-nx-panel);
+  padding: 11px 16px;
+  font-size: 12.5px;
+}
+.nx-mission-hd { display: flex; align-items: center; gap: 9px; }
+.nx-mission-t { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--color-nx-dim); }
+.nx-mission-crew { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 7px 0 0 34px; color: var(--color-nx-mute); font-family: var(--font-nx-mono); font-size: 11px; }
+.nx-mission-row { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 9px; color: var(--color-nx-mute); }
+.nx-mission-row b { color: var(--color-nx-dim); font-weight: 600; margin-right: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+
+/* ── panel bubbles (fed/ledger/provider/market/memory) ────────────────── */
+.nx-panelcard {
+  background: var(--color-nx-panel);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 38%);
+  border: 1px solid var(--color-nx-line);
+  border-radius: var(--radius-nx);
+  padding: 16px 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+
+/* market cards */
+.nx-mkt { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.nx-mktcard { background: var(--color-nx-card); border: 1px solid var(--color-nx-line); border-radius: var(--radius-nx); padding: 14px 15px; display: flex; flex-direction: column; gap: 6px; }
+.nx-mktcard .nm { font-size: 13.5px; font-weight: 600; }
+.nx-mktcard .ds { font-size: 12px; color: var(--color-nx-mute); line-height: 1.5; flex: 1; }
+.nx-mktcard .mt { font-family: var(--font-nx-mono); font-size: 10.5px; color: var(--color-nx-dim); }
+
+/* ── the memory graph view ────────────────────────────────────────────── */
+.nx-graphwrap { background: var(--color-nx-card); border: 1px solid var(--color-nx-line); border-radius: var(--radius-nx); overflow: hidden; }
+.nx-gnode { cursor: pointer; }
+.nx-gnode circle { transition: r .12s ease; }
+.nx-gnode:hover circle { stroke: var(--color-nx-brand); stroke-width: 2; }
+.nx-gnode text { font-family: var(--font-nx-mono); font-size: 9px; fill: var(--color-nx-mute); pointer-events: none; }
 
 /* ── motion, consented only ───────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   html.nx * { animation: none !important; transition: none !important; }
 }
+
+/* ── narrow viewports: the rail collapses ─────────────────────────────── */
+@media (max-width: 860px) {
+  .nx-shell { grid-template-columns: 1fr; }
+  .nx-sidebar { display: none; }
+}
+
+
+/* ── 19.7.2 — the CREAM GRAY theme ──────────────────────────────────────
+   One alternative finish, same layout, same components: warm paper grays,
+   ink-forward text, darkened state hues for contrast. Switched from
+   Settings; applied as <html data-theme="cream"> at boot. */
+html.nx[data-theme="cream"], html.nx[data-theme="cream"] body {
+  --color-nx-bg: #f1efe9;
+  --color-nx-side: #e9e6df;
+  --color-nx-panel: #f7f5f0;
+  --color-nx-card: #fdfcfa;
+  --color-nx-raise: #eae7e0;
+  --color-nx-line: #ddd9d0;
+  --color-nx-line-2: #c8c3b8;
+
+  --color-nx-ink: #23242a;
+  --color-nx-mute: #5d6169;
+  --color-nx-dim: #8f939b;
+
+  --color-nx-ok: #177a4e;
+  --color-nx-warn: #9a6d12;
+  --color-nx-err: #b84435;
+  --color-nx-info: #2f6cb0;
+
+  --color-nx-brand: #0e7268;
+  --color-nx-brand-2: #5b4fc7;
+}
+html.nx[data-theme="cream"] .nx-bubble,
+html.nx[data-theme="cream"] .nx-panelcard,
+html.nx[data-theme="cream"] .nx-mission,
+html.nx[data-theme="cream"] .nx-gate,
+html.nx[data-theme="cream"] .nx-graphwrap,
+html.nx[data-theme="cream"] .nx-mktcard {
+  box-shadow: 0 1px 2px rgba(35, 36, 42, .05);
+}
+html.nx[data-theme="cream"] .nx-topbar {
+  background: color-mix(in srgb, var(--color-nx-bg) 80%, transparent);
+}
+html.nx[data-theme="cream"] { --color-nx-brand: #171a20; --color-nx-brand-2: #565d6b; }
+html.nx[data-theme="cream"] .nx-newchat { color: #f1efe9; }
+html.nx[data-theme="cream"] .nx-send { color: #f7f5f0; }
+html.nx[data-theme="cream"] ::selection { background: color-mix(in srgb, var(--color-nx-brand) 22%, transparent); }

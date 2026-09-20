@@ -68,6 +68,8 @@ const DOMAIN_LABEL: Record<SpecialistCategory, string> = {
   business: "Business & operations",
   legal: "Legal & compliance",
   comms: "Communications",
+  finance: "Finance & compliance",
+  silicon: "Semiconductor engineering",
 };
 
 const CAPTAIN_INSTRUCTION: Record<SpecialistCategory, string> = {
@@ -85,6 +87,8 @@ const CAPTAIN_INSTRUCTION: Record<SpecialistCategory, string> = {
   business: "Produce the business slice: unit economics, go-to-market motion, and the risks with owners.",
   legal: "Review this brief for legal exposure: privacy, licensing, terms — and state where counsel must sign.",
   comms: "Draft the communications slice: launch copy, changelog, and the announcement a journalist could verify.",
+  finance: "Produce the finance slice: the statutory calendar, the registers and reconciliations this brief needs, and the control that proves each number.",
+  silicon: "Produce the silicon slice: the design/verification/signoff flow stages this brief needs, with the criterion that closes each stage.",
 };
 
 /* ── local checkpoint ───────────────────────────────────── */

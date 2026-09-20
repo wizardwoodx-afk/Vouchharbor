@@ -26,7 +26,33 @@ const browserBuiltin = (name: string): string =>
   fileURLToPath(new URL(`./src/browser/nodeStubs/${name}.ts`, import.meta.url));
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      /**
+       * 19.7.0 — the preview fix. Sandboxed preview iframes run this app
+       * under an OPAQUE origin (`origin: null`). Every module fetch from
+       * such a frame is a CORS request, and without Access-Control-Allow-Origin
+       * headers the scripts never load — the app stayed on its splash
+       * forever (observed and reproduced). This middleware answers every
+       * request with permissive CORS and handles preflights, so the console
+       * boots anywhere it is embedded. Dev-server only; the production
+       * build is served same-origin and does not need it.
+       */
+      name: "vh-preview-cors",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          res.setHeader("Access-Control-Allow-Origin", req.headers.origin ?? "*");
+          res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+          res.setHeader("Access-Control-Allow-Headers", "*");
+          res.setHeader("Access-Control-Expose-Headers", "*");
+          if (req.method === "OPTIONS") { res.statusCode = 204; res.end(); return; }
+          next();
+        });
+      },
+    },
+  ],
   clearScreen: false,
   // Anchored regexes, deliberately: a bare string key like "node:fs" is a PREFIX match, so
   // `checkRunner.ts`'s `await import("node:fs/promises")` was being rewritten to
@@ -57,6 +83,9 @@ export default defineConfig({
     strictPort: false,
     host: host || "0.0.0.0",
     allowedHosts: true,
+    // 19.7.0 — vite's own CORS middleware (which 403s opaque origins) is
+    // disabled; the vh-preview-cors plugin above owns the headers.
+    cors: false,
     // 19.3.0 UI refresh — demo-provider relay. The browser build talks to
     // /th-api/* same-origin; the dev server forwards to the provider host.
     // This keeps CSP trivially satisfied and sidesteps provider-side CORS

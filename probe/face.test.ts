@@ -98,6 +98,6 @@ describe("the console is wired", () => {
     const src = fs.readFileSync(path.join(ROOT, "src", "views", "NextConsole.tsx"), "utf8");
     assert.ok(src.includes("HUMAN GATE"));
     assert.ok(src.includes("trace") || src.includes("provenance"));
-    assert.ok(src.includes("plan-only mode, stated, never hidden"));
+    assert.ok(src.includes("plan-only — nothing executes without a provider"));
   });
 });

@@ -26,7 +26,9 @@ export type SpecialistCategory =
   | "product"
   | "business"
   | "legal"
-  | "comms";
+  | "comms"
+  | "finance"
+  | "silicon";
 
 /**
  * A filesystem adapter (19.4.0). The tool runtime is storage-agnostic: Node

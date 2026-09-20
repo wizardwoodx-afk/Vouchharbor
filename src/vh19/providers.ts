@@ -20,6 +20,7 @@
  *   • timeouts are real (AbortController), errors are typed, latency measured.
  */
 import { checkEgressUrl } from "../security/guardrail";
+import { optimizeWirePair } from "./tokenOptim";
 import type { ProviderConfig, ProviderResult } from "./types";
 
 /** Documented provider endpoints (verified against provider docs, 2026-09). */
@@ -147,7 +148,13 @@ export async function complete(
   const egress = checkEgressUrl(cfg.baseUrl);
   if (!egress.ok) return { ok: false, kind: "egress-blocked", error: redactSecrets(`base URL refused by the egress guard: ${egress.reason}`, [cfg.apiKey]) };
 
-  const { url, init } = buildRequest(cfg, system, user);
+  /* 19.7.0 — EVERY provider call rides the token optimization pipeline:
+     normalize → dedup repeated lines → cache-alignment measured → budget
+     guard. Never throws, never changes meaning; the report lands in the
+     wire event ring where the console reads one run's honest delta. */
+  const wire = optimizeWirePair(system, user, { model: cfg.model, kind: "provider-call" });
+
+  const { url, init } = buildRequest(cfg, wire.system, wire.user);
   const doFetch = opts.fetchImpl ?? globalThis.fetch?.bind(globalThis);
   if (!doFetch) return { ok: false, kind: "network", error: "no fetch available in this runtime — nothing was executed" };
 

@@ -237,8 +237,9 @@ test("portable authority — owner-granted, attested runs, durable identity", as
 });
 
 test("VH-19 pipeline — the plane is wired, not an island", async (t) => {
-  await t.test("the seven-tool surface lists pc.exec + pc.browser as risky", () => {
-    assert.equal(TOOLS.length, 7);
+  await t.test("the eight-tool surface lists pc.exec + pc.browser + mcp.call as risky", () => {
+    assert.equal(TOOLS.length, 8);
+    assert.equal(TOOLS.some((t) => t.id === "mcp.call" && t.riskTier === "risky"), true);
     const pc = TOOLS.filter((x) => x.id.startsWith("pc."));
     assert.equal(pc.length, 2);
     for (const x of pc) assert.equal(x.riskTier, "risky");

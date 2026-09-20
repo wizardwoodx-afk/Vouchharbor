@@ -15,7 +15,7 @@
  * stations 40/40/40/40/40.
  * Provenance: vh-19.5.6-reach-batch.
  *
- * Reported through `federation/fleet.ts`: established 1,150 + registered 640 = fleet 1,790, with the routed
+ * Reported through `federation/fleet.ts`: established 1,850 + registered 640 = fleet 2,490, with the routed
  * number always printed first.
  */
 import type { Specialist } from "../types";

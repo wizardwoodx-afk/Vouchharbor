@@ -3,14 +3,14 @@
  *
  * THE CLAIM THIS FILE EXISTS TO MAKE FALSIFIABLE.
  *
- *   "1,790 specialists" is a marketing sentence until someone can say which
+ *   "2,490 specialists" is a marketing sentence until someone can say which
  *   ones are wired and which ones are catalogued. So the fleet is reported in
  *   two numbers that are always both printed:
  *
- *       established   1,150   routed by the Generalist today (the 19.5.6 bench)
+ *       established   1,850   routed by the Generalist today (the 19.7.2.1 bench)
  *       registered      640   specified, catalogued, counted — not yet routed
  *       ────────────────────
- *       fleet         1,790
+ *       fleet         2,490
  *
  *   Registered, in turn, is four benches a reader can check separately:
  *
@@ -68,7 +68,7 @@ export interface FleetClaim {
   routed: number;
   /**
    * The sentence a surface may print. It LEADS with the routed number, adds the
-   * registered bench, and only then gives the total — because "1,560 active
+   * registered bench, and only then gives the total — because "2,490 active
    * specialists" is the reading this product must never invite. Ordering is
    * part of the claim, not decoration.
    */
@@ -77,7 +77,7 @@ export interface FleetClaim {
 
 /**
  * The only shape in which the fleet count may be stated. There is deliberately
- * no function that returns a bare total: a caller that wants "1,560" gets the
+ * no function that returns a bare total: a caller that wants "2,490" gets the
  * breakdown with it, because the breakdown is the honest part.
  */
 export function fleetClaim(): FleetClaim {

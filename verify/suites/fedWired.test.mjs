@@ -19178,6 +19178,28 @@ var FED_LIVE_LEDGER_I = "vh.fed.live.ledger.initiator.v1";
 var FED_LIVE_LEDGER_R = "vh.fed.live.ledger.responder.v1";
 var FED_LIVE_REVOCATIONS = "vh.fed.live.revocations.v1";
 var REGULATED_ACTIVATION_KEY = "vh.regulated.activation.v1";
+var REPLAY_WINDOW_MS = 6e4;
+var replayRing = /* @__PURE__ */ new Map();
+function replaySignature(ownerA, ownerB, capability, task) {
+  const basis = `${pairKey(ownerA, ownerB)}|${capability}|${task.trim().replace(/\s+/g, " ")}`;
+  let h = 2166136261;
+  for (let i = 0; i < basis.length; i++) {
+    h ^= basis.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(16);
+}
+function replayGuardCheck(ownerA, ownerB, capability, task, now = () => /* @__PURE__ */ new Date()) {
+  const t = now().getTime();
+  for (const [k, v] of replayRing) if (t - v.at > REPLAY_WINDOW_MS) replayRing.delete(k);
+  const sig = replaySignature(ownerA, ownerB, capability, task);
+  const hit = replayRing.get(sig);
+  if (hit && t - hit.at <= REPLAY_WINDOW_MS) {
+    return { ok: false, reason: `replay-guard: this exact crossing request was submitted ${Math.round((t - hit.at) / 1e3)}s ago (seen ${hit.seen}\xD7) \u2014 nothing was signed twice inside the ${REPLAY_WINDOW_MS / 1e3}s window; resubmit after it if you truly mean a second run`, seenAt: hit.at, seen: hit.seen };
+  }
+  replayRing.set(sig, { at: t, seen: (hit?.seen ?? 0) + 1 });
+  return { ok: true };
+}
 var read = (key, fallback) => {
   try {
     const raw = globalThis.localStorage?.getItem(key);
@@ -19263,6 +19285,37 @@ function revokeLiveGrant(by, human, reason) {
   return rev;
 }
 async function runLiveCrossing(opts) {
+  const replay = replayGuardCheck(opts.ownerA, opts.ownerB, opts.capability, opts.task);
+  if (!replay.ok) {
+    const t = Date.now();
+    return {
+      outcome: {
+        crossingId: `replay-${replay.seenAt.toString(36)}`,
+        pair: pairKey(opts.ownerA, opts.ownerB),
+        capability: opts.capability,
+        status: "refused",
+        reason: "replay",
+        detail: replay.reason,
+        at: t,
+        envelopeDigest: "none \u2014 nothing was opened or signed",
+        tierInitiator: "unknown",
+        tierResponder: "unknown",
+        standingSource: { initiator: "not consulted \u2014 refused at the door", responder: "not consulted \u2014 refused at the door", shared: true },
+        grants: {
+          initiator: { capability: opts.capability, granted: false, note: "replay refused \u2014 no grant consulted" },
+          responder: { capability: opts.capability, granted: false, note: "replay refused \u2014 no grant consulted" }
+        },
+        approvals: [],
+        attestation: {
+          attests: "that the replay guard refused a duplicate submission inside its window \u2014 nothing was signed, opened or spent twice",
+          notAttested: "any crossing outcome \u2014 no work ran, so there is nothing to attest"
+        },
+        digest: `replay-${replay.seenAt.toString(36)}`
+      },
+      view: [],
+      storedLedgers: { initiator: [], responder: [] }
+    };
+  }
   const keys = await liveOwnerKeys();
   const opened = await openCrossing({ ownerA: opts.ownerA, ownerB: opts.ownerB, task: opts.task, capability: opts.capability, at: Date.now() });
   if (!opened.ok) throw new Error(`federation envelope refused: ${opened.reason} \u2014 ${opened.detail}`);

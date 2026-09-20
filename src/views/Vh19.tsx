@@ -1373,7 +1373,7 @@ export const Vh19: React.FC = () => {
               </button>
               {deskBody('bench', (
                 <>
-                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach + {stats.byProvenance.matured} matured = {stats.count.toLocaleString("en-US")} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; the maturity tier adds finished professionals with explicit doctrine; counting seed() calls alone misses them).</div>
+                  <div className="px-muted">the router only fields enabled specialists — a disabled specialist is never routed to, never silently substituted. Composition, computed live from catalogStats(): {stats.byProvenance.seed} seed + {stats.byProvenance.broader} broader + {stats.byProvenance.reach} reach + {stats.byProvenance.matured} matured + {stats.byProvenance.finance} finance + {stats.byProvenance.silicon} silicon = {stats.count.toLocaleString("en-US")} (the broader bench adds product, business, legal and comms; the reach bench adds the computer-use crafts; the maturity tier adds finished professionals with explicit doctrine; the finance and silicon benches add the domain-depth tiers; counting seed() calls alone misses them).</div>
                   <div className="px-muted" style={{ marginTop: 4 }}>
                     {/* The whole bench, stated as two numbers (19.6). Registered
                         benches are catalogued with capabilities, vocabulary, risk

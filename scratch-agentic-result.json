@@ -1,20 +1,18 @@
 {
   "passed": 24,
   "failed": 0,
-  "seconds": 0.1,
+  "seconds": 0.2,
   "categoriesTouched": [
     "code",
-    "analysis",
     "writing",
     "research",
-    "business",
-    "comms",
     "product",
-    "data",
-    "design",
+    "business",
+    "analysis",
+    "comms",
     "review",
-    "legal",
     "testing",
+    "design",
     "devops"
   ]
 }

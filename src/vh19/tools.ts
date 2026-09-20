@@ -19,16 +19,18 @@
  *     endpoint — arbitrary URLs stay gated behind net.fetch.
  *
  * Honest boundary: this is a deliberately small, inspectable toolset —
- * seven tools a reviewer can read in one sitting. The two pc.* tools ride
+ * eight tools a reviewer can read in one sitting. The two pc.* tools ride
  * the 19.5.1 computer-use plane and exist ONLY when the Generalist attaches
- * it to a reach mission; every call still goes through gate + receipt.
+ * it to a reach mission; the 19.7.1 mcp.call tool exists ONLY when the
+ * owner has ENABLED market servers (the runtime decides); every call still
+ * goes through gate + receipt.
  */
 import { checkEgressUrl } from "../security/guardrail";
 import { pcExec, missionBrowser } from "./computerUse";
 import type { ExecPolicy, BrowserTransport } from "./computerUse";
 import type { GateAsk, GateDecision, RiskTier, VhFs } from "./types";
 
-export type ToolId = "fs.list" | "fs.read" | "fs.write" | "net.fetch" | "wiki.search" | "pc.exec" | "pc.browser";
+export type ToolId = "fs.list" | "fs.read" | "fs.write" | "net.fetch" | "wiki.search" | "pc.exec" | "pc.browser" | "mcp.call";
 
 export interface ToolDef {
   id: ToolId;
@@ -47,6 +49,7 @@ export const TOOLS: ToolDef[] = [
   { id: "wiki.search", purpose: "Keyless Wikipedia summary search — pinned to the public REST endpoint, no arbitrary egress.", riskTier: "safe", inputShape: '{ "query": string }' },
   { id: "pc.exec", purpose: "Run an allowlisted binary under the mission's computer-use policy — bounded, injection-scanned, receipted.", riskTier: "risky", inputShape: '{ "binary": string, "args": string[] }' },
   { id: "pc.browser", purpose: "Built-in headless browser: open/navigate an HTTPS page or screenshot the loaded page under the mission profile.", riskTier: "risky", inputShape: '{ "action": "open" | "navigate" | "screenshot", "url"?: string, "outPath"?: string }' },
+  { id: "mcp.call", purpose: "Reach an MCP server the owner installed at the market: ping it, list its tools, or call one — gated and receipted like every tool.", riskTier: "risky", inputShape: '{ "server": string, "action": "ping" | "list" | "call", "payload"?: { "tool"?: string, "arguments"?: object } }' },
 ];
 
 export function getTool(id: string): ToolDef | null {
@@ -128,6 +131,12 @@ export interface ToolContext {
    * reach-provenance missions. Absent → pc.* tools refuse, wordedly.
    */
   pc?: { missionId: string; policy: ExecPolicy; transport?: BrowserTransport; run?: (bin: string, args: string[], timeoutMs: number) => { status: number | null; timedOut: boolean; stdout: string; stderr: string } };
+  /**
+   * 19.7.1 — the MCP host bridge for stdio servers. The desktop shell /
+   * MCP host injects an executor; a browser page leaves it absent and
+   * stdio calls refuse in words. HTTP servers never need it.
+   */
+  mcpStdioBridge?: (serverId: string, command: string, args: string[], action: string, payload: unknown) => Promise<string>;
 }
 
 const MAX_READ_BYTES = 64 * 1024;
@@ -380,6 +389,8 @@ export async function executeTool(
       return execPcExec(input, ctx);
     case "pc.browser":
       return execPcBrowser(input, ctx);
+    case "mcp.call":
+      return execMcpCall(input, ctx);
   }
 }
 
@@ -417,6 +428,23 @@ async function execPcBrowser(input: Record<string, unknown>, ctx: ToolContext): 
     return { outcome: "refused", output: r.reason };
   }
   return { outcome: "error", output: `pc.browser action must be open | navigate | screenshot, got "${String(action)}"` };
+}
+
+/** The mcp.call executor — parse, then the governed seam in mcpRuntime.ts. The lazy import follows the same seam as node:fs above: the module must stay loadable under plain Node either way. */
+async function execMcpCall(input: Record<string, unknown>, ctx: ToolContext): Promise<ToolExecResult> {
+  const rt = await import("./mcpRuntime");
+  const parsed = rt.parseMcpCallInput(input);
+  if (!parsed.ok) return { outcome: "error", output: parsed.refusal };
+  const servers = rt.mcpRuntimeServers();
+  if (!servers.some((s) => s.serverId === parsed.serverId)) {
+    return { outcome: "refused", output: `server "${parsed.serverId}" is not in the enabled MCP surface (${servers.length ? servers.map((s) => s.serverId).join(", ") : "none enabled"}) — the market decides what exists, the gate decides what runs` };
+  }
+  const payloadIn = (input.payload ?? {}) as Record<string, unknown>;
+  const payload = parsed.action === "call"
+    ? { tool: String(payloadIn.tool ?? ""), arguments: (payloadIn.arguments ?? {}) as Record<string, unknown> }
+    : payloadIn;
+  const r = await rt.callMcpServer(parsed.serverId, parsed.action, payload, { fetchImpl: ctx.fetchImpl, stdioBridge: ctx.mcpStdioBridge });
+  return { outcome: r.outcome, output: r.output };
 }
 
 /** Wrap executeTool with timing + a receipt. The digest is computed by the injected hasher so receipts chain into the member digest. */

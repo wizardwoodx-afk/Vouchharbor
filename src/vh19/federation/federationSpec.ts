@@ -15,10 +15,10 @@
  * Provenance for every entry: "vh-19.6-federation". The batch is reported
  * through `federation/fleet.ts`, which is what makes the public count honest:
  *
- *     SPECIALISTS (established)      1,150
+ *     SPECIALISTS (established)      1,850
  *   + reach batch (registered)         200
  *   + federation batch (registered)    210
- *   = fleet                            1,560   — 1,150 established, 410 registered
+ *   = fleet                            2,490   — 1,850 established, 640 registered
  *
  * "Registered" is not a demotion dressed as a promotion: an established
  * specialist is wired into the router; a registered one is fully specified,

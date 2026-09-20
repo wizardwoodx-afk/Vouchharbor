@@ -219,6 +219,6 @@ describe("merge — one mission ID, one chain, one state (16.0)", () => {
     assert.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");
     assert.equal(VH_TITLE, `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, "the product title is Vouch Harbor");
     assert.ok(/<title>Vouch Harbor[^<]*<\/title>/.test(read("index.html")), "the window title is Vouch Harbor");
-    assert.ok(/^\d+\.\d+\.\d+$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver)");
+    assert.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver, 3 or 4 numeric parts)");
   });
 });

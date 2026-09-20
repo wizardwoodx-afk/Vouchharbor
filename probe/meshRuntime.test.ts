@@ -176,7 +176,7 @@ describe("uid is CSPRNG-born and Reach MCP is current", () => {
   });
 
   it("Reach MCP reports the current release and documents exactly its six exposed tools", () => {
-    assert.ok(/^\d+\.\d+\.\d+$/.test(REACH_MCP_VERSION));
+    assert.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(REACH_MCP_VERSION));
     assert.equal(REACH_MCP_NAME, "Agent Reach MCP");
     const src = fs.readFileSync(path.join(ROOT, "src", "vh19", "reachMcp.ts"), "utf8");
     assert.ok(!src.includes("authority.bind"), "no ghost tool in Reach MCP docs");

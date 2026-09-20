@@ -284,9 +284,9 @@ function receiptFromJsonl(text) {
 }
 
 // src/version.ts
-var VH_VERSION = "19.6.6";
-var VH_SHORT = "19.6";
-var VH_CODENAME = "Federation";
+var VH_VERSION = "19.7.2";
+var VH_SHORT = "19.7";
+var VH_CODENAME = "Noir";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/vouch/engine/crossHarbor.ts

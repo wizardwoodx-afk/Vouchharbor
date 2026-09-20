@@ -1,4 +1,107 @@
-# Vouch Harbor 19.6.6 "Federation" — feature sheet
+# Vouch Harbor 19.7.0 "Recall" — feature sheet
+
+### NEW in 19.7.3 — the autonomy release, integration-hardened ([Agent])
+
+- **BEW on every sub-agent — enforced TWICE.** In every composed prompt
+  AND at runtime: the member loop carries a `BewRun` phase machine —
+  runtime-enforced PHASE/PROVENANCE discipline (the workflow and its
+  evidence trail are machine-checked; semantic correctness is judged by
+  the specialist's own VERIFY against the acceptance check it declared
+  at INTAKE). The trail records as it executes, a run that cannot prove
+  VERIFY cannot claim done, recoveries cap at one, every run ships a BEW
+  receipt with violations (probe/bew 24).
+- **The Agentic MoE** — sparse specialist routing over the WHOLE fleet
+  (all 1,850, every category; agent-level routing, stated as such): fewest
+  experts per task (1/2/3 by tier), marginal-coverage pruning with reasons
+  (`moe.ts`, probe/moe 17).
+- **The initiative engine — decide, then EXECUTE through the shared
+  production executor.** Heartbeat safe acts carry the SAME dep set as a
+  typed chat message (provider · human gate · handoff recorder ·
+  evidence fetch) into askVH19 → MoE → member loops → gated tools →
+  receipts; failures feed the 3-strike breaker, partials reschedule
+  capped verify check-backs, proposals never self-execute (`initiative.ts`
+  + `initiativeBridge.ts`, probe/initiative **35** — including the true
+  integration test: a scripted provider, real member loops answering on
+  the wire).
+- **The 3D memory graph.** Zero-dependency engine: deterministic layout,
+  glossy-black nodes with silver speculars, drag/zoom/inertia
+  (`graph3d.ts`, probe/graph3d 17).
+- **+700 specialists.** 350 finance (200 India · 150 international) +
+  350 silicon across the full lifecycle, each with domain playbooks and
+  honest contracts (probe/financeBench 20 · probe/siliconBench 17).
+  Fleet: **1,850 established · 2,490 catalogued**.
+
+### NEW in 19.7.2 — the maturity release (Noir)
+
+- **Operator doctrine in every specialist.** Five rules appended to every
+  composed prompt (`skills.ts` → `buildSpecialistPrompt`): verify before
+  claiming · evidence over prose · fail forward with one labelled retry ·
+  self-review marks INCOMPLETE, never guesses · scope past the safe tier
+  returns to the human.
+- **The maturity budget.** Member loops run up to five act/observe/adjust
+  steps (`MAX_AGENT_STEPS` 3 → 5).
+- **The Steward.** The center agent renders as the Steward on every
+  surface; no rendered "Generalist" remains (probe/consolePolicy).
+- **Final-product surface.** No version numbers, no demo/simulated props
+  anywhere in the console.
+- **Noir (default) + Cream Gray.** Flat matured black by default; a warm
+  light finish under `html[data-theme="cream"]`; switched in Settings →
+  Appearance, applied before first paint.
+- **Minimal Settings.** Appearance · Security · Memory · Data, plain
+  words; memory ON without a vault warns and points at vault creation.
+- **Exact provider memory.** Session-only = memory + stored-copy removal,
+  never sealed; on-this-machine = requires the unlocked vault, then seals.
+
+### NEW in 19.7.0/19.7.1 — the console remembers, every token is accounted for, and secrets seal
+
+**The owner vault (19.7.1).** Provider keys and the memory graph seal
+with AES-256-GCM under a passphrase-derived key (PBKDF2-SHA-256, 310k
+iterations) — the passphrase is never stored, sealed records hold no
+plaintext, and legacy plaintext keys are purged as compromised. Without a
+passphrase everything is session-only and the UI says so in words.
+
+**The MCP runtime (19.7.1).** Enabled market servers become the governed
+`mcp.call` tool — egress-guard review, the risky-tier human gate, receipts;
+real JSON-RPC for HTTP servers, the host bridge (or an honest refusal) for
+stdio. The market is no longer a registry; it is tool surface.
+
+**The mission strip (19.7.1).** The Generalist's last run — authority,
+evidence, cost, the crew that worked — sits above the stream as the
+console's center of gravity; infrastructure planes group visibly below.
+
+**Conversations as memory graphs.** Every chat becomes a graph of its
+keywords — nodes, co-occurrence edges, dated sessions — stored
+local-first. Ask in plain words ("what happened that day about the Zephyr
+migration?") and the graph recalls the session and REHYDRATES it into the
+crew's context — always marked as rehydrated, in the prompt and in the
+UI, never a silent injection. Deterministic extraction, keyword + date
+recall, idempotent upsert; 26 probe checks (`probe/memoryGraph`).
+
+**The token pipeline on every call.** Normalize → repeated-line dedup
+(marked in place) → prompt-cache alignment (measured, never gamed) →
+emergency budget. The reply carries its own honest delta:
+`⚡ est −N tok (P%)`, estimates labelled as estimates
+(`probe/tokenPipeline`).
+
+**The MCP market.** Add ANY Model Context Protocol server: 12 curated
+reference servers (Filesystem, Git, GitHub, Postgres, SQLite, Brave
+Search, Web Fetch, Memory, Sequential Thinking, Time, Slack, Puppeteer)
+or your own stdio command / HTTP URL — zod-validated, the same SSRF
+egress guard as providers, env keys by name only, one-click standard
+`mcpServers` export for the host and any MCP client (`probe/mcpMarket`).
+
+**A2A replay guard.** A duplicate crossing submission inside a 60-second
+window is refused in words before anything is signed — a double click can
+no longer sign two crossings (`probe/autoRepairReplay`).
+
+**Autonomous error handling.** A member's transient provider failure
+(timeout, network reset, unusable response) gets ONE situation-changing
+auto-retry — no human pause, labelled on the run. Non-transient failures
+are never blind-retried (`probe/autoRepairReplay`).
+
+**The preview fix.** Sandboxed/opaque-origin frames (embeds, preview
+panes) boot the real console now — the CORS + CSP root cause is fixed
+and stated, not worked around.
 
 **Your agents work directly with your customer's agents — with a human on both
 sides and evidence either side can verify offline.**

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.6.6 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.3 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -16,11 +16,105 @@ surface area and then goes where none of them do:
 | Human-approval pauses | A graded human gate with risk tiers, receipts for APPROVALS AND REFUSALS, and a replayable audit chain |
 | Cloud-computer execution | On-device execution (File System Access API / Tauri shell) plus the same engine as an MCP router and an A2A host |
 | Conversational connectors | Governed connector declarations + SKILL.md ecosystem import — playbooks with provenance, no silent egress, one SSRF-guarded network policy |
-| No model picker, gated behind a heavy subscription | Bring your own model/provider endpoint; local-first; keys in memory only |
+| No model picker, gated behind a heavy subscription | Bring your own model/provider endpoint; local-first; keys are session-only by default, or encrypted at rest in the local owner vault |
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.6.x)
+### The current product state (19.7.2.2 [Agent])
+
+### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
+
+**The fleet deepened by 700 finished professionals.** 350 finance
+specialists (`src/vh19/financeBench.ts`) — 200 India-focused (GST filings
+and GSTR-2B reconciliation, e-invoice/e-way bill, TDS 24Q/26Q/27Q and
+26AS/AIS matching, UPI/gateway/nostro settlement recon, Ind AS, SEZ/EXIM,
+NBFC and MSME work incl. 43B(h)) and 150 international (US GAAP/SEC,
+IFRS, Pillar Two, UK/EU/APAC/GCC indirect tax, AML/sanctions, FP&A,
+SOX/PCAOB, M&A quality of earnings). 350 semiconductor specialists
+(`src/vh19/siliconBench.ts`) covering the whole lifecycle — architecture →
+RTL → UVM DV → synthesis/DFT → place-and-route → sign-off (STA/DRC/LVS/
+EM-IR) → tapeout → fab/ATE → packaging → bring-up → reliability/yield —
+each entry carrying a sign-off contract: commands, corners and waiver
+owners per claim. **Every sub-agent is governed by the Behaviour
+Enforcement Workflow [BEW]** (`src/vh19/bew.ts`) — enforced TWICE: the
+six phases (intake, plan, act, verify, recover, report), the error
+ladder (transient/bad-input/blocked/gate), the task ladders and the
+debug-first discipline ride every composed prompt, AND the member agent
+loop carries a runtime phase machine (`BewRun`): the trail is recorded
+as it executes, a run that cannot prove VERIFY cannot claim done
+(truncated ⇒ partial, downgraded by the machine), recoveries are capped
+at one, and every member run ships a BEW receipt with its violations.
+
+**The AGENTIC MIXTURE OF EXPERTISE** (`src/vh19/moe.ts`) is sparse
+specialist routing over the WHOLE established fleet (all 1,850, every
+category — the new benches get no shortcut and no exclusion; this is
+agent-level routing, not a transformer MoE, and it says so): a
+deterministic gate tiers the request (point/standard/complex → 1/2/3
+experts), the top-ranked expert always enters, and each additional one
+must add marginal coverage (a new domain or new capabilities) or is
+pruned with a stated reason. **The INITIATIVE engine**
+(`src/vh19/initiative.ts`) doesn't just plan — safe acts EXECUTE through
+the real engine (askVH19 → routing → MoE → member loops → gated tools →
+receipts): the heartbeat evaluates due follow-ups, pending goals and
+memory drift, executes what is safe through the SHARED production
+executor (the same askVH19 dep set a typed chat message takes —
+provider, human gate, handoff recorder, evidence fetch), feeds failures
+to a 3-strike circuit breaker, reschedules partials as capped verify
+check-backs, and receipts every verdict in Settings → Autonomy. The
+integration probe drives that exact executor against a scripted
+provider and watches real member loops answer on the wire. Proposals never
+self-execute; risky work always stops at the human gate; runs while the
+window is open — stated plainly. Gate-blocked runs leave a capped
+check-back on the heartbeat automatically. **The memory graph is now
+3D and touchable** (`src/vh19/graph3d.ts`): a hand-rolled, zero-dependency
+engine (deterministic seeded layout, depth-sorted render) with the
+glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
+idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
+initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
+20 · 17 checks) — 150 suites total.
+
+### NEW in 19.7.2 "Noir" — the maturity release: a sharper crew, two honest finishes, zero props
+
+### NEW in 19.7.2 "Noir" — the maturity release: a sharper crew, two honest finishes, zero props
+
+**The crew matured.** Every specialist now ships with the operator doctrine
+(`src/vh19/skills.ts`, appended to every composed prompt): verify before
+claiming, evidence over prose, fail forward with one labelled retry,
+self-review that marks INCOMPLETE instead of guessing, and scope past the
+safe tier handed back to the human. Member loops run up to five
+act/observe/adjust steps (`agentLoop.ts`), so a specialist that misses
+adjusts instead of stopping. **The center agent is the Steward** — rendered
+everywhere as the Steward; internal identifiers are unchanged. **Nothing
+fake, nothing versioned on screen**: the console renders no version numbers
+and no demo/simulated props. **Two honest finishes**: matured noir
+(default) and light cream gray — Settings → Appearance, applied before
+first paint. **A minimal Settings plane** — Appearance · Security · Memory ·
+Data — where turning memory ON without a vault says so and points at vault
+creation, and provider memory is exact: "session only" keeps the key in
+memory and removes the stored copy (never seals); "on this machine"
+requires the unlocked vault and seals it.
+
+### NEW in 19.7.0 "Recall" — memory, mastery, and the token pipeline
+
+**The console remembers.** Every conversation becomes a keyword GRAPH
+(`src/vh19/memoryGraph.ts`): nodes, co-occurrence edges, dated sessions,
+local-first. Ask "what happened that day about X" and the graph recalls the
+session and rehydrates it into the crew's context — always marked in the
+prompt and in the UI, never a silent injection. **Every token is accounted
+for**: every provider call rides the new wire pipeline (`src/vh19/tokenOptim.ts`
+through the `providers.complete()` choke point) — normalize → repeated-line
+dedup (marked) → prompt-cache alignment (measured, never gamed) → emergency
+budget — and every reply carries its honest delta (`⚡ est −N tok (P%)`,
+estimates labelled as estimates). **The MCP market** (`src/vh19/mcpMarket.ts`)
+installs ANY server from a 12-entry curated catalog or your own stdio/HTTP
+registration — zod-validated, SSRF-guarded, env keys by name only, standard
+`mcpServers` export. **A2A hardening**: a replay guard refuses a duplicate
+crossing submission inside a 60s window before anything is signed. **The
+fleet self-heals**: a member's transient provider failure gets ONE
+situation-changing auto-retry with no human pause, labelled on the run.
+**The preview fix**: sandboxed/opaque-origin embeds boot the real console
+now (the CORS + CSP root cause is fixed and stated). Full notes:
+[VH-19.7-UPGRADE.md](VH-19.7-UPGRADE.md).
 
 One console, and it IS the app (19.6.6 redesigned the whole surface): a dark
 operations console with the crew on the left rail — the Generalist keeps ONE
@@ -96,8 +190,8 @@ categories, user-manageable — disabled specialists are never fielded), an
 autonomous **router** (deterministic scoring spine + optional LLM re-rank that
 may reorder candidates but never invent them, with every decision and its
 reasons shown on screen), a **provider seam** for OpenAI-compatible / Anthropic
-/ Gemini endpoints (session keys in memory only; durable keys via env or the
-keychain; SSRF-guarded, redaction enforced), an **accept/reject learning
+/ Gemini endpoints (session keys in memory only; durable keys encrypted in the local owner
+vault or via env — never plaintext; SSRF-guarded, redaction enforced), an **accept/reject learning
 ledger** (local-first; cloud sync opt-in and honestly non-operational until it
 ships), and the **90% autonomy exam** — questions generated only from the
 user's real scenarios, agent-explained answers, user grading; ≥90% earns
@@ -350,7 +444,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 137 suites
+npm test              # 150 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -358,11 +452,12 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (Node alone — dependency-backed suites honestly fail/skip
 #   on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs            # 136 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs             # 149 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs --shard 1/4 # short execution window? run deterministic shards and merge
 node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
 # shorter window? run the same gate in pieces and merge:
 #   node verify/run.mjs --shard 1/4 --time-budget 30   (…2/4, 3/4, 4/4)
-#   node verify/collect.mjs                            (0 only when all 136 are covered)
+#   node verify/collect.mjs                            (0 only when all 143 are covered)
 
 # reproducible benchmark pack (zero install; B3 honestly skips without deps)
 node benchmark/run.mjs
@@ -450,7 +545,7 @@ npm run host:build                # rebuild + byte-pin tools/vh-host-engine.mjs
 src/         React frontend — the engine (mission/missionLoop.ts), the Vouch control plane (vouch/), six doors, canvas, harness registry
 src-tauri/   Rust shell — Tauri commands, SQLite, keyring, MCP/ACP bridges, git
 protocol/    the Vouch Harbor Protocol (device-to-device trust substrate) + zero-dep bridge
-probe/       137 probe suites, run by `npm test`
+probe/       150 probe suites, run by `npm test`
 verify/      offline pack — self-contained bundles + runner, byte-pinned
 benchmark/   reproducible benchmark pack (zero install, pinned inputs)
 tools/       the byte-pinned MCP engine, receipt verifier, and vh-interop (the external-agent boundary)
