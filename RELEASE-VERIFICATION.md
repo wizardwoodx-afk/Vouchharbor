@@ -1,10 +1,25 @@
-# Vouch Harbor 19.7.2.2 [Agent] — release verification record
+# Vouch Harbor 19.7.4 [Crew] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.4 record — the governed crew
+
+The third external review verified the new suites independently (crew 26/26,
+moeV2 24/24, modes 16/16, lotus 21/21, harnesses 270/270, harnessPolicy 94/94,
+productionStack 7/7, realExecution 14/14, vhClean 8/8, versionDrift 42/42) and
+named one release-blocking UI integration bug plus documentation drift. All
+shipped in the next build:
+
+| Review finding | Fix shipped | Proof it is real |
+|---|---|---|
+| "Manual-mode Crew creation gates everyone, then immediately stops the run" — the console mustered AND ran in one click; the all-gated run was marked failed; approve buttons then did nothing (the resolution logic only revived an awaiting-gate session, and a gate decision after a run was not accepted at all) | TWO fixes, one contract: (1) THE UI is now explicitly two-phase — Muster selects and gates the crew, the owner approves/refuses, and only "Run the crew" executes (the run never starts itself); (2) THE ENGINE is hardened underneath: a gate decision is decidable from awaiting-gate, running, AND a failed-untouched session (cooled-down refuses — the breaker owns it), and the completion law no longer calls an all-gated no-op run a failure — it returns the session to awaiting-gate with the line "nothing executed — N member(s) still await your approval"; an all-REFUSED crew is recorded as done-with-nothing, worded as the owner's decision | probe/crew pins the reviewer's exact UI sequence end-to-end: muster → premature run executes nothing (status awaiting-gate, feed line present) → approvals revive to running → the revived run answers the whole crew; plus the all-refused done-with-nothing case. The workspace panel carries the two buttons and the boundary hint |
+| README still titled its product-state heading 19.7.2.2; this file's title was stale | Both headings now state the shipped release; historical sections keep their original titles untouched | probe/versionDrift pins the current-release headings; the drift gate widens as the checklists grow |
+
+**Tree.** `19.7.4 "Crew"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.3 record — the integration-hardening release
 

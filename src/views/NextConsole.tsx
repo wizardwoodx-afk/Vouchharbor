@@ -950,24 +950,53 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                   onChange={(e) => setWsTask(e.target.value)}
                   placeholder="Give the crew a task — e.g. build an app: frontend, backend, database, security…"
                 />
-                <button
-                  className="nx-chip !text-[color:var(--color-nx-ok)]"
-                  disabled={wsBusy || !provider || !wsTask.trim()}
-                  onClick={() => {
-                    if (!provider || !wsTask.trim() || wsBusy) return;
-                    const s = createCrewSession(wsTask.trim(), { mode: "manual" });
-                    setWsSessionId(s.id);
-                    setWsErr(null);
-                    setWsBusy(true);
-                    void runCrewSession(s.id, { provider })
-                      .catch((e: unknown) => setWsErr(e instanceof Error ? e.message : String(e)))
-                      .finally(() => { setWsBusy(false); setWsTick((n) => n + 1); });
-                  }}
-                >
-                  Muster the crew
-                </button>
+                {/* 19.7.4 review fix — the muster and the run are TWO steps.
+                    Manual mode gates every member at muster; the run starts
+                    only when the owner presses Run with a crew to field. */}
+                {!ws ? (
+                  <button
+                    className="nx-chip !text-[color:var(--color-nx-ok)]"
+                    disabled={wsBusy || !provider || !wsTask.trim()}
+                    onClick={() => {
+                      if (!provider || !wsTask.trim() || wsBusy) return;
+                      const s = createCrewSession(wsTask.trim(), { mode: "manual" });
+                      setWsSessionId(s.id);
+                      setWsErr(null);
+                      setWsTick((n) => n + 1);
+                    }}
+                  >
+                    Muster the crew
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      className="nx-chip !text-[color:var(--color-nx-ok)]"
+                      disabled={wsBusy || !provider || ws.slots.every((x) => x.status !== "queued")}
+                      onClick={() => {
+                        if (!provider || wsBusy) return;
+                        setWsErr(null);
+                        setWsBusy(true);
+                        void runCrewSession(ws.id, { provider })
+                          .catch((e: unknown) => setWsErr(e instanceof Error ? e.message : String(e)))
+                          .finally(() => { setWsBusy(false); setWsTick((n) => n + 1); });
+                      }}
+                    >
+                      {wsBusy ? "the crew is working…" : "Run the crew"}
+                    </button>
+                    <button
+                      className="nx-chip"
+                      disabled={wsBusy}
+                      onClick={() => { setWsSessionId(null); setWsTask(""); setWsTick((n) => n + 1); }}
+                    >
+                      Dismiss
+                    </button>
+                  </>
+                )}
               </div>
               {!provider && <div className="mt-1 text-[12px] nx-mute">no provider key connected — nothing will execute. Connect one in the provider panel.</div>}
+              {ws && ws.status === "awaiting-gate" && (
+                <div className="mt-1 text-[12px] nx-mute">manual mode: approve or refuse your crew below — the run never starts itself. Switch mode to open safe members without asking.</div>
+              )}
               {wsErr && <div className="mt-1 text-[12px] text-[color:var(--color-nx-err)]">{wsErr}</div>}
               {ws && (
                 <>

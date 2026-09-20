@@ -140,8 +140,35 @@ function main(): void {
         return runCrewSession(s4.id, { provider: PROVIDER, fetchImpl: okFetch() as unknown as typeof fetch }).then((out4) => {
           ok("the refused session executes nothing", out4.answered === 0 && out4.failed === 0 && out4.reassigned === 0);
 
-          console.log(`\n${passed} passed, ${failed} failed`);
-          if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); process.exit(1); }
+          /* ── 19.7.4 review fix: the REAL UI sequence, pinned end-to-end ──
+             create (manual → all gated) → a premature run executes NOTHING
+             and the session AWAITS the gate (not failed) → the owner
+             approves → the session revives to running → the run executes. */
+          resetCrewSessions();
+          const s5 = createCrewSession(APP_TASK, { mode: "manual", at: 11000 });
+          ok("muster under manual gates the whole crew and waits", s5.slots.every((x) => x.status === "gated") && s5.status === "awaiting-gate");
+          return runCrewSession(s5.id, { provider: PROVIDER, fetchImpl: okFetch() as unknown as typeof fetch }).then((out5) => {
+            ok("a premature run over an all-gated roster executes nothing", out5.answered === 0 && out5.failed === 0 && out5.reassigned === 0 && out5.refused === 0);
+            ok("the session is NOT failed — it awaits the gate, stated in the feed",
+              s5.status === "awaiting-gate" && s5.feed.events.some((e) => e.line.includes("nothing executed")));
+            for (const slot of s5.slots) resolveGate(s5.id, slot.slotId, true, 11200);
+            ok("approvals revive the session to running", s5.status === "running");
+            return runCrewSession(s5.id, { provider: PROVIDER, fetchImpl: okFetch() as unknown as typeof fetch }).then((out6) => {
+              ok("the revived run executes the approved crew", out6.answered === s5.slots.length && s5.status === "done");
+
+              /* an all-refused crew is the owner's call — done, not failed */
+              resetCrewSessions();
+              const s6 = createCrewSession(APP_TASK, { mode: "manual", at: 12000 });
+              for (const slot of s6.slots) resolveGate(s6.id, slot.slotId, false, 12100);
+              return runCrewSession(s6.id, { provider: PROVIDER, fetchImpl: okFetch() as unknown as typeof fetch }).then((out7) => {
+                ok("an all-refused crew is done-with-nothing, worded as the owner's decision",
+                  s6.status === "done" && out7.refused === s6.slots.length && s6.feed.events.some((e) => e.line.includes("exactly as you decided")));
+
+                console.log(`\n${passed} passed, ${failed} failed`);
+                if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); process.exit(1); }
+              });
+            });
+          });
         });
       });
     });

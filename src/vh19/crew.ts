@@ -187,22 +187,37 @@ const CREW_MODE_DOCTRINE_SHORT: Record<CrewMode, string> = {
   full: "fully autonomous still gates critical acts",
 };
 
-/** The owner's answer at the human gate: approve → queued, refuse → refused. */
+/**
+ * The owner's answer at the human gate: approve → queued, refuse → refused.
+ *
+ * 19.7.4 review fix — the gate is decidable from EVERY live state a session
+ * can honestly be in when the owner reaches it: awaiting-gate (the normal
+ * muster), running (a member gated mid-run), and FAILED-untouched (a runner
+ * that started with every member gated — the UI-muster sequencing bug the
+ * review caught: it skipped the gated roster and marked the session failed
+ * before anyone had answered the gate). A resolution recomputes the session
+ * status: gated members remain → awaiting-gate; none remain → running, so
+ * the very next run executes the approved crew. A cooled-down session takes
+ * no gate decisions — the breaker owns it until the owner restarts it.
+ */
 export function resolveGate(sessionId: string, slotId: string, approve: boolean, at = Date.now()): { ok: boolean; line: string } {
   const session = sessions.get(sessionId);
   if (!session) return { ok: false, line: "no such crew session" };
+  if (session.status === "cooled-down") return { ok: false, line: "the session is cooled down — restart it before gate decisions" };
   const slot = session.slots.find((s) => s.slotId === slotId);
   if (!slot || slot.status !== "gated") return { ok: false, line: "that member is not at the gate" };
   if (!approve) {
     slot.status = "refused";
     record(session.feed, "note", `${slot.specialistId} refused at your gate — it will not run`, at);
-    return { ok: true, line: `refused: ${slot.specialistId}` };
+  } else {
+    slot.status = "queued";
+    record(session.feed, "member-admitted", `${slot.specialistId} approved at your gate — joining the crew`, at);
   }
-  slot.status = "queued";
   const remaining = session.slots.filter((s) => s.status === "gated").length;
-  if (remaining === 0 && session.status === "awaiting-gate") session.status = "running";
-  record(session.feed, "member-admitted", `${slot.specialistId} approved at your gate — joining the crew`, at);
-  return { ok: true, line: `approved: ${slot.specialistId}` };
+  if (session.status === "awaiting-gate" || session.status === "failed" || session.status === "running") {
+    session.status = remaining > 0 ? "awaiting-gate" : "running";
+  }
+  return { ok: true, line: `${approve ? "approved" : "refused"}: ${slot.specialistId}` };
 }
 
 /** Hot-switch the session's mode mid-run. In-flight acts keep their admitting mode. */
@@ -364,8 +379,26 @@ export async function runCrewSession(sessionId: string, opts: CrewRunOptions, _a
   await Promise.all(workers);
 
   const answered = session.slots.filter((s) => s.status === "answered").length;
+  const gatedLeft = session.slots.filter((s) => s.status === "gated").length;
+  const refused = session.slots.filter((s) => s.status === "refused").length;
+  const attempted = session.slots.filter((s) => s.attempts > 0).length;
   if (session.status !== "cooled-down") {
-    session.status = answered > 0 ? "done" : "failed";
+    if (session.refusal) {
+      session.status = "failed"; // creation-time refusal stands
+    } else if (answered === 0 && attempted === 0 && gatedLeft > 0) {
+      /* 19.7.4 review fix: a runner that started with an all-gated roster
+         executed NOTHING — that is a muster awaiting its owner, not a
+         failure. The session returns to awaiting-gate and says so. */
+      session.status = "awaiting-gate";
+      record(session.feed, "note", `nothing executed — ${gatedLeft} member(s) still await your approval; approve, then run the crew`, Date.now());
+    } else if (answered === 0 && attempted === 0 && refused > 0 && gatedLeft === 0) {
+      /* every member refused at the gate: the owner cancelled the work —
+         recorded as done-with-nothing, honestly worded, not a failure. */
+      session.status = "done";
+      record(session.feed, "crew-done", `every member was refused at your gate — nothing executed, exactly as you decided`, Date.now());
+    } else {
+      session.status = answered > 0 ? "done" : "failed";
+    }
   }
   session.sessionReceipt = await hash(
     JSON.stringify({
