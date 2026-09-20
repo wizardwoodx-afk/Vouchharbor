@@ -66,6 +66,9 @@ import {
 } from "../vh19/groups";
 import { moeV2Line } from "../vh19/moeV2";
 import { lotusReport, lotusLine } from "../vh19/lotus";
+/* 19.7.8 [Trustroot] — the guarded self-evolution promotion desk, live. */
+import { proposeSelfChanges, applySelfChangeGuarded, rejectSelfChange, selfProposals, SELF_EVOLUTION_FLOOR } from "../vh19/selfEvolve";
+import { rsiralsV6Line } from "../vh19/rsiralsV6";
 import { vaultStatus, vaultSeal, vaultDecrypt, vaultRemove, lockVault, setVaultPassphrase, purgePlain, type VaultStatusInfo } from "../vh19/vault";
 import { graphSecurityStatus, hydrateGraph, setMemoryEnabled, memoryEnabled } from "../vh19/memoryGraph";
 import { mcpRuntimeStats, type McpToolSurfaceEntry, mcpRuntimeServers } from "../vh19/mcpRuntime";
@@ -92,7 +95,7 @@ const tokChip = (t: OptimDelta) => (
   </span>
 );
 
-type Panel = "chat" | "crew" | "workspace" | "group" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
+type Panel = "chat" | "crew" | "workspace" | "group" | "evo" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
 
 export function NextConsole(): React.ReactElement {
   const [panel, setPanel] = useState<Panel>("chat");
@@ -142,6 +145,10 @@ export function NextConsole(): React.ReactElement {
   const [gSessionId, setGSessionId] = useState<string | null>(null);
   const [gBusy, setGBusy] = useState(false);
   const [gErr, setGErr] = useState<string | null>(null);
+  /* 19.7.8 [Trustroot] — the evolution desk. */
+  const [evoBusy, setEvoBusy] = useState(false);
+  const [evoNote, setEvoNote] = useState<string | null>(null);
+  const [evoTick, setEvoTick] = useState(0);
   useEffect(() => {
     if (!wsBusy) return;
     const t = setInterval(() => setWsTick((n) => n + 1), 700);
@@ -586,6 +593,13 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
           <div className="min-w-0">
             <div className="text-[13px] text-[color:var(--color-nx-ink)] truncate">Group</div>
             <div className="text-[11px] nx-mute truncate">{gCharter ? `${gCharter.name} · ${gCharter.status}` : "two owners, one governed crew"}</div>
+          </div>
+        </div>
+        <div className="nx-side-item" data-active={panel === "evo"} onClick={() => { setPanel("evo"); setEvoTick((n) => n + 1); }}>
+          <GeneralistFace name={gName} size={28} animate={false} />
+          <div className="min-w-0">
+            <div className="text-[13px] text-[color:var(--color-nx-ink)] truncate">Evolution desk</div>
+            <div className="text-[11px] nx-mute truncate">RSIRALS v6 · your click is the promotion</div>
           </div>
         </div>
         <div className="nx-side-item" data-active={panel === "workspace"} onClick={() => setPanel("workspace")}>
@@ -1292,6 +1306,70 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                 </div>
               </div>
             )}
+          </div>
+          );
+        })()}
+
+        {panel === "evo" && (() => {
+          void evoTick;
+          const proposals = selfProposals().filter((p) => p.state === "pending");
+          return (
+          <div className="nx-stream">
+            <div className="nx-bubble">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="nx-h1 text-[14px]">Evolution desk</span>
+                {pill(`${proposals.length} pending`)}
+                <span className="nx-mute text-[12px]">RSIRALS v6 — your click is the promotion decision</span>
+              </div>
+              <div className="mt-1 text-[12px] nx-mute">every apply rides the EXTERNAL canary verifier (ECDSA-signed, trust-root pinned), the frozen constitution and the measured drift budget — a refusal names the rule; an approval is yours alone.</div>
+              <div className="mt-2">
+                <button
+                  className="nx-chip !text-[color:var(--color-nx-ok)]"
+                  disabled={evoBusy}
+                  onClick={() => {
+                    setEvoBusy(true);
+                    void proposeSelfChanges().then(() => { setEvoTick((n) => n + 1); }).finally(() => setEvoBusy(false));
+                  }}
+                >
+                  {evoBusy ? "scanning…" : "Scan the ledgers for proposals"}
+                </button>
+              </div>
+              {evoNote && <div className="mt-2 text-[12px] nx-mute">{evoNote}</div>}
+              {proposals.length === 0 ? (
+                <div className="mt-2 text-[12.5px] nx-mute">no pending proposals — the proposer only raises changes your real rejection ledgers support.</div>
+              ) : proposals.map((p) => (
+                <div key={p.id} className="mt-3 nx-chip !normal-case !tracking-normal flex flex-col items-start gap-1" style={{ background: "var(--bg-panel)" }}>
+                  <div className="text-[12.5px]">{p.kind} · {p.target} → {String(p.to)}</div>
+                  <div className="text-[11px] nx-mute">{p.rationale.slice(0, 160)}</div>
+                  <div className="flex flex-wrap gap-1">
+                    <button
+                      className="nx-chip !text-[color:var(--color-nx-ok)]"
+                      disabled={evoBusy}
+                      onClick={() => {
+                        setEvoBusy(true);
+                        void applySelfChangeGuarded(p.id)
+                          .then((r) => setEvoNote(r.ok && r.v6 ? `applied — RSIRALS v6 ${r.v6.verdict} · canaries ${r.v6.canarySource} · ledger seq ${r.v6.ledgerSeq ?? "—"}` : (r.error ?? "refused")))
+                          .finally(() => { setEvoBusy(false); setEvoTick((n) => n + 1); });
+                      }}
+                    >
+                      Approve &amp; apply (gated)
+                    </button>
+                    <button
+                      className="nx-chip !text-[color:var(--color-nx-err)]"
+                      disabled={evoBusy}
+                      onClick={() => { rejectSelfChange(p.id, "declined at the evolution desk"); setEvoTick((n) => n + 1); }}
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="nx-bubble">
+              <div className="nx-h1 text-[14px]">The verifier chain</div>
+              <div className="mt-1 text-[12px] nx-mute">{rsiralsV6Line()}</div>
+              <div className="mt-1 nx-digest">floor: {SELF_EVOLUTION_FLOOR.join(" · ")}</div>
+            </div>
           </div>
           );
         })()}

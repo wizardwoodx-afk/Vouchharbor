@@ -1,5 +1,36 @@
 # Vouch Harbor 19.7.0 "Recall" — feature sheet
 
+### NEW in 19.7.8 [Trustroot] — real signatures + a frozen trust root + the live desk
+
+- **ECDSA P-256 verdict signatures** — the external verifier signs with
+  its own private key; VH verifies against the public key PINNED in the
+  frozen trust root. A foreign key literally cannot get a verdict accepted
+  (probe pins the forgery attempt).
+- **The frozen trust root** (`src/vh19/verifierTrust.ts`) — pinned
+  verifier public key · battery digest (over every check's SOURCE) · key
+  fingerprint. No setter; rotation is a release event.
+- **CSPRNG nonces** (randomUUID) · **battery-swap refusal on sight** ·
+  **the Evolution desk on the ACTIVE NextConsole** — scan → approve
+  (gated) → the note shows verdict · canary source · ledger seq.
+
+```
+live self-evolution apply (the Evolution desk, active console)
+      │ proposal
+      ▼
+  canaryClient ──spawn──► verifier/vh-verifier.mjs  (OUTSIDE src/)
+      │ nonce: CSPRNG randomUUID          │ 6 held-out checks
+      │        ◄── ECDSA P-256 signature ─┘  digest binds check SOURCE
+      ▼
+  TRUST ROOT (frozen): pinned public key · pinned battery digest · fingerprint
+      │ verify signature + anchor battery + echo nonce
+      ▼
+  governChange: constitution → drift budget → EXTERNAL canaries
+      ├─ BLOCK ──► refusal names the rule; proposal stays pending
+      └─ ESCALATE ──► the HUMAN click = the promotion decision (fail-closed)
+                         ▼
+       override lands · v5 archive applied/reverted · v6 ledger
+```
+
 ### NEW in 19.7.7 [Verifier] — RSIRALS v6 goes LIVE (the verifier leaves the building)
 
 - **External canary verifier** — the held-out battery moved OUT of `src/`

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.7 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.8 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.7 [Verifier])
+### The current product state (19.7.8 [Trustroot])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -72,6 +72,34 @@ glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
 20 · 17 checks) — 156 suites total.
+
+### NEW in 19.7.8 [Trustroot] — real signatures, a frozen anchor, the desk on the live console
+
+**The 19.7.7 review's verdict, shipped in full:**
+
+- **REAL signatures, not checksums.** The verifier now signs every verdict
+  with its **ECDSA P-256 private key** (the same curve as VH's authority
+  mandates); VH verifies against the public key **pinned in the frozen
+  trust root** (`src/vh19/verifierTrust.ts`). A modified verifier cannot
+  forge accepted verdicts — it does not hold the pinned key. Probed with a
+  literal foreign-key forgery attempt: refused.
+- **The battery is anchored.** The pinned `expectedBatteryDigest` covers
+  every check's SOURCE (id + probe source), and `verifyExternal` enforces
+  it independently — a swapped exam is refused on sight, before signature
+  checks even matter.
+- **CSPRNG nonces** — `crypto.randomUUID()` (getRandomValues fallback).
+  No clocks, no Math.random.
+- **The Evolution desk is on the ACTIVE console** — NextConsole carries
+  the guarded promotion surface: scan the ledgers, approve through the
+  full anchored v6 gate (the note shows verdict · canary source · ledger
+  seq), decline, with the verifier chain and the floor printed beneath.
+  The honest description is now simply: RSIRALS v6 is live, on the
+  user-facing surface, human approval required.
+
+probe/rsiralsV6: 42 checks — trust-root freezing and fingerprints, a real
+foreign-key forgery refused, signature tamper refused, battery swap
+refused on sight, replay refused, and the live production apply still
+gated end to end.
 
 ### NEW in 19.7.7 [Verifier] — RSIRALS v6 goes LIVE: the verifier leaves the building
 

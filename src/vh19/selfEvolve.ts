@@ -264,7 +264,7 @@ export async function applySelfChangeGuarded(proposalId: string, now: () => Date
   if (p.state !== "pending") return { ok: false, error: `proposal already ${p.state}` };
 
   const candidate = governCandidateFor(p);
-  const canary = verifyExternal(candidate);
+  const canary = await verifyExternal(candidate);
   const verdict = governChange(candidate, canary, now().getTime());
 
   if (verdict.verdict === "BLOCK") {

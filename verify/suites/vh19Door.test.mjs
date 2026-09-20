@@ -66539,29 +66539,80 @@ function promoteToFleet(c, scores, baseline, at2 = Date.now()) {
   return { ok: true, line: `promoted to FLEET (ledger seq ${event.seq}); rollback point kept for ${c.target}` };
 }
 
+// src/vh19/verifierTrust.ts
+var TRUST_ROOT = Object.freeze({
+  protocol: "vh-verifier/2",
+  algorithm: "ECDSA_p256_sha256",
+  verifierPublicKeyJwk: Object.freeze({
+    kty: "EC",
+    crv: "P-256",
+    x: "YkNuABs5fQuX19fr9aq1Sk_JHtz6PO-kHKC2DLeJCZU",
+    y: "sy1-QZsgLJgFc4JCtOupGJ2B-TnKkBbyUi3XGsewPUA",
+    key_ops: Object.freeze(["verify"]),
+    ext: true
+  }),
+  verifierKeyFingerprint: "44c2719e7d6c2e446f76283ff58788fb88bb4044b5e6abdfcd2291bea9a39f08",
+  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e"
+});
+
 // src/vh19/canaryClient.ts
 var VERIFIER_PATH = "verifier/vh-verifier.mjs";
-function verifierSignature(nonce, ran, failed2, batteryDigest) {
-  return pureSha256(`vh-verifier/1|${nonce}|${ran}|${JSON.stringify(failed2)}|${batteryDigest}`);
+function newNonce() {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  if (c?.getRandomValues) {
+    const bytes = c.getRandomValues(new Uint8Array(32));
+    return Array.from(bytes).map((b3) => b3.toString(16).padStart(2, "0")).join("");
+  }
+  return null;
 }
-function validateVerifierOutput(out, expectedNonce, expectedBattery) {
+function canonicalVerdictPayload(nonce, ran, failed2, batteryDigest) {
+  return `vh-verifier/1|${nonce}|${ran}|${JSON.stringify(failed2)}|${batteryDigest}`;
+}
+function subtle() {
+  const g = globalThis;
+  if (g.crypto?.subtle) return g.crypto.subtle;
+  try {
+    const proc = globalThis.process;
+    return proc?.getBuiltinModule?.("node:crypto")?.webcrypto?.subtle ?? null;
+  } catch {
+    return null;
+  }
+}
+async function validateVerifierOutput(out, expectedNonce) {
   if (!out || typeof out !== "object") return { ok: false, reason: "verifier output is not an object" };
   if (out.nonce !== expectedNonce) return { ok: false, reason: "verdict nonce mismatch \u2014 replay refused" };
   if (!Array.isArray(out.failed)) return { ok: false, reason: "verdict failed-list malformed" };
   if (typeof out.ran !== "number" || typeof out.batteryDigest !== "string" || out.batteryDigest.length !== 64) return { ok: false, reason: "verdict payload malformed" };
-  if (expectedBattery && out.batteryDigest !== expectedBattery) return { ok: false, reason: "verdict came from a different battery \u2014 refused" };
-  const expect = verifierSignature(out.nonce, out.ran, out.failed, out.batteryDigest);
-  if (out.sig !== expect) return { ok: false, reason: "verdict signature mismatch \u2014 tamper refused" };
-  return {
-    ok: true,
-    report: { ran: out.ran, failed: out.failed.map((f3) => ({ id: String(f3.id), finding: String(f3.finding) })), batteryDigest: out.batteryDigest, source: "external-verifier" }
-  };
+  if (out.alg !== TRUST_ROOT.algorithm) return { ok: false, reason: `verdict algorithm '${String(out.alg)}' is not the pinned ${TRUST_ROOT.algorithm}` };
+  if (out.batteryDigest !== TRUST_ROOT.expectedBatteryDigest) {
+    return { ok: false, reason: `battery digest ${out.batteryDigest.slice(0, 12)}\u2026 does not match the pinned battery ${TRUST_ROOT.expectedBatteryDigest.slice(0, 12)}\u2026 \u2014 a modified battery is not the approved exam` };
+  }
+  const s = subtle();
+  if (!s) return { ok: false, reason: "no WebCrypto in this runtime \u2014 the signature cannot be verified here" };
+  try {
+    const key = await s.importKey("jwk", TRUST_ROOT.verifierPublicKeyJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+    const sigBytes = Uint8Array.from(atobPolyfill(out.sig), (ch) => ch.charCodeAt(0));
+    const ok2 = await s.verify({ name: "ECDSA", hash: "SHA-256" }, key, sigBytes, new TextEncoder().encode(canonicalVerdictPayload(out.nonce, out.ran, out.failed, out.batteryDigest)));
+    if (!ok2) return { ok: false, reason: `verdict signature INVALID under the pinned verifier key ${TRUST_ROOT.verifierKeyFingerprint.slice(0, 12)}\u2026 \u2014 tamper or a forged signer refused` };
+    return {
+      ok: true,
+      report: { ran: out.ran, failed: out.failed.map((f3) => ({ id: String(f3.id), finding: String(f3.finding) })), batteryDigest: out.batteryDigest, source: "external-verifier" }
+    };
+  } catch (err) {
+    return { ok: false, reason: `signature verification failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
 }
-function verifyExternal(candidate) {
+function atobPolyfill(b64) {
+  const g = globalThis;
+  if (g.atob) return g.atob(b64);
+  return Buffer.from(b64, "base64").toString("binary");
+}
+async function verifyExternal(candidate) {
   try {
     const proc = globalThis.process;
     const getBuiltin = proc?.getBuiltinModule;
-    if (typeof getBuiltin !== "function" || typeof proc?.execPath !== "function" && typeof proc?.execPath !== "string" || typeof proc?.cwd !== "function") {
+    if (typeof getBuiltin !== "function" || typeof proc?.cwd !== "function" || !proc.versions?.node) {
       return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: "no node runtime \u2014 the external verifier cannot run here" };
     }
     const cp = getBuiltin("node:child_process");
@@ -66569,16 +66620,17 @@ function verifyExternal(candidate) {
     const pathMod = getBuiltin("node:path");
     const verifierPath = pathMod.resolve(proc.cwd(), VERIFIER_PATH);
     if (!fs2.existsSync(verifierPath)) {
-      return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: `verifier binary not found at ${VERIFIER_PATH}` };
+      return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: `verifier process not found at ${VERIFIER_PATH}` };
     }
-    const nonce = pureSha256(`${Date.now()}-${Math.random()}-vh-canary`).slice(0, 32);
+    const nonce = newNonce();
+    if (!nonce) return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: "no CSPRNG in this runtime \u2014 refusing to run without a fresh nonce" };
     const raw = cp.execFileSync(proc.execPath, [verifierPath], {
       input: JSON.stringify({ nonce, candidate }),
       encoding: "utf8",
       timeout: 15e3
     });
     const out = JSON.parse(raw);
-    const res = validateVerifierOutput(out, nonce);
+    const res = await validateVerifierOutput(out, nonce);
     if (!res.ok) return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: res.reason };
     return res.report;
   } catch (err) {
@@ -66740,7 +66792,7 @@ async function applySelfChangeGuarded(proposalId, now = () => /* @__PURE__ */ ne
   if (!p) return { ok: false, error: `unknown proposal ${proposalId}` };
   if (p.state !== "pending") return { ok: false, error: `proposal already ${p.state}` };
   const candidate = governCandidateFor(p);
-  const canary = verifyExternal(candidate);
+  const canary = await verifyExternal(candidate);
   const verdict = governChange(candidate, canary, now().getTime());
   if (verdict.verdict === "BLOCK") {
     rsiralsOnFirewallBlock(candidate.name, verdict.reasons.join("; "));

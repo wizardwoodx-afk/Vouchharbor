@@ -370,5 +370,5 @@ export function resetV6(): void {
 /* ── the one-line summary a surface may print ───────────────────────────── */
 
 export function rsiralsV6Line(): string {
-  return `RSIRALS v6 — the strengthened verifier: constitution ${V6_CONSTITUTION.length} rules · drift budget ${DEFAULT_DRIFT_BUDGET.maxPerChange}/change, ${DEFAULT_DRIFT_BUDGET.maxPerWindow}/24h · external canary battery ${CANARY_BATTERY_SIZE} · staged shadow→canary→fleet, fail-closed per dimension · hash-chained ledger (${ledger.length} events, verify ${verifyLedger().ok ? "clean" : "BROKEN"}) · T stays frozen at v5`;
+  return `RSIRALS v6 — the strengthened verifier: constitution ${V6_CONSTITUTION.length} rules · drift budget ${DEFAULT_DRIFT_BUDGET.maxPerChange}/change, ${DEFAULT_DRIFT_BUDGET.maxPerWindow}/24h · external canary battery ${CANARY_BATTERY_SIZE} (ECDSA-anchored, trust-root pinned) · staged shadow→canary→fleet, fail-closed per dimension · hash-chained ledger (${ledger.length} events, verify ${verifyLedger().ok ? "clean" : "BROKEN"}) · T stays frozen at v5`;
 }

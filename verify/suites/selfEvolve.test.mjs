@@ -15291,6 +15291,22 @@ var V6_CONSTITUTION = Object.freeze([
 ]);
 var DRIFT_WINDOW_MS = 24 * 60 * 60 * 1e3;
 
+// src/vh19/verifierTrust.ts
+var TRUST_ROOT = Object.freeze({
+  protocol: "vh-verifier/2",
+  algorithm: "ECDSA_p256_sha256",
+  verifierPublicKeyJwk: Object.freeze({
+    kty: "EC",
+    crv: "P-256",
+    x: "YkNuABs5fQuX19fr9aq1Sk_JHtz6PO-kHKC2DLeJCZU",
+    y: "sy1-QZsgLJgFc4JCtOupGJ2B-TnKkBbyUi3XGsewPUA",
+    key_ops: Object.freeze(["verify"]),
+    ext: true
+  }),
+  verifierKeyFingerprint: "44c2719e7d6c2e446f76283ff58788fb88bb4044b5e6abdfcd2291bea9a39f08",
+  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e"
+});
+
 // src/vh19/selfEvolve.ts
 var PROPOSALS_KEY = "vh19.self.proposals.v1";
 var SELF_EVOLUTION_FLOOR = [

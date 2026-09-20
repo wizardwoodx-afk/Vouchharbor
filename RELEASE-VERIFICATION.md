@@ -1,10 +1,26 @@
-# Vouch Harbor 19.7.7 [Verifier] — release verification record
+# Vouch Harbor 19.7.8 [Trustroot] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.8 record — the anchor
+
+The fifth review accepted the live wiring and named the remaining gap
+precisely: the verifier's "signature" was a plain SHA-256 (a recomputable
+checksum, not authentication), the battery was not pinned from the caller,
+and the nonces were clock-and-random. All three shipped: ECDSA P-256
+signatures (the authority-mandate curve) verified against the public key
+pinned in the frozen trust root; the battery digest — covering every
+check's SOURCE — pinned beside it and enforced independently; CSPRNG
+nonces. The review's one UX note (the promotion desk lived only in the
+retired Vh19 view) shipped too: the Evolution desk is now a panel on the
+active NextConsole. probe/rsiralsV6: 42 checks, including a literal
+foreign-key forgery attempt refused.
+
+**Tree.** `19.7.8 "Trustroot"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.7 record — the live verifier
 
