@@ -59,6 +59,11 @@ import {
   createCrewSession, runCrewSession, getCrewSession, switchMode, resolveGate, crewBriefing, CREW_MAX,
 } from "../vh19/crew";
 import { CREW_MODES, CREW_MODE_LABELS, type CrewMode } from "../vh19/modes";
+/* 19.7.5 [Groups] — two owners' agents, one governed crew. */
+import {
+  createCharter, acceptCharter, revokeCharter, createGroupSession, resolveGroupItem,
+  switchGroupMode, getGroupSession, runGroupSession, groupBriefing, type GroupCharter,
+} from "../vh19/groups";
 import { moeV2Line } from "../vh19/moeV2";
 import { lotusReport, lotusLine } from "../vh19/lotus";
 import { vaultStatus, vaultSeal, vaultDecrypt, vaultRemove, lockVault, setVaultPassphrase, purgePlain, type VaultStatusInfo } from "../vh19/vault";
@@ -87,7 +92,7 @@ const tokChip = (t: OptimDelta) => (
   </span>
 );
 
-type Panel = "chat" | "crew" | "workspace" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
+type Panel = "chat" | "crew" | "workspace" | "group" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
 
 export function NextConsole(): React.ReactElement {
   const [panel, setPanel] = useState<Panel>("chat");
@@ -124,6 +129,19 @@ export function NextConsole(): React.ReactElement {
   const [wsBusy, setWsBusy] = useState(false);
   const [wsTick, setWsTick] = useState(0);
   const [wsErr, setWsErr] = useState<string | null>(null);
+  /* 19.7.5 [Groups] — the charter and the group task. */
+  const [gCharter, setGCharter] = useState<GroupCharter | null>(null);
+  const [gLabelA, setGLabelA] = useState("Ram");
+  const [gLabelB, setGLabelB] = useState("Raj");
+  const [gCaps, setGCaps] = useState<string[]>(["repo.read"]);
+  const [gTasks, setGTasks] = useState(6);
+  const [gCross, setGCross] = useState(2);
+  const [gDays, setGDays] = useState(7);
+  const [gMode, setGMode] = useState<CrewMode>("manual");
+  const [gSlices, setGSlices] = useState("");
+  const [gSessionId, setGSessionId] = useState<string | null>(null);
+  const [gBusy, setGBusy] = useState(false);
+  const [gErr, setGErr] = useState<string | null>(null);
   useEffect(() => {
     if (!wsBusy) return;
     const t = setInterval(() => setWsTick((n) => n + 1), 700);
@@ -563,6 +581,13 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
         ))}
 
         <div className="nx-sec">Crew</div>
+        <div className="nx-side-item" data-active={panel === "group"} onClick={() => setPanel("group")}>
+          <GeneralistFace name={gLabelA} size={28} animate={false} />
+          <div className="min-w-0">
+            <div className="text-[13px] text-[color:var(--color-nx-ink)] truncate">Group</div>
+            <div className="text-[11px] nx-mute truncate">{gCharter ? `${gCharter.name} · ${gCharter.status}` : "two owners, one governed crew"}</div>
+          </div>
+        </div>
         <div className="nx-side-item" data-active={panel === "workspace"} onClick={() => setPanel("workspace")}>
           <GeneralistFace name={gName} size={28} animate={false} />
           <div className="min-w-0">
@@ -1062,6 +1087,184 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                 <div className="nx-h1 text-[14px]">Steward feed</div>
                 <div className="mt-2 flex flex-col gap-1">
                   {ws.feed.events.slice(-14).reverse().map((e, i) => (
+                    <div key={`${e.at}-${i}`} className="text-[12px] nx-mute"><span className="nx-digest">{e.kind}</span> {e.line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          );
+        })()}
+
+        {panel === "group" && (() => {
+          const gs = gSessionId ? getGroupSession(gSessionId) : null;
+          return (
+          <div className="nx-stream">
+            {/* the charter */}
+            <div className="nx-bubble">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="nx-h1 text-[14px]">Group charter</span>
+                {pill(gCharter ? gCharter.status : "none")}
+                <span className="nx-mute text-[12px]">two owners' agents, one governed crew — the humans rule</span>
+              </div>
+              {!gCharter ? (
+                <>
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <input className="nx-input panel-input" value={gLabelA} onChange={(e) => setGLabelA(e.target.value)} placeholder="Owner 1 (this machine)" />
+                    <input className="nx-input panel-input" value={gLabelB} onChange={(e) => setGLabelB(e.target.value)} placeholder="Owner 2 (the peer)" />
+                    <input className="nx-input panel-input" type="number" min={1} value={gTasks} onChange={(e) => setGTasks(Math.max(1, Number(e.target.value) || 1))} aria-label="tasks per day" title="group tasks per rolling 24h" />
+                    <input className="nx-input panel-input" type="number" min={0} value={gCross} onChange={(e) => setGCross(Math.max(0, Number(e.target.value) || 0))} aria-label="crossings per task" title="signed crossings per task" />
+                    <input className="nx-input panel-input" type="number" min={1} value={gDays} onChange={(e) => setGDays(Math.max(1, Number(e.target.value) || 1))} aria-label="days" title="days until the charter expires" />
+                    <select className="nx-input panel-input" value={gMode} onChange={(e) => setGMode(e.target.value as CrewMode)}>
+                      {CREW_MODES.map((m: CrewMode) => <option key={m} value={m}>{CREW_MODE_LABELS[m]}</option>)}
+                    </select>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {DELEGATION_CAPABILITIES.map((c) => (
+                      <button key={c} className="nx-chip" data-on={gCaps.includes(c)} onClick={() => setGCaps((cs) => (cs.includes(c) ? cs.filter((x) => x !== c) : [...cs, c]))}>{c}</button>
+                    ))}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      className="nx-chip !text-[color:var(--color-nx-ok)]"
+                      onClick={() => {
+                        const res = createCharter({
+                          name: `${gLabelA || "Owner 1"} ↔ ${gLabelB || "Owner 2"}`,
+                          members: [{ ownerId: "vh-owner", label: gLabelA || "Owner 1" }, { ownerId: "vh-owner-2", label: gLabelB || "Owner 2" }],
+                          capabilities: gCaps as never,
+                          limits: { maxTasksPerDay: gTasks, maxCrossingsPerTask: gCross, expiresAt: Date.now() + gDays * 24 * 60 * 60 * 1000 },
+                          mode: gMode,
+                        });
+                        if (!res.charter) { setGErr(res.error ?? "the charter was refused"); return; }
+                        setGErr(null); setGCharter(res.charter); setGSessionId(null);
+                      }}
+                    >
+                      Draft the charter
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mt-1 text-[12.5px] nx-mute">
+                    {gCharter.name} · {gCharter.capabilities.join(", ")} · {gCharter.limits.maxTasksPerDay} tasks/24h · {gCharter.limits.maxCrossingsPerTask} crossing(s)/task · mode {CREW_MODE_LABELS[gCharter.mode]} · {gCharter.acceptances.length}/{gCharter.members.length} accepted
+                  </div>
+                  {gCharter.status === "proposed" && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {gCharter.members.filter((m) => !gCharter!.acceptances.some((a) => a.ownerId === m.ownerId)).map((m) => (
+                        <button key={m.ownerId} className="nx-chip !text-[color:var(--color-nx-ok)]" onClick={() => { acceptCharter(gCharter!, m.ownerId); setWsTick((n) => n + 1); }}>
+                          {m.label} accepts
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {gCharter.status !== "revoked" && (
+                    <div className="mt-2">
+                      <button className="nx-chip !text-[color:var(--color-nx-err)]" onClick={() => { revokeCharter(gCharter!, "vh-owner", "revoked from the console"); setWsTick((n) => n + 1); }}>Revoke the group</button>
+                    </div>
+                  )}
+                </>
+              )}
+              {gErr && <div className="mt-1 text-[12px] text-[color:var(--color-nx-err)]">{gErr}</div>}
+            </div>
+
+            {/* the group task — two-phase like the crew */}
+            {gCharter?.status === "active" && (
+              <div className="nx-bubble">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="nx-h1 text-[14px]">Group task</span>
+                  {pill(gs ? gs.status : "idle")}
+                </div>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    className="nx-input panel-input"
+                    value={gSlices}
+                    onChange={(e) => setGSlices(e.target.value)}
+                    placeholder="Work slices, comma-separated — e.g. design the login page, review the auth flow, draft the joint spec"
+                  />
+                  {!gs ? (
+                    <button
+                      className="nx-chip !text-[color:var(--color-nx-ok)]"
+                      disabled={gBusy || !gSlices.trim()}
+                      onClick={() => {
+                        const slices = gSlices.split(",").map((x) => x.trim()).filter(Boolean);
+                        if (slices.length === 0) return;
+                        const gsx = createGroupSession(gCharter, slices[0], slices);
+                        setGSessionId(gsx.id); setGErr(null); setWsTick((n) => n + 1);
+                      }}
+                    >
+                      Muster the group
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="nx-chip !text-[color:var(--color-nx-ok)]"
+                        disabled={gBusy || gs.items.every((x) => x.status !== "queued")}
+                        onClick={() => {
+                          if (gBusy || !provider) return;
+                          setGErr(null); setGBusy(true);
+                          void runGroupSession(gs.id, { provider })
+                            .catch((e: unknown) => setGErr(e instanceof Error ? e.message : String(e)))
+                            .finally(() => { setGBusy(false); setWsTick((n) => n + 1); });
+                        }}
+                      >
+                        {gBusy ? "the group is working…" : "Run the group"}
+                      </button>
+                      <button className="nx-chip" disabled={gBusy} onClick={() => { setGSessionId(null); setGSlices(""); setWsTick((n) => n + 1); }}>Dismiss</button>
+                    </>
+                  )}
+                </div>
+                {!provider && <div className="mt-1 text-[12px] nx-mute">no provider key connected — local items will not execute; crossings need a standing grant in the federation panel.</div>}
+                {gs && (
+                  <>
+                    <div className="mt-2 flex flex-wrap items-center gap-1">
+                      <span className="nx-mute text-[12px]">mode</span>
+                      {CREW_MODES.map((m: CrewMode) => (
+                        <button key={m} className="nx-chip" data-on={gs.mode.mode === m} onClick={() => { switchGroupMode(gs.id, m); setWsTick((n) => n + 1); }}>{CREW_MODE_LABELS[m]}</button>
+                      ))}
+                    </div>
+                    <div className="mt-1 text-[12px] nx-mute">crossings gate in manual AND semi — delegating to another owner is risky by nature; full runs them inside the charter limits.</div>
+                    <div className="mt-1 text-[12.5px] nx-mute">{groupBriefing(gs)}</div>
+                  </>
+                )}
+                {gErr && <div className="mt-1 text-[12px] text-[color:var(--color-nx-err)]">{gErr}</div>}
+              </div>
+            )}
+
+            {/* the roster */}
+            {gs && (
+              <div className="nx-bubble">
+                <div className="nx-h1 text-[14px]">The group's work</div>
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {gs.items.map((it) => (
+                    <div key={it.itemId} className="nx-chip !normal-case !tracking-normal flex flex-col items-start gap-1" style={{ background: "var(--bg-panel)" }}>
+                      <div className="flex items-center gap-2">
+                        {pill(it.status)}
+                        <span className="text-[12px] nx-mute">{it.kind === "crossing" ? `crossing · ${it.capability} → ${it.ownerId}` : `local · ${it.specialistId ?? "?"}`}</span>
+                      </div>
+                      <div className="text-[12.5px]">{it.task.slice(0, 120)}</div>
+                      {it.gateAsk && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-[11px] nx-mute">{it.gateAsk}</span>
+                          <button className="nx-chip !text-[color:var(--color-nx-ok)]" onClick={() => { resolveGroupItem(gs.id, it.itemId, true); setWsTick((n) => n + 1); }}>approve</button>
+                          <button className="nx-chip !text-[color:var(--color-nx-err)]" onClick={() => { resolveGroupItem(gs.id, it.itemId, false); setWsTick((n) => n + 1); }}>refuse</button>
+                        </div>
+                      )}
+                      {it.answerPreview && <div className="nx-digest">{it.answerPreview}</div>}
+                      {it.digest && <div className="nx-digest">receipt {it.digest.slice(0, 12)}…</div>}
+                      {it.note && <div className="nx-digest">{it.note}</div>}
+                    </div>
+                  ))}
+                </div>
+                {gs.sessionReceipt && <div className="mt-2 nx-digest">group session receipt {gs.sessionReceipt.slice(0, 16)}…</div>}
+              </div>
+            )}
+
+            {/* the steward feed */}
+            {gs && gs.feed.events.length > 0 && (
+              <div className="nx-bubble">
+                <div className="nx-h1 text-[14px]">Steward feed</div>
+                <div className="mt-2 flex flex-col gap-1">
+                  {gs.feed.events.slice(-14).reverse().map((e, i) => (
                     <div key={`${e.at}-${i}`} className="text-[12px] nx-mute"><span className="nx-digest">{e.kind}</span> {e.line}</div>
                   ))}
                 </div>

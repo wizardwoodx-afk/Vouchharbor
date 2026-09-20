@@ -1,10 +1,22 @@
-# Vouch Harbor 19.7.4 [Crew] — release verification record
+# Vouch Harbor 19.7.5 [Groups] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.5 record — the group release
+
+Ships the two-owner group plane (charter → acceptance → governed tasks over
+local and crossing items) WITH the 19.7.4 review fix in the same line: the
+muster and the run are two phases in every workspace (crew and group), an
+all-gated run returns awaiting-gate instead of failing, and gate decisions
+are decidable from every live session state. probe/groups (37 checks) pins
+the charter law, the limits, the modes over both item kinds, the crossing
+cap, the revival sequence, and the no-seam honesty.
+
+**Tree.** `19.7.5 "Groups"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.4 record — the governed crew
 

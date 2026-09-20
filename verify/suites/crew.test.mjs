@@ -46028,18 +46028,21 @@ var CREW_MODE_DOCTRINE_SHORT = {
 function resolveGate(sessionId, slotId, approve, at = Date.now()) {
   const session2 = sessions.get(sessionId);
   if (!session2) return { ok: false, line: "no such crew session" };
+  if (session2.status === "cooled-down") return { ok: false, line: "the session is cooled down \u2014 restart it before gate decisions" };
   const slot = session2.slots.find((s) => s.slotId === slotId);
   if (!slot || slot.status !== "gated") return { ok: false, line: "that member is not at the gate" };
   if (!approve) {
     slot.status = "refused";
     record2(session2.feed, "note", `${slot.specialistId} refused at your gate \u2014 it will not run`, at);
-    return { ok: true, line: `refused: ${slot.specialistId}` };
+  } else {
+    slot.status = "queued";
+    record2(session2.feed, "member-admitted", `${slot.specialistId} approved at your gate \u2014 joining the crew`, at);
   }
-  slot.status = "queued";
   const remaining = session2.slots.filter((s) => s.status === "gated").length;
-  if (remaining === 0 && session2.status === "awaiting-gate") session2.status = "running";
-  record2(session2.feed, "member-admitted", `${slot.specialistId} approved at your gate \u2014 joining the crew`, at);
-  return { ok: true, line: `approved: ${slot.specialistId}` };
+  if (session2.status === "awaiting-gate" || session2.status === "failed" || session2.status === "running") {
+    session2.status = remaining > 0 ? "awaiting-gate" : "running";
+  }
+  return { ok: true, line: `${approve ? "approved" : "refused"}: ${slot.specialistId}` };
 }
 function switchMode(sessionId, next, at = Date.now(), why = "") {
   const session2 = sessions.get(sessionId);
@@ -46171,8 +46174,21 @@ async function runCrewSession(sessionId, opts, _at = Date.now()) {
   }
   await Promise.all(workers);
   const answered = session2.slots.filter((s) => s.status === "answered").length;
+  const gatedLeft = session2.slots.filter((s) => s.status === "gated").length;
+  const refused = session2.slots.filter((s) => s.status === "refused").length;
+  const attempted = session2.slots.filter((s) => s.attempts > 0).length;
   if (session2.status !== "cooled-down") {
-    session2.status = answered > 0 ? "done" : "failed";
+    if (session2.refusal) {
+      session2.status = "failed";
+    } else if (answered === 0 && attempted === 0 && gatedLeft > 0) {
+      session2.status = "awaiting-gate";
+      record2(session2.feed, "note", `nothing executed \u2014 ${gatedLeft} member(s) still await your approval; approve, then run the crew`, Date.now());
+    } else if (answered === 0 && attempted === 0 && refused > 0 && gatedLeft === 0) {
+      session2.status = "done";
+      record2(session2.feed, "crew-done", `every member was refused at your gate \u2014 nothing executed, exactly as you decided`, Date.now());
+    } else {
+      session2.status = answered > 0 ? "done" : "failed";
+    }
   }
   session2.sessionReceipt = await hash2(
     JSON.stringify({
@@ -46334,13 +46350,37 @@ function main() {
         ok("no matching domain \u2014 no crew, stated plainly", s4.selection.crew.length === 0 && s4.status === "failed" && (s4.refusal ?? "").includes("nothing was selected, nothing was executed"));
         return runCrewSession(s4.id, { provider: PROVIDER, fetchImpl: okFetch() }).then((out4) => {
           ok("the refused session executes nothing", out4.answered === 0 && out4.failed === 0 && out4.reassigned === 0);
-          console.log(`
+          resetCrewSessions();
+          const s5 = createCrewSession(APP_TASK, { mode: "manual", at: 11e3 });
+          ok("muster under manual gates the whole crew and waits", s5.slots.every((x) => x.status === "gated") && s5.status === "awaiting-gate");
+          return runCrewSession(s5.id, { provider: PROVIDER, fetchImpl: okFetch() }).then((out5) => {
+            ok("a premature run over an all-gated roster executes nothing", out5.answered === 0 && out5.failed === 0 && out5.reassigned === 0 && out5.refused === 0);
+            ok(
+              "the session is NOT failed \u2014 it awaits the gate, stated in the feed",
+              s5.status === "awaiting-gate" && s5.feed.events.some((e) => e.line.includes("nothing executed"))
+            );
+            for (const slot of s5.slots) resolveGate(s5.id, slot.slotId, true, 11200);
+            ok("approvals revive the session to running", s5.status === "running");
+            return runCrewSession(s5.id, { provider: PROVIDER, fetchImpl: okFetch() }).then((out6) => {
+              ok("the revived run executes the approved crew", out6.answered === s5.slots.length && s5.status === "done");
+              resetCrewSessions();
+              const s6 = createCrewSession(APP_TASK, { mode: "manual", at: 12e3 });
+              for (const slot of s6.slots) resolveGate(s6.id, slot.slotId, false, 12100);
+              return runCrewSession(s6.id, { provider: PROVIDER, fetchImpl: okFetch() }).then((out7) => {
+                ok(
+                  "an all-refused crew is done-with-nothing, worded as the owner's decision",
+                  s6.status === "done" && out7.refused === s6.slots.length && s6.feed.events.some((e) => e.line.includes("exactly as you decided"))
+                );
+                console.log(`
 ${passed} passed, ${failed} failed`);
-          if (failed > 0) {
-            console.log("\nfailures:");
-            for (const f3 of failures) console.log(`  - ${f3}`);
-            process.exit(1);
-          }
+                if (failed > 0) {
+                  console.log("\nfailures:");
+                  for (const f3 of failures) console.log(`  - ${f3}`);
+                  process.exit(1);
+                }
+              });
+            });
+          });
         });
       });
     });

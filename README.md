@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.4 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.5 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.4 [Crew])
+### The current product state (19.7.5 [Groups])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -71,7 +71,39 @@ engine (deterministic seeded layout, depth-sorted render) with the
 glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
-20 · 17 checks) — 154 suites total.
+20 · 17 checks) — 155 suites total.
+
+### NEW in 19.7.5 [Groups] — Ram ↔ Raj: two owners' agents, one governed crew
+
+**The gap closed.** Until now everything worked inside one owner's machine —
+your agents worked with your sub-agents, and federation crossed individual
+tasks between owners. A GROUP is the continuous form: Ram's VH and Raj's VH
+join as one working group whose agents collaborate across both sides, while
+the owners stay the governors. The agents work; the humans rule.
+
+- **The charter** — a group exists only as a charter both owners accepted:
+  named members, capabilities from the federation delegation vocabulary,
+  hard limits (tasks per rolling 24h, signed crossings per task, an expiry),
+  and one-sided revocation with the reason on record.
+- **Group work** — a task is planned into LOCAL items (run on this side by
+  the real member agent loops, routed by Agentic MoE v2) and CROSSING items
+  (delegated to the peer over the signed federation crossing —
+  replay-guarded, both ledgers agreeing). No standing grant → the crossing
+  fails named: nothing was signed, nothing left the machine.
+- **Three modes, group-wide** — the same Manual / Semi-autonomous / Fully
+  autonomous throttle, hot-switchable mid-run. Crossings gate in manual AND
+  semi — delegating to another owner is risky by nature. Full runs them
+  inside the charter limits.
+- **The human gate** — per item, with the crew's revival law: a premature
+  run over an all-gated plan awaits the gate (never "failed"); approvals
+  revive; the run executes what the owners approved.
+- **Proof** — every item carries a digest; the group session receipt chains
+  them. The steward reports the working as it happens.
+
+probe/groups pins it all (37 checks): the charter law, acceptance digests,
+the rolling-window and expiry refusals, modes over local and crossing items,
+the crossing cap, the revival sequence, the signed-seam execution, and the
+no-seam honesty.
 
 ### NEW in 19.7.4 [Crew] — the governed crew: 25 specialists, one working space, zero third-party agents
 
@@ -481,7 +513,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 154 suites
+npm test              # 155 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -489,7 +521,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (Node alone — dependency-backed suites honestly fail/skip
 #   on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs             # 153 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs             # 154 bundles, the full gate (~80s, no install needed)
 node verify/run.mjs --shard 1/4 # short execution window? run deterministic shards and merge
 node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
 # shorter window? run the same gate in pieces and merge:

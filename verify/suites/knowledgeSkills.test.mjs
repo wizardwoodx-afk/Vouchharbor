@@ -33,7 +33,7 @@ var init_version = __esm({
   "src/version.ts"() {
     "use strict";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Crew";
+    VH_CODENAME = "Groups";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
