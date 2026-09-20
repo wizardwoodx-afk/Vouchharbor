@@ -46229,6 +46229,38 @@ function crewBriefing(session2) {
     session2.status
   );
 }
+function officeView(session2) {
+  const byDomain = /* @__PURE__ */ new Map();
+  for (const slot of session2.slots) {
+    let dept = byDomain.get(slot.domain);
+    if (!dept) {
+      dept = { domain: slot.domain, members: [] };
+      byDomain.set(slot.domain, dept);
+    }
+    dept.members.push({
+      slotId: slot.slotId,
+      specialistId: slot.specialistId,
+      name: getSpecialist(slot.specialistId)?.name ?? slot.specialistId,
+      status: slot.status,
+      attempts: slot.attempts,
+      ...slot.verdict ? { verdict: slot.verdict } : {}
+    });
+  }
+  const departments = [...byDomain.values()].sort((a, b2) => b2.members.length - a.members.length || a.domain.localeCompare(b2.domain));
+  const board = {
+    atGate: session2.slots.filter((s) => s.status === "gated").length,
+    working: session2.slots.filter((s) => s.status === "queued" || s.status === "active").length,
+    answered: session2.slots.filter((s) => s.status === "answered").length,
+    sidelined: session2.slots.filter((s) => s.status === "failed" || s.status === "reassigned" || s.status === "escalated" || s.status === "refused").length
+  };
+  return {
+    departments,
+    board,
+    rooms: departments.length,
+    occupancy: session2.slots.length,
+    headline: `the office: ${departments.length} department(s), ${session2.slots.length} specialist(s) on the floor \u2014 at the gate ${board.atGate} \xB7 working ${board.working} \xB7 answered ${board.answered} \xB7 sidelined ${board.sidelined}`
+  };
+}
 
 // probe/crew.test.ts
 var passed = 0;
@@ -46371,6 +46403,16 @@ function main() {
                   "an all-refused crew is done-with-nothing, worded as the owner's decision",
                   s6.status === "done" && out7.refused === s6.slots.length && s6.feed.events.some((e) => e.line.includes("exactly as you decided"))
                 );
+                const office = officeView(s5);
+                ok(
+                  "the office groups the crew into departments, one per domain, complete",
+                  office.departments.length >= 1 && office.departments.every((d) => d.members.every((m) => getSpecialist(m.specialistId)?.category === d.domain)) && office.rooms === new Set(s5.slots.map((x) => x.domain)).size && office.departments.reduce((n, d) => n + d.members.length, 0) === s5.slots.length
+                );
+                ok(
+                  "the office board counts every slot exactly once, in the right column",
+                  office.board.atGate + office.board.working + office.board.answered + office.board.sidelined === s5.slots.length && office.board.answered === s5.slots.filter((x) => x.status === "answered").length && office.board.sidelined === s5.slots.filter((x) => x.status === "refused").length
+                );
+                ok("the office headline reads like a floor, not a log", office.headline.includes("department") && office.headline.includes("on the floor"));
                 console.log(`
 ${passed} passed, ${failed} failed`);
                 if (failed > 0) {

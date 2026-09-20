@@ -30,7 +30,7 @@ import type { ProviderConfig } from "../src/vh19/types";
 import { getSpecialist } from "../src/vh19/registry";
 import {
   createCrewSession, runCrewSession, getCrewSession, resolveGate, switchMode, crewBriefing,
-  resetCrewSessions, CREW_CONCURRENCY, CREW_BREAKER,
+  officeView, resetCrewSessions, CREW_CONCURRENCY, CREW_BREAKER,
 } from "../src/vh19/crew";
 import { CREW_MAX } from "../src/vh19/moeV2";
 
@@ -163,6 +163,19 @@ function main(): void {
               return runCrewSession(s6.id, { provider: PROVIDER, fetchImpl: okFetch() as unknown as typeof fetch }).then((out7) => {
                 ok("an all-refused crew is done-with-nothing, worded as the owner's decision",
                   s6.status === "done" && out7.refused === s6.slots.length && s6.feed.events.some((e) => e.line.includes("exactly as you decided")));
+
+                /* 19.7.6 [Office] — the office view: departments + the shared board */
+                const office = officeView(s5);
+                ok("the office groups the crew into departments, one per domain, complete",
+                  office.departments.length >= 1
+                  && office.departments.every((d) => d.members.every((m) => getSpecialist(m.specialistId)?.category === d.domain))
+                  && office.rooms === new Set(s5.slots.map((x) => x.domain)).size
+                  && office.departments.reduce((n, d) => n + d.members.length, 0) === s5.slots.length);
+                ok("the office board counts every slot exactly once, in the right column",
+                  office.board.atGate + office.board.working + office.board.answered + office.board.sidelined === s5.slots.length
+                  && office.board.answered === s5.slots.filter((x) => x.status === "answered").length
+                  && office.board.sidelined === s5.slots.filter((x) => x.status === "refused").length);
+                ok("the office headline reads like a floor, not a log", office.headline.includes("department") && office.headline.includes("on the floor"));
 
                 console.log(`\n${passed} passed, ${failed} failed`);
                 if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); process.exit(1); }

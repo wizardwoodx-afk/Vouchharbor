@@ -1,5 +1,107 @@
 # Vouch Harbor 19.7.0 "Recall" — feature sheet
 
+### NEW in 19.7.6 [Office] — RSIRALS v6: the strengthened verifier · the office · the real crossing seam
+
+**RSIRALS v6 — the trust plane gets the upgrade, plane T stays frozen at v5.**
+The 2026 research consensus in one line: when self-improvement drifts,
+strengthen the VERIFIER, not the generator — and ground the loop in checks
+it cannot modify. v6 ships exactly that, deterministic and probe-pinned:
+
+- **The Constitution** — 4 machine-checkable invariants (no self-governance ·
+  discretion-tightening · evidence-bound declarations · the human door is
+  untouchable), diffed against EVERY candidate before anything else runs.
+  Frozen, outside the evolvable surface — the evaluator is not part of the
+  evolvable code.
+- **The Drift Budget** — a candidate's change is MEASURED (token-level
+  Jaccard distance vs the current text), never asserted: max 0.60 per
+  change, 1.50 cumulative per rolling 24h. Bust the budget and the refusal
+  tells you to shrink the step until a human can review it in one sitting.
+- **Hidden true-objective canaries** — a held-out 4-check battery the
+  proposer never sees at proposal time (overreach · scope creep ·
+  evidence-dry declarations · evidence evasion). Verdicts only, at verify.
+  Proposer-reported gains count for nothing.
+- **Staged promotion, fail-closed** — SHADOW → CANARY → FLEET, with a
+  frozen regression baseline checked PER DIMENSION: any single dimension
+  below its floor refuses, even when the average rises. Unmeasured = refused.
+- **The tamper-evident ledger** — every gate event (proposed · blocked ·
+  canaried · promoted · rolled back) lands in a SHA-256 hash-chained,
+  append-only local ledger with actor + policy version per event (the EU AI
+  Act Art.12 receipt pattern). verifyLedger() re-walks the chain; one
+  altered byte breaks it at that seq.
+- **One gate + rollback** — governChange() is the only door: constitution →
+  drift → hidden canaries → ALLOW / BLOCK / ESCALATE-to-human. The gate
+  NEVER promotes to fleet by itself; the human door is load-bearing.
+  Promotion snapshots last-known-good; rollback() restores in one step,
+  on the ledger.
+
+```
+RSIRALS v6 — THE STRENGTHENED VERIFIER (T stays frozen at v5)
+
+  self-improving plane (rsi.ts loop)                    THE HUMAN
+        │  proposes a change {name,target,body,declares}    ▲
+        ▼                                                   │ ESCALATE /
+  ┌─────────────────── governChange() — the ONE door ───────┴────────┐
+  │                                                                   │
+  │  1. CONSTITUTION (frozen, 4 rules)        fail → BLOCK (named)    │
+  │     └ c1 rides the v5 control-plane firewall                      │
+  │  2. DRIFT BUDGET  Jaccard(current, body)  > 0.60 → BLOCK          │
+  │     └ cumulative 1.50 / rolling 24h                               │
+  │  3. HIDDEN CANARIES (4, held out)         any fail → BLOCK        │
+  │     └ proposer never sees the checks — verdicts only              │
+  │  4. VERDICT: ALLOW / BLOCK / ESCALATE ────────────────────────────┘
+  │                              │ human decision + per-dimension scores
+  │  5. REGRESSION GATE          ▼
+  │     └ fail-closed: ANY dimension < floor refuses (average irrelevant)
+  │  6. PROMOTE  SHADOW → CANARY → FLEET   · last-known-good snapshot
+  │  7. ROLLBACK  one-step restore, on the ledger
+  │
+  └──► LEDGER: SHA-256 hash-chained, append-only, tamper-evident
+       every event carries actor · target · policy · digest · prevHash
+```
+
+**The Office — the 25 sub-agents' common space.** The crew workspace stops
+being a flat roster: the crew renders as ONE office — departments by domain
+(frontend, security, finance…), a shared board (at the gate · working ·
+answered · sidelined), the steward making the rounds. Specialists from
+different domains look like what they are: one team in one space, working
+autonomously inside the modes and caps.
+
+**The real crossing seam.** The Groups panel now runs crossings through the
+live signed federation crossing (productionCross → runLiveCrossing) — the
+production path finally matches the 37/37 module proof. And the panel says
+exactly what it is: a governed local implementation of the cross-owner
+group protocol; networked VH-A ↔ VH-B signing is the next federation
+milestone.
+
+### NEW in 19.7.5 [Groups] — two owners' agents, one governed crew
+
+- **The charter**: both owners accept the same digest; capabilities from
+  the federation vocabulary; hard limits (tasks/24h · crossings/task ·
+  expiry); one-sided revocation with the reason on record.
+- **Group work**: LOCAL items (real member loops, MoE-routed) + CROSSING
+  items (the signed crossing, replay-guarded). No grant → fails named.
+- **Three modes group-wide**, hot-switchable mid-run; crossings gate in
+  Manual AND Semi-autonomous (cross-owner delegation is risky by nature).
+- **Per-item human gates** with the revival law; item digests chained into
+  the group session receipt; the steward reports as it happens.
+  probe/groups: 37 checks.
+
+### NEW in 19.7.4 [Crew] — 25 specialists, one working space, zero third-party agents
+
+- **CLI retirement**: every agent executes natively on the owner's provider
+  keys through the audited VH loop — one receipt format, no third-party
+  binary in the trust chain; old graphs auto-migrate.
+- **The crew workspace**: up to 25 specialists in parallel from dynamic
+  domain pools (Agentic MoE v2: sparse selection with reasons, per-member
+  reserve bench), instant same-domain failover, the 3-strike crew breaker,
+  Manual / Semi / Full hot-switchable mid-run (critical always gates).
+- **LOTUS**: Lean Optimal Token Utilisation System — reversible, error-
+  passing, net-win-gated tool-output compression; every number an
+  estimate, labelled.
+- The review fix lives here too: muster and run are two phases; an
+  all-gated run awaits the gate instead of failing. probe/crew: 35 checks
+  including the reviewer's exact UI sequence.
+
 ### NEW in 19.7.3 — the autonomy release, integration-hardened ([Agent])
 
 - **BEW on every sub-agent — enforced TWICE.** In every composed prompt
@@ -255,7 +357,7 @@ The 19.6.4 subsystem record stands unchanged beneath:
               + 640 registered)         │
                      └─────────┬─────────┘
                                │
-                        RSIRALS v5.0 (frozen governance plane)
+              RSIRALS v5 (frozen plane T) + v6 strengthened verifier
                                │
                     Authority — ECDSA P-256 mandates
                                │

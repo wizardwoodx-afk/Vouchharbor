@@ -443,3 +443,65 @@ export function crewBriefing(session: CrewSession): string {
     session.status,
   );
 }
+
+/* ── 19.7.6 [Office] — the OFFICE VIEW: one common space for the crew ────── */
+
+export interface OfficeDepartment {
+  domain: string;
+  members: Array<{ slotId: string; specialistId: string; name: string; status: CrewSlotStatus; attempts: number; verdict?: string }>;
+}
+
+export interface OfficeBoard {
+  atGate: number;
+  working: number;
+  answered: number;
+  sidelined: number; // failed + reassigned + escalated + refused
+}
+
+export interface OfficeView {
+  departments: OfficeDepartment[];
+  board: OfficeBoard;
+  rooms: number;
+  occupancy: number;
+  headline: string;
+}
+
+/**
+ * The office: the crew's slots grouped into DEPARTMENTS (one per domain),
+ * plus the shared BOARD (the counts that matter at a glance). Pure over the
+ * session — the console renders it, probes pin it. The steward remains the
+ * office manager; the departments are how twenty-five specialists from
+ * different domains look like ONE team in ONE space.
+ */
+export function officeView(session: CrewSession): OfficeView {
+  const byDomain = new Map<string, OfficeDepartment>();
+  for (const slot of session.slots) {
+    let dept = byDomain.get(slot.domain);
+    if (!dept) {
+      dept = { domain: slot.domain, members: [] };
+      byDomain.set(slot.domain, dept);
+    }
+    dept.members.push({
+      slotId: slot.slotId,
+      specialistId: slot.specialistId,
+      name: getSpecialist(slot.specialistId)?.name ?? slot.specialistId,
+      status: slot.status,
+      attempts: slot.attempts,
+      ...(slot.verdict ? { verdict: slot.verdict } : {}),
+    });
+  }
+  const departments = [...byDomain.values()].sort((a, b) => b.members.length - a.members.length || a.domain.localeCompare(b.domain));
+  const board: OfficeBoard = {
+    atGate: session.slots.filter((s) => s.status === "gated").length,
+    working: session.slots.filter((s) => s.status === "queued" || s.status === "active").length,
+    answered: session.slots.filter((s) => s.status === "answered").length,
+    sidelined: session.slots.filter((s) => s.status === "failed" || s.status === "reassigned" || s.status === "escalated" || s.status === "refused").length,
+  };
+  return {
+    departments,
+    board,
+    rooms: departments.length,
+    occupancy: session.slots.length,
+    headline: `the office: ${departments.length} department(s), ${session.slots.length} specialist(s) on the floor — at the gate ${board.atGate} · working ${board.working} · answered ${board.answered} · sidelined ${board.sidelined}`,
+  };
+}

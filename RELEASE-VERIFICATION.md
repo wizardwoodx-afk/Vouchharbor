@@ -1,10 +1,28 @@
-# Vouch Harbor 19.7.5 [Groups] — release verification record
+# Vouch Harbor 19.7.6 [Office] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.6 record — the strengthened verifier
+
+The third review of the Groups train confirmed the two-phase fix held
+(crew 32/32) and named one production gap: the Groups panel never passed
+the crossing seam, so crossing items always failed with "no crossing seam"
+in the live product while the probe (which supplies the seam) stayed green.
+Fixed exactly as prescribed: the Run Group path now wires
+`cross: productionCross("vh-owner")` — the live signed federation crossing
+— and the panel states the honest scope (governed local implementation of
+the cross-owner group protocol; networked two-instance signing is the next
+federation milestone). The same release ships RSIRALS v6 (the strengthened
+verifier: constitution · measured drift budget · hidden canaries · staged
+fail-closed promotion · tamper-evident ledger · one gate + rollback —
+plane T untouched at v5) and the Office rendering of the crew.
+probe/rsiralsV6 pins it (31 checks).
+
+**Tree.** `19.7.6 "Office"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.5 record — the group release
 

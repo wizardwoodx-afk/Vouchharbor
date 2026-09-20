@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.5 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.6 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.5 [Groups])
+### The current product state (19.7.6 [Office])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -71,7 +71,39 @@ engine (deterministic seeded layout, depth-sorted render) with the
 glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
-20 · 17 checks) — 155 suites total.
+20 · 17 checks) — 156 suites total.
+
+### NEW in 19.7.6 [Office] — RSIRALS v6 (the strengthened verifier), the office, the real crossing seam
+
+**RSIRALS v6 upgrades the trust plane; plane T stays frozen at v5** — the
+2026 research consensus (strengthen the verifier, ground the loop in checks
+it cannot modify), shipped as six deterministic mechanisms:
+
+- **The Constitution** — 4 frozen, machine-checkable invariants diffed
+  against every candidate (no self-governance · discretion-tightening ·
+  evidence-bound · the human door untouchable).
+- **The Drift Budget** — change is MEASURED (token-level Jaccard vs the
+  current text): max 0.60 per change, 1.50 per rolling 24h. Bust it and
+  the refusal says: shrink the step until a human can review it.
+- **Hidden true-objective canaries** — a held-out 4-check battery, opaque
+  at proposal time; proposer-reported gains count for nothing.
+- **Staged promotion, fail-closed** — shadow → canary → fleet; the
+  regression gate refuses on ANY single dropped dimension (or an
+  unmeasured one), even when the average rises.
+- **The tamper-evident ledger** — every gate event in a SHA-256
+  hash-chained append-only chain (actor · policy · digest · prevHash);
+  verifyLedger() breaks loudly on one altered byte.
+- **One gate + rollback** — governChange() is the only door; it never
+  promotes to fleet by itself; promotion snapshots last-known-good and
+  rollback() restores in one step.
+
+**The Office** — the crew workspace renders as one common space:
+departments by domain, the shared board (gate · working · answered ·
+sidelined), the steward on rounds. **The real crossing seam** — the Groups
+panel runs crossings through productionCross → the live signed federation
+crossing, and names itself honestly: a governed local implementation of
+the cross-owner group protocol (networked VH-A ↔ VH-B signing is the next
+federation milestone). probe/rsiralsV6: 31 checks · probe/crew grows to 35.
 
 ### NEW in 19.7.5 [Groups] — Ram ↔ Raj: two owners' agents, one governed crew
 
@@ -513,7 +545,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 155 suites
+npm test              # 156 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -521,7 +553,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (Node alone — dependency-backed suites honestly fail/skip
 #   on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs             # 154 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs             # 155 bundles, the full gate (~80s, no install needed)
 node verify/run.mjs --shard 1/4 # short execution window? run deterministic shards and merge
 node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
 # shorter window? run the same gate in pieces and merge:

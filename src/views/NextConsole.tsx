@@ -56,13 +56,13 @@ import {
 import { wireEventSeq, optimDelta, type OptimDelta } from "../vh19/tokenOptim";
 /* 19.7.4 [Crew] — the workspace: ≤25 specialists, one governed crew. */
 import {
-  createCrewSession, runCrewSession, getCrewSession, switchMode, resolveGate, crewBriefing, CREW_MAX,
+  createCrewSession, runCrewSession, getCrewSession, switchMode, resolveGate, crewBriefing, officeView, CREW_MAX,
 } from "../vh19/crew";
 import { CREW_MODES, CREW_MODE_LABELS, type CrewMode } from "../vh19/modes";
 /* 19.7.5 [Groups] — two owners' agents, one governed crew. */
 import {
   createCharter, acceptCharter, revokeCharter, createGroupSession, resolveGroupItem,
-  switchGroupMode, getGroupSession, runGroupSession, groupBriefing, type GroupCharter,
+  switchGroupMode, getGroupSession, runGroupSession, groupBriefing, productionCross, type GroupCharter,
 } from "../vh19/groups";
 import { moeV2Line } from "../vh19/moeV2";
 import { lotusReport, lotusLine } from "../vh19/lotus";
@@ -1051,37 +1051,54 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                 </>
               )}
             </div>
-            {ws && (
+            {ws && (() => {
+              const office = officeView(ws);
+              return (
               <div className="nx-bubble">
-                <div className="nx-h1 text-[14px]">The roster</div>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {ws.slots.map((s) => (
-                    <div key={s.slotId} className="nx-chip !normal-case !tracking-normal flex flex-col items-start gap-1" style={{ background: "var(--bg-panel)" }}>
+                {/* 19.7.6 [Office] — the shared board: the crew at a glance */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="nx-h1 text-[14px]">The office</div>
+                  {pill(`board · gate ${office.board.atGate} · working ${office.board.working} · answered ${office.board.answered} · sidelined ${office.board.sidelined}`)}
+                </div>
+                <div className="mt-1 text-[12px] nx-mute">{office.headline} — one common space, {office.rooms} department(s); the steward makes the rounds.</div>
+                {office.departments.map((dept) => (
+                  <div key={dept.domain} className="mt-3">
+                    <div className="text-[12px] nx-mute">▌ dept · {dept.domain} — {dept.members.length} on the floor</div>
+                    <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {dept.members.map((m) => {
+                        const slot = ws.slots.find((x) => x.slotId === m.slotId)!;
+                        return (
+                  <div key={m.slotId} className="nx-chip !normal-case !tracking-normal flex flex-col items-start gap-1" style={{ background: "var(--bg-panel)" }}>
                       <div className="flex items-center gap-2">
-                        <span className="nx-face"><SpecialistFace id={s.specialistId} size={22} /></span>
-                        <span className="text-[12.5px]">{getSpecialist(s.specialistId)?.name ?? s.specialistId}</span>
-                        {pill(s.status)}
+                        <span className="nx-face"><SpecialistFace id={m.specialistId} size={22} /></span>
+                        <span className="text-[12.5px]">{m.name}</span>
+                        {pill(m.status)}
                       </div>
                       <div className="text-[11px] nx-mute">
-                        {s.domain} · attempt {s.attempts}{s.bewPhases ? ` · bew ${s.bewPhases} · ${s.verdict}` : ""}
+                        {dept.domain} · attempt {m.attempts}{m.verdict ? ` · ${m.verdict}` : ""}
                       </div>
-                      {s.gateAsk && (
+                      {slot.gateAsk && (
                         <div className="flex flex-wrap items-center gap-1">
-                          <span className="text-[11px] nx-mute">{s.gateAsk}</span>
-                          <button className="nx-chip !text-[color:var(--color-nx-ok)]" onClick={() => { resolveGate(ws.id, s.slotId, true); setWsTick((n) => n + 1); }}>approve</button>
-                          <button className="nx-chip !text-[color:var(--color-nx-err)]" onClick={() => { resolveGate(ws.id, s.slotId, false); setWsTick((n) => n + 1); }}>refuse</button>
+                          <span className="text-[11px] nx-mute">{slot.gateAsk}</span>
+                          <button className="nx-chip !text-[color:var(--color-nx-ok)]" onClick={() => { resolveGate(ws.id, slot.slotId, true); setWsTick((n) => n + 1); }}>approve</button>
+                          <button className="nx-chip !text-[color:var(--color-nx-err)]" onClick={() => { resolveGate(ws.id, slot.slotId, false); setWsTick((n) => n + 1); }}>refuse</button>
                         </div>
                       )}
-                      {s.answerPreview && <div className="nx-digest">{s.answerPreview}</div>}
-                      {s.memberDigest && <div className="nx-digest">member receipt {s.memberDigest.slice(0, 12)}…</div>}
-                      {s.replacedBy && <div className="nx-digest">replaced by {s.replacedBy}</div>}
-                      {s.error && <div className="nx-digest">{s.error}</div>}
+                      {slot.answerPreview && <div className="nx-digest">{slot.answerPreview}</div>}
+                      {slot.memberDigest && <div className="nx-digest">member receipt {slot.memberDigest.slice(0, 12)}…</div>}
+                      {slot.replacedBy && <div className="nx-digest">replaced by {slot.replacedBy}</div>}
+                      {slot.error && <div className="nx-digest">{slot.error}</div>}
+                  </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
                 {ws.sessionReceipt && <div className="mt-2 nx-digest">session receipt {ws.sessionReceipt.slice(0, 16)}…</div>}
               </div>
-            )}
+              );
+            })()}
+
             {ws && ws.feed.events.length > 0 && (
               <div className="nx-bubble">
                 <div className="nx-h1 text-[14px]">Steward feed</div>
@@ -1105,7 +1122,8 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
               <div className="flex flex-wrap items-center gap-2">
                 <span className="nx-h1 text-[14px]">Group charter</span>
                 {pill(gCharter ? gCharter.status : "none")}
-                <span className="nx-mute text-[12px]">two owners' agents, one governed crew — the humans rule</span>
+                <span className="nx-mute text-[12px]">two owners, one governed crew — the humans rule</span>
+                <span className="nx-digest">governed local implementation of the cross-owner group protocol: both acceptances are digest-bound on this machine; networked VH-A ↔ VH-B signing is the next federation milestone</span>
               </div>
               {!gCharter ? (
                 <>
@@ -1202,7 +1220,11 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                         onClick={() => {
                           if (gBusy || !provider) return;
                           setGErr(null); setGBusy(true);
-                          void runGroupSession(gs.id, { provider })
+                          /* 19.7.5 review fix — the REAL signed crossing seam rides
+                             the Run path: crossing items go over the live federation
+                             crossing exactly like the probe proves. No seam wired is
+                             now only an engine-side honesty path, never the UI's. */
+                          void runGroupSession(gs.id, { provider, cross: productionCross("vh-owner") })
                             .catch((e: unknown) => setGErr(e instanceof Error ? e.message : String(e)))
                             .finally(() => { setGBusy(false); setWsTick((n) => n + 1); });
                         }}
