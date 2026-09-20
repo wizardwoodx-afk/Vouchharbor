@@ -65,6 +65,33 @@ export interface HarnessSpec {
   source?: string;
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 19.7.4 [Crew] — CLI EXECUTION RETIRED.
+//
+// The app no longer spawns external agent CLIs. Every agent — every crew
+// member — executes natively on the owner's OWN provider keys (OpenAI /
+// Anthropic / Gemini / Ollama) through the VH agent loop, so every action
+// carries one audited receipt format and the trust story has no third
+// party in it. The 22 external CLI specs below the catalog remain ONLY as
+// historical/internal reference data (mission-plane typing and saved-graph
+// migration); they are offered nowhere, detected nowhere, spawned nowhere:
+//
+//   • HARNESS_OPTIONS — retired ids never appear (no surface offers them);
+//   • harnessOf — a saved graph with a retired id resolves to the native
+//     runtime, so old workflows keep running on provider keys;
+//   • the harness runner refuses retired ids with the migration guidance.
+// ═════════════════════════════════════════════════════════════════════════════
+
+export const RETIRED_HARNESSES: ReadonlySet<string> = new Set([
+  "claude", "codex", "opencode", "openclaude", "copilot", "cursor", "grok",
+  "cline", "kilo", "aider", "gemini", "antigravity", "amp", "crush",
+  "openhands", "goose", "qwen", "amazonq", "droid", "kimi", "auggie", "warp",
+]);
+
+export function isRetiredHarness(id: string): boolean {
+  return RETIRED_HARNESSES.has(id);
+}
+
 export const HARNESSES: HarnessSpec[] = [
   {
     id: "acp",
@@ -297,7 +324,9 @@ export function defaultHarness(): HarnessId {
   return "hermes";
 }
 
-export const HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+/** Only native engines are offered: the vendored Hermes runtime, the ACP
+ * wire, and the direct LLM seam — all executed on the owner's own keys. */
+export const HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // V11.6 — CUSTOM HARNESSES

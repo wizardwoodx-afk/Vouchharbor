@@ -54,6 +54,13 @@ import {
   catalogServers, listInstalled, installServer, uninstallServer, setServerEnabled, exportMcpJson, marketStats,
 } from "../vh19/mcpMarket";
 import { wireEventSeq, optimDelta, type OptimDelta } from "../vh19/tokenOptim";
+/* 19.7.4 [Crew] — the workspace: ≤25 specialists, one governed crew. */
+import {
+  createCrewSession, runCrewSession, getCrewSession, switchMode, resolveGate, crewBriefing, CREW_MAX,
+} from "../vh19/crew";
+import { CREW_MODES, CREW_MODE_LABELS, type CrewMode } from "../vh19/modes";
+import { moeV2Line } from "../vh19/moeV2";
+import { lotusReport, lotusLine } from "../vh19/lotus";
 import { vaultStatus, vaultSeal, vaultDecrypt, vaultRemove, lockVault, setVaultPassphrase, purgePlain, type VaultStatusInfo } from "../vh19/vault";
 import { graphSecurityStatus, hydrateGraph, setMemoryEnabled, memoryEnabled } from "../vh19/memoryGraph";
 import { mcpRuntimeStats, type McpToolSurfaceEntry, mcpRuntimeServers } from "../vh19/mcpRuntime";
@@ -80,7 +87,7 @@ const tokChip = (t: OptimDelta) => (
   </span>
 );
 
-type Panel = "chat" | "crew" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
+type Panel = "chat" | "crew" | "workspace" | "ledger" | "fed" | "provider" | "memory" | "market" | "settings";
 
 export function NextConsole(): React.ReactElement {
   const [panel, setPanel] = useState<Panel>("chat");
@@ -111,6 +118,17 @@ export function NextConsole(): React.ReactElement {
      its own inside hard caps. Level is the owner's (Settings → Autonomy);
      every act is receipted and rendered; the breaker parks it on failure. */
   const [initiative, setInitiative] = useState<InitiativeState>(() => loadInitiative());
+  /* 19.7.4 [Crew] — the workspace: task → crew → governed parallel run. */
+  const [wsTask, setWsTask] = useState("");
+  const [wsSessionId, setWsSessionId] = useState<string | null>(null);
+  const [wsBusy, setWsBusy] = useState(false);
+  const [wsTick, setWsTick] = useState(0);
+  const [wsErr, setWsErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!wsBusy) return;
+    const t = setInterval(() => setWsTick((n) => n + 1), 700);
+    return () => clearInterval(t);
+  }, [wsBusy]);
   const initiativeRef = useRef<InitiativeState>(initiative);
   const wakeNow = useCallback(async () => {
     const st = initiativeRef.current;
@@ -545,6 +563,13 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
         ))}
 
         <div className="nx-sec">Crew</div>
+        <div className="nx-side-item" data-active={panel === "workspace"} onClick={() => setPanel("workspace")}>
+          <GeneralistFace name={gName} size={28} animate={false} />
+          <div className="min-w-0">
+            <div className="text-[13px] text-[color:var(--color-nx-ink)] truncate">Crew workspace</div>
+            <div className="text-[11px] nx-mute truncate">up to {CREW_MAX} specialists · one governed crew</div>
+          </div>
+        </div>
         {crewRows.map((t) => (
           <div key={t.id} className="nx-side-item" data-active={panel === "crew"} onClick={() => setPanel("crew")}>
             {t.id === "vh19-chief-steward"
@@ -906,6 +931,116 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
             ))}
           </div>
         )}
+
+        {panel === "workspace" && (() => {
+          void wsTick; // the ticker re-reads live crew state below
+          const ws = wsSessionId ? getCrewSession(wsSessionId) : null;
+          return (
+          <div className="nx-stream">
+            <div className="nx-bubble">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="nx-h1 text-[14px]">Crew workspace</span>
+                {pill(ws ? ws.status : "idle")}
+                <span className="nx-mute text-[12px]">up to {CREW_MAX} specialists · one governed crew</span>
+              </div>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input
+                  className="nx-input panel-input"
+                  value={wsTask}
+                  onChange={(e) => setWsTask(e.target.value)}
+                  placeholder="Give the crew a task — e.g. build an app: frontend, backend, database, security…"
+                />
+                <button
+                  className="nx-chip !text-[color:var(--color-nx-ok)]"
+                  disabled={wsBusy || !provider || !wsTask.trim()}
+                  onClick={() => {
+                    if (!provider || !wsTask.trim() || wsBusy) return;
+                    const s = createCrewSession(wsTask.trim(), { mode: "manual" });
+                    setWsSessionId(s.id);
+                    setWsErr(null);
+                    setWsBusy(true);
+                    void runCrewSession(s.id, { provider })
+                      .catch((e: unknown) => setWsErr(e instanceof Error ? e.message : String(e)))
+                      .finally(() => { setWsBusy(false); setWsTick((n) => n + 1); });
+                  }}
+                >
+                  Muster the crew
+                </button>
+              </div>
+              {!provider && <div className="mt-1 text-[12px] nx-mute">no provider key connected — nothing will execute. Connect one in the provider panel.</div>}
+              {wsErr && <div className="mt-1 text-[12px] text-[color:var(--color-nx-err)]">{wsErr}</div>}
+              {ws && (
+                <>
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    <span className="nx-mute text-[12px]">mode</span>
+                    {CREW_MODES.map((m: CrewMode) => (
+                      <button
+                        key={m}
+                        className="nx-chip"
+                        data-on={ws.mode.mode === m}
+                        onClick={() => {
+                          const r = switchMode(ws.id, m);
+                          if (!r.ok && r.line) setWsErr(r.line);
+                          setWsTick((n) => n + 1);
+                        }}
+                      >
+                        {CREW_MODE_LABELS[m]}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-1 text-[12px] nx-mute">
+                    {ws.feed.events.filter((e) => e.kind === "mode-switched").slice(-1)[0]?.line ?? "switch any time — in-flight acts finish under the mode that admitted them"}
+                  </div>
+                  <div className="mt-1 nx-digest">{moeV2Line(ws.selection)}</div>
+                  <div className="mt-1 nx-digest">{lotusLine(lotusReport())}</div>
+                  <div className="mt-1 text-[12.5px] nx-mute">{crewBriefing(ws)}</div>
+                </>
+              )}
+            </div>
+            {ws && (
+              <div className="nx-bubble">
+                <div className="nx-h1 text-[14px]">The roster</div>
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {ws.slots.map((s) => (
+                    <div key={s.slotId} className="nx-chip !normal-case !tracking-normal flex flex-col items-start gap-1" style={{ background: "var(--bg-panel)" }}>
+                      <div className="flex items-center gap-2">
+                        <span className="nx-face"><SpecialistFace id={s.specialistId} size={22} /></span>
+                        <span className="text-[12.5px]">{getSpecialist(s.specialistId)?.name ?? s.specialistId}</span>
+                        {pill(s.status)}
+                      </div>
+                      <div className="text-[11px] nx-mute">
+                        {s.domain} · attempt {s.attempts}{s.bewPhases ? ` · bew ${s.bewPhases} · ${s.verdict}` : ""}
+                      </div>
+                      {s.gateAsk && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-[11px] nx-mute">{s.gateAsk}</span>
+                          <button className="nx-chip !text-[color:var(--color-nx-ok)]" onClick={() => { resolveGate(ws.id, s.slotId, true); setWsTick((n) => n + 1); }}>approve</button>
+                          <button className="nx-chip !text-[color:var(--color-nx-err)]" onClick={() => { resolveGate(ws.id, s.slotId, false); setWsTick((n) => n + 1); }}>refuse</button>
+                        </div>
+                      )}
+                      {s.answerPreview && <div className="nx-digest">{s.answerPreview}</div>}
+                      {s.memberDigest && <div className="nx-digest">member receipt {s.memberDigest.slice(0, 12)}…</div>}
+                      {s.replacedBy && <div className="nx-digest">replaced by {s.replacedBy}</div>}
+                      {s.error && <div className="nx-digest">{s.error}</div>}
+                    </div>
+                  ))}
+                </div>
+                {ws.sessionReceipt && <div className="mt-2 nx-digest">session receipt {ws.sessionReceipt.slice(0, 16)}…</div>}
+              </div>
+            )}
+            {ws && ws.feed.events.length > 0 && (
+              <div className="nx-bubble">
+                <div className="nx-h1 text-[14px]">Steward feed</div>
+                <div className="mt-2 flex flex-col gap-1">
+                  {ws.feed.events.slice(-14).reverse().map((e, i) => (
+                    <div key={`${e.at}-${i}`} className="text-[12px] nx-mute"><span className="nx-digest">{e.kind}</span> {e.line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          );
+        })()}
 
         {panel === "ledger" && (
           <div className="nx-stream">

@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.2";
+    VH_VERSION = "19.7.4";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Noir";
+    VH_CODENAME = "Crew";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3575,6 +3575,33 @@ import * as fs from "node:fs";
 import * as path3 from "node:path";
 
 // src/domain/harness.ts
+var RETIRED_HARNESSES = /* @__PURE__ */ new Set([
+  "claude",
+  "codex",
+  "opencode",
+  "openclaude",
+  "copilot",
+  "cursor",
+  "grok",
+  "cline",
+  "kilo",
+  "aider",
+  "gemini",
+  "antigravity",
+  "amp",
+  "crush",
+  "openhands",
+  "goose",
+  "qwen",
+  "amazonq",
+  "droid",
+  "kimi",
+  "auggie",
+  "warp"
+]);
+function isRetiredHarness(id) {
+  return RETIRED_HARNESSES.has(id);
+}
 var HARNESSES = [
   {
     id: "acp",
@@ -3797,7 +3824,7 @@ var HARNESSES = [
   }
 ];
 var HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-var HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+var HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
 function customHarnessId(name) {
   const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
   return `custom:${slug || "harness"}`;
@@ -9009,9 +9036,9 @@ ok("the add-custom form validates before saving", teams.includes("validateCustom
 ok("the seat picker offers custom harnesses", teams.includes("(custom)</option>"));
 ok("the custom registry hydrates the sync mirror for composeSeatArgv", teams.includes("mirrorCustomHarnesses(entries)"));
 ok(
-  "the harness runner executes custom ids through the Rust registry",
-  runnerSrc.includes("isCustomHarness(hid)") && runnerSrc.includes("customHarnessList"),
-  "the runner cannot execute a custom harness"
+  "19.7.4 [Crew]: the runner is a label desk \u2014 custom ids resolve to the native runtime, nothing spawns",
+  runnerSrc.includes("isCustomHarness(raw)") && runnerSrc.includes("RETIRED_REFUSAL") && runnerSrc.includes("isRetiredHarness(raw)"),
+  "the runner must refuse all spawning"
 );
 ok(
   "composeSeatArgv compiles custom seats from the registered spec",

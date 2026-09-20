@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.7.2";
+var VH_VERSION = "19.7.4";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Noir";
+var VH_CODENAME = "Crew";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/versionDrift.test.ts
@@ -37,7 +37,7 @@ console.log(`project root: ${root}`);
 var read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 var json = (p) => JSON.parse(read(p));
 section("0. the single source of truth is well formed");
-ok("VH_VERSION looks like a semver release", /^\d+\.\d+\.\d+$/.test(VH_VERSION), VH_VERSION);
+ok("VH_VERSION looks like a semver release (3 or 4 numeric parts \u2014 19.7.2.1 ships a patch-of-patch)", /^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), VH_VERSION);
 ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".").slice(0, 2).join("."), `${VH_VERSION} -> ${VH_SHORT}`);
 ok(
   "VH_TITLE names the short version and codename",
@@ -79,7 +79,7 @@ var docs = [...OPERATIONAL_DOCS];
 for (const doc of docs) {
   const firstLine = read(doc).split("\n")[0] ?? "";
   const stale = firstLine.match(/VH (\d+\.\d+)/);
-  const staleFull = firstLine.match(/VH (\d+\.\d+\.\d+)/);
+  const staleFull = firstLine.match(/VH (\d+(?:\.\d+){2,3})/);
   ok(`${doc} title does not name a stale release`, stale === null || stale[1] === VH_SHORT, firstLine.slice(0, 70));
   ok(
     `${doc} title carries the exact release patch (${VH_VERSION})`,
@@ -90,7 +90,7 @@ for (const doc of docs) {
 for (const doc of OPERATIONAL_DOCS) {
   let body = read(doc).replace(/docs\/history\/(VH|VH)-[0-9.]+[-A-Za-z0-9_]*\.md/g, "").replace(/\b(VH|VH)-[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9-]*\.md\b/g, "");
   const staleTokens = [...new Set(
-    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+\.\d+\.\d+)|(\d+\.\d+\.\d+)_x64/gi)].map((m) => (m[1] ?? m[2] ?? "").trim()).filter((v) => v.length > 0 && v !== VH_VERSION)
+    [...body.matchAll(/(?:VH|VH|Vouch[ _]?Harbor|VouchHarbor)[ _-]?(\d+(?:\.\d+){2,3})|(\d+(?:\.\d+){2,3})_x64/gi)].map((m) => (m[1] ?? m[2] ?? "").trim()).filter((v) => v.length > 0 && v !== VH_VERSION)
   )];
   ok(
     `${doc} names no release other than ${VH_VERSION} in its body`,

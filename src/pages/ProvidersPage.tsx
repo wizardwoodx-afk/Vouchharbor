@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ipc, type SecretStatus } from "../ipc/client";
 import { toast } from "../panels/Toast";
-import { HARNESSES } from "../domain/harness";
+import { HARNESSES, isRetiredHarness } from "../domain/harness";
 
 const MODELS = [
   { ref: "provider.openai.production", label: "OpenAI", hint: "sk-…", models: ["gpt-4.1", "gpt-4o", "o3"] },
@@ -51,7 +51,7 @@ export function ProvidersPage() {
         Install Claude Code, Codex, or OpenCode on this laptop. Vouch Harbor detects them and runs the crew together.
       </p>
 
-      {HARNESSES.filter((h) => h.id !== "llm").map((h) => {
+      {HARNESSES.filter((h) => !isRetiredHarness(h.id) && h.id !== "llm").map((h) => {
         const found = cli.find((c) => c.id === h.id || h.bins.includes(c.id) || h.bins.includes(c.invocation ?? ""));
         const on = Boolean(found?.installed);
         return (

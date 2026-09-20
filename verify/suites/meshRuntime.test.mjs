@@ -408,7 +408,7 @@ var browserRawStorage = (() => {
 
 // src/vh19/reachMcp.ts
 var REACH_MCP_NAME = "Agent Reach MCP";
-var REACH_MCP_VERSION = "19.7.2";
+var REACH_MCP_VERSION = "19.7.4";
 var REACH_MCP_DEFAULT_POLICY = {
   allowlist: ["ls", "cat", "echo", "grep"],
   maxRuntimeMs: 5e3,
@@ -533,7 +533,7 @@ describe("uid is CSPRNG-born and Reach MCP is current", () => {
     assert.ok(!src.includes("Math.random"), "uid must not fall back to Math.random");
   });
   it("Reach MCP reports the current release and documents exactly its six exposed tools", () => {
-    assert.ok(/^\d+\.\d+\.\d+$/.test(REACH_MCP_VERSION));
+    assert.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(REACH_MCP_VERSION));
     assert.equal(REACH_MCP_NAME, "Agent Reach MCP");
     const src = fs.readFileSync(path.join(ROOT, "src", "vh19", "reachMcp.ts"), "utf8");
     assert.ok(!src.includes("authority.bind"), "no ghost tool in Reach MCP docs");

@@ -437,7 +437,7 @@ export function LoopPage() {
                 const nextRole = ROLES.find((r) => !draftSeats.some((s) => s.role === r.role))?.role ?? "coder";
                 setDraftSeats((prev) => [
                   ...prev,
-                  { id: `seat.${nextRole}.${Date.now().toString(36).slice(-4)}`, role: nextRole, harness: "opencode", model: null, mayWrite: true, timeoutSecs: 600, maxTurns: null, instructions: "" },
+                  { id: `seat.${nextRole}.${Date.now().toString(36).slice(-4)}`, role: nextRole, harness: "hermes", model: null, mayWrite: true, timeoutSecs: 600, maxTurns: null, instructions: "" },
                 ]);
               }}
             >

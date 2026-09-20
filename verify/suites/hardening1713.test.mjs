@@ -20920,9 +20920,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.2";
+    VH_VERSION = "19.7.4";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Noir";
+    VH_CODENAME = "Crew";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -21579,16 +21579,43 @@ var init_id2 = __esm({
 });
 
 // src/domain/harness.ts
+function isRetiredHarness(id) {
+  return RETIRED_HARNESSES.has(id);
+}
 function isCustomHarness(id) {
   return id.startsWith("custom:");
 }
 function getCustomHarness(id) {
   return customRegistry.get(id);
 }
-var HARNESSES, HARNESS_BY_ID, HARNESS_OPTIONS, customRegistry;
+var RETIRED_HARNESSES, HARNESSES, HARNESS_BY_ID, HARNESS_OPTIONS, customRegistry;
 var init_harness = __esm({
   "src/domain/harness.ts"() {
     "use strict";
+    RETIRED_HARNESSES = /* @__PURE__ */ new Set([
+      "claude",
+      "codex",
+      "opencode",
+      "openclaude",
+      "copilot",
+      "cursor",
+      "grok",
+      "cline",
+      "kilo",
+      "aider",
+      "gemini",
+      "antigravity",
+      "amp",
+      "crush",
+      "openhands",
+      "goose",
+      "qwen",
+      "amazonq",
+      "droid",
+      "kimi",
+      "auggie",
+      "warp"
+    ]);
     HARNESSES = [
       {
         id: "acp",
@@ -21811,7 +21838,7 @@ var init_harness = __esm({
       }
     ];
     HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-    HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+    HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
     customRegistry = /* @__PURE__ */ new Map();
   }
 });

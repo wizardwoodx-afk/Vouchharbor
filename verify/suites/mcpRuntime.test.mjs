@@ -21578,6 +21578,105 @@ var init_providers = __esm({
   }
 });
 
+// src/vh19/bew.ts
+var BEW_ERROR_CLASSES, BEW_TASK_LADDERS, phase, BEW_BLOCK, PHASE_RANK, BewRun;
+var init_bew = __esm({
+  "src/vh19/bew.ts"() {
+    "use strict";
+    BEW_ERROR_CLASSES = [
+      { cls: "transient", recovery: "one situation-changing retry \u2014 change the input, the tool or the wording \u2014 then report what happened" },
+      { cls: "bad-input", recovery: "fix what you control, run with the part that works, name exactly what is missing for the rest" },
+      { cls: "blocked", recovery: "report the blocker, its owner and the smallest action that unblocks it \u2014 then continue with everything else" },
+      { cls: "gate", recovery: "prepare the ask \u2014 what, why, risk, options \u2014 and pause at the human gate; never impersonate an approval" }
+    ];
+    BEW_TASK_LADDERS = [
+      { kind: "research / answer", ladder: "gather at least two independent sources, cite both, and mark anything that is inference rather than retrieval" },
+      { kind: "build / write", ladder: "smallest working artifact first, then harden it; end with a diff summary a reviewer can audit in one sitting" },
+      { kind: "fix / debug", ladder: "reproduce \u2192 isolate \u2192 fix \u2192 re-run the original repro; no reproduction, no fix claim" },
+      { kind: "analysis / data", ladder: "show the method and the numbers before the conclusion; a number without its derivation is a claim, not a finding" },
+      { kind: "review / audit", ladder: "checklist against stated criteria; every item pass or fail WITH the evidence that decides it" },
+      { kind: "operate / risky", ladder: "pre-flight list, dry-run, one change at a time, rollback named BEFORE the first change" }
+    ];
+    phase = (n, name, body) => `${n}. ${name.toUpperCase()} \u2014 ${body}`;
+    BEW_BLOCK = [
+      "### Skill: Behaviour Enforcement Workflow [BEW]",
+      "Checklist: intake \xB7 plan \xB7 act \xB7 verify \xB7 recover \xB7 report",
+      "You work inside BEW \u2014 one workflow for every task, no exceptions:",
+      phase(1, "intake", "restate the objective in one line; split what is GIVEN from what you are ASSUMING; name the deliverable and the check that will prove it done before you start."),
+      phase(2, "plan", "fewest steps that cover the objective; each step names its tool and the evidence it should produce; a step that cannot produce evidence is cut from the plan."),
+      phase(3, "act", "execute one step at a time; every tool call lands a receipt; a step without evidence did not happen."),
+      phase(4, "verify", "run the acceptance check from INTAKE against the actual evidence; numbers come from results you received, never from memory of similar tasks."),
+      phase(5, "recover", "on failure, classify it and apply the matching rung \u2014 never repeat a failed action unchanged, never hide a failure in prose:"),
+      ...BEW_ERROR_CLASSES.map((e) => `     \xB7 ${e.cls} \u2192 ${e.recovery}`),
+      phase(6, "report", "verdict first (done / partial / blocked / INCOMPLETE), then the evidence receipts, then what remains \u2014 written so the next agent can resume without re-asking."),
+      "Task ladders \u2014 pick the closest kind; the six-phase order never changes:",
+      ...BEW_TASK_LADDERS.map((l) => `     \xB7 ${l.kind} \u2192 ${l.ladder}`),
+      "Enforcement: BEW rides your system prompt; the run loop receipts your evidence per phase; anything you could not finish surfaces as INCOMPLETE \u2014 never as silence."
+    ].join("\n");
+    PHASE_RANK = { intake: 0, plan: 1, act: 2, verify: 3, recover: 4, report: 5 };
+    BewRun = class {
+      constructor(specialistId) {
+        this.specialistId = specialistId;
+        this.trail.push("intake");
+      }
+      trail = [];
+      violations = [];
+      recoveries = 0;
+      verified = false;
+      /** Records a phase transition. Out-of-order transitions are RECORDED, never silent. */
+      to(phase2) {
+        const last = this.trail[this.trail.length - 1];
+        if (phase2 === "recover") {
+          if (!this.trail.includes("act") && !this.trail.includes("verify")) {
+            this.violations.push(`recover before any work (${last})`);
+          }
+          if (this.recoveries >= 1) {
+            this.violations.push("second recovery in one run \u2014 the ladder allows one situation-changing retry");
+          }
+          this.recoveries += 1;
+          this.trail.push(phase2);
+          return;
+        }
+        if (phase2 === "verify" && !this.trail.includes("act") && !this.trail.includes("plan")) {
+          this.violations.push("verify before plan/act");
+        }
+        if (phase2 === "report" && !this.trail.includes("verify")) {
+          this.violations.push("report without verify");
+        }
+        if (PHASE_RANK[phase2] < PHASE_RANK[last] && phase2 !== "act") {
+          this.violations.push(`phase regression ${last} \u2192 ${phase2}`);
+        }
+        if (phase2 === "verify") this.verified = true;
+        this.trail.push(phase2);
+      }
+      /** Whether this run may claim "done". */
+      canClaimDone() {
+        return this.verified && this.violations.length === 0;
+      }
+      /** Finishes the run: verdict coerced when evidence is missing. */
+      finish(verdict) {
+        let final = verdict;
+        if (verdict === "done" && !this.canClaimDone()) {
+          final = "partial";
+          this.violations.push(`verdict downgraded done \u2192 partial (${!this.verified ? "verify never passed" : "violations present"})`);
+        }
+        return {
+          phases: this.trail,
+          verify: this.verified ? "pass" : "na",
+          recoveries: this.recoveries,
+          violations: this.violations,
+          enforced: true,
+          verdict: final
+        };
+      }
+      /** The compact line that rides member sections and receipts. */
+      line(receipt2) {
+        return `BEW ${receipt2.phases.join("\u2192")} \xB7 verify ${receipt2.verify}${receipt2.recoveries ? ` \xB7 recoveries ${receipt2.recoveries}` : ""}${receipt2.violations.length ? ` \xB7 violations: ${receipt2.violations.join("; ")}` : ""} \xB7 verdict ${receipt2.verdict}`;
+      }
+    };
+  }
+});
+
 // src/vh19/agentLoop.ts
 var agentLoop_exports = {};
 __export(agentLoop_exports, {
@@ -21608,6 +21707,8 @@ ${mcpLine}` : ""}`).prompt : optimizeComposedPrompt(systemBase).prompt;
   let calls = 0;
   let totalLatency = 0;
   let lastModel = provider.model;
+  const bew = new BewRun(specialist.id);
+  bew.to("plan");
   for (let step = 0; step < maxSteps; step++) {
     const res = await complete(provider, system, conversation, { fetchImpl: opts.fetchImpl });
     calls += 1;
@@ -21632,6 +21733,8 @@ ${mcpLine}` : ""}`).prompt : optimizeComposedPrompt(systemBase).prompt;
         });
         if (repair.ok) {
           totalLatency += repair.latencyMs;
+          bew.to("recover");
+          bew.to("verify");
           return {
             ok: true,
             text: repair.text,
@@ -21642,9 +21745,11 @@ ${mcpLine}` : ""}`).prompt : optimizeComposedPrompt(systemBase).prompt;
             truncated: false,
             tools: toolIds,
             repaired: true,
-            repairNote: `attempt 1 failed with ${res.kind}; the loop auto-repaired by restating the task standalone \u2014 no human pause was needed or made`
+            repairNote: `attempt 1 failed with ${res.kind}; the loop auto-repaired by restating the task standalone \u2014 no human pause was needed or made`,
+            bew: bew.finish(repair.text.trim().length > 0 ? "done" : "partial")
           };
         }
+        bew.to("recover");
         return {
           ok: false,
           text: "",
@@ -21657,7 +21762,8 @@ ${mcpLine}` : ""}`).prompt : optimizeComposedPrompt(systemBase).prompt;
           truncated: false,
           tools: toolIds,
           repaired: true,
-          repairNote: `attempt 1 failed with ${res.kind}; the auto-repair also failed with ${repair.kind ?? "unknown"} \u2014 reported honestly`
+          repairNote: `attempt 1 failed with ${res.kind}; the auto-repair also failed with ${repair.kind ?? "unknown"} \u2014 reported honestly`,
+          bew: bew.finish("failed")
         };
       }
       return {
@@ -21670,18 +21776,22 @@ ${mcpLine}` : ""}`).prompt : optimizeComposedPrompt(systemBase).prompt;
         calls,
         toolReceipts,
         truncated: false,
-        tools: toolIds
+        tools: toolIds,
+        bew: bew.finish("failed")
       };
     }
     totalLatency += res.latencyMs;
     lastModel = res.model;
     if (!hasTools || !toolCtx) {
-      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: [] };
+      bew.to("verify");
+      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: [], bew: bew.finish(res.text.trim().length > 0 ? "done" : "partial") };
     }
     const blocks = parseToolBlocks(res.text);
     if (blocks.length === 0) {
-      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds };
+      bew.to("verify");
+      return { ok: true, text: res.text, model: lastModel, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds, bew: bew.finish(res.text.trim().length > 0 ? "done" : "partial") };
     }
+    bew.to("act");
     const resultLines = [];
     for (const block of blocks) {
       if ("parseError" in block) {
@@ -21707,6 +21817,7 @@ ${receipt2.output}`);
     }
     if (step === maxSteps - 1) {
       const soFar = stripToolBlocks(res.text);
+      bew.to("verify");
       return {
         ok: true,
         text: soFar.length > 0 ? soFar : "(the agent loop ended at its step limit while requesting further tool calls)",
@@ -21715,7 +21826,9 @@ ${receipt2.output}`);
         calls,
         toolReceipts,
         truncated: true,
-        tools: toolIds
+        tools: toolIds,
+        bew: bew.finish("partial")
+        // truncated ⇒ verify cannot pass ⇒ partial, never done
       };
     }
     conversation = `${task}
@@ -21726,7 +21839,7 @@ ${resultLines.join("\n\n")}
 
 Continue the task. If the work is done, answer with NO tool blocks.`;
   }
-  return { ok: false, text: "", error: "agent loop ended without a provider result", model: provider.model, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds };
+  return { ok: false, text: "", error: "agent loop ended without a provider result", model: provider.model, latencyMs: totalLatency, calls, toolReceipts, truncated: false, tools: toolIds, bew: bew.finish("failed") };
 }
 var MAX_AGENT_STEPS, AUTO_REPAIR_KINDS;
 var init_agentLoop = __esm({
@@ -21736,6 +21849,7 @@ var init_agentLoop = __esm({
     init_tokenOptim();
     init_tools();
     init_mcpRuntime();
+    init_bew();
     MAX_AGENT_STEPS = 5;
     AUTO_REPAIR_KINDS = /* @__PURE__ */ new Set(["timeout", "network", "bad-response"]);
   }

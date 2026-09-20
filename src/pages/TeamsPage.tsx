@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AGENT_FRAMEWORKS } from "../domain/frameworks";
 import {
   HARNESSES,
+  isRetiredHarness,
   customHarnessId,
   setCustomHarnesses as mirrorCustomHarnesses,
   validateCustomHarness,
@@ -273,9 +274,9 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
     schemaVersion: 1,
     budgetUsd: 15.0,
     seats: [
-      { id: "planner", role: "planner", harness: "claude", model: null, mayWrite: false, maxRisk: "LOW", timeoutSecs: 600, maxTurns: 10, instructions: "Formulate task milestones." },
-      { id: "coder", role: "coder", harness: "opencode", model: null, mayWrite: true, maxRisk: "MEDIUM", timeoutSecs: 900, maxTurns: 25, instructions: "Implement solution with clean commits." },
-      { id: "reviewer", role: "reviewer", harness: "codex", model: null, mayWrite: false, maxRisk: "LOW", timeoutSecs: 600, maxTurns: 10, instructions: "Conduct independent review against snapshot." },
+      { id: "planner", role: "planner", harness: "hermes", model: null, mayWrite: false, maxRisk: "LOW", timeoutSecs: 600, maxTurns: 10, instructions: "Formulate task milestones." },
+      { id: "coder", role: "coder", harness: "hermes", model: null, mayWrite: true, maxRisk: "MEDIUM", timeoutSecs: 900, maxTurns: 25, instructions: "Implement solution with clean commits." },
+      { id: "reviewer", role: "reviewer", harness: "hermes", model: null, mayWrite: false, maxRisk: "LOW", timeoutSecs: 600, maxTurns: 10, instructions: "Conduct independent review against snapshot." },
     ],
   }));
 
@@ -561,8 +562,8 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
   // Run Multi-Agent Consensus Simulation
   const handleRunConsensus = () => {
     const votes: ReviewVote[] = [
-      { seatId: "claude_reviewer", harness: "claude", verdict: "APPROVE", confidence: 0.95, rationale: "All 12 unit tests pass; structural interface union verified without regressions.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
-      { seatId: "codex_security", harness: "codex", verdict: "APPROVE", confidence: 0.90, rationale: "Token bucket mutex correctly prevents race conditions under burst simulation.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
+      { seatId: "hermes_reviewer", harness: "hermes", verdict: "APPROVE", confidence: 0.95, rationale: "All 12 unit tests pass; structural interface union verified without regressions.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
+      { seatId: "hermes_security", harness: "hermes", verdict: "APPROVE", confidence: 0.90, rationale: "Token bucket mutex correctly prevents race conditions under burst simulation.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
       { seatId: "grok_fuzzer", harness: "grok", verdict: "APPROVE", confidence: 0.85, rationale: "Fuzzing vectors (null inputs, boundary overflow) rejected safely.", diffRef: "vh/rate-limiter/review", timestamp: new Date().toISOString() },
     ];
     const res = evaluateConsensus(runnerObjective, votes);
@@ -1292,7 +1293,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
           <div className="card" style={{ marginBottom: 14 }}>
             <div className="card-title">Your inventory — which harnesses do you have?</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 6, marginTop: 10 }}>
-              {[...HARNESSES.filter((h) => h.id !== "acp"), ...customList.map((c) => ({ id: c.id, name: c.name }))].map((h) => {
+              {[...HARNESSES.filter((h) => !isRetiredHarness(h.id) && h.id !== "acp"), ...customList.map((c) => ({ id: c.id, name: c.name }))].map((h) => {
                 const owned = roleBoard.owned.includes(h.id);
                 return (
                   <label key={h.id} className="rb-item" style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", cursor: "pointer", opacity: owned ? 1 : 0.62 }}>
@@ -1400,7 +1401,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
           )}
 
           <div className="grid-2">
-            {HARNESSES.filter((h) => h.id !== "llm").map((h) => {
+            {HARNESSES.filter((h) => !isRetiredHarness(h.id) && h.id !== "llm").map((h) => {
               const det = connectDetect.find((d) => d.id === h.id || d.invocation === h.bins[0] || d.id === h.bins[0]);
               const installed = Boolean(det?.installed);
               const t = connectTest[h.id];
@@ -3111,7 +3112,7 @@ export function TeamsPage({ onOpened }: { onOpened: () => void }) {
                     setBuilderTeam({ ...builderTeam, seats: next });
                   }}
                 >
-                  {HARNESSES.map((h) => (
+                  {HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => (
                     <option key={h.id} value={h.id}>{h.name}</option>
                   ))}
                   {customList.length > 0 && customList.map((c) => (

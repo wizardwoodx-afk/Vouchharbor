@@ -17429,9 +17429,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "19.7.2";
+var VH_VERSION = "19.7.4";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Noir";
+var VH_CODENAME = "Crew";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts
@@ -18313,6 +18313,33 @@ var ipc = {
 };
 
 // src/domain/harness.ts
+var RETIRED_HARNESSES = /* @__PURE__ */ new Set([
+  "claude",
+  "codex",
+  "opencode",
+  "openclaude",
+  "copilot",
+  "cursor",
+  "grok",
+  "cline",
+  "kilo",
+  "aider",
+  "gemini",
+  "antigravity",
+  "amp",
+  "crush",
+  "openhands",
+  "goose",
+  "qwen",
+  "amazonq",
+  "droid",
+  "kimi",
+  "auggie",
+  "warp"
+]);
+function isRetiredHarness(id) {
+  return RETIRED_HARNESSES.has(id);
+}
 var HARNESSES = [
   {
     id: "acp",
@@ -18535,7 +18562,7 @@ var HARNESSES = [
   }
 ];
 var HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-var HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+var HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
 function isCustomHarness(id) {
   return id.startsWith("custom:");
 }

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.3 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.4 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -71,7 +71,44 @@ engine (deterministic seeded layout, depth-sorted render) with the
 glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
-20 · 17 checks) — 150 suites total.
+20 · 17 checks) — 154 suites total.
+
+### NEW in 19.7.4 [Crew] — the governed crew: 25 specialists, one working space, zero third-party agents
+
+**The CLI era is retired.** Vouch Harbor no longer spawns external agent CLIs.
+Every specialist — every member of every crew — executes natively on YOUR
+provider keys (OpenAI / Anthropic / Gemini / local Ollama) through the audited
+VH agent loop: one runtime, one receipt format, no third-party binary in the
+trust chain. Old saved graphs keep working: a retired CLI id in a config
+resolves to the native runtime automatically.
+
+**The crew workspace** (`Crew workspace` in the console) fields up to
+**25 specialists in parallel** for compound work:
+
+- **Dynamic domain pools** — the task's own text scans the fleet; "build an
+  app" pools hundreds across frontend/backend/database/security/devops/design,
+  a GST filing pools a small finance/tax/legal set. The pool follows the task.
+- **Agentic MoE v2** — sparse selection with reasons, a per-member reserve
+  bench staged at selection time, and instant failover: a failed member is
+  replaced by the next-best same-domain specialist in one step; a domain with
+  no reserve escalates to you, named. The crew breaker (3 consecutive
+  unresolved failures) cools a session down — visibly, never silently.
+- **Three modes, hot-switchable mid-run** — Manual (nothing moves without
+  you), Semi-autonomous (safe acts run free, risky/critical hit your gate),
+  Fully autonomous (safe+risky run free inside the hard caps). Critical-tier
+  acts ask in EVERY mode. In-flight acts finish under the mode that admitted
+  them; the switch lands in the ledger.
+- **The Steward** — one calm feed that reports the working as it happens:
+  who started, who answered, who was replaced and by whom, what needs you.
+- **LOTUS** — Lean Optimal Token Utilisation System: the crew's token
+  economy. Tool output is compressed through conservative/balanced/
+  aggressive/auto passes that never change meaning, never touch errors,
+  stay reversible (expand any ref to the byte-exact original), dedupe
+  repeats into short refs, and refuse any pass that would not pay for
+  itself. Every number is an estimate, labelled.
+
+154 probe suites pin it (modes 16 · moeV2 24 · lotus 21 · crew 26 — the
+governance, the pools, the failover, the breaker, the receipts).
 
 ### NEW in 19.7.2 "Noir" — the maturity release: a sharper crew, two honest finishes, zero props
 
@@ -444,7 +481,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 150 suites
+npm test              # 154 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -452,7 +489,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (Node alone — dependency-backed suites honestly fail/skip
 #   on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs             # 149 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs             # 153 bundles, the full gate (~80s, no install needed)
 node verify/run.mjs --shard 1/4 # short execution window? run deterministic shards and merge
 node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
 # shorter window? run the same gate in pieces and merge:

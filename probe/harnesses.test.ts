@@ -187,9 +187,9 @@ ok("the panel shows the web-preview limitation honestly", teams.includes("You ar
 ok("the add-custom form validates before saving", teams.includes("validateCustomHarness(spec)"));
 ok("the seat picker offers custom harnesses", teams.includes("(custom)</option>"));
 ok("the custom registry hydrates the sync mirror for composeSeatArgv", teams.includes("mirrorCustomHarnesses(entries)"));
-ok("the harness runner executes custom ids through the Rust registry",
-  runnerSrc.includes('isCustomHarness(hid)') && runnerSrc.includes("customHarnessList"),
-  "the runner cannot execute a custom harness");
+ok("19.7.4 [Crew]: the runner is a label desk — custom ids resolve to the native runtime, nothing spawns",
+  runnerSrc.includes("isCustomHarness(raw)") && runnerSrc.includes("RETIRED_REFUSAL") && runnerSrc.includes("isRetiredHarness(raw)"),
+  "the runner must refuse all spawning");
 ok("composeSeatArgv compiles custom seats from the registered spec",
   agentTeamSrc.includes("resolveCaps(teamSeat.harness)") && agentTeamSrc.includes("not registered (anymore)"),
   "a custom seat would not compile");

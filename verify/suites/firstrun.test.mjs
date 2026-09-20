@@ -3813,9 +3813,9 @@ function detectHost() {
 }
 
 // src/version.ts
-var VH_VERSION = "19.7.2";
+var VH_VERSION = "19.7.4";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Noir";
+var VH_CODENAME = "Crew";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/app/id.ts

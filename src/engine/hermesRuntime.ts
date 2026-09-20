@@ -12,8 +12,7 @@
 import { composeNodePrompt } from "../domain/composer";
 import type { NodeInstance } from "../domain/types";
 import { ipc, nodeKeyOf } from "../ipc/client";
-import { detectHost } from "../app/desktop";
-import { harnessOf, runHarnessAgent } from "./harnessRunner";
+import { harnessOf } from "./harnessRunner";
 
 export interface HermesRun {
   text: string;
@@ -139,33 +138,19 @@ function parseTool(text: string): { name: string; args: Record<string, unknown> 
 
 export async function runHermesNode(
   node: NodeInstance,
-  collected: Record<string, unknown>,
+  _collected: Record<string, unknown>,
   composed: ReturnType<typeof composeNodePrompt>,
   execId: string,
   workflowId: string,
 ): Promise<HermesRun> {
+  /* 19.7.4 [Crew] — CLI execution is retired. Every node runs the native
+     agent loop on the owner's own provider keys: one runtime, one receipt
+     format, no third-party binary in the trust chain. A saved graph whose
+     config still names a retired CLI resolves to the native runtime via
+     harnessOf (label only), and nothing spawns — ever. */
   const hid = harnessOf(node);
   const teamKey = String(node.config.teamMemoryKey ?? "");
   const nodeKey = teamKey || nodeKeyOf(workflowId, node.id);
-
-  // Coding CLIs are already full agents. Inject identity; do not wrap a second loop.
-  if (hid !== "hermes" && hid !== "llm") {
-    const ran = await runHarnessAgent(node, collected, composed);
-    return { text: ran.text, via: ran.via, steps: 1, toolsUsed: [hid] };
-  }
-
-  if (hid === "hermes" && detectHost() === "tauri") {
-    const detected = await ipc.cliProvidersDetect();
-    const hermesCli = detected.find((d) => d.id === "hermes" && d.installed);
-    if (hermesCli) {
-      const ran = await runHarnessAgent(
-        { ...node, config: { ...node.config, harness: "hermes" } },
-        collected,
-        composed,
-      );
-      return { text: ran.text, via: "hermes-cli", steps: 1, toolsUsed: ["hermes"] };
-    }
-  }
 
   const toolsUsed: string[] = [];
   const transcript: Array<{ role: string; content: string }> = [
@@ -178,7 +163,7 @@ export async function runHermesNode(
     const provider = await resolveLlm(node);
     if (!provider) {
       throw new Error(
-        `${node.title} is a Hermes-class agent. Install Claude Code/Codex/OpenCode and set harness to that CLI, or set harness=llm/hermes and save a provider key / run Ollama.`,
+        `${node.title} is a Hermes-class agent — connect a provider key in the Providers door (or run Ollama locally); nothing was executed.`,
       );
     }
     const r = await ipc.llmChat({

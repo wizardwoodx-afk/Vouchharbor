@@ -2435,9 +2435,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.2";
+    VH_VERSION = "19.7.4";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Noir";
+    VH_CODENAME = "Crew";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -3615,6 +3615,33 @@ import assert2 from "node:assert";
 init_id();
 
 // src/domain/harness.ts
+var RETIRED_HARNESSES = /* @__PURE__ */ new Set([
+  "claude",
+  "codex",
+  "opencode",
+  "openclaude",
+  "copilot",
+  "cursor",
+  "grok",
+  "cline",
+  "kilo",
+  "aider",
+  "gemini",
+  "antigravity",
+  "amp",
+  "crush",
+  "openhands",
+  "goose",
+  "qwen",
+  "amazonq",
+  "droid",
+  "kimi",
+  "auggie",
+  "warp"
+]);
+function isRetiredHarness(id) {
+  return RETIRED_HARNESSES.has(id);
+}
 var HARNESSES = [
   {
     id: "acp",
@@ -3837,7 +3864,7 @@ var HARNESSES = [
   }
 ];
 var HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-var HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+var HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
 function isCustomHarness(id) {
   return id.startsWith("custom:");
 }
@@ -32502,6 +32529,6 @@ describe3("merge \u2014 one mission ID, one chain, one state (16.0)", () => {
     assert2.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");
     assert2.equal(VH_TITLE, `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, "the product title is Vouch Harbor");
     assert2.ok(/<title>Vouch Harbor[^<]*<\/title>/.test(read("index.html")), "the window title is Vouch Harbor");
-    assert2.ok(/^\d+\.\d+\.\d+$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver)");
+    assert2.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver, 3 or 4 numeric parts)");
   });
 });

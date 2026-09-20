@@ -95,14 +95,14 @@ export function harborCreateCrew(name: string): CliAgentTeam {
 
 /** Add a seat to the currently active crew. If no crew exists, creates one first. */
 const HAND_ROLES: Array<{ role: TeamRole; harness: TeamSeat["harness"]; label: string }> = [
-  { role: "planner",     harness: "claude",    label: "Helmsman" },
-  { role: "architect",   harness: "claude",    label: "Lookout" },
-  { role: "coder",       harness: "codex",     label: "Shipwright" },
-  { role: "reviewer",    harness: "gemini",    label: "Scrivener" },
-  { role: "tester",      harness: "claude",    label: "Yeoman" },
-  { role: "security",    harness: "claude",    label: "Bosun" },
-  { role: "debugger",    harness: "codex",     label: "Surgeon" },
-  { role: "synthesizer", harness: "claude",    label: "Quartermaster" },
+  { role: "planner",     harness: "hermes",    label: "Helmsman" },
+  { role: "architect",   harness: "hermes",    label: "Lookout" },
+  { role: "coder",       harness: "hermes",     label: "Shipwright" },
+  { role: "reviewer",    harness: "hermes",    label: "Scrivener" },
+  { role: "tester",      harness: "hermes",    label: "Yeoman" },
+  { role: "security",    harness: "hermes",    label: "Bosun" },
+  { role: "debugger",    harness: "hermes",     label: "Surgeon" },
+  { role: "synthesizer", harness: "hermes",    label: "Quartermaster" },
 ];
 export function harborMusterHand(): { crew: CliAgentTeam; seat: TeamSeat } | { error: string } {
   let crews = loadCrews();

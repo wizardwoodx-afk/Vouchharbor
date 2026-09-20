@@ -1,6 +1,33 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
 // src/domain/harness.ts
+var RETIRED_HARNESSES = /* @__PURE__ */ new Set([
+  "claude",
+  "codex",
+  "opencode",
+  "openclaude",
+  "copilot",
+  "cursor",
+  "grok",
+  "cline",
+  "kilo",
+  "aider",
+  "gemini",
+  "antigravity",
+  "amp",
+  "crush",
+  "openhands",
+  "goose",
+  "qwen",
+  "amazonq",
+  "droid",
+  "kimi",
+  "auggie",
+  "warp"
+]);
+function isRetiredHarness(id) {
+  return RETIRED_HARNESSES.has(id);
+}
 var HARNESSES = [
   {
     id: "acp",
@@ -223,7 +250,7 @@ var HARNESSES = [
   }
 ];
 var HARNESS_BY_ID = new Map(HARNESSES.map((h) => [h.id, h]));
-var HARNESS_OPTIONS = HARNESSES.map((h) => h.id);
+var HARNESS_OPTIONS = HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => h.id);
 function isCustomHarness(id) {
   return id.startsWith("custom:");
 }

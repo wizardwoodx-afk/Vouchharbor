@@ -6,7 +6,7 @@ import { toast } from "./Toast";
 import { iconFor } from "../canvas/icons";
 import { composeNodePrompt } from "../domain/composer";
 import { composeAssignment, methodFor, NODE_FIELDS } from "../domain/nodeMethods";
-import { HARNESSES, listCustomHarnesses } from "../domain/harness";
+import { HARNESSES, isRetiredHarness, listCustomHarnesses } from "../domain/harness";
 import type { EvolutionMode, FeedbackLoop } from "../domain/types";
 
 const ROLE_KEYS: Array<keyof ReturnType<typeof identityKeys>> = [
@@ -72,10 +72,10 @@ export function Inspector({ onClose }: { onClose: () => void }) {
           <div className="muted">This node is a coding agent, not an n8n step. It execs a local CLI from the V11.6 registry (Connect tab in Teams installs and smoke-tests them) or a direct LLM.</div>
           <label className="field">Harness
             <select
-              value={String(node.config.harness ?? "claude")}
+              value={String(node.config.harness ?? "hermes")}
               onChange={(e) => store.updateNode(node.id, { config: { ...node.config, harness: e.target.value } })}
             >
-              {HARNESSES.map((h) => (
+              {HARNESSES.filter((h) => !isRetiredHarness(h.id)).map((h) => (
                 <option key={h.id} value={h.id}>{h.name}</option>
               ))}
               {listCustomHarnesses().map((c) => (
