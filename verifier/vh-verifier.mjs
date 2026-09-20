@@ -1,39 +1,51 @@
 #!/usr/bin/env node
 /**
  * VH EXTERNAL CANARY VERIFIER — held-out battery, CRYPTOGRAPHICALLY SIGNED
- * (19.7.8 [Trustroot]).
+ * with a RUNTIME-PROVISIONED key (19.7.9 [Keyholder]).
  *
- * The 19.7.7 review was right twice: a plain SHA-256 over the output is a
- * tamper-evident CHECKSUM (anyone can recompute it), not a signature; and
- * nothing anchored the battery itself. Both fixed here:
+ * The 19.7.8 review found the P0: the signing key shipped INSIDE the
+ * artifact, so anyone holding the ZIP could forge verdicts the pinned key
+ * would accept. Fixed at the root — the artifact no longer carries a key
+ * at all:
  *
- *   • REAL SIGNING — every verdict is signed with this process's ECDSA
- *     P-256 private key (the same curve as VH's authority mandates), key
- *     in verifier/vh-verifier.key. VH verifies with the public key PINNED
- *     in its frozen trust root (src/vh19/verifierTrust.ts). Modify this
- *     process to emit forged verdicts and you still cannot sign them —
- *     the pinned key refuses.
+ *   • RUNTIME PROVISIONING — on first run this process generates a fresh
+ *     ECDSA P-256 keypair and stores the PRIVATE key at
+ *     ~/.vouchharbor/verifier.key (mode 0600), OUTSIDE the application
+ *     tree, OUTSIDE the repository, OUTSIDE every distributable. The
+ *     artifact ships no secret — there is nothing to leak.
  *
- *   • BATTERY ANCHORING — batteryDigest now covers the CHECK SOURCE, not
- *     just the ids: sha256(id + "|" + probe source, per check). VH pins
- *     the expected digest in the same trust root; a swapped battery
- *     produces a different digest and is refused BEFORE signature checks
- *     even matter.
+ *   • OWNER-COUNTERSIGNED REGISTRATION — the provisioning response hands
+ *     VH the public key; VH countersigns it with the OWNER key (the same
+ *     authority that signs mandates and federation crossings) and stores
+ *     the registration in the owner trust store. Verdicts verify under
+ *     the REGISTERED key; a stranger key is refused; re-provisioning
+ *     requires the owner again.
+ *
+ *   • PROGRAM ANCHORING — the verifier digests its OWN source at runtime
+ *     and binds programDigest into every verdict signature. VH pins the
+ *     expected program digest in the frozen trust root, so a modified
+ *     verifier is refused even before its key matters. The battery digest
+ *     (over every check's SOURCE) stays pinned alongside.
  *
  * Protocol (stdin → stdout, one JSON object each):
  *   in:  { nonce, candidate: { name, target, body, declares } }
- *   out: { nonce, ran, failed: [{id, finding}], batteryDigest, alg, sig }
+ *      | { op: "provision" }
+ *   out: { nonce, ran, failed, batteryDigest, programDigest, alg, sig }
+ *      | { op: "provisioned", publicKeyJwk, keyFingerprint, batteryDigest, programDigest, alg }
  *   sig = ECDSA(P-256, SHA-256) over
- *         "vh-verifier/1|" + nonce + "|" + ran + "|" +
- *         JSON.stringify(failed) + "|" + batteryDigest
+ *         "vh-verifier/3|" + nonce + "|" + ran + "|" + JSON.stringify(failed)
+ *         + "|" + batteryDigest + "|" + programDigest
  *
- * The nonce must be CSPRNG-fresh on the caller side (randomUUID /
- * getRandomValues) — verdicts are un-replayable. Deterministic checks:
- * same input → same verdict; fresh key-bound signature each run.
+ * The nonce must be CSPRNG-fresh on the caller side. Deterministic
+ * checks: same input → same verdict; fresh key-bound signature each run.
  */
 import { createHash, webcrypto } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, chmodSync } from "node:fs";
+import { homedir } from "node:os";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
+const ALG = "ECDSA_p256_sha256";
 const sha = (t) => createHash("sha256").update(t, "utf8").digest("hex");
 const EVIDENCE = /\b(receipt|exam|canary|ledger|evidence|digest|baseline)\b/i;
 
@@ -69,6 +81,26 @@ const CANARIES = [
 
 const batteryDigest = sha(CANARIES.map((h) => `${h.id}|${h.probe.toString()}`).join("||"));
 
+const PROGRAM_PATH = fileURLToPath(import.meta.url);
+const programDigest = sha(readFileSync(PROGRAM_PATH, "utf8"));
+const KEY_PATH = join(homedir(), ".vouchharbor", "verifier.key");
+
+function canonicalJwk(j) {
+  return JSON.stringify({ key_ops: ["verify"], ext: true, kty: j.kty, x: j.x, y: j.y, crv: j.crv });
+}
+
+async function loadOrCreateKey() {
+  if (existsSync(KEY_PATH)) {
+    return JSON.parse(readFileSync(KEY_PATH, "utf8"));
+  }
+  const pair = await webcrypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const jwk = await webcrypto.subtle.exportKey("jwk", pair.privateKey);
+  mkdirSync(dirname(KEY_PATH), { recursive: true });
+  writeFileSync(KEY_PATH, JSON.stringify(jwk, null, 1) + "\n", { mode: 0o600 });
+  chmodSync(KEY_PATH, 0o600);
+  return jwk;
+}
+
 let raw = "";
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk) => { raw += chunk; });
@@ -80,6 +112,20 @@ process.stdin.on("end", () => {
     process.stdout.write(JSON.stringify({ error: "unparseable request" }));
     process.exit(2);
   }
+  if (req.op === "provision") {
+    loadOrCreateKey().then((jwk) => {
+      const pub = { key_ops: ["verify"], ext: true, kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y };
+      process.stdout.write(JSON.stringify({
+        op: "provisioned", publicKeyJwk: pub,
+        keyFingerprint: sha(canonicalJwk(jwk)),
+        batteryDigest, programDigest, alg: ALG,
+      }));
+    }).catch(() => {
+      process.stdout.write(JSON.stringify({ error: "provisioning failed — the key path is not writable" }));
+      process.exit(3);
+    });
+    return;
+  }
   const nonce = String(req.nonce ?? "");
   const c = req.candidate ?? {};
   const failed = [];
@@ -88,12 +134,13 @@ process.stdin.on("end", () => {
     try { finding = h.probe(c); } catch { finding = `harness error in ${h.id}`; }
     if (finding) failed.push({ id: h.id, finding: String(finding) });
   }
-  const payload = `vh-verifier/1|${nonce}|${CANARIES.length}|${JSON.stringify(failed)}|${batteryDigest}`;
-  webcrypto.subtle.importKey("jwk", JSON.parse(readFileSync(new URL("./vh-verifier.key", import.meta.url), "utf8")), { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"])
+  const payload = `vh-verifier/3|${nonce}|${CANARIES.length}|${JSON.stringify(failed)}|${batteryDigest}|${programDigest}`;
+  loadOrCreateKey()
+    .then((jwk) => webcrypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]))
     .then((key) => webcrypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(payload)))
     .then((sigBuf) => {
       const sig = Buffer.from(sigBuf).toString("base64");
-      process.stdout.write(JSON.stringify({ nonce, ran: CANARIES.length, failed, batteryDigest, alg: "ECDSA_p256_sha256", sig }));
+      process.stdout.write(JSON.stringify({ nonce, ran: CANARIES.length, failed, batteryDigest, programDigest, alg: "ECDSA_p256_sha256", sig }));
     })
     .catch(() => {
       process.stdout.write(JSON.stringify({ error: "signing failed — key material unreadable" }));

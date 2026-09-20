@@ -1,14 +1,65 @@
 # Vouch Harbor 19.7.0 "Recall" — feature sheet
 
+### NEW in 19.7.9 [Keyholder] — the P0 killed: no key ever ships
+
+- **The artifact carries NO secret** — the 19.7.8 review proved anyone
+  holding the ZIP could forge verdicts, because the verifier's PRIVATE key
+  rode inside it. Now the keypair is provisioned at RUNTIME (first run
+  generates it; private key at `~/.vouchharbor/verifier.key`, mode 0600,
+  outside every distributable) and the leaked key is purged from the repo,
+  with `.gitignore` refusing `verifier/*.key` outright.
+- **Owner-countersigned registration** — the provisioned public key is
+  signed by the OWNER key (the mandate/crossing authority) into the owner
+  trust store; verdicts verify under the REGISTERED key; re-provisioning
+  requires the owner again.
+- **The PROGRAM is pinned** (`vh-verifier/3`) — the verifier digests its
+  own source at runtime and binds `programDigest` into every signature;
+  the frozen trust root pins it beside the battery digest. A modified
+  verifier is refused even before its key matters.
+- **Honest words, everywhere** — the battery is EXTERNALLY EXECUTED and
+  DIGEST-PINNED (its source ships; pinning prevents swapping, not
+  secrecy). "Hidden/secret" is scrubbed from code, ledger text, and docs.
+- **Artifact hygiene is a standing probe** — probe/rsiralsV6 grew
+  42 → 53: no key in the tree, no key in the trust root, program digest
+  byte-pinned, provisioning flow + registration tamper + foreign-key
+  forgery + battery swap + replay + live apply, all green.
+
+```
+first run (per machine, owner-gated)
+      │
+  canaryClient ──spawn {op:"provision"}──► verifier/vh-verifier.mjs
+      │        ◄── publicKeyJwk · keyFingerprint ──┘  key born at
+      │                                               ~/.vouchharbor (0600)
+      ▼
+  OWNER KEY countersigns ──► REGISTRATION in the owner trust store
+                             (stranger keys refused; re-provision = owner)
+
+every apply (the Evolution desk, active console)
+      │ proposal · nonce: CSPRNG randomUUID
+      ▼
+  canaryClient ──spawn {nonce, candidate}──► verifier/vh-verifier.mjs
+      │        ◄── {failed, batteryDigest, programDigest, sig} ──┘
+      ▼
+  VALIDATE: nonce echo · battery = pin · program = pin · alg = pin ·
+            ECDSA verify under the REGISTERED key
+      ▼
+  governChange: constitution → drift budget → EXTERNAL canaries
+      ├─ BLOCK ──► refusal names the rule; proposal stays pending
+      └─ ESCALATE ──► the HUMAN click = the promotion decision (fail-closed)
+                         ▼
+       override lands · v5 archive applied/reverted · v6 ledger
+```
+
 ### NEW in 19.7.8 [Trustroot] — real signatures + a frozen trust root + the live desk
 
 - **ECDSA P-256 verdict signatures** — the external verifier signs with
   its own private key; VH verifies against the public key PINNED in the
   frozen trust root. A foreign key literally cannot get a verdict accepted
   (probe pins the forgery attempt).
-- **The frozen trust root** (`src/vh19/verifierTrust.ts`) — pinned
-  verifier public key · battery digest (over every check's SOURCE) · key
-  fingerprint. No setter; rotation is a release event.
+- **The frozen trust root** (`src/vh19/verifierTrust.ts`) — since 19.7.9
+  it pins DIGESTS ONLY (verifier program · battery over every check's
+  SOURCE) plus the registration pointer; no key material has shipped
+  since. No setter; rotation is a release event.
 - **CSPRNG nonces** (randomUUID) · **battery-swap refusal on sight** ·
   **the Evolution desk on the ACTIVE NextConsole** — scan → approve
   (gated) → the note shows verdict · canary source · ledger seq.
@@ -90,7 +141,7 @@ it cannot modify. v6 ships exactly that, deterministic and probe-pinned:
   Act Art.12 receipt pattern). verifyLedger() re-walks the chain; one
   altered byte breaks it at that seq.
 - **One gate + rollback** — governChange() is the only door: constitution →
-  drift → hidden canaries → ALLOW / BLOCK / ESCALATE-to-human. The gate
+  drift → digest-pinned canaries → ALLOW / BLOCK / ESCALATE-to-human. The gate
   NEVER promotes to fleet by itself; the human door is load-bearing.
   Promotion snapshots last-known-good; rollback() restores in one step,
   on the ledger.

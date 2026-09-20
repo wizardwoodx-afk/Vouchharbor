@@ -38063,11 +38063,11 @@ function pemToDer(pem2) {
   for (let i2 = 0; i2 < bin.length; i2++) out[i2] = bin.charCodeAt(i2);
   return out.buffer;
 }
-async function loadOrCreate(storage19, identity, security) {
+async function loadOrCreate(storage20, identity, security) {
   const owner = identity.trim() || AUTHORITY_OWNER_FALLBACK;
-  if (storage19) {
+  if (storage20) {
     try {
-      const raw = storage19.get();
+      const raw = storage20.get();
       if (raw) {
         const saved = JSON.parse(raw);
         const entry = saved.byOwner?.[owner];
@@ -38081,11 +38081,11 @@ async function loadOrCreate(storage19, identity, security) {
     }
   }
   const keys = await generateOwnerKeysWeb();
-  const ident = { keys, owner, security, persisted: Boolean(storage19) };
-  if (storage19) {
+  const ident = { keys, owner, security, persisted: Boolean(storage20) };
+  if (storage20) {
     try {
       const priv = await crypto.subtle.exportKey("jwk", keys.privateKey);
-      const raw = storage19.get();
+      const raw = storage20.get();
       let byOwner = {};
       if (raw) {
         try {
@@ -38094,7 +38094,7 @@ async function loadOrCreate(storage19, identity, security) {
         }
       }
       byOwner[owner] = { priv, pem: keys.publicKeyPem };
-      storage19.set(JSON.stringify({ byOwner }));
+      storage20.set(JSON.stringify({ byOwner }));
     } catch {
     }
   }
@@ -38143,14 +38143,14 @@ async function authorityOwnerIdentity(opts) {
   if (!defaultStorageCache || defaultStorageCache.key !== key) {
     defaultStorageCache = { key, promise: resolveDefaultStorage(passphrase) };
   }
-  let { storage: storage19, security } = await defaultStorageCache.promise;
+  let { storage: storage20, security } = await defaultStorageCache.promise;
   let unlockFailed = false;
-  if (storage19 && storage19.sealed) {
-    storage19 = null;
+  if (storage20 && storage20.sealed) {
+    storage20 = null;
     security = "session";
     unlockFailed = true;
   }
-  if (!storage19) {
+  if (!storage20) {
     if (!ephemeralCache) ephemeralCache = /* @__PURE__ */ new Map();
     const cacheKey = unlockFailed ? `${owner}::unlock-failed` : owner;
     const hit2 = ephemeralCache.get(cacheKey);
@@ -38160,14 +38160,14 @@ async function authorityOwnerIdentity(opts) {
     ephemeralCache.set(cacheKey, ident2);
     return ident2;
   }
-  let m = realmCache.get(storage19);
+  let m = realmCache.get(storage20);
   if (!m) {
     m = /* @__PURE__ */ new Map();
-    realmCache.set(storage19, m);
+    realmCache.set(storage20, m);
   }
   const hit = m.get(owner);
   if (hit) return hit;
-  const ident = await loadOrCreate(storage19, owner, security);
+  const ident = await loadOrCreate(storage20, owner, security);
   m.set(owner, ident);
   return ident;
 }
@@ -66517,7 +66517,7 @@ function governChange(c, canary = { ran: 0, failed: [], batteryDigest: "", sourc
   ledgerAppend("canaried", c.actor, c.target, `canary source ${canary.source}: ${canary.ran} ran \u2014 ${canary.failed.length} failed`, candidateDigest, at2);
   if (canary.failed.length > 0) {
     for (const f3 of canary.failed) reasons.push(`${f3.id}: ${f3.finding}`);
-    const event2 = ledgerAppend("blocked", c.actor, c.target, `hidden canaries: ${reasons.join("; ")}`, candidateDigest, at2);
+    const event2 = ledgerAppend("blocked", c.actor, c.target, `canary battery: ${reasons.join("; ")}`, candidateDigest, at2);
     return { verdict: "BLOCK", stage: "shadow", reasons, constitution, drift, canaries: { ...canary }, event: event2 };
   }
   if (canary.source === "unavailable") {
@@ -66541,22 +66541,19 @@ function promoteToFleet(c, scores, baseline, at2 = Date.now()) {
 
 // src/vh19/verifierTrust.ts
 var TRUST_ROOT = Object.freeze({
-  protocol: "vh-verifier/2",
+  protocol: "vh-verifier/3",
   algorithm: "ECDSA_p256_sha256",
-  verifierPublicKeyJwk: Object.freeze({
-    kty: "EC",
-    crv: "P-256",
-    x: "YkNuABs5fQuX19fr9aq1Sk_JHtz6PO-kHKC2DLeJCZU",
-    y: "sy1-QZsgLJgFc4JCtOupGJ2B-TnKkBbyUi3XGsewPUA",
-    key_ops: Object.freeze(["verify"]),
-    ext: true
-  }),
-  verifierKeyFingerprint: "44c2719e7d6c2e446f76283ff58788fb88bb4044b5e6abdfcd2291bea9a39f08",
-  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e"
+  verifierProgramDigest: "2ded52ce5cf8a9857517440f0ec217c1b0771be8f7d87516ae5f49c8b271bdc7",
+  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e",
+  registrationKey: "vh.verifier.registration.v3",
+  keyPathOutsideArtifact: "~/.vouchharbor/verifier.key"
 });
 
 // src/vh19/canaryClient.ts
 var VERIFIER_PATH = "verifier/vh-verifier.mjs";
+function canonicalRegistration(r3) {
+  return JSON.stringify({ v: "vh-verifier-registration/3", publicKeyJwk: r3.publicKeyJwk, keyFingerprint: r3.keyFingerprint, programDigest: r3.programDigest, registeredAt: r3.registeredAt });
+}
 function newNonce() {
   const c = globalThis.crypto;
   if (c?.randomUUID) return c.randomUUID();
@@ -66566,8 +66563,8 @@ function newNonce() {
   }
   return null;
 }
-function canonicalVerdictPayload(nonce, ran, failed2, batteryDigest) {
-  return `vh-verifier/1|${nonce}|${ran}|${JSON.stringify(failed2)}|${batteryDigest}`;
+function canonicalVerdictPayload(nonce, ran, failed2, batteryDigest, programDigest) {
+  return `vh-verifier/3|${nonce}|${ran}|${JSON.stringify(failed2)}|${batteryDigest}|${programDigest}`;
 }
 function subtle() {
   const g = globalThis;
@@ -66579,22 +66576,101 @@ function subtle() {
     return null;
   }
 }
-async function validateVerifierOutput(out, expectedNonce) {
+function storage14() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+function readRegistration() {
+  try {
+    const raw = storage14()?.getItem(TRUST_ROOT.registrationKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function writeRegistration(reg) {
+  storage14()?.setItem(TRUST_ROOT.registrationKey, JSON.stringify(reg));
+}
+async function verifyRegistration(reg, ownerPublicPem) {
+  if (!reg || typeof reg !== "object") return { ok: false, reason: "no verifier registration on this machine" };
+  if (reg.programDigest !== TRUST_ROOT.verifierProgramDigest) return { ok: false, reason: "registration anchors a different verifier program \u2014 re-provision required" };
+  if (typeof reg.ownerSig !== "string" || !reg.ownerSig.startsWith("ecdsa-p256:")) return { ok: false, reason: "registration is not owner-countersigned" };
+  try {
+    const pub = await importPublicKeyWeb(ownerPublicPem);
+    const ok2 = await subtle().verify({ name: "ECDSA", hash: "SHA-256" }, pub, b64ToBytes(reg.ownerSig.slice("ecdsa-p256:".length)), new TextEncoder().encode(canonicalRegistration(reg)));
+    if (!ok2) return { ok: false, reason: "registration countersignature does not verify \u2014 treating as forged" };
+    return { ok: true, reg };
+  } catch (err) {
+    return { ok: false, reason: `registration check failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+async function ensureRegistration() {
+  const proc = globalThis.process;
+  const getBuiltin = proc?.getBuiltinModule;
+  if (typeof getBuiltin !== "function" || typeof proc?.cwd !== "function" || !proc.versions?.node) {
+    return { ok: false, reason: "no node runtime \u2014 the external verifier cannot run here" };
+  }
+  if (!storage14()) return { ok: false, reason: "no local trust store \u2014 the registration cannot persist" };
+  const keys = await liveOwnerKeys().catch(() => null);
+  if (!keys?.privateKey || !keys?.publicKeyPem) {
+    return { ok: false, reason: "the owner key is unavailable \u2014 unseal the vault (or connect the owner key) to provision the verifier" };
+  }
+  const existing = readRegistration();
+  const checked = await verifyRegistration(existing, keys.publicKeyPem);
+  if (checked.ok) return checked;
+  const cp = getBuiltin("node:child_process");
+  const fs2 = getBuiltin("node:fs");
+  const pathMod = getBuiltin("node:path");
+  const verifierPath = pathMod.resolve(proc.cwd(), VERIFIER_PATH);
+  if (!fs2.existsSync(verifierPath)) return { ok: false, reason: `verifier process not found at ${VERIFIER_PATH}` };
+  let prov;
+  try {
+    const raw = cp.execFileSync(proc.execPath, [verifierPath], { input: JSON.stringify({ op: "provision" }), encoding: "utf8", timeout: 15e3 });
+    prov = JSON.parse(raw);
+  } catch (err) {
+    return { ok: false, reason: `verifier provisioning failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+  if (prov.op !== "provisioned" || !prov.publicKeyJwk || !prov.keyFingerprint || !prov.programDigest) {
+    return { ok: false, reason: `verifier provisioning refused: ${prov.error ?? "malformed response"}` };
+  }
+  if (prov.programDigest !== TRUST_ROOT.verifierProgramDigest) {
+    return { ok: false, reason: `provisioned verifier program ${prov.programDigest.slice(0, 12)}\u2026 does not match the shipped pin ${TRUST_ROOT.verifierProgramDigest.slice(0, 12)}\u2026 \u2014 a modified verifier is not registrable` };
+  }
+  const reg = {
+    publicKeyJwk: prov.publicKeyJwk,
+    keyFingerprint: prov.keyFingerprint,
+    programDigest: prov.programDigest,
+    registeredAt: Date.now()
+  };
+  const s = subtle();
+  if (!s) return { ok: false, reason: "no WebCrypto in this runtime \u2014 the owner countersignature cannot be minted" };
+  const sig = await s.sign({ name: "ECDSA", hash: "SHA-256" }, keys.privateKey, new TextEncoder().encode(canonicalRegistration(reg)));
+  const full = { ...reg, ownerSig: `ecdsa-p256:${bytesToB64(new Uint8Array(sig))}` };
+  writeRegistration(full);
+  return { ok: true, reg: full };
+}
+async function validateVerifierOutput(out, expectedNonce, reg) {
   if (!out || typeof out !== "object") return { ok: false, reason: "verifier output is not an object" };
   if (out.nonce !== expectedNonce) return { ok: false, reason: "verdict nonce mismatch \u2014 replay refused" };
   if (!Array.isArray(out.failed)) return { ok: false, reason: "verdict failed-list malformed" };
   if (typeof out.ran !== "number" || typeof out.batteryDigest !== "string" || out.batteryDigest.length !== 64) return { ok: false, reason: "verdict payload malformed" };
   if (out.alg !== TRUST_ROOT.algorithm) return { ok: false, reason: `verdict algorithm '${String(out.alg)}' is not the pinned ${TRUST_ROOT.algorithm}` };
+  if (out.programDigest !== TRUST_ROOT.verifierProgramDigest) {
+    return { ok: false, reason: `verdict came from program ${String(out.programDigest).slice(0, 12)}\u2026 \u2014 the shipped pin is ${TRUST_ROOT.verifierProgramDigest.slice(0, 12)}\u2026 \u2014 a modified verifier is refused` };
+  }
   if (out.batteryDigest !== TRUST_ROOT.expectedBatteryDigest) {
-    return { ok: false, reason: `battery digest ${out.batteryDigest.slice(0, 12)}\u2026 does not match the pinned battery ${TRUST_ROOT.expectedBatteryDigest.slice(0, 12)}\u2026 \u2014 a modified battery is not the approved exam` };
+    return { ok: false, reason: `battery digest ${out.batteryDigest.slice(0, 12)}\u2026 does not match the pinned battery ${TRUST_ROOT.expectedBatteryDigest.slice(0, 12)}\u2026 \u2014 a swapped battery is not the approved exam` };
   }
   const s = subtle();
   if (!s) return { ok: false, reason: "no WebCrypto in this runtime \u2014 the signature cannot be verified here" };
   try {
-    const key = await s.importKey("jwk", TRUST_ROOT.verifierPublicKeyJwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
-    const sigBytes = Uint8Array.from(atobPolyfill(out.sig), (ch) => ch.charCodeAt(0));
-    const ok2 = await s.verify({ name: "ECDSA", hash: "SHA-256" }, key, sigBytes, new TextEncoder().encode(canonicalVerdictPayload(out.nonce, out.ran, out.failed, out.batteryDigest)));
-    if (!ok2) return { ok: false, reason: `verdict signature INVALID under the pinned verifier key ${TRUST_ROOT.verifierKeyFingerprint.slice(0, 12)}\u2026 \u2014 tamper or a forged signer refused` };
+    const jwk = { ...reg.publicKeyJwk };
+    const key = await s.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+    const ok2 = await s.verify({ name: "ECDSA", hash: "SHA-256" }, key, b64ToBytes(out.sig), new TextEncoder().encode(canonicalVerdictPayload(out.nonce, out.ran, out.failed, out.batteryDigest, out.programDigest)));
+    if (!ok2) return { ok: false, reason: `verdict signature INVALID under the registered verifier key ${reg.keyFingerprint.slice(0, 12)}\u2026 \u2014 tamper or a forged signer refused` };
     return {
       ok: true,
       report: { ran: out.ran, failed: out.failed.map((f3) => ({ id: String(f3.id), finding: String(f3.finding) })), batteryDigest: out.batteryDigest, source: "external-verifier" }
@@ -66603,21 +66679,17 @@ async function validateVerifierOutput(out, expectedNonce) {
     return { ok: false, reason: `signature verification failed: ${err instanceof Error ? err.message : String(err)}` };
   }
 }
-function atobPolyfill(b64) {
-  const g = globalThis;
-  if (g.atob) return g.atob(b64);
-  return Buffer.from(b64, "base64").toString("binary");
-}
 async function verifyExternal(candidate) {
+  const reg = await ensureRegistration();
+  if (!reg.ok) return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: reg.reason };
   try {
     const proc = globalThis.process;
-    const getBuiltin = proc?.getBuiltinModule;
-    if (typeof getBuiltin !== "function" || typeof proc?.cwd !== "function" || !proc.versions?.node) {
+    if (typeof proc?.cwd !== "function" || typeof proc?.getBuiltinModule !== "function" || typeof proc.execPath !== "string") {
       return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: "no node runtime \u2014 the external verifier cannot run here" };
     }
-    const cp = getBuiltin("node:child_process");
-    const fs2 = getBuiltin("node:fs");
-    const pathMod = getBuiltin("node:path");
+    const cp = proc.getBuiltinModule("node:child_process");
+    const fs2 = proc.getBuiltinModule("node:fs");
+    const pathMod = proc.getBuiltinModule("node:path");
     const verifierPath = pathMod.resolve(proc.cwd(), VERIFIER_PATH);
     if (!fs2.existsSync(verifierPath)) {
       return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: `verifier process not found at ${VERIFIER_PATH}` };
@@ -66630,7 +66702,7 @@ async function verifyExternal(candidate) {
       timeout: 15e3
     });
     const out = JSON.parse(raw);
-    const res = await validateVerifierOutput(out, nonce);
+    const res = await validateVerifierOutput(out, nonce, reg.reg);
     if (!res.ok) return { ran: 0, failed: [], batteryDigest: "", source: "unavailable", note: res.reason };
     return res.report;
   } catch (err) {
@@ -66646,7 +66718,7 @@ var SELF_EVOLUTION_FLOOR = [
   "the honesty contract (executed:false when nothing ran)",
   "any LOOSENING of any control (tiers, bars, ceilings)"
 ];
-function storage14() {
+function storage15() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66658,7 +66730,7 @@ async function sha256Hex5(t) {
   return Array.from(new Uint8Array(buf)).map((b3) => b3.toString(16).padStart(2, "0")).join("");
 }
 function selfProposals() {
-  const s = storage14();
+  const s = storage15();
   if (!s) return [];
   try {
     return JSON.parse(s.getItem(PROPOSALS_KEY) ?? "[]");
@@ -66667,7 +66739,7 @@ function selfProposals() {
   }
 }
 function saveProposals(list) {
-  storage14()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
+  storage15()?.setItem(PROPOSALS_KEY, JSON.stringify(list.slice(-100)));
 }
 async function proposeSelfChanges(userId = "default", now = () => /* @__PURE__ */ new Date()) {
   const report = patternReport(userId);
@@ -66856,7 +66928,7 @@ function answerGateWithRules(ask, now = () => /* @__PURE__ */ new Date()) {
 var GOALS_KEY = "vh19.goals.v1";
 var GOAL_CAP = 50;
 var MAX_STEPS = 5;
-function storage15() {
+function storage16() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66864,7 +66936,7 @@ function storage15() {
   }
 }
 function loadGoals() {
-  const raw = storage15()?.getItem(GOALS_KEY) ?? null;
+  const raw = storage16()?.getItem(GOALS_KEY) ?? null;
   if (!raw) return [];
   try {
     const g = JSON.parse(raw);
@@ -66874,7 +66946,7 @@ function loadGoals() {
   }
 }
 function save5(goals) {
-  storage15()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
+  storage16()?.setItem(GOALS_KEY, JSON.stringify(goals.slice(-GOAL_CAP)));
 }
 function createGoal(user, text, now = () => /* @__PURE__ */ new Date()) {
   const route = routeDeterministic(text);
@@ -66959,7 +67031,7 @@ function goalStatus(goal) {
 // src/vh19/handoffs.ts
 var HANDOFFS_KEY = "vh19.handoffs.v1";
 var HANDOFF_CAP = 100;
-function storage16() {
+function storage17() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -66967,7 +67039,7 @@ function storage16() {
   }
 }
 function listHandoffs() {
-  const raw = storage16()?.getItem(HANDOFFS_KEY) ?? null;
+  const raw = storage17()?.getItem(HANDOFFS_KEY) ?? null;
   if (!raw) return [];
   try {
     const h = JSON.parse(raw);
@@ -66990,7 +67062,7 @@ function recordHandoff(input2, now = () => /* @__PURE__ */ new Date()) {
   rec.meshJointDigest = mesh.meshJointDigest;
   rec.meshStanding = mesh.meshStanding;
   rec.meshDetail = mesh.meshDetail;
-  storage16()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
+  storage17()?.setItem(HANDOFFS_KEY, JSON.stringify([...listHandoffs(), rec].slice(-HANDOFF_CAP)));
   return rec;
 }
 
@@ -67710,7 +67782,7 @@ var BYOA_SECURITY_POLICY = [
   "session keys live in memory only"
 ];
 var KEY6 = "vh19.byoa.agents.v1";
-function storage17() {
+function storage18() {
   try {
     return typeof localStorage !== "undefined" ? localStorage : null;
   } catch {
@@ -67719,7 +67791,7 @@ function storage17() {
 }
 var session3 = [];
 function listByoaAgents() {
-  const s = storage17();
+  const s = storage18();
   if (!s) return session3;
   try {
     return JSON.parse(s.getItem(KEY6) ?? "[]");
@@ -67728,7 +67800,7 @@ function listByoaAgents() {
   }
 }
 function persist(all) {
-  const s = storage17();
+  const s = storage18();
   if (s) {
     try {
       s.setItem(KEY6, JSON.stringify(all));
@@ -67887,7 +67959,7 @@ var RSI_FLOOR = [
 ];
 var KEY7 = "vh19.rsi.v1";
 var SIGNAL_CAP = 50;
-function storage18() {
+function storage19() {
   try {
     return typeof localStorage !== "undefined" ? localStorage : null;
   } catch {
@@ -67896,7 +67968,7 @@ function storage18() {
 }
 var session4 = { topics: [], drafts: [], signals: [], promotions: [] };
 function load3() {
-  const s = storage18();
+  const s = storage19();
   if (!s) return session4;
   try {
     const p = JSON.parse(s.getItem(KEY7) ?? "");
@@ -67906,7 +67978,7 @@ function load3() {
   }
 }
 function save6(st2) {
-  const s = storage18();
+  const s = storage19();
   if (s) {
     try {
       s.setItem(KEY7, JSON.stringify(st2));

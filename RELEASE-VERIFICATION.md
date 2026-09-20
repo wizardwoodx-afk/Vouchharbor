@@ -1,10 +1,42 @@
-# Vouch Harbor 19.7.8 [Trustroot] — release verification record
+# Vouch Harbor 19.7.9 [Keyholder] — release verification record
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.9 record — the keyholder
+
+The fifth review found the P0: 19.7.8's ZIP carried the verifier's PRIVATE
+key (a `git add -A` casualty), and the reviewer forged an "all canaries
+passed" verdict with it that the pinned public key accepted. The lesson is
+structural: an artifact cannot carry a secret meaningfully. Shipped here:
+
+1. **No key ships.** The keypair is provisioned at RUNTIME (private key at
+   `~/.vouchharbor/verifier.key`, mode 0600, outside the app tree); the
+   leaked key is removed from the repo and `.gitignore` refuses
+   `verifier/*.key`. The trust root pins DIGESTS ONLY — no key material.
+2. **Registration, countersigned by the owner.** The provisioned public
+   key is signed by the OWNER key (the mandate/crossing authority) into
+   the owner trust store; verdicts verify under the REGISTERED key;
+   re-provisioning requires the owner again.
+3. **The program is pinned.** The verifier digests its own source at
+   runtime and binds `programDigest` into every verdict signature
+   (`vh-verifier/3`); the frozen trust root pins the expected value beside
+   the battery digest. A modified verifier is refused on sight.
+4. **Honest words.** The battery is EXTERNALLY EXECUTED and DIGEST-PINNED
+   — its source ships in `verifier/vh-verifier.mjs`; pinning prevents
+   swapping, not secrecy. "Hidden/secret" wording is scrubbed everywhere,
+   including the ledger event text.
+
+probe/rsiralsV6: 53 checks, including artifact hygiene (no key file, no
+key material in the trust root, program digest byte-pinned), the full
+provisioning flow with a tampered-registration refusal, foreign-key
+forgery refused under the registered key, battery swap, replay, tampered
+signature, and the live production apply gated end to end.
+
+**Tree.** `19.7.9 "Keyholder"`, working tree at build time, node v20.20.2, Linux x64.
 
 ## The 19.7.8 record — the anchor
 
@@ -29,7 +61,7 @@ shipped here: (1) RSIRALS v6 was verified but not wired into the live
 promotion path — now `applySelfChangeGuarded()` gates EVERY self-evolution
 apply through the full v6 stack, with the drift budget measuring the
 mutation against a comparable rendering of the current state; (2) the
-hidden canaries were readable in shipped source — the battery now lives in
+canary checks were readable in shipped source — the battery now lives in
 `verifier/vh-verifier.mjs`, a separate zero-dependency process outside the
 agent's evolvable surface (constitution-protected by name), producing
 nonce-bound, SHA-256-signed verdicts; replays and tampering are refused,
@@ -50,7 +82,7 @@ Fixed exactly as prescribed: the Run Group path now wires
 — and the panel states the honest scope (governed local implementation of
 the cross-owner group protocol; networked two-instance signing is the next
 federation milestone). The same release ships RSIRALS v6 (the strengthened
-verifier: constitution · measured drift budget · hidden canaries · staged
+verifier: constitution · measured drift budget · digest-pinned canaries · staged
 fail-closed promotion · tamper-evident ledger · one gate + rollback —
 plane T untouched at v5) and the Office rendering of the crew.
 probe/rsiralsV6 pins it (31 checks).

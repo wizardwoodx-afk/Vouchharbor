@@ -37,13 +37,14 @@ import {
   resetV6, lastKnownGoodFor, rsiralsV6Line, DEFAULT_DRIFT_BUDGET, STAGE_ORDER,
   V6_POLICY, CANARY_BATTERY_SIZE, type CanaryReport,
 } from "../src/vh19/rsiralsV6";
-import { verifyExternal, validateVerifierOutput, newNonce, canonicalVerdictPayload, VERIFIER_PATH } from "../src/vh19/canaryClient";
+import { verifyExternal, validateVerifierOutput, newNonce, canonicalVerdictPayload, VERIFIER_PATH, ensureRegistration, readRegistration, verifyRegistration, resetRegistration, canonicalRegistration, type VerifierRegistration } from "../src/vh19/canaryClient";
+import { liveOwnerKeys } from "../src/vh19/federation/live";
 import { TRUST_ROOT } from "../src/vh19/verifierTrust";
 import { GOVERNANCE_PLANE } from "../src/vh19/rsirals";
 import { applySelfChangeGuarded, revertAppliedChangeGuarded, selfProposals, loadSelfOverrides, SELF_EVOLUTION_FLOOR } from "../src/vh19/selfEvolve";
 import { rsiArchive } from "../src/vh19/rsirals";
 import { pureSha256 } from "../src/vh19/pureHash";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const CLEAN = {
   name: "rsi.routing-playbook.v3",
@@ -59,30 +60,62 @@ async function canaryFor(c: { name: string; target: string; body: string; declar
   return r;
 }
 
-/** Sign the canonical payload with a NON-PINNED key — the forgery attempt. */
-async function forgeWithForeignKey(nonce: string, failed: Array<{ id: string; finding: string }>): Promise<string> {
+/** Sign the canonical payload with a NON-REGISTERED key — the forgery attempt. */
+async function forgeWithForeignKey(nonce: string, failed: Array<{ id: string; finding: string }>, programDigest: string): Promise<string> {
   const kp = await webcrypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
-  const payload = canonicalVerdictPayload(nonce, CANARY_BATTERY_SIZE, failed, TRUST_ROOT.expectedBatteryDigest);
+  const payload = canonicalVerdictPayload(nonce, CANARY_BATTERY_SIZE, failed, TRUST_ROOT.expectedBatteryDigest, programDigest);
   const sig = await webcrypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, kp.privateKey, new TextEncoder().encode(payload));
   return Buffer.from(sig).toString("base64");
+}
+
+/** Tamper helper: mutate the stored registration the way an attacker would. */
+function withTamperedReg(mutate: (r: VerifierRegistration) => void): VerifierRegistration {
+  const r = JSON.parse(JSON.stringify(readRegistration())) as VerifierRegistration;
+  mutate(r);
+  return r;
 }
 
 async function main(): Promise<void> {
   console.log("rsirals v6 — anchored to the trust root");
 
-  /* the trust root: frozen, complete, honest fingerprints */
-  ok("the trust root is FROZEN — no setter, like plane T", Object.isFrozen(TRUST_ROOT) && Object.isFrozen(TRUST_ROOT.verifierPublicKeyJwk));
-  ok("protocol + algorithm are pinned in vocabulary", TRUST_ROOT.protocol === "vh-verifier/2" && TRUST_ROOT.algorithm === "ECDSA_p256_sha256");
-  ok("the pinned key fingerprint is the SHA-256 of the canonical JWK",
-    TRUST_ROOT.verifierKeyFingerprint === pureSha256(JSON.stringify({ key_ops: ["verify"], ext: true, kty: "EC", x: TRUST_ROOT.verifierPublicKeyJwk.x, y: TRUST_ROOT.verifierPublicKeyJwk.y, crv: "P-256" })));
-  ok("the expected battery digest is pinned (64 hex) — the exam is anchored", TRUST_ROOT.expectedBatteryDigest.length === 64 && /^[0-9a-f]{64}$/.test(TRUST_ROOT.expectedBatteryDigest));
+  /* CSPRNG nonces */
+  const n1 = newNonce(); const n2 = newNonce();
+  ok("nonces are CSPRNG (UUID or 64-hex) — no clocks, no Math.random", n1.length >= 32 && n2.length >= 32 && n1 !== n2);
+
+  /* ── ARTIFACT HYGIENE — the 19.7.8 P0, now a standing probe check ── */
+  ok("NO private key ships: verifier/vh-verifier.key does not exist in the tree", !existsSync("verifier/vh-verifier.key"));
+  ok(".gitignore refuses verifier keys — git add -A can never commit one again", readFileSync(".gitignore", "utf8").includes("verifier/*.key"));
+  ok("the trust root pins NO key material — only digests and the registration pointer",
+    !("verifierPublicKeyJwk" in (TRUST_ROOT as unknown as Record<string, unknown>)) && !("publicKeyJwk" in (TRUST_ROOT as unknown as Record<string, unknown>)) && TRUST_ROOT.keyPathOutsideArtifact.includes(".vouchharbor"));
+  ok("the verifier provisions OUTSIDE the artifact (~/.vouchharbor) and never inside the repo",
+    readFileSync(VERIFIER_PATH, "utf8").includes(".vouchharbor") && !readFileSync(VERIFIER_PATH, "utf8").includes("verifier/vh-verifier.key"));
+  ok("the pinned PROGRAM digest is the SHA-256 of the shipped verifier source",
+    TRUST_ROOT.verifierProgramDigest === (await import("node:crypto")).createHash("sha256").update(readFileSync(VERIFIER_PATH, "utf8"), "utf8").digest("hex"));
+
+  /* the trust root */
+  ok("the trust root is FROZEN — no setter, like plane T", Object.isFrozen(TRUST_ROOT));
+  ok("protocol + algorithm are pinned in vocabulary", TRUST_ROOT.protocol === "vh-verifier/3" && TRUST_ROOT.algorithm === "ECDSA_p256_sha256");
+  ok("the expected battery digest is pinned (64 hex) — the externally executed battery is anchored, not secret",
+    TRUST_ROOT.expectedBatteryDigest.length === 64 && /^[0-9a-f]{64}$/.test(TRUST_ROOT.expectedBatteryDigest));
   ok("plane T stays frozen at v5 — v6 is the trust-plane addendum", GOVERNANCE_PLANE.version === 5 && GOVERNANCE_PLANE.rollbackAuthority === "human-only" && V6_POLICY.includes("T_v5"));
   ok("the constitution is FROZEN; stages ordered", Object.isFrozen(V6_CONSTITUTION) && V6_CONSTITUTION.length === 4 && STAGE_ORDER.join(",") === "shadow,canary,fleet");
   ok(`the battery is public in SIZE only (${CANARY_BATTERY_SIZE}) — the checks live in ${VERIFIER_PATH}, outside src/`, CANARY_BATTERY_SIZE === 6 && existsSync(VERIFIER_PATH));
 
-  /* CSPRNG nonces */
-  const n1 = newNonce(); const n2 = newNonce();
-  ok("nonces are CSPRNG (UUID or 64-hex) — no clocks, no Math.random", n1.length >= 32 && n2.length >= 32 && n1 !== n2);
+  /* ── PROVISIONING — the key is born at RUNTIME, outside the artifact ── */
+  resetRegistration();
+  ok("a fresh machine has NO verifier registration — nothing key-shaped shipped", readRegistration() === null);
+  const prov = await ensureRegistration();
+  ok("provisioning succeeds on a clean machine — the verifier mints its key at runtime", prov.ok && /^[0-9a-f]{64}$/.test(prov.ok ? prov.reg.keyFingerprint : ""));
+  const reg0 = readRegistration();
+  ok("the registration is COUNTERSIGNED by the owner key (ecdsa-p256), stored in the owner trust store",
+    reg0 !== null && reg0.ownerSig.startsWith("ecdsa-p256:") && reg0.programDigest === TRUST_ROOT.verifierProgramDigest);
+  const ownerKeys = await liveOwnerKeys();
+  const regCheck = await verifyRegistration(reg0, ownerKeys.publicKeyPem);
+  ok("the owner countersignature VERIFIES under the owner public key", regCheck.ok);
+  const regTamper = await verifyRegistration(withTamperedReg((r) => { r.ownerSig = r.ownerSig.slice(0, -4) + (r.ownerSig.endsWith("AAAA") ? "BBBB" : "AAAA"); }), ownerKeys.publicKeyPem);
+  ok("a TAMPERED registration is refused — forged countersignature named", !regTamper.ok && (regTamper.reason ?? "").includes("forged"));
+  const regWrongProg = await verifyRegistration(withTamperedReg((r) => { r.programDigest = "e".repeat(64); }), ownerKeys.publicKeyPem);
+  ok("a registration anchoring a DIFFERENT verifier program is refused — re-provision required", !regWrongProg.ok && (regWrongProg.reason ?? "").includes("re-provision"));
 
   /* the EXTERNAL verifier — a real process, really SIGNED */
   const clean = await verifyExternal(CLEAN);
@@ -98,24 +131,27 @@ async function main(): Promise<void> {
     const cp = proc.getBuiltinModule("node:child_process") as { execFileSync: (f: string, a: string[], o: Record<string, unknown>) => string };
     const pathMod = proc.getBuiltinModule("node:path") as { resolve: (...p: string[]) => string };
     const raw = cp.execFileSync(proc.execPath, [pathMod.resolve(proc.cwd(), VERIFIER_PATH)], { input: JSON.stringify({ nonce, candidate: CLEAN }), encoding: "utf8" });
-    return JSON.parse(raw) as { nonce: string; ran: number; failed: Array<{ id: string; finding: string }>; batteryDigest: string; alg: string; sig: string };
+    return JSON.parse(raw) as { nonce: string; ran: number; failed: Array<{ id: string; finding: string }>; batteryDigest: string; programDigest: string; alg: string; sig: string };
   })();
+  const reg = readRegistration() as VerifierRegistration;
   const tamperedSig = { ...real, sig: real.sig.slice(0, -4) + (real.sig.endsWith("AAAA") ? "BBBB" : "AAAA") };
-  const t1 = await validateVerifierOutput(tamperedSig, nonce);
-  ok("a TAMPERED signature is refused — named, with the pinned fingerprint", !t1.ok && (t1.reason ?? "").includes("signature INVALID"));
-  const t2 = await validateVerifierOutput(real, nonce);
-  ok("the untouched verdict verifies under the pinned key", t2.ok);
-  const t3 = await validateVerifierOutput(real, "nonce-replay-999");
+  const t1 = await validateVerifierOutput(tamperedSig, nonce, reg);
+  ok("a TAMPERED signature is refused — named, with the REGISTERED fingerprint", !t1.ok && (t1.reason ?? "").includes("signature INVALID"));
+  const t2 = await validateVerifierOutput(real, nonce, reg);
+  ok("the untouched verdict verifies under the registered key", t2.ok);
+  const t3 = await validateVerifierOutput(real, "nonce-replay-999", reg);
   ok("a REPLAYED verdict (wrong nonce) is refused", !t3.ok && (t3.reason ?? "").includes("replay"));
+  const t3b = await validateVerifierOutput({ ...real, programDigest: "d".repeat(64) }, nonce, reg);
+  ok("a verdict from a MODIFIED verifier program is refused — the program itself is pinned", !t3b.ok && (t3b.reason ?? "").includes("modified verifier is refused"));
 
   /* the FORGERY — a different ECDSA key cannot get a verdict accepted */
   const forgedFailed = [{ id: "h1.overreach", finding: "forged by a foreign key, honest" }];
-  const forgedSig = await forgeWithForeignKey(nonce, forgedFailed);
-  const t4 = await validateVerifierOutput({ nonce, ran: CANARY_BATTERY_SIZE, failed: forgedFailed, batteryDigest: TRUST_ROOT.expectedBatteryDigest, alg: "ECDSA_p256_sha256", sig: forgedSig }, nonce);
-  ok("a verdict signed by a FOREIGN key is refused — this is the anchor the 19.7.7 review asked for", !t4.ok && (t4.reason ?? "").includes("signature INVALID"));
+  const forgedSig = await forgeWithForeignKey(nonce, forgedFailed, TRUST_ROOT.verifierProgramDigest);
+  const t4 = await validateVerifierOutput({ nonce, ran: CANARY_BATTERY_SIZE, failed: forgedFailed, batteryDigest: TRUST_ROOT.expectedBatteryDigest, programDigest: TRUST_ROOT.verifierProgramDigest, alg: "ECDSA_p256_sha256", sig: forgedSig }, nonce, reg);
+  ok("a verdict signed by a FOREIGN key is refused — a stranger key is not the registered verifier", !t4.ok && (t4.reason ?? "").includes("signature INVALID"));
 
   /* the SWAPPED BATTERY — a different digest is refused on sight */
-  const t5 = await validateVerifierOutput({ ...real, batteryDigest: "f".repeat(64) }, nonce);
+  const t5 = await validateVerifierOutput({ ...real, batteryDigest: "f".repeat(64) }, nonce, reg);
   ok("a verdict from a DIFFERENT battery is refused before anything else matters", !t5.ok && (t5.reason ?? "").includes("not the approved exam"));
 
   /* hostile content still fails OUTSIDE the agent's reach */
@@ -213,7 +249,7 @@ async function main(): Promise<void> {
 
   ok("self-evolution's own floor is untouched", SELF_EVOLUTION_FLOOR.length === 4);
   const line = rsiralsV6Line();
-  ok("the summary line states the anchored verifier and T's frozen state", line.includes("ECDSA-anchored") && line.includes("T stays frozen at v5"));
+  ok("the summary line states the externally executed, digest-pinned battery and T's frozen state", line.includes("externally executed, digest-pinned") && line.includes("T stays frozen at v5"));
 
   console.log(`\n${passed} passed, ${failed} failed`);
   if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); process.exit(1); }

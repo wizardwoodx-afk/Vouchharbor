@@ -319,7 +319,7 @@ export function governChange(c: GovernCandidate, canary: CanaryReport = { ran: 0
   ledgerAppend("canaried", c.actor, c.target, `canary source ${canary.source}: ${canary.ran} ran — ${canary.failed.length} failed`, candidateDigest, at);
   if (canary.failed.length > 0) {
     for (const f of canary.failed) reasons.push(`${f.id}: ${f.finding}`);
-    const event = ledgerAppend("blocked", c.actor, c.target, `hidden canaries: ${reasons.join("; ")}`, candidateDigest, at);
+    const event = ledgerAppend("blocked", c.actor, c.target, `canary battery: ${reasons.join("; ")}`, candidateDigest, at);
     return { verdict: "BLOCK", stage: "shadow", reasons, constitution, drift, canaries: { ...canary }, event };
   }
   if (canary.source === "unavailable") {
@@ -370,5 +370,5 @@ export function resetV6(): void {
 /* ── the one-line summary a surface may print ───────────────────────────── */
 
 export function rsiralsV6Line(): string {
-  return `RSIRALS v6 — the strengthened verifier: constitution ${V6_CONSTITUTION.length} rules · drift budget ${DEFAULT_DRIFT_BUDGET.maxPerChange}/change, ${DEFAULT_DRIFT_BUDGET.maxPerWindow}/24h · external canary battery ${CANARY_BATTERY_SIZE} (ECDSA-anchored, trust-root pinned) · staged shadow→canary→fleet, fail-closed per dimension · hash-chained ledger (${ledger.length} events, verify ${verifyLedger().ok ? "clean" : "BROKEN"}) · T stays frozen at v5`;
+  return `RSIRALS v6 — the strengthened verifier: constitution ${V6_CONSTITUTION.length} rules · drift budget ${DEFAULT_DRIFT_BUDGET.maxPerChange}/change, ${DEFAULT_DRIFT_BUDGET.maxPerWindow}/24h · external canary battery ${CANARY_BATTERY_SIZE} (externally executed, digest-pinned, ECDSA-anchored) · staged shadow→canary→fleet, fail-closed per dimension · hash-chained ledger (${ledger.length} events, verify ${verifyLedger().ok ? "clean" : "BROKEN"}) · T stays frozen at v5`;
 }

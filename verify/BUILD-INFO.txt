@@ -1,5 +1,5 @@
-Vouch Harbor 19.7.8 Trustroot
-built: 19.7.8 Trustroot
+Vouch Harbor 19.7.9 Keyholder
+built: 19.7.9 Keyholder
 ts:   2026-09-20T17:30:00Z
 git:  local
 protocol: vh-proof-receipt/2

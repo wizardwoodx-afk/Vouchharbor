@@ -1321,7 +1321,7 @@ function Graph3DView({ nodes, edges, heightPx }: { nodes: G3Node[]; edges: G3Edg
                 {pill(`${proposals.length} pending`)}
                 <span className="nx-mute text-[12px]">RSIRALS v6 — your click is the promotion decision</span>
               </div>
-              <div className="mt-1 text-[12px] nx-mute">every apply rides the EXTERNAL canary verifier (ECDSA-signed, trust-root pinned), the frozen constitution and the measured drift budget — a refusal names the rule; an approval is yours alone.</div>
+              <div className="mt-1 text-[12px] nx-mute">every apply rides the EXTERNALLY EXECUTED, DIGEST-PINNED canary battery (ECDSA-signed under a runtime-provisioned, owner-countersigned key that never ships), the frozen constitution and the measured drift budget — a refusal names the rule; an approval is yours alone.</div>
               <div className="mt-2">
                 <button
                   className="nx-chip !text-[color:var(--color-nx-ok)]"

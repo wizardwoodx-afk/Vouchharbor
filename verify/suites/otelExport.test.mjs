@@ -6,9 +6,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.7.8";
+var VH_VERSION = "19.7.9";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Trustroot";
+var VH_CODENAME = "Keyholder";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/otel.ts

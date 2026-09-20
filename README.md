@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.8 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.9 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.8 [Trustroot])
+### The current product state (19.7.9 [Keyholder])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -72,6 +72,41 @@ glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
 20 · 17 checks) — 156 suites total.
+
+### NEW in 19.7.9 [Keyholder] — the P0 killed: no key ever ships again
+
+**The 19.7.8 review found the release-blocking hole:** the verifier's
+PRIVATE key rode inside the ZIP (a `git add -A` casualty), so anyone
+holding the artifact could forge "all canaries passed" verdicts the pinned
+public key happily accepted. The reviewer proved it by forging one. Shipped
+here, at the root:
+
+- **The artifact carries NO secret.** The verifier's ECDSA P-256 keypair is
+  provisioned at RUNTIME — first run generates it and stores the private
+  key at `~/.vouchharbor/verifier.key` (mode 0600), outside the app tree,
+  outside the repo, outside every distributable. `git rm --cached` purged
+  the leaked key; `.gitignore` now refuses `verifier/*.key` outright.
+- **REGISTRATION replaces embedded keys.** The provisioned public key is
+  COUNTERSIGNED by the OWNER key (the same ECDSA P-256 authority that
+  signs mandates and federation crossings) and stored in the owner trust
+  store. Verdicts verify under the REGISTERED key; a stranger key is
+  refused; re-provisioning requires the owner again.
+- **The PROGRAM is pinned.** The verifier digests its own source at
+  runtime and binds `programDigest` into every verdict signature (protocol
+  `vh-verifier/3`); the frozen trust root pins the expected value, next to
+  the battery digest. A modified verifier is refused even before its key
+  matters.
+- **Honest words.** The battery is EXTERNALLY EXECUTED and DIGEST-PINNED —
+  its source ships in `verifier/vh-verifier.mjs`; digest pinning prevents
+  swapping, not secrecy. The "hidden/secret" framing is gone everywhere,
+  including the ledger event text.
+- **Artifact hygiene is now a standing probe check.** probe/rsiralsV6
+  grew 42 → 53: no key file in the tree, `.gitignore` refuses keys, the
+  trust root pins no key material, the program digest matches the shipped
+  source byte-for-byte, plus the full provisioning flow (fresh machine →
+  provision → owner countersignature verifies; tampered registration and
+  wrong-program registration refused) and the foreign-key forgery anchor,
+  now verified under the REGISTERED key.
 
 ### NEW in 19.7.8 [Trustroot] — real signatures, a frozen anchor, the desk on the live console
 

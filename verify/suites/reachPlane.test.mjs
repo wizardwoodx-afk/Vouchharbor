@@ -21235,7 +21235,7 @@ async function verifyMissionAuthorityRecord(rec, expectedMandateDigest, now = Da
 
 // src/vh19/reachMcp.ts
 var REACH_MCP_NAME = "Agent Reach MCP";
-var REACH_MCP_VERSION = "19.7.8";
+var REACH_MCP_VERSION = "19.7.9";
 var REACH_MCP_DEFAULT_POLICY = {
   allowlist: ["ls", "cat", "echo", "grep"],
   maxRuntimeMs: 5e3,
