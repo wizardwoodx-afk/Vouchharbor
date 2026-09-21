@@ -66523,8 +66523,8 @@ function governChange(c, canary = { ran: 0, failed: [], batteryDigest: "", sourc
   if (canary.source === "unavailable") {
     reasons.push("external verifier unavailable in this runtime \u2014 machine canaries cannot pass, the human decides without them");
   }
-  reasons.push("machine gates passed \u2014 promotion to fleet is a human decision");
-  const event = ledgerAppend("escalated", c.actor, c.target, `machine gates passed \u2014 human promotion decision required`, candidateDigest, at2);
+  reasons.push("machine gates passed \u2014 the canary battery is a lexical + structural TEXT SCREEN (source public, digest-pinned), not a semantic review; promotion to fleet is a human decision");
+  const event = ledgerAppend("escalated", c.actor, c.target, `machine gates passed \u2014 the canary battery is a text screen, not a semantic review; human promotion decision required`, candidateDigest, at2);
   return { verdict: "ESCALATE", stage: "canary", reasons, constitution, drift, canaries: { ...canary }, event };
 }
 function promoteToFleet(c, scores, baseline, at2 = Date.now()) {
@@ -66543,8 +66543,8 @@ function promoteToFleet(c, scores, baseline, at2 = Date.now()) {
 var TRUST_ROOT = Object.freeze({
   protocol: "vh-verifier/3",
   algorithm: "ECDSA_p256_sha256",
-  verifierProgramDigest: "2ded52ce5cf8a9857517440f0ec217c1b0771be8f7d87516ae5f49c8b271bdc7",
-  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e",
+  verifierProgramDigest: "581ddfa780c179f3a2ef89b2a5c7833c32609c2900d3c2e8a37808112b2ab377",
+  expectedBatteryDigest: "1c5e31fac9b7fb3abbda7a76702d271527084c048305561c695c188924c4040c",
   registrationKey: "vh.verifier.registration.v3",
   keyPathOutsideArtifact: "~/.vouchharbor/verifier.key"
 });

@@ -181,8 +181,13 @@ export interface CanaryReport {
   note?: string;
 }
 
-/** Public knowledge: how many checks the held-out battery carries. */
-export const CANARY_BATTERY_SIZE = 6;
+/** Public knowledge: how many checks the battery carries — ten as of
+ *  19.7.10 [Screenwright]: six lexical markers (h1–h6) plus four structural
+ *  capability screens (h7–h10). Honest scope: this is a TEXT SCREEN over the
+ *  candidate's own words, and its source is public. It refuses capability
+ *  classes that must never clear on a text screen alone; it cannot decide
+ *  malice. The human door is load-bearing. */
+export const CANARY_BATTERY_SIZE = 10;
 
 /* ── 4. STAGED PROMOTION (SHADOW → CANARY → FLEET, fail-closed) ─────────── */
 
@@ -328,9 +333,14 @@ export function governChange(c: GovernCandidate, canary: CanaryReport = { ran: 0
 
   /* passed the machine gates: land on the CANARY stage, and either a human
      promotes to FLEET or the escalation stands. The gate never promotes to
-     fleet by itself — the human door is load-bearing. */
-  reasons.push("machine gates passed — promotion to fleet is a human decision");
-  const event = ledgerAppend("escalated", c.actor, c.target, `machine gates passed — human promotion decision required`, candidateDigest, at);
+     fleet by itself — the human door is load-bearing.
+
+     19.7.10 [Screenwright]: the wording now carries the STRENGTH of the
+     check. The battery is a text screen over the candidate's own words and
+     its source is public, so "canaries passed" on its own overstated what
+     was proven. The ledger records what actually happened. */
+  reasons.push("machine gates passed — the canary battery is a lexical + structural TEXT SCREEN (source public, digest-pinned), not a semantic review; promotion to fleet is a human decision");
+  const event = ledgerAppend("escalated", c.actor, c.target, `machine gates passed — the canary battery is a text screen, not a semantic review; human promotion decision required`, candidateDigest, at);
   return { verdict: "ESCALATE", stage: "canary", reasons, constitution, drift, canaries: { ...canary }, event };
 }
 

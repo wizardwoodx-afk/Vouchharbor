@@ -1,10 +1,92 @@
-# Vouch Harbor 19.7.9 [Keyholder] — release verification record
+# Vouch Harbor 19.7.10.1 [Screenwright] — release verification record
+
 
 Every number below was produced by running the named command in **this archive**,
 on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.10.1 record — the boundary, stated precisely
+
+The seventh external review scored the previous patch the strongest RSIRALS
+build so far and named two fixes. Both ship here; every number below was
+produced by running the named command in this archive.
+
+1. **The terminology is now exact.** The reviewer was right: calling the
+   `h7`–`h10` tier "structural" and saying it "reads the shape of the change"
+   overstated a regex over submitted text as code analysis. `h7` needs BOTH a
+   URL-shaped token and network language, so a change expressed in code that
+   names neither can still introduce network access and pass. The tier is
+   renamed **CAPABILITY-PATTERN**, its five emitted findings now read
+   `capability pattern:` rather than `structural:`, and the accurate boundary
+   is written into the shipped source:
+
+   > a ten-check, digest-pinned **textual / capability-pattern screen**, plus
+   > the human approval that follows it — **NOT** structural semantic
+   > verification of the proposed code.
+
+   `probe/rsiralsV6` grew 61 → **64** to pin that wording, so the deck cannot
+   drift ahead of the code again.
+2. **This document is promoted.** It opened as 19.7.9 [Keyholder] while every
+   manifest named the new release — the data was current, the record was not.
+3. **A four-part identity broke the freshly repaired scanner.** Moving to
+   `19.7.10.1` exposed a second bug in `probe/docIdentity`: with one optional
+   numeric group the pattern backtracked and read a truncated version out of
+   the four-part identity. It now accepts up to three groups after the major
+   and refuses both a trailing `.digit` and a trailing digit. Re-running it
+   caught four identity lines the bump tool does not reach — all fixed.
+
+**Gates (this archive, node v20.20.2, Linux x64):**
+
+| Gate | Command | Result |
+|---|---|---|
+| Typecheck | `npm run typecheck` | **0 errors** |
+| Unit | `npm run unit` | **20 passed, 0 failed** |
+| Probe suites | `npm test` | **156 passed, 0 failed** |
+| RSIRALS v6 | `node tools/run-one-probe.mjs rsiralsV6` | **64 passed, 0 failed** |
+| Doc identity | `node tools/run-one-probe.mjs docIdentity` | **10 passed, 0 failed** |
+| Offline pack (zero-dep) | `node verify/run.mjs` | **155 passed, 0 failed** |
+| Zero-dep entry point | `sh VERIFY.sh` | **155 passed, 0 failed** |
+| Web build | `npx vite build` | **clean, 4.16 s** |
+
+**Trust root as shipped** (`src/vh19/verifierTrust.ts`, re-pinned because the
+verifier's own source text changed — rotation is a release event):
+
+- `verifierProgramDigest` `581ddfa780c179f3a2ef89b2a5c7833c32609c2900d3c2e8a37808112b2ab377`
+- `expectedBatteryDigest` `1c5e31fac9b7fb3abbda7a76702d271527084c048305561c695c188924c4040c`
+- protocol `vh-verifier/3`, algorithm `ECDSA_p256_sha256`
+
+**Artifact hygiene re-checked here:** no `.key`/`.pem` anywhere in the tree,
+`verifier/` contains only `vh-verifier.mjs`, and no embedded EC key material.
+The program digest recomputes byte-identical to the pin from the shipped
+source.
+
+## The 19.7.10 record — the evasion, closed
+
+The sixth external review found the P1: the canary battery was **six regular
+expressions over the candidate's own text**, source public in the repository,
+so the promotion gate reduced to keyword filtering. The reviewer proved it — a
+proposal that exfiltrated the evidence store, set the promotion threshold to
+always-accept and deleted the rollback path, **reworded to dodge every
+keyword**, passed 6/6 and drew a valid ECDSA signature. All 55 checks then in
+`probe/rsiralsV6` asserted that the filters FIRE; not one asserted they could
+not be routed around.
+
+1. **The capability-pattern tier.** The battery grew **6 → 10**. `h1`–`h6`
+   stay lexical; `h7`–`h10` screen for the capability being introduced —
+   network egress endpoint · weakened control threshold or removed
+   retention/rollback · evidence-store mutation · authority widening. The
+   19.7.9 evasion is now refused by three of them and is pinned as a
+   regression; the legitimate tighten still clears all ten, no false positive.
+2. **Honest words in the ledger.** `governChange` no longer writes "machine
+   gates passed" as though a semantic review happened; it records that the
+   battery is a text screen and that promotion is a human decision.
+3. **A dormant drift gate, repaired.** `probe/docIdentity`'s version regex was
+   hardcoded to major `16`, so on 19.x it matched no string in any document,
+   reported green, and scanned nothing. Repaired, derived from the release
+   identity, with anti-vacuity assertions that make a regex matching nothing a
+   hard failure.
 
 ## The 19.7.9 record — the keyholder
 

@@ -93,7 +93,12 @@ try {
 if (overlay.length > 0) makeZip("overlay", overlay);
 
 /* ── the self-check that would have caught the first archive's gap ───────── */
-const REQUIRED_IN_FULL = ["tsconfig.json", "package.json", "verify/run.mjs", "VERIFY.sh", "src/version.ts", "README.md", "VH-19.6-UPGRADE.md", "FEATURES.md"];
+/* 19.7.10: the upgrade-doc entry used to be hardcoded to VH-19.6-UPGRADE.md,
+   so the "is this artifact independently verifiable" check was validating a
+   stale filename from three series ago. It now follows the release identity
+   the same way versionDrift does. */
+const VH_SHORT = (fs.readFileSync(path.join(root, "src/version.ts"), "utf8").match(/VH_SHORT = "([^"]+)"/) ?? [, "19.7"])[1];
+const REQUIRED_IN_FULL = ["tsconfig.json", "package.json", "verify/run.mjs", "VERIFY.sh", "src/version.ts", "README.md", `VH-${VH_SHORT}-UPGRADE.md`, "FEATURES.md"];
 const missing = REQUIRED_IN_FULL.filter((rel) => !full.includes(rel));
 if (missing.length > 0) {
   console.error(`\nREFUSING: the full tree is missing ${missing.join(", ")} — it would not be independently verifiable.`);

@@ -7,18 +7,81 @@ import fs from "node:fs";
 import path from "node:path";
 var root = ".";
 var VH_VERSION = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version;
-var VERSION_RE = /\b(v?16\.\d{1,2}(?:\.\d{1,2})?)\b/g;
-var HISTORICAL = /(release notes|docs\/history|history\/|CHANGELOG|changelog|supersed|retired|replaced|pre-16|legacy|heritage|since 16|over 16|in 16\.[0-8]|POINTER|WINDOWS-FIX|relative to|upgrade|UPGRADE|what 16|added over|gains? over|release:|release,|release —|\(\s*16\.\d|16\.\d+(?:\.\d+)?\s*\)|16\.\d+(?:\.\d+)?\s+(fused|carries|added|adds|closes|closed|gains|ships|shipped|made|merged|retired|introduced|brought|turned|learned|is|was|were)|16\.\d+(?:\.\d+)?'s|per the 16\.\d|decided at 16\.\d|committed with the 16\.\d|16\.\d+(?:\.\d+)?\s+review|16\.\d+(?:\.\d+)?\s+external|ranked v?16\.\d|^[*>\u2022\s]*16\.\d+(?:\.\d+)?\s*[\u2014\u2013-]|^\\?16\.\d+(?:\.\d+)?\s*[—-])/im;
+var MAJOR = VH_VERSION.split(".")[0];
+var MINOR = VH_VERSION.split(".")[1] ?? "0";
+var VERSION_RE = new RegExp(`\\b(v?${MAJOR}\\.\\d{1,2}(?:\\.\\d{1,2}){0,2})(?![.\\d])`, "g");
+var HISTORICAL_BY_ROLE = /^(CHANGELOG\.md|RELEASE-VERIFICATION\.md|VH-\d+\.\d+-UPGRADE\.md|docs[\\/]history[\\/])/;
+var HISTORICAL = new RegExp(
+  [
+    "release notes",
+    "docs/history",
+    "history/",
+    "CHANGELOG",
+    "changelog",
+    "supersed",
+    "retired",
+    "replaced",
+    "POINTER",
+    "WINDOWS-FIX",
+    "relative to",
+    "upgrade",
+    "UPGRADE",
+    "baseline",
+    "frozen",
+    "regress",
+    "drift",
+    "review",
+    "external",
+    "was ",
+    "were ",
+    "is now",
+    "became",
+    "unchanged",
+    "stands unchanged",
+    "\u2192",
+    "->",
+    `pre-${MAJOR}`,
+    `legacy`,
+    `heritage`,
+    `since ${MAJOR}`,
+    `over ${MAJOR}`,
+    `what ${MAJOR}`,
+    `added over`,
+    `gains? over`,
+    // release-note section headers: "### NEW in 19.7.6 [Office] — …"
+    `^#{1,6}\\s*(NEW|New|new)\\s+in\\s+v?${MAJOR}\\.`,
+    `^#{1,6}.*\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\b.*\u2014`,
+    // a version used as an adjective for a past subsystem ("the 19.5.6 bench")
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?[- ]?(reach|federation|regulated|broader|bench|batch|redesign|record|subsystem|engine)`,
+    `per the ${MAJOR}\\.\\d`,
+    `decided at ${MAJOR}\\.\\d`,
+    `at ${MAJOR}\\.\\d`,
+    `committed with the ${MAJOR}\\.\\d`,
+    `with the ${MAJOR}\\.\\d`,
+    `ranked v?${MAJOR}\\.\\d`,
+    `in ${MAJOR}\\.\\d`,
+    `hardened in ${MAJOR}\\.\\d`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*(review|external|shipped|added|adds|closes|closed|gains|ships|made|merged|retired|introduced|brought|turned|learned|fused|carries)`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?'s`,
+    // parenthetical provenance annotations: "(19.7.1)", "(19.6, new)", "Identity (19.6.0):"
+    `\\(\\s*v?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*[,)]`,
+    `\\(\\s*Identity\\s*\\(?\\s*v?${MAJOR}\\.\\d`,
+    `Identity\\s*\\(\\s*v?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*\\)`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*,\\s*(new|unchanged|beta|revised|updated|renamed)`,
+    `^[*>\\u2022\\s]*\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*[\\u2014\\u2013-]`
+  ].join("|"),
+  "im"
+);
 function mdFiles() {
   const out = [];
   for (const f of fs.readdirSync(root)) {
-    if (f.endsWith(".md") && f !== "CHANGELOG.md") out.push(f);
+    if (f.endsWith(".md") && !HISTORICAL_BY_ROLE.test(f)) out.push(f);
   }
   const docs = path.join(root, "docs");
   for (const f of fs.readdirSync(docs)) {
     const full = path.join("docs", f);
     if (fs.statSync(path.join(docs, f)).isDirectory()) continue;
-    if (f === "CHANGELOG.md") continue;
+    if (HISTORICAL_BY_ROLE.test(full)) continue;
     out.push(full);
   }
   return out.sort();
@@ -36,6 +99,23 @@ test("docIdentity \u2014 current-facing documents name only the current release 
 `);
   const files = mdFiles();
   ok("the scan covers the current docs surface", files.length >= 10, `only ${files.length} files`);
+  ok(
+    `VERSION_RE is derived from the release identity (major ${MAJOR}), not hardcoded to a past major`,
+    VERSION_RE.source.includes(`${MAJOR}\\.\\d`) && !VERSION_RE.source.includes("16\\.\\d")
+  );
+  const matchesOnce = new RegExp(VERSION_RE.source);
+  ok(
+    "VERSION_RE actually matches the current release string \u2014 the gate is not vacuous",
+    matchesOnce.test(VH_VERSION) && matchesOnce.test(`v${VH_VERSION}`)
+  );
+  ok(
+    "VERSION_RE matches a STALE release string \u2014 the gate would catch drift",
+    matchesOnce.test(`${MAJOR}.${Number(MINOR) > 0 ? Number(MINOR) - 1 : 0}.0`)
+  );
+  ok(
+    "historical-by-role documents are excluded by NAME, not by accident",
+    !files.some((f) => HISTORICAL_BY_ROLE.test(f)) && files.length >= 10
+  );
   const offenders = [];
   let scanned = 0;
   let historicalRefs = 0;

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.9 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.10.1 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.9 [Keyholder])
+### The current product state (19.7.10.1 [Screenwright])
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -72,6 +72,93 @@ glossy-black-and-silver house finish — drag to rotate, scroll to zoom,
 idle auto-drift. Six probe suites pin it all (probe/bew · moe ·
 initiative · graph3d · financeBench · siliconBench — 24 · 17 · 30 · 17 ·
 20 · 17 checks) — 156 suites total.
+
+### NEW in 19.7.10.1 [Screenwright] — the boundary, stated precisely
+
+The seventh external review accepted the previous patch as the strongest
+RSIRALS build so far and then named two things to fix. Both are shipped here.
+
+- **THE TERMINOLOGY IS NOW EXACT.** That patch described the new `h7`–`h10`
+  tier as "structural" and said it "reads the shape of the change." It does
+  not. It is pattern matching over the submitted text: `h7`, for instance,
+  needs both a URL-shaped token and network language, so a change expressed
+  in code that names neither can still introduce network access and pass.
+  The tier is renamed **CAPABILITY-PATTERN**, the finding strings it emits
+  say `capability pattern:` rather than `structural:`, and the accurate
+  boundary is now written into the shipped source and pinned by probe:
+  **a ten-check, digest-pinned textual / capability-pattern screen, plus the
+  human approval that follows it — NOT structural semantic verification of
+  the proposed code.** `probe/rsiralsV6` grew 61 → 64 to hold that wording
+  still, so the deck cannot drift ahead of the code again.
+- **THE RELEASE RECORD IS PROMOTED.** `RELEASE-VERIFICATION.md` still opened
+  as the previous release while every manifest named the new one — the
+  underlying data was current, the document was not. It now opens as this
+  release and carries its own verification section at the top.
+- **A FOUR-PART IDENTITY BROKE THE DRIFT SCANNER.** `19.7.10.1` exposed a
+  second bug in the freshly repaired `probe/docIdentity`: with only one
+  optional numeric group, the pattern backtracked and read a truncated
+  three-part version out of the new four-part identity. It now accepts up to
+  three groups after the major and refuses
+  both a trailing `.digit` and a trailing digit. Waking it again caught four
+  identity lines the bump tool does not reach (the previous patch number,
+  un-prefixed, in the feature sheet and the framework doc, plus two in the
+  one-pager) — all fixed.
+
+Both trust-root anchors re-pinned, because the verifier's own source text
+changed and rotation is a release event: `programDigest` `581ddfa7…`,
+`batteryDigest` `1c5e31fa…`. Protocol stays `vh-verifier/3`.
+
+### NEW in 19.7.10 [Screenwright] — the gate that read keywords now reads structure
+
+**The sixth external review found the P1 the fifth one left behind.** The canary
+battery was **six regular expressions evaluated over the candidate's own text**,
+and its source ships in the public repository. So the promotion gate reduced to
+keyword filtering — and the reviewer proved it. A proposal that exfiltrated the
+evidence store, set the promotion threshold to always-accept and deleted the
+rollback path, **reworded to dodge every keyword**, passed 6/6 and drew a valid
+ECDSA signature. All 55 existing checks asserted that the filters FIRE; not one
+asserted they could not be routed around.
+
+- **THE CAPABILITY-PATTERN TIER.** The battery grows **6 → 10**
+  (`verifier/vh-verifier.mjs`). `h1`–`h6` stay as LEXICAL markers. `h7`–`h10`
+  are CAPABILITY-PATTERN screens: **h7** a network egress endpoint, **h8** a
+  weakened control threshold or a removed retention/rollback path, **h9**
+  mutation or exfiltration of the evidence store, **h10** a widened authority.
+  They screen for the *capability being introduced* rather than for intent
+  language, so rewording the prose does not remove an endpoint, a deleted
+  retention step, or a widened scope. The 19.7.9 evasion is now refused by
+  THREE of them and is pinned as a regression; the legitimate tighten still
+  clears all ten with no false positive. Both anchors re-pinned as designed —
+  rotation is a release
+  event, protocol stays `vh-verifier/3`.
+- **HONEST WORDS, IN THE LEDGER.** `governChange` no longer writes "machine
+  gates passed" as though a semantic review had happened. It records that the
+  battery is a lexical + capability-pattern TEXT SCREEN (source public,
+  digest-pinned)
+  and that promotion to fleet is a human decision. The battery's own header now
+  states its scope in the source: *no text screen can decide whether a proposal
+  is malicious.* The human door was always load-bearing; the wording now says
+  so instead of implying a review it never performed.
+- **A DORMANT DRIFT GATE, REPAIRED.** `probe/docIdentity` had gone VACUOUS: its
+  `VERSION_RE` was hardcoded to major `16`, so from the first 19.x release it
+  matched **no string in any document**, reported green, and scanned nothing.
+  A drift gate that cannot fail is worse than no gate — it manufactures
+  confidence. The patterns are now DERIVED FROM THE RELEASE IDENTITY,
+  historical-by-role documents are excluded BY NAME, and three anti-vacuity
+  assertions make a regex that matches nothing a hard failure. Waking it
+  exposed real drift, all now fixed: `VH-FRAMEWORK.md` and `FEATURES.md`
+  still claimed the *Federation* release as current, the one-pager named a
+  two-series-old build with a stale probe count, and two design docs spoke of
+  the *Recall*-era contracts in the present tense.
+- **19.7.9'S OWN TERMINOLOGY LAW, APPLIED TO THE SURVIVORS IT MISSED** —
+  BUILD-INFO still read "hidden true-objective canaries" and "SHA-256 signature
+  binding". Both corrected.
+- **THE NODE FLOOR IS STATED** — `engines.node >=22.12.0`. `npm install` had
+  been warning `EBADENGINE` for releases while the field was absent.
+
+Counts: **156 live probe suites / 155 offline bundles**; `probe/rsiralsV6`
+55 → **64** checks. Gates on node v20.20.2: tsc 0 · unit 20/20 · 156/156 live ·
+offline 155/155 · host + MCP engines rebuilt · vite clean.
 
 ### NEW in 19.7.9 [Keyholder] — the P0 killed: no key ever ships again
 
@@ -145,12 +232,36 @@ source. Both, exactly:
 - **The canary battery is now an EXTERNAL PROCESS** — `verifier/
   vh-verifier.mjs`, a separate zero-dependency Node program OUTSIDE `src/`
   (outside the self-modifiable surface; the constitution refuses any
-  candidate targeting it BY NAME). Six deterministic checks, public in
-  size only. Protocol: fresh NONCE per call → verdict → SHA-256 signature
-  binding nonce·result·battery-digest. Replayed or tampered verdicts are
-  refused; where no process can run (the browser console), the gate says
+  candidate targeting it BY NAME). **Ten deterministic checks in two
+  tiers**, public in size only. Protocol: fresh CSPRNG NONCE per call →
+  verdict → **ECDSA P-256 signature** binding
+  nonce·result·battery-digest·program-digest. Replayed or tampered verdicts
+  are refused; where no process can run (the browser console), the gate says
   `unavailable` and NEVER pretends — the candidate simply cannot pass
   canaries without the verifier, so it stays at the human gate.
+
+  **What the battery is, honestly.** It is a TEXT
+  SCREEN over the candidate's own words, and its source is public — the
+  digest pin prevents SWAPPING the battery, it does not make it secret.
+  Six checks are LEXICAL markers (h1–h6: intent language, absolute scope,
+  hardcoded credentials, impersonation). Four are CAPABILITY-PATTERN
+  screens (h7–h10: a network egress endpoint, a weakened control threshold
+  or removed retention/rollback path, mutation of the evidence store, and
+  authority widening). The sixth external review proved the all-lexical
+  19.7.9 battery was **evadable** — a proposal that exfiltrated the evidence
+  store, set promotion to always-accept and deleted the rollback path,
+  reworded to dodge every keyword, passed 6/6 and drew a valid signature.
+  The capability-pattern tier screens for the capability being introduced
+  rather than for intent language, so rewording the prose does not remove an
+  endpoint, a deleted retention step, or a widened scope — but it is still
+  PATTERN MATCHING OVER SUBMITTED TEXT, not AST/diff/capability analysis of
+  the proposed code, and a change written in code that names none of the
+  patterns can still pass. THE ACCURATE SECURITY BOUNDARY: a ten-check,
+  digest-pinned textual / capability-pattern screen, plus the human approval
+  that follows it — not structural semantic verification of the proposed
+  code. A text screen cannot decide malice: the human door is load-bearing,
+  and the ledger says so in those words rather than implying a semantic
+  review it never performed.
 - **The live promotion path runs the full v6 gate.** `applySelfChange
   Guarded()` — the Apply button in the evolution surface — drives every
   self-evolution proposal through: EXTERNAL canaries → constitution →
@@ -416,7 +527,7 @@ blocks the build, never fakes it. Every provider call now passes the
 and research/analysis runs carry a **live-data GuardRail**: always search
 for current and live data, date every claim, flag stale findings.
 
-**19.2.0 makes the claims execute.** When the router selects several
+**Since 19.2.0 the claims execute.** When the router selects several
 specialists, **each member now runs its own provider call** under its own
 prompt and returns its own attributed answer with its own member receipt —
 the Captain reports on N real results, and a failed member is recorded

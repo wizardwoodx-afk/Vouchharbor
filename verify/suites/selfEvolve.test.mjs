@@ -15295,8 +15295,8 @@ var DRIFT_WINDOW_MS = 24 * 60 * 60 * 1e3;
 var TRUST_ROOT = Object.freeze({
   protocol: "vh-verifier/3",
   algorithm: "ECDSA_p256_sha256",
-  verifierProgramDigest: "2ded52ce5cf8a9857517440f0ec217c1b0771be8f7d87516ae5f49c8b271bdc7",
-  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e",
+  verifierProgramDigest: "581ddfa780c179f3a2ef89b2a5c7833c32609c2900d3c2e8a37808112b2ab377",
+  expectedBatteryDigest: "1c5e31fac9b7fb3abbda7a76702d271527084c048305561c695c188924c4040c",
   registrationKey: "vh.verifier.registration.v3",
   keyPathOutsideArtifact: "~/.vouchharbor/verifier.key"
 });

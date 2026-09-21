@@ -119,4 +119,4 @@ pins, the self-evolution floor, or the floor list itself.
    Authority: experiment-gated.
 
 Levels 3 and 4 now share one discipline: **nothing is adopted on its own
-say-so.** That is the matured, production-ready contract of 19.4.2.
+say-so.** That contract matured at 19.4.2 and is the shipping behaviour today.

@@ -99,7 +99,7 @@ authority. Signed measurement provenance (receipt id + execution provenance
 bound into signed evidence) is the named next milestone; until then the
 honest claim is "sealed," never "cryptographically attested."
 
-### Structured change contracts (primary enforcement, 19.4.4)
+### Structured change contracts (primary enforcement since 19.4.4)
 
 Strings alone cannot prove a candidate safe, so the primary governance
 check is structural: every change carries a contract — `target`, `field`,

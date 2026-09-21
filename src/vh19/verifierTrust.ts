@@ -26,6 +26,24 @@
  *     the battery is EXTERNALLY EXECUTED and DIGEST-PINNED (honest words:
  *     it is not secret, and this design never claims it is).
  *
+ *   • WHAT THE BATTERY IS, EXACTLY (19.7.10 [Screenwright]). Ten checks in
+ *     two tiers: six LEXICAL markers (h1–h6) and four CAPABILITY-PATTERN
+ *     screens (h7–h10: network egress, control weakening, evidence-store
+ *     mutation, authority widening). The sixth external review proved the
+ *     all-lexical 19.7.9 battery was EVADABLE — a destructive proposal
+ *     reworded to dodge the keywords passed 6/6 and drew a valid signature.
+ *     The capability-pattern tier does not read intent, so rewording the
+ *     prose does not remove an endpoint, a deleted retention step, or a
+ *     widened scope. It is still PATTERN MATCHING OVER SUBMITTED TEXT — not
+ *     AST, diff, or capability analysis of the proposed code, and a change
+ *     written in code that names none of the patterns can still pass.
+ *
+ *     THE ACCURATE SECURITY BOUNDARY: a ten-check, digest-pinned TEXTUAL /
+ *     CAPABILITY-PATTERN SCREEN, plus human approval. Not structural
+ *     semantic verification of the proposed code. A text screen cannot
+ *     decide malice; the human door stays load-bearing and the ledger now
+ *     says so.
+ *
  * Rotation: change the verifier program → new programDigest → a new
  * release (reviewed, shipped). Re-provision a machine's key → the owner
  * countersigns again. Never runtime mutation of this root: it is frozen,
@@ -42,8 +60,8 @@ export const TRUST_ROOT: Readonly<{
 }> = Object.freeze({
   protocol: "vh-verifier/3",
   algorithm: "ECDSA_p256_sha256",
-  verifierProgramDigest: "2ded52ce5cf8a9857517440f0ec217c1b0771be8f7d87516ae5f49c8b271bdc7",
-  expectedBatteryDigest: "4fd7efeb4f52c3a6ee5ed1409cb3a0fda109fd93d25d6a9609f908f1db82931e",
+  verifierProgramDigest: "581ddfa780c179f3a2ef89b2a5c7833c32609c2900d3c2e8a37808112b2ab377",
+  expectedBatteryDigest: "1c5e31fac9b7fb3abbda7a76702d271527084c048305561c695c188924c4040c",
   registrationKey: "vh.verifier.registration.v3",
   keyPathOutsideArtifact: "~/.vouchharbor/verifier.key",
 });

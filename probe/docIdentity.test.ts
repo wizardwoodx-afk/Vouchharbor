@@ -23,20 +23,76 @@ declare const VH_ROOT: string;
 const root = VH_ROOT ?? process.cwd();
 const VH_VERSION = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version as string;
 
-const VERSION_RE = /\b(v?16\.\d{1,2}(?:\.\d{1,2})?)\b/g;
+/* 19.7.10 [Screenwright] — THE DORMANT GATE, REPAIRED.
+
+   The sixth external review found this suite had gone VACUOUS: VERSION_RE and
+   HISTORICAL were both hardcoded to major `16`, written when 16.x was current.
+   From the first 19.x release onward the regex matched NO string in any
+   document, so `offenders` was always empty and the suite reported green while
+   scanning nothing. That is the worst failure mode a drift gate can have — it
+   looks like assurance and is the absence of it.
+
+   The patterns are now DERIVED FROM THE RELEASE IDENTITY, so they track every
+   future major instead of silently disarming at the next one. A regression
+   check below pins that the regex still matches the current major. */
+const MAJOR = VH_VERSION.split(".")[0];
+const MINOR = VH_VERSION.split(".")[1] ?? "0";
+
+/* The trailing lookahead matters, and so does the depth. This release moved to
+   a FOUR-part identity (19.7.10.1), which exposed both:
+     • without the lookahead the optional patch group backtracks, so
+       "Vouch Harbor 19.7.9_x64-setup.exe" also yielded a bare "19.7";
+     • with only ONE optional group, "19.7.10.1" backtracked to "19.7.1" —
+       the patch digit matched the "1" of "10" and the lookahead then passed
+       on the following "0".
+   So: up to three numeric groups after the major, and a lookahead that
+   refuses BOTH a following ".<digit>" and a bare following digit. */
+const VERSION_RE = new RegExp(`\\b(v?${MAJOR}\\.\\d{1,2}(?:\\.\\d{1,2}){0,2})(?![.\\d])`, "g");
+
+/** Documents that are HISTORICAL BY ROLE — older versions are facts in them, not drift.
+ *  Each exclusion is named so it cannot grow silently. */
+const HISTORICAL_BY_ROLE = /^(CHANGELOG\.md|RELEASE-VERIFICATION\.md|VH-\d+\.\d+-UPGRADE\.md|docs[\\/]history[\\/])/;
+
 // a line carrying one of these markers is HISTORICAL context — older versions allowed
-const HISTORICAL = /(release notes|docs\/history|history\/|CHANGELOG|changelog|supersed|retired|replaced|pre-16|legacy|heritage|since 16|over 16|in 16\.[0-8]|POINTER|WINDOWS-FIX|relative to|upgrade|UPGRADE|what 16|added over|gains? over|release:|release,|release —|\(\s*16\.\d|16\.\d+(?:\.\d+)?\s*\)|16\.\d+(?:\.\d+)?\s+(fused|carries|added|adds|closes|closed|gains|ships|shipped|made|merged|retired|introduced|brought|turned|learned|is|was|were)|16\.\d+(?:\.\d+)?'s|per the 16\.\d|decided at 16\.\d|committed with the 16\.\d|16\.\d+(?:\.\d+)?\s+review|16\.\d+(?:\.\d+)?\s+external|ranked v?16\.\d|^[*>\u2022\s]*16\.\d+(?:\.\d+)?\s*[\u2014\u2013-]|^\\?16\.\d+(?:\.\d+)?\s*[—-])/im;
+const HISTORICAL = new RegExp(
+  [
+    "release notes", "docs/history", "history/", "CHANGELOG", "changelog",
+    "supersed", "retired", "replaced", "POINTER", "WINDOWS-FIX",
+    "relative to", "upgrade", "UPGRADE", "baseline", "frozen", "regress",
+    "drift", "review", "external", "was ", "were ", "is now", "became",
+    "unchanged", "stands unchanged", "→", "->",
+    `pre-${MAJOR}`, `legacy`, `heritage`, `since ${MAJOR}`, `over ${MAJOR}`,
+    `what ${MAJOR}`, `added over`, `gains? over`,
+    // release-note section headers: "### NEW in 19.7.6 [Office] — …"
+    `^#{1,6}\\s*(NEW|New|new)\\s+in\\s+v?${MAJOR}\\.`,
+    `^#{1,6}.*\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\b.*—`,
+    // a version used as an adjective for a past subsystem ("the 19.5.6 bench")
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?[- ]?(reach|federation|regulated|broader|bench|batch|redesign|record|subsystem|engine)`,
+    `per the ${MAJOR}\\.\\d`, `decided at ${MAJOR}\\.\\d`, `at ${MAJOR}\\.\\d`,
+    `committed with the ${MAJOR}\\.\\d`, `with the ${MAJOR}\\.\\d`,
+    `ranked v?${MAJOR}\\.\\d`, `in ${MAJOR}\\.\\d`, `hardened in ${MAJOR}\\.\\d`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*(review|external|shipped|added|adds|closes|closed|gains|ships|made|merged|retired|introduced|brought|turned|learned|fused|carries)`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?'s`,
+    // parenthetical provenance annotations: "(19.7.1)", "(19.6, new)", "Identity (19.6.0):"
+    `\\(\\s*v?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*[,)]`,
+    `\\(\\s*Identity\\s*\\(?\\s*v?${MAJOR}\\.\\d`,
+    `Identity\\s*\\(\\s*v?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*\\)`,
+    `\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*,\\s*(new|unchanged|beta|revised|updated|renamed)`,
+    `^[*>\\u2022\\s]*\\bv?${MAJOR}\\.\\d+(?:\\.\\d+)?\\s*[\\u2014\\u2013-]`,
+  ].join("|"),
+  "im",
+);
 
 function mdFiles(): string[] {
   const out: string[] = [];
   for (const f of fs.readdirSync(root)) {
-    if (f.endsWith(".md") && f !== "CHANGELOG.md") out.push(f);
+    if (f.endsWith(".md") && !HISTORICAL_BY_ROLE.test(f)) out.push(f);
   }
   const docs = path.join(root, "docs");
   for (const f of fs.readdirSync(docs)) {
     const full = path.join("docs", f);
     if (fs.statSync(path.join(docs, f)).isDirectory()) continue; // history/ etc. excluded
-    if (f === "CHANGELOG.md") continue;
+    if (HISTORICAL_BY_ROLE.test(full)) continue;
     out.push(full);
   }
   return out.sort();
@@ -54,6 +110,22 @@ test("docIdentity — current-facing documents name only the current release (ou
   console.log(`\n== doc identity scan (VH ${VH_VERSION}) ==\n`);
   const files = mdFiles();
   ok("the scan covers the current docs surface", files.length >= 10, `only ${files.length} files`);
+
+  /* THE ANTI-DORMANCY PIN (19.7.10). The whole failure this suite is being
+     repaired for was a regex that matched nothing, so it could never fail.
+     A drift gate that cannot fail is worse than no gate: it manufactures
+     confidence. These three assertions make vacuity itself a failure. */
+  ok(`VERSION_RE is derived from the release identity (major ${MAJOR}), not hardcoded to a past major`,
+    VERSION_RE.source.includes(`${MAJOR}\\.\\d`) && !VERSION_RE.source.includes("16\\.\\d"));
+  /* Non-global copies: VERSION_RE carries /g, and a stateful lastIndex would
+     make these assertions order-dependent. */
+  const matchesOnce = new RegExp(VERSION_RE.source);
+  ok("VERSION_RE actually matches the current release string — the gate is not vacuous",
+    matchesOnce.test(VH_VERSION) && matchesOnce.test(`v${VH_VERSION}`));
+  ok("VERSION_RE matches a STALE release string — the gate would catch drift",
+    matchesOnce.test(`${MAJOR}.${Number(MINOR) > 0 ? Number(MINOR) - 1 : 0}.0`));
+  ok("historical-by-role documents are excluded by NAME, not by accident",
+    !files.some((f) => HISTORICAL_BY_ROLE.test(f)) && files.length >= 10);
 
   const offenders: string[] = [];
   let scanned = 0;
