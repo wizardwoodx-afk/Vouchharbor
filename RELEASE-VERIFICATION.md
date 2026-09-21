@@ -2,7 +2,8 @@
 
 
 Every number below was produced by running the named command in **this archive**,
-on node v20.20.2, Linux x64. Re-run them yourself; do not take this file's word
+on **node v22.23.2** (the CI runtime; the declared `engines` floor is
+`>=22.12.0`), Linux x64. Re-run them yourself; do not take this file's word
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
@@ -37,7 +38,7 @@ produced by running the named command in this archive.
    and refuses both a trailing `.digit` and a trailing digit. Re-running it
    caught four identity lines the bump tool does not reach — all fixed.
 
-**Gates (this archive, node v20.20.2, Linux x64):**
+**Gates (this archive, node v22.23.2 — the declared floor — Linux x64):**
 
 | Gate | Command | Result |
 |---|---|---|
@@ -48,7 +49,36 @@ produced by running the named command in this archive.
 | Doc identity | `node tools/run-one-probe.mjs docIdentity` | **10 passed, 0 failed** |
 | Offline pack (zero-dep) | `node verify/run.mjs` | **155 passed, 0 failed** |
 | Zero-dep entry point | `sh VERIFY.sh` | **155 passed, 0 failed** |
-| Web build | `npx vite build` | **clean, 4.16 s** |
+| Web build | `npx vite build` | **clean, 4.17 s** |
+
+**Per-suite counts re-run under node v22.23.2** (independently reproduced by the
+seventh external review at the same numbers):
+
+| Suite | Command | Result |
+|---|---|---|
+| RSIRALS v6 | `node tools/run-one-probe.mjs rsiralsV6` | **64/64** |
+| Vault security | `… vaultSecurity` | **27/27** |
+| MCP runtime | `… mcpRuntime` | **22/22** |
+| Groups | `… groups` | **37/37** |
+| Crew | `… crew` | **35/35** |
+| Federation wiring | `… fedWired` | **18/18** |
+| Agentic MoE v2 | `… moeV2` | **24/24** |
+| 3D memory graph | `… graph3d` | **17/17** |
+| Version drift | `… versionDrift` | **42/42** |
+| Doc identity | `… docIdentity` | **10/10** |
+
+**The runtime-record mismatch the seventh review found, and why it is closed.**
+19.7.10.1 first shipped declaring `engines.node >=22.12.0` while this record
+named node v20.20.2 — the release certified itself on a runtime below its own
+declared minimum, which for a product whose pitch is independently verifiable
+evidence is exactly the wrong kind of ambiguity. The declared floor is the
+correct one (a dependency requires it, CI runs 22.x, and Node 20 reached EOL
+2026-04-30), so the runtime moved, not the claim: the complete gate set above
+was re-executed end to end under **node v22.23.2** with a clean
+`node_modules` — zero `EBADENGINE` warnings, the floor and the runtime now
+agree. Node 20.20.2 remains a secondary supported runtime and passed the same
+gates at the previous revision; the offline runner prints its own runtime in
+its summary line, so this claim is checkable rather than asserted.
 
 **Trust root as shipped** (`src/vh19/verifierTrust.ts`, re-pinned because the
 verifier's own source text changed — rotation is a release event):

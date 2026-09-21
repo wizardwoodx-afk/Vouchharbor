@@ -104,6 +104,18 @@ RSIRALS build so far and then named two things to fix. Both are shipped here.
   un-prefixed, in the feature sheet and the framework doc, plus two in the
   one-pager) — all fixed.
 
+- **THE RUNTIME RECORD MATCHES THE DECLARED FLOOR.** This release first
+  shipped declaring `engines.node >=22.12.0` while its verification record
+  named node 20.20.2 — certifying on a runtime below the product's own
+  declared minimum, which for a product whose pitch is independently
+  verifiable evidence is the wrong kind of ambiguity. The floor is the
+  correct claim, so the runtime moved instead: the complete gate set was
+  re-executed end to end under **node v22.23.2** (the CI runtime) with a
+  clean `node_modules` and zero `EBADENGINE` warnings. `verify/BUILD-INFO.txt`
+  now carries a machine-readable `node:` line, and the offline runner prints
+  its own runtime in its summary — so the certification environment is
+  checkable rather than asserted.
+
 Both trust-root anchors re-pinned, because the verifier's own source text
 changed and rotation is a release event: `programDigest` `581ddfa7…`,
 `batteryDigest` `1c5e31fa…`. Protocol stays `vh-verifier/3`.
