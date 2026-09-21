@@ -410,8 +410,9 @@ ok(`the registry is 25 ids (23 CLIs + hermes + llm) — 21 until V11.7.1 grew it
       lines21.length > 0 && lines21.every(([, l]) => l.includes("V11.7.1")),
       lines21.filter(([, l]) => !l.includes("V11.7.1")).map(([n, l]) => `line ${n}: ${l.slice(0, 70)}`).join(" | ") || "all marked");
   }
-  const readme = read("README.md");
-  ok("the README's CURRENT registry claims say 25",
+  // Velvet Hand: the engine README is archived at docs/history/README-vouchharbor.md; the product README carries no counts.
+  const readme = read("README-vouchharbor.md");
+  ok("the engine README's CURRENT registry claims say 25",
     (readme.includes("**25** ids") && readme.includes("23 spawnable")) || (readme.includes("25 harnesses") && readme.includes("23 CLIs")),
     "a README current claim does not say 25");
   const rec71 = read("VH-11.7.1-UPGRADE.md");

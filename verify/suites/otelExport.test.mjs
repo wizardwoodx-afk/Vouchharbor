@@ -9,7 +9,7 @@ import * as path from "node:path";
 var VH_VERSION = "19.7.12";
 var VH_SHORT = "19.7";
 var VH_CODENAME = "Keyholder";
-var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
+var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 
 // src/mission/otel.ts
 var attr = (key, value) => typeof value === "boolean" ? { key, value: { boolValue: value } } : typeof value === "number" ? { key, value: { intValue: String(Math.round(value)) } } : { key, value: { stringValue: value } };

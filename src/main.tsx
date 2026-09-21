@@ -1,10 +1,10 @@
-// Vouch Harbor 19.8 — "Keyholder"
-// Copyright (c) 2024-2026 K.S. the Vouch Harbor team / Vouch Harbor. All Rights Reserved.
+// Velvet Hand — built on the Vouch Harbor engine
+// Copyright (c) 2024-2026 K.S. / Velvet Hand. All Rights Reserved.
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import VouchApp from './App';
-// 19.7.12 — one stylesheet. The design system lives in src/ui/vh.css; nothing else is imported.
+// Velvet Hand — one stylesheet. The design system lives in src/ui/vh.css; nothing else is imported.
 import './ui/vh.css';
 
 /* 18.3.0 — browser-build CSP. The desktop (Tauri) build enforces its own CSP in

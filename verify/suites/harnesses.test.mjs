@@ -17,7 +17,7 @@ var init_version = __esm({
     VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
     VH_CODENAME = "Keyholder";
-    VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
+    VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
   }
 });
 
@@ -9266,9 +9266,9 @@ ok(
       lines21.filter(([, l]) => !l.includes("V11.7.1")).map(([n, l]) => `line ${n}: ${l.slice(0, 70)}`).join(" | ") || "all marked"
     );
   }
-  const readme = read("README.md");
+  const readme = read("README-vouchharbor.md");
   ok(
-    "the README's CURRENT registry claims say 25",
+    "the engine README's CURRENT registry claims say 25",
     readme.includes("**25** ids") && readme.includes("23 spawnable") || readme.includes("25 harnesses") && readme.includes("23 CLIs"),
     "a README current claim does not say 25"
   );

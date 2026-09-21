@@ -8,7 +8,7 @@ import * as path from "node:path";
 var VH_VERSION = "19.7.12";
 var VH_SHORT = "19.7";
 var VH_CODENAME = "Keyholder";
-var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
+var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 
 // probe/versionDrift.test.ts
 var passed = 0;
@@ -40,8 +40,8 @@ section("0. the single source of truth is well formed");
 ok("VH_VERSION looks like a semver release (3 or 4 numeric parts \u2014 19.7.2.1 ships a patch-of-patch)", /^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), VH_VERSION);
 ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".").slice(0, 2).join("."), `${VH_VERSION} -> ${VH_SHORT}`);
 ok(
-  "VH_TITLE names the short version and codename",
-  VH_TITLE === `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`,
+  "VH_TITLE is the product name with the engine identity beside it",
+  VH_TITLE === `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`,
   VH_TITLE
 );
 section("1. every manifest states the same version");
@@ -70,7 +70,8 @@ section("2. the app imports the version instead of hardcoding it");
 var ipcClient = read("src/ipc/client.ts");
 var settings = read("src/ui/screens/Settings.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
-ok("Settings \u2192 About imports VH_VERSION", /from "\.\.\/\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
+ok("Settings \u2192 About shows the product + engine names, never a version number", /from "\.\.\/\.\.\/brand"/.test(settings) && /PRODUCT_NAME/.test(settings) && /ENGINE_CREDIT/.test(settings) && !/VH_VERSION/.test(settings), "About still shows a version");
+ok("src/brand.ts is the one source of the product name and carries no number", /PRODUCT_NAME = "Velvet Hand"/.test(read("src/brand.ts")) && !/\d+\.\d+\.\d+/.test(read("src/brand.ts")));
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
 ok("no hardcoded release string survives in Settings", !/VH \d+\.\d+|"19\.\d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+|"19\.\d+\.\d+/) ?? [""])[0]);
 section("3. the shipped documents name the current release");

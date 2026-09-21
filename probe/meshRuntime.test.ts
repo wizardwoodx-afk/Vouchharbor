@@ -192,7 +192,7 @@ describe("uid is CSPRNG-born and Reach MCP is current", () => {
       fs.readFileSync(path.join(ROOT, p), "utf8").replace(/^\s*\*+\s?/gm, "").replace(/\s+/g, " ");
     const needle1 = "LOCAL collaboration trust fabric";
     const needle2 = "ECDSA provides portable authority across instances";
-    for (const p of ["src/vh19/vouchMesh.ts", "src/vh19/meshRuntime.ts", "RELEASE-VERIFICATION.md"]) {
+    for (const p of ["src/vh19/vouchMesh.ts", "src/vh19/meshRuntime.ts", "docs/history/releases/RELEASE-VERIFICATION.md"]) {
       const src = flat(p);
       assert.ok(src.includes(needle1), `${p} names the mesh a local trust fabric`);
       assert.ok(src.includes(needle2), `${p} keeps portable authority on ECDSA`);

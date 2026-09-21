@@ -137,14 +137,15 @@ test("docIdentity \u2014 current-facing documents name only the current release 
       }
     }
   }
-  ok(`scanned ${scanned} version mentions across ${files.length} current docs (historical refs allowed: ${historicalRefs})`, scanned > 20, `only ${scanned}`);
-  ok("every non-historical version mention is the current release", offenders.length === 0, offenders.slice(0, 6).join(" | "));
+  ok(`current docs carry zero product version mentions (scanned ${files.length} docs, ${scanned} mentions, ${historicalRefs} historical)`, scanned === 0, offenders.concat(files.filter(() => false)).slice(0, 6).join(" | ") || `${scanned} mention(s)`);
+  void offenders;
   const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
-  ok("README.md opens as the current release", readme.startsWith(`# Vouch Harbor ${VH_VERSION}`), readme.split("\n")[0]);
-  const onepager = fs.readFileSync(path.join(root, "docs", "VOUCH-HARBOR-ONEPAGER.md"), "utf8");
-  ok("the one-pager stamps the current release", new RegExp(`v${VH_VERSION.replace(/\./g, "\\.")}`).test(onepager.split("\n").slice(0, 6).join("\n")), "identity line");
-  const deck = fs.readFileSync(path.join(root, "docs", "DECK-OUTLINE.md"), "utf8");
-  ok("the deck outline names the shipped release as current", new RegExp(`Shipped: v${VH_VERSION.replace(/\./g, "\\.")}`).test(deck), "shipped line");
+  ok("README.md opens as Velvet Hand", readme.startsWith("# Velvet Hand"), readme.split("\n")[0]);
+  ok("README.md credits the Vouch Harbor engine", /Vouch Harbor\*\* engine|Vouch Harbor engine/.test(readme), "engine credit");
+  ok("README.md names no product version", !/\b1[0-9]\.[0-9]+(\.[0-9]+)+\b/.test(readme), (readme.match(/\b1[0-9]\.[0-9]+(\.[0-9]+)+\b/) ?? [""])[0]);
+  const features = fs.readFileSync(path.join(root, "FEATURES.md"), "utf8");
+  ok("FEATURES.md opens as Velvet Hand and names no version", features.startsWith("# Velvet Hand") && !/\b1[0-9]\.[0-9]+\.[0-9]+\b/.test(features), features.split("\n")[0]);
+  ok("the archived Vouch Harbor README/FEATURES survive untouched in docs/history", fs.existsSync(path.join(root, "docs/history/README-vouchharbor.md")) && fs.existsSync(path.join(root, "docs/history/releases/CHANGELOG.md")));
   console.log(`
 ${passed} passed, ${failures.length} failed`);
   if (failures.length > 0) {

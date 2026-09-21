@@ -26,7 +26,7 @@ var gateSrc = read("src/ui/screens/GateCard.tsx");
 var composerSrc = read("src/ui/screens/Composer.tsx");
 var settingsSrc = read("src/ui/screens/Settings.tsx");
 var pkg = JSON.parse(read("package.json"));
-ok("root resolves to Vouch Harbor", typeof pkg.name === "string" && /vouchharbor/i.test(pkg.name), `name=${String(pkg.name)}`);
+ok("root resolves to Velvet Hand", pkg.name === "velvet-hand", `name=${String(pkg.name)}`);
 ok("App renders the shell and nothing else", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc), "App must be the shell door");
 ok("the multi-dock shell and the console are gone from the app entry", !/Sidebar|Helm|VIEWS|NextConsole/.test(appSrc), "stale shell chrome in App.tsx");
 ok("the sidebar lists exactly five doors", (shellSrc.match(/\{ key: "(steward|work|receipts|memory|settings)", label:/g) ?? []).length === 5, "door count drifted");

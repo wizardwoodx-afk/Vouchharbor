@@ -2438,7 +2438,7 @@ var init_version = __esm({
     VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
     VH_CODENAME = "Keyholder";
-    VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
+    VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
   }
 });
 
@@ -32525,10 +32525,10 @@ describe3("merge \u2014 one mission ID, one chain, one state (16.0)", () => {
     assert2.ok(/<Shell\s*\/>/.test(app), "the shell IS the app");
     assert2.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/ui/store.ts")), "the ui store drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json"));
-    assert2.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
+    assert2.equal(pkg.name, "velvet-hand", "the product is named velvet-hand");
     assert2.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");
-    assert2.equal(VH_TITLE, `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, "the product title is Vouch Harbor");
-    assert2.ok(/<title>Vouch Harbor[^<]*<\/title>/.test(read("index.html")), "the window title is Vouch Harbor");
+    assert2.equal(VH_TITLE, `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`, "the product title is Velvet Hand, engine identity beside it");
+    assert2.ok(/<title>Velvet Hand[^<]*<\/title>/.test(read("index.html")), "the window title is Velvet Hand");
     assert2.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver, 3 or 4 numeric parts)");
   });
 });

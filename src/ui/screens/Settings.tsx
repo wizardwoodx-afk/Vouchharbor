@@ -4,7 +4,7 @@ import { PROVIDER_DEFAULTS } from "../../vh19/providers";
 import { AUTONOMY_LEVEL_NAMES, HEARTBEAT_DEFAULT_MS, type AutonomyLevel } from "../../vh19/initiative";
 import type { ProviderKind } from "../../vh19/types";
 import { mcpRuntimeServers } from "../../vh19/mcpRuntime";
-import { VH_VERSION, VH_CODENAME } from "../../version";
+import { PRODUCT_NAME, ENGINE_CREDIT } from "../../brand";
 import {
   issueLiveGrant, revokeLiveGrant, runLiveCrossing, liveGrant, liveUsage, liveLedgerView,
   loadRegulatedActivation, enableRegulatedBench, DELEGATION_CAPABILITIES, REGULATED_DOMAIN_SLUGS,
@@ -182,7 +182,7 @@ function Appearance() {
   );
 }
 
-/* The guardrail manifest — what Vouch Harbor physically cannot do. Each line is a
+/* The guardrail manifest — what the product physically cannot do. Each line is a
  * check enforced in CODE and pinned by a probe suite (see probe/guardrailAlign);
  * it is the one place the product states its own limits to the owner. */
 const GUARDRAILS: Array<[string, string]> = [
@@ -207,7 +207,8 @@ function About() {
       <section className="sgroup">
         <h3>About</h3>
         <div className="klist about">
-          <div><span>Version</span><span className="mono">{VH_VERSION} · {VH_CODENAME}</span></div>
+          <div><span>Product</span><span>{PRODUCT_NAME}</span></div>
+          <div><span>Engine</span><span>{ENGINE_CREDIT}</span></div>
           <div><span>Where it runs</span><span>On this device · no telemetry</span></div>
           <div><span>Honesty contract</span><span>Executes only with a provider · pauses at the gate · refuses in words · receipts everything</span></div>
           <div><span>Egress</span><span>Nothing leaves without a signed authority (requestEgress) and a receipt</span></div>
@@ -215,7 +216,7 @@ function About() {
       </section>
       <section className="sgroup">
         <h3>Guardrail manifest</h3>
-        <p className="lead">What Vouch Harbor physically cannot do. Enforced in code, not in prompts — each line is a check that runs and is pinned by a test.</p>
+        <p className="lead">What {PRODUCT_NAME} physically cannot do. Enforced in code, not in prompts — each line is a check that runs and is pinned by a test.</p>
         <ul className="rails">{GUARDRAILS.map(([t, tag]) => <li key={t}><span>{t}</span><small>{tag}</small></li>)}</ul>
       </section>
     </>

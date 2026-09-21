@@ -1,5 +1,5 @@
 /**
- * VH 19.8 — the one UI store (zustand). Owns the real engine seams:
+ * Velvet Hand — the one UI store (zustand). Owns the real engine seams:
  * askVH19 · human gate · provider (session-only or vault-sealed) · memory graph.
  * Screens read from here; nothing in the UI talks to the engine directly.
  */

@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.12 [Keyholder] (UI) — release verification record
+# Velvet Hand (engine: Vouch Harbor) — release verification record
 
 
 Every number below was produced by running the named command in **this archive**,
@@ -7,6 +7,35 @@ on **node v22.23.2** (the CI runtime; the declared `engines` floor is
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The rebrand record — Velvet Hand
+
+The product ships under the name **Velvet Hand**; **Vouch Harbor** remains the
+engine's name and is credited as such (Settings → About, README, the desktop
+description). No number is shown to a user anywhere: `src/brand.ts` carries the
+product name and tagline and no version; `src/version.ts` keeps the engine
+build identity for manifests and receipts only.
+
+What moved: the versioned record (CHANGELOG, this file, upgrade guides, design
+notes, the old README/FEATURES) is archived under `docs/history/` as written.
+What is new: a clean README, FEATURES and docs/VERIFICATION with no numbers.
+What the probes now enforce: `docIdentity` requires **zero** product-version
+mentions in current-facing docs (stricter than "all agree"); `vhClean`,
+`navAlign`, `merge`, `legacyCompat`, `consolePolicy`, `versionDrift` pin the
+Velvet Hand identity and that Settings → About shows product + engine names
+and never a version. Storage keys, receipt formats (`vh-proof-receipt/2`) and
+code identifiers are unchanged, so existing local data carries over.
+
+**Tree.** Velvet Hand on engine 19.7.12 "Keyholder", node v22.12.0, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `npx tsc --noEmit` | 0 errors |
+| Dev runner | `node tools/run-all-probes.mjs` | **155 passed, 0 failed** (node v22.12.0) |
+| Offline pack | `node verify/run.mjs` | **154 passed, 0 failed** |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt; byte-identity probes green |
+| Web build | `npm run build` | `dist/` — title "Velvet Hand — your agents, with receipts" |
+| Render | SSR of Shell + Settings | sidebar brand = "Velvet Hand"; no version digits rendered |
 
 ## The 19.7.12 record — the redesign (UI)
 

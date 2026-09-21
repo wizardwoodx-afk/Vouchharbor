@@ -63,8 +63,9 @@ ok("VH_SHORT is the major.minor of VH_VERSION", VH_SHORT === VH_VERSION.split(".
 // literal. This check previously hardcoded "Patina", which meant a codename bump
 // failed here and the fix looked like "edit the test" — the drift trap this suite
 // exists to catch, aimed at itself.
-ok("VH_TITLE names the short version and codename",
-   VH_TITLE === `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, VH_TITLE);
+// Velvet Hand: the product name has no number; the engine identity rides in parentheses for manifests/receipts.
+ok("VH_TITLE is the product name with the engine identity beside it",
+   VH_TITLE === `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`, VH_TITLE);
 
 section("1. every manifest states the same version");
 const pkg = json<{ name: string; version: string }>("package.json");
@@ -96,7 +97,10 @@ const ipcClient = read("src/ipc/client.ts");
 // 19.7.12 (UI): SettingsPage is retired; Settings → About (src/ui/screens/Settings.tsx) is the one on-screen version surface.
 const settings = read("src/ui/screens/Settings.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
-ok("Settings → About imports VH_VERSION", /from "\.\.\/\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
+// Velvet Hand: the product shows NO version number by design. Settings → About names the
+// product and the engine from src/brand.ts; the build identity stays in manifests/receipts.
+ok("Settings → About shows the product + engine names, never a version number", /from "\.\.\/\.\.\/brand"/.test(settings) && /PRODUCT_NAME/.test(settings) && /ENGINE_CREDIT/.test(settings) && !/VH_VERSION/.test(settings), "About still shows a version");
+ok("src/brand.ts is the one source of the product name and carries no number", /PRODUCT_NAME = "Velvet Hand"/.test(read("src/brand.ts")) && !/\d+\.\d+\.\d+/.test(read("src/brand.ts")));
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
 ok("no hardcoded release string survives in Settings", !/VH \d+\.\d+|"19\.\d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+|"19\.\d+\.\d+/) ?? [""])[0]);
 

@@ -47385,7 +47385,7 @@ ${synthesisFailure ? `${synthesisFailure}
     });
   }
   const composedSystem = [
-    "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    "You are the Velvet Hand steward (engine: Vouch Harbor VH-19). Answer directly and concisely.",
     gateLine,
     ...briefing
   ].join("\n\n");

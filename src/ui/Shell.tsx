@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { PRODUCT_NAME } from "../brand";
 import { useVh, type Screen } from "./store";
 import { Steward } from "./screens/Steward";
 import { Work } from "./screens/Work";
@@ -27,7 +28,7 @@ export function Shell(): React.ReactElement {
   return (
     <div className="app">
       <aside className="side">
-        <div className="brand"><span className="mark" aria-hidden /><div><b>Vouch Harbor</b><small>ON-DEVICE · RECEIPTED</small></div></div>
+        <div className="brand"><span className="mark" aria-hidden /><div><b>{PRODUCT_NAME}</b><small>ON-DEVICE · RECEIPTED</small></div></div>
         <button className="new" onClick={newMission}><span>New mission</span><i className="ic ic-steward" /></button>
         <nav className="nav">
           {NAV.map((n) => (

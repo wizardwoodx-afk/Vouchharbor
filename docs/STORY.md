@@ -1,4 +1,4 @@
-# VH — The Story (one spine, one artifact, four readers)
+# Velvet Hand — The Story (one spine, one artifact, four readers)
 
 > This is the narrative document every pitch, demo, and page should align to.
 > If a feature cannot be told as a chapter of THIS story, it does not go in the deck.
@@ -30,7 +30,7 @@ whose integrity anyone can re-compute:
 
 > **One mission. One record. Zero VH state required** — trust is anchored in the issuer public key: exchange its fingerprint out-of-band once, then pin it at every verification (`--issuer-key`).
 
-## The one artifact — the Mission Record (14.1)
+## The one artifact — the Mission Record
 
 `mj-mission-record/1` — a single JSON file per mission, sealed by VH's Ed25519 issuer key:
 

@@ -50,19 +50,19 @@ test("every allowlisted legacy shim still exists in the tree (tested, not dead)"
   const tree = [
     ...["src", "src-tauri/src"].flatMap((d) => [...walk(path.join(ROOT, d))].filter((f) => /\.(ts|tsx|rs|css)$/.test(f)))
   ].map((f) => fs.readFileSync(f, "utf8")).join("\n");
-  const docs = read("docs/LEGACY-COMPAT.md");
+  const docs = read("docs/history/LEGACY-COMPAT.md");
   const mustExist = ["mj-proof-receipt", "mj-commercial-v1-offline", "mj_evolution", "mj-mission-record", "mjVersion", "MJ_ACP_BIN", "mj.sqlite"];
   for (const token of mustExist) {
     assert.ok(tree.includes(token), `allowlisted shim vanished from the tree: ${token} (update the allowlist AND the docs together)`);
     assert.ok(docs.includes(token), `docs/LEGACY-COMPAT.md does not document: ${token}`);
   }
 });
-test("the primary identity is Vouch Harbor everywhere it is user-visible", () => {
+test("the primary identity is Velvet Hand everywhere it is user-visible (Vouch Harbor is the engine credit)", () => {
   const pkg = JSON.parse(read("package.json"));
-  assert.equal(pkg.name, "vouchharbor");
-  assert.match(read("index.html"), /<title>\s*Vouch Harbor/);
+  assert.equal(pkg.name, "velvet-hand");
+  assert.match(read("index.html"), /<title>\s*Velvet Hand/);
   const conf = JSON.parse(read("src-tauri/tauri.conf.json"));
-  assert.equal(conf.productName, "Vouch Harbor");
+  assert.equal(conf.productName, "Velvet Hand");
   const personalNames = new RegExp(["S", "ree"].join("") + "|" + ["Har", "shen"].join(""), "i");
   assert.ok(!personalNames.test(read("LICENSE") + read("README.md") + read("NOTICE")), "no personal names in the shipped identity files");
   assert.ok(!/PolyForm/i.test(read("LICENSE")), "the noncommercial license is gone");

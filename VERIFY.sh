@@ -1,5 +1,5 @@
 #!/bin/sh
-# Vouch Harbor — zero-dependency verification.
+# Velvet Hand — zero-dependency verification (built on the Vouch Harbor engine).
 #
 # For the reviewer on a machine WITHOUT node_modules and WITHOUT network.
 # Exactly one gate needs nothing but Node >= 20: the offline verification
@@ -11,7 +11,7 @@
 #
 # The protocol selftest (`node protocol/test/selftest.js`) is NOT zero-dep
 # (it needs @hpke/core); run it after `cd protocol && npm install`. The full
-# dev gates are listed in RELEASE-VERIFICATION.md and reproduce after
+# dev gates are listed in docs/VERIFICATION.md and reproduce after
 # `npm install` at the root.
 set -e
 echo "== offline verification pack — $(ls verify/suites | grep -c '\.mjs$') bundled suites, zero deps, zero network =="

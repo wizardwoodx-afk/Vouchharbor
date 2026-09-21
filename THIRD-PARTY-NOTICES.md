@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Vouch Harbor includes clean-room TypeScript implementations of token-
+Velvet Hand (built on the Vouch Harbor engine) includes clean-room TypeScript implementations of token-
 compression techniques proven in the open-source community. The following
 projects informed the design of LOTUS (Lean Optimal Token Utilisation System,
 `src/vh19/lotus.ts`); no source code from either project is included — the

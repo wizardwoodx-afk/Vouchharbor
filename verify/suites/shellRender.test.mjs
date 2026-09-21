@@ -16331,6 +16331,17 @@ var require_server_node = __commonJS({
   }
 });
 
+// src/brand.ts
+var PRODUCT_NAME, ENGINE_NAME, ENGINE_CREDIT;
+var init_brand = __esm({
+  "src/brand.ts"() {
+    "use strict";
+    PRODUCT_NAME = "Velvet Hand";
+    ENGINE_NAME = "Vouch Harbor";
+    ENGINE_CREDIT = `Built on the ${ENGINE_NAME} engine`;
+  }
+});
+
 // node_modules/zustand/esm/vanilla.mjs
 var createStoreImpl, createStore;
 var init_vanilla = __esm({
@@ -65331,7 +65342,7 @@ ${synthesisFailure ? `${synthesisFailure}
     });
   }
   const composedSystem = [
-    "You are VH-19, the Vouch Harbor generalist. Answer directly and concisely.",
+    "You are the Velvet Hand steward (engine: Vouch Harbor VH-19). Answer directly and concisely.",
     gateLine,
     ...briefing
   ].join("\n\n");
@@ -156745,7 +156756,7 @@ function download(rows) {
   const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
   const a3 = document.createElement("a");
   a3.href = URL.createObjectURL(blob);
-  a3.download = `vouchharbor-receipts-${Date.now()}.json`;
+  a3.download = `velvet-hand-receipts-${Date.now()}.json`;
   a3.click();
   URL.revokeObjectURL(a3.href);
 }
@@ -156887,18 +156898,6 @@ var init_Memory = __esm({
     init_store();
     init_ForceGraph();
     import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
-  }
-});
-
-// src/version.ts
-var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
-var init_version = __esm({
-  "src/version.ts"() {
-    "use strict";
-    VH_VERSION = "19.7.12";
-    VH_SHORT = "19.7";
-    VH_CODENAME = "Keyholder";
-    VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
 
@@ -157187,12 +157186,12 @@ function About() {
       /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "About" }),
       /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "klist about", children: [
         /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Version" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "mono", children: [
-            VH_VERSION,
-            " \xB7 ",
-            VH_CODENAME
-          ] })
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Product" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: PRODUCT_NAME })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Engine" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: ENGINE_CREDIT })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Where it runs" }),
@@ -157210,7 +157209,11 @@ function About() {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
       /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Guardrail manifest" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "What Vouch Harbor physically cannot do. Enforced in code, not in prompts \u2014 each line is a check that runs and is pinned by a test." }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "lead", children: [
+        "What ",
+        PRODUCT_NAME,
+        " physically cannot do. Enforced in code, not in prompts \u2014 each line is a check that runs and is pinned by a test."
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("ul", { className: "rails", children: GUARDRAILS.map(([t2, tag]) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("li", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: t2 }),
         /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: tag })
@@ -157227,7 +157230,7 @@ var init_Settings = __esm({
     init_providers();
     init_initiative();
     init_mcpRuntime();
-    init_version();
+    init_brand();
     init_live();
     init_standing();
     init_ledger();
@@ -157373,7 +157376,7 @@ function Shell() {
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "brand", children: [
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "mark", "aria-hidden": true }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: "Vouch Harbor" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: PRODUCT_NAME }),
           /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: "ON-DEVICE \xB7 RECEIPTED" })
         ] })
       ] }),
@@ -157423,6 +157426,7 @@ var init_Shell = __esm({
   "src/ui/Shell.tsx"() {
     "use strict";
     import_react12 = __toESM(require_react(), 1);
+    init_brand();
     init_store();
     init_Steward();
     init_Work();

@@ -1,5 +1,5 @@
 # RSIRALS v5.0 — Trust-Rooted Recursive Self-Improvement
-## A proprietary Vouch Harbor product architecture (implementation: `src/vh19/rsirals.ts` + `src/vh19/rsi.ts`)
+## A proprietary Velvet Hand product architecture (implementation: `src/vh19/rsirals.ts` + `src/vh19/rsi.ts`)
 
 **RSIRALS** = **R**ecursive **S**elf-**I**mprovement + **R**einforcement + **A**gentic **L**earning **S**ystem.
 
@@ -89,7 +89,7 @@ accepts ONLY sealed evidence — the raw numeric settlement function is
 module-private, and forged or tampered evidence fails the seal check.
 Without real receipts the bind step refuses in words. That makes the
 receipt-bound path the ONLY product-level settlement door — the
-anti-reward-hacking rung, enforced structurally (19.4.4).
+anti-reward-hacking rung, enforced structurally.
 
 **Sealed, not attested — stated plainly.** The seal proves *measurement
 integrity* (these exact fields belong to this digest). It does NOT prove
@@ -99,7 +99,7 @@ authority. Signed measurement provenance (receipt id + execution provenance
 bound into signed evidence) is the named next milestone; until then the
 honest claim is "sealed," never "cryptographically attested."
 
-### Structured change contracts (primary enforcement since 19.4.4)
+### Structured change contracts (the primary enforcement)
 
 Strings alone cannot prove a candidate safe, so the primary governance
 check is structural: every change carries a contract — `target`, `field`,

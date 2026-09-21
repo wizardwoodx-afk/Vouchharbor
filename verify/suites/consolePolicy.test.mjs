@@ -28,7 +28,7 @@ var skills = read("src/vh19/skills.ts");
 var loop = read("src/vh19/agentLoop.ts");
 console.log("== the final-product policy ==");
 ok("the primary surface never imports the version \u2014 no numbers in the app", !/from "\.\.\/version"|from "\.\.\/\.\.\/version"|VH_VERSION/.test(consoleSrc), "a version surface leaked into the UI");
-ok("only Settings \u2192 About states the version, and it reads it from the one version line", /VH_VERSION/.test(settingsSrc) && !/"19\.\d+\.\d+/.test(settingsSrc));
+ok("no surface states a version \u2014 Settings \u2192 About names the product and the engine from brand.ts", !/VH_VERSION/.test(settingsSrc) && !/"\d+\.\d+\.\d+/.test(settingsSrc) && /ENGINE_CREDIT/.test(settingsSrc));
 var rendered = (consoleSrc + settingsSrc).replace(/GeneralistFace|GeneralistMood|GeneralistResponse|generalistName|setGeneralistName|from "\.\.\/vh19\/generalist"/g, "");
 ok("no rendered string says Generalist \u2014 the agent is the Steward", !rendered.includes("Generalist"));
 ok("the Steward rename is real (Settings \u2192 Steward, through the store)", settingsSrc.includes("renameSteward(") && /renameSteward:\s*\(n\)\s*=>\s*set\(\{\s*stewardName:\s*setGeneralistName\(n\)/.test(storeSrc));

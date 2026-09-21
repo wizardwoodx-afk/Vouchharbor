@@ -123,17 +123,20 @@ test("the web entry, IPC bridge, and styles carry no legacy name", () => {
   }
 });
 
-test("identity strings are Vouch Harbor", () => {
+test("identity strings are Velvet Hand (product) on the Vouch Harbor engine", () => {
   const pkg = JSON.parse(read("package.json"));
-  assert.equal(pkg.name, "vouchharbor");
+  assert.equal(pkg.name, "velvet-hand");
   assert.ok(!/\bMJ\b|\bROGUE\b/.test(pkg.description ?? ""), `package description: ${pkg.description}`);
   const html = read("index.html");
-  assert.ok(/<title>\s*Vouch Harbor/.test(html), "index.html title");
+  assert.ok(/<title>\s*Velvet Hand/.test(html), "index.html title");
   const tauri = read("src-tauri/tauri.conf.json");
   const conf = JSON.parse(tauri);
-  assert.equal(conf.identifier, "com.vouchharbor.harbor");
-  assert.equal(conf.productName, "Vouch Harbor");
-  assert.ok(conf.bundle.longDescription.includes("Vouch Harbor"), "native description");
+  assert.equal(conf.identifier, "com.velvethand.app");
+  assert.equal(conf.productName, "Velvet Hand");
+  assert.ok(conf.bundle.longDescription.startsWith("Velvet Hand") && conf.bundle.longDescription.includes("Vouch Harbor engine"), "native description");
+  const brand = read("src/brand.ts");
+  assert.ok(/PRODUCT_NAME = "Velvet Hand"/.test(brand) && /ENGINE_NAME = "Vouch Harbor"/.test(brand), "brand.ts is the one source of both names");
+  assert.ok(/\{PRODUCT_NAME\}/.test(read("src/ui/Shell.tsx")), "the sidebar brand reads from brand.ts");
   const ver = read("src/version.ts");
   assert.ok(new RegExp(`export const VH_VERSION = "${VH_VERSION.replace(/\./g, "\\.")}"`).test(ver), `product version constant in src/version.ts matches ${VH_VERSION}`);
 });

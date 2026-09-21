@@ -216,10 +216,10 @@ describe("merge — one mission ID, one chain, one state (16.0)", () => {
     assert.ok(/<Shell\s*\/>/.test(app), "the shell IS the app");
     assert.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/ui/store.ts")), "the ui store drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json")) as { name: string; version: string };
-    assert.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
+    assert.equal(pkg.name, "velvet-hand", "the product is named velvet-hand");
     assert.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");
-    assert.equal(VH_TITLE, `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`, "the product title is Vouch Harbor");
-    assert.ok(/<title>Vouch Harbor[^<]*<\/title>/.test(read("index.html")), "the window title is Vouch Harbor");
+    assert.equal(VH_TITLE, `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`, "the product title is Velvet Hand, engine identity beside it");
+    assert.ok(/<title>Velvet Hand[^<]*<\/title>/.test(read("index.html")), "the window title is Velvet Hand");
     assert.ok(/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(VH_VERSION), "one product version line: the single VH_VERSION stamps everything (semver, 3 or 4 numeric parts)");
   });
 });

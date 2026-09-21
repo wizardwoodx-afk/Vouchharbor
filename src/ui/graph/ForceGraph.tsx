@@ -1,5 +1,5 @@
 /**
- * VH 19.8 — the one 3D graph component.
+ * Velvet Hand — the one 3D graph component.
  * Wraps 3d-force-graph (MIT, three.js). Two modes with deliberately different
  * identities so a user never confuses them:
  *   • "work"   — hierarchical top→bottom DAG, warm champagne, arrows + flow.

@@ -41,7 +41,7 @@ const loop = read("src/vh19/agentLoop.ts");
 
 console.log("== the final-product policy ==");
 ok("the primary surface never imports the version — no numbers in the app", !/from "\.\.\/version"|from "\.\.\/\.\.\/version"|VH_VERSION/.test(consoleSrc), "a version surface leaked into the UI");
-ok("only Settings → About states the version, and it reads it from the one version line", /VH_VERSION/.test(settingsSrc) && !/"19\.\d+\.\d+/.test(settingsSrc));
+ok("no surface states a version — Settings → About names the product and the engine from brand.ts", !/VH_VERSION/.test(settingsSrc) && !/"\d+\.\d+\.\d+/.test(settingsSrc) && /ENGINE_CREDIT/.test(settingsSrc));
 
 const rendered = (consoleSrc + settingsSrc)
   .replace(/GeneralistFace|GeneralistMood|GeneralistResponse|generalistName|setGeneralistName|from "\.\.\/vh19\/generalist"/g, "");

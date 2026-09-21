@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Vouch Harbor",
+  "productName": "Velvet Hand",
   "version": "19.7.12",
-  "identifier": "com.vouchharbor.harbor",
+  "identifier": "com.velvethand.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Vouch Harbor",
+        "title": "Velvet Hand",
         "width": 1560,
         "height": 980,
         "minWidth": 1120,
@@ -35,7 +35,7 @@
       "id": "main",
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
-      "tooltip": "Vouch Harbor \u2014 native agent workstation",
+      "tooltip": "Velvet Hand \u2014 your agents, with receipts",
       "menuOnLeftClick": false
     }
   },
@@ -56,7 +56,7 @@
     },
     "category": "DeveloperTool",
     "shortDescription": "Native visual AI agent orchestration workstation",
-    "longDescription": "Vouch Harbor is a local-first desktop workstation for governing, executing, verifying, and learning from multi-agent missions. Secrets stay in the OS keychain. One mission, one vouched chain.",
+    "longDescription": "Velvet Hand (built on the Vouch Harbor engine) is a local-first desktop workstation for governing, executing, verifying, and learning from multi-agent missions. Secrets stay in the OS keychain. One mission, one vouched chain.",
     "createUpdaterArtifacts": false,
     "resources": [
       "../vendor"
