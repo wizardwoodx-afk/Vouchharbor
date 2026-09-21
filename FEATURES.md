@@ -47,6 +47,11 @@ The engine underneath is **Vouch Harbor**.
   names the endpoint class when it did.
 - **Knowledge is not a measured claim.** Approved knowledge is human-approved
   knowledge; it is never counted as a measured effect.
+- **The distiller is named, not implied.** Extraction is **mechanical** by
+  default: the structure is read out of the text on this machine and no model is
+  called. The engine can also distill through an LLM harness, and when it does the
+  proposal says so, names the harness, and discloses the endpoint class. This door
+  takes the mechanical path, which is stated on the surface rather than inferred.
 
 ## Memory
 

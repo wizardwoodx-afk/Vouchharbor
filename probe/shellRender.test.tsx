@@ -10,6 +10,20 @@
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
+import fs from "node:fs";
+import path from "node:path";
+
+/* The shell file the door list is DERIVED from — never a hardcoded list.
+   A literal list is what let "the five doors are on screen" keep passing after a
+   sixth door (Docs) shipped: the gate described a shell that no longer existed. */
+declare const VH_ROOT: string;
+const ROOT = VH_ROOT ?? process.cwd();
+const read = (rel: string): string => fs.readFileSync(path.join(ROOT, rel), "utf8");
+/** Every door the shell actually declares, in order: /\{ key: "x", label: "Y", icon: "z" \}/ */
+function shellDoors(): Array<{ key: string; label: string }> {
+  return [...read("src/ui/Shell.tsx").matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)]
+    .map((m) => ({ key: m[1] as string, label: m[2] as string }));
+}
 
 let passed = 0;
 let failed = 0;
@@ -34,6 +48,7 @@ async function main(): Promise<void> {
   const { Work } = await import("../src/ui/screens/Work");
   const { Receipts } = await import("../src/ui/screens/Receipts");
   const { Memory } = await import("../src/ui/screens/Memory");
+  const { Docs } = await import("../src/ui/screens/Docs");
   const { Settings } = await import("../src/ui/screens/Settings");
   const { Chat } = await import("../src/ui/screens/Chat");
 
@@ -43,7 +58,16 @@ async function main(): Promise<void> {
   catch (err) { ok("Shell renders without throwing", false, err instanceof Error ? err.message : String(err)); }
   ok("Shell renders without throwing", html.length > 1000, `${html.length} bytes`);
   const text = strip(html);
-  ok("the five doors are on screen", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d) => text.includes(d)), text.slice(0, 200));
+  /* 19.7.13 — DERIVED, not literalled. The old line asserted five door labels and
+     said "the five doors are on screen", so when the Docs door shipped it kept
+     passing while the shell had six: Docs could have been deleted from the shell
+     and this gate would not have noticed. The expected set now comes from the
+     shell source itself, the count is pinned exactly, and every door is rendered
+     on its own in section 1 — add a seventh door and this fails until it renders. */
+  const doors = shellDoors();
+  ok("the shell declares six doors", doors.length === 6, `declared ${doors.length}: ${doors.map((d) => d.label).join(" · ")}`);
+  ok("every declared door is on screen", doors.every((d) => text.includes(d.label)), `missing: ${doors.filter((d) => !text.includes(d.label)).map((d) => d.label).join(", ") || "none"}`);
+  ok("the Docs door is among them", doors.some((d) => d.key === "docs" && d.label === "Docs"));
   ok("the hero asks the one question", /How can I help you today\s*\?/.test(text), "hero missing");
   ok("it is honest about plan-only without a provider", /plan only|Plan-only/i.test(text) && /Nothing executes yet/.test(text), "no plan-only statement");
   ok("no version number on the primary surface", !/\b19\.\d+\.\d+/.test(text), (text.match(/\b19\.\d+\.\d+/) ?? [""])[0]);
@@ -51,11 +75,36 @@ async function main(): Promise<void> {
   ok("no boot splash, no keyboard-shortcut hints", !/vh-boot|⌘K|⌘N/.test(html), "leftover chrome");
 
   section("1. every door renders on its own, empty");
-  for (const [name, C] of [["Steward", Steward], ["Work", Work], ["Receipts", Receipts], ["Memory", Memory], ["Settings", Settings]] as const) {
+  /* Driven by the SAME derived set as the check above, so a door cannot be added
+     to the shell without a render target here. Docs renders empty exactly like the
+     rest: the honest first run, no document, no proposal. */
+  const COMPONENTS: Record<string, () => JSX.Element> = {
+    steward: Steward as unknown as () => JSX.Element,
+    work: Work as unknown as () => JSX.Element,
+    receipts: Receipts as unknown as () => JSX.Element,
+    docs: Docs as unknown as () => JSX.Element,
+    memory: Memory as unknown as () => JSX.Element,
+    settings: Settings as unknown as () => JSX.Element,
+  };
+  for (const d of doors) {
+    const C = COMPONENTS[d.key];
+    if (!C) { ok(`${d.label} has a render target in this probe`, false, `no component mapped for key "${d.key}"`); continue; }
     let h = ""; let err = "";
     try { h = renderToStaticMarkup(createElement(C as () => JSX.Element)); } catch (e) { err = e instanceof Error ? e.message : String(e); }
-    ok(`${name} renders without throwing`, h.length > 200 && !err, err || `${h.length} bytes`);
+    ok(`${d.label} renders without throwing`, h.length > 200 && !err, err || `${h.length} bytes`);
   }
+  /* The Docs door's own promises, rendered cold: it offers the document path and
+     says plainly that nothing installs itself. */
+  const docs = strip(renderToStaticMarkup(createElement(Docs as unknown as () => JSX.Element)));
+  /* Pinned against what the door ACTUALLY renders cold (no document, no proposal):
+     the document path, the empty state, and the human-decision promise. The
+     post-propose note ("nothing is installed until you decide") is deliberately not
+     asserted here — it only appears after a successful proposal, so requiring it in
+     a cold render would have been asserting a screen that does not exist yet. */
+  ok("Docs: offers the document path, installs nothing on its own, and states it",
+    /Propose knowledge/.test(docs) && /Load a file/.test(docs) && /No documents yet/.test(docs) &&
+    /asks you before anything is installed/.test(docs) && /structure/.test(docs),
+    "the Docs door lost its document path or its human-decision statement");
   let chatHtml = ""; try { chatHtml = renderToStaticMarkup(createElement(Chat, { title: "Steward" })); } catch (e) { chatHtml = ""; }
   ok("Chat renders empty without throwing", chatHtml.length > 200 && /Nothing here yet/.test(strip(chatHtml)));
 

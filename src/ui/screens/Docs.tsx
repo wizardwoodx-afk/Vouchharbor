@@ -16,6 +16,17 @@
  *   • it does not hide where the content went. Every proposal carries
  *     `dataHandling` — "local" when nothing left the machine, "provider" when an
  *     LLM pass sent it to the selected harness — and the door prints it verbatim.
+ *
+ * THE DISTILLER IS NAMED, NOT IMPLIED (19.7.13). The engine can distill two ways:
+ * mechanically (structure is extracted from the text itself — no model is called,
+ * and `dataHandling` is "local") or through an LLM harness (`distiller.kind ===
+ * "llm"`, which reports its vendor and endpoint class). This door currently takes
+ * the MECHANICAL path only: it calls `proposeKnowledgeSkill` without the optional
+ * `llm` harness, because a harness CLI is a desktop-host capability and the web
+ * build has none. That is a deliberate product posture for a security-first tool —
+ * the document is not sent anywhere to be understood — and it is stated on the
+ * surface rather than left for the user to infer. Wiring the LLM path belongs on
+ * the desktop build, where a harness actually exists.
  */
 
 import React, { useRef, useState } from "react";
@@ -112,7 +123,7 @@ export function Docs(): React.ReactElement {
         </div>
 
         {rows.length === 0 ? (
-          <div className="empty"><h3>No documents yet</h3><p>Add one above. The Steward distills its <b>structure</b> — procedure, decision rules, failure modes — into a knowledge proposal, then asks you before anything is installed.</p></div>
+          <div className="empty"><h3>No documents yet</h3><p>Add one above. The Steward distills its <b>structure</b> — procedure, decision rules, failure modes — into a knowledge proposal, then asks you before anything is installed.</p><p className="hint">Extraction is <b>mechanical</b>: the structure is read out of the text on this machine and no model is called. Nothing is summarized and nothing is sent anywhere.</p></div>
         ) : (
           <div className="ledger">
             <div className="lh"><span>When</span><span>Document</span><span>Handling</span><span>Status</span><span /></div>
@@ -130,6 +141,12 @@ export function Docs(): React.ReactElement {
                     <p><b>{r.summary}</b></p>
                     {r.procedure && <p className="hint">Procedure — {r.procedure}</p>}
                     {r.knownFailureModes && <p className="hint">Known failure modes — {r.knownFailureModes}</p>}
+                    <p className="hint">
+                      <b>Distiller — </b>
+                      {r.distiller.kind === "llm"
+                        ? `an LLM harness (${r.distiller.harness}) distilled this document.`
+                        : "mechanical extraction: the structure was read out of the text itself and no model was called."}
+                    </p>
                     <p className="hint">
                       {r.dataHandling === "local"
                         ? "Handling: the content never left this machine."

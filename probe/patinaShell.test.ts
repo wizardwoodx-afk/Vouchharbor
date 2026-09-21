@@ -3,7 +3,7 @@
  *
  * History: this suite pinned the Patina shell (harbor.tsx + five views), then the
  * 19.6.6 Federation Console. Both are retired. The 19.7.12 redesign ships ONE
- * shell (src/ui/Shell.tsx), five doors (Steward · Work · Receipts · Memory ·
+ * shell (src/ui/Shell.tsx), six doors (Steward · Work · Receipts · Docs · Memory ·
  * Settings) and ONE store (src/ui/store.ts) that is the only path to the engine.
  * The guarantees are the same ones the older shells were held to: the app
  * mounts exactly this shell, the screens never bypass the store to reach the
@@ -69,7 +69,18 @@ ok("the store resolves exactly the pending gate", /decideGate:\s*\(d\)\s*=>\s*\{
 section("4. every primary action is wired to real state");
 const shell = read("src/ui/Shell.tsx");
 ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc));
-ok("the five doors are Steward · Work · Receipts · Memory · Settings", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d) => new RegExp(`label:\\s*"${d}"`).test(shell)));
+/* 19.7.13 — was `[five labels].every(...)`, which is ADDITIVE-BLIND: the check
+   only asked whether those five were present, so a sixth door could ship (and Docs
+   did) while this stayed green — and Docs could equally have been deleted from the
+   shell without failing it. The doors are now DERIVED from the shell source and the
+   count is pinned, so the set can only change deliberately. */
+const shellDoors = [...shell.matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)].map((m) => m[1] as string);
+ok("the shell declares six doors, Docs among them",
+  shellDoors.length === 6 && shellDoors.includes("docs"),
+  `declared ${shellDoors.length}: ${shellDoors.join(" · ")}`);
+ok("every door is Steward · Work · Receipts · Docs · Memory · Settings",
+  ["steward", "work", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
+  shellDoors.join(" · "));
 ok("the crew never faces the user by name — Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
 const composer = read("src/ui/screens/Composer.tsx");
 ok("Enter sends (Shift+Enter breaks a line)", /e\.key === "Enter" && !e\.shiftKey/.test(composer) && /onSend\(\)/.test(composer));

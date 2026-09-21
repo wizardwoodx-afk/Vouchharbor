@@ -71,7 +71,17 @@ ok("the store resolves exactly the pending gate", /decideGate:\s*\(d\)\s*=>\s*\{
 section("4. every primary action is wired to real state");
 var shell = read("src/ui/Shell.tsx");
 ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc));
-ok("the five doors are Steward \xB7 Work \xB7 Receipts \xB7 Memory \xB7 Settings", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d) => new RegExp(`label:\\s*"${d}"`).test(shell)));
+var shellDoors = [...shell.matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)].map((m) => m[1]);
+ok(
+  "the shell declares six doors, Docs among them",
+  shellDoors.length === 6 && shellDoors.includes("docs"),
+  `declared ${shellDoors.length}: ${shellDoors.join(" \xB7 ")}`
+);
+ok(
+  "every door is Steward \xB7 Work \xB7 Receipts \xB7 Docs \xB7 Memory \xB7 Settings",
+  ["steward", "work", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
+  shellDoors.join(" \xB7 ")
+);
 ok("the crew never faces the user by name \u2014 Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
 var composer = read("src/ui/screens/Composer.tsx");
 ok("Enter sends (Shift+Enter breaks a line)", /e\.key === "Enter" && !e\.shiftKey/.test(composer) && /onSend\(\)/.test(composer));

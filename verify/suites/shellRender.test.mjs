@@ -10959,12 +10959,12 @@ var require_react_dom_server_node_development = __commonJS({
           if (writtenBytes > 0) {
             target = currentView.subarray(writtenBytes);
           }
-          var _textEncoder$encodeIn = textEncoder.encodeInto(stringChunk, target), read2 = _textEncoder$encodeIn.read, written = _textEncoder$encodeIn.written;
+          var _textEncoder$encodeIn = textEncoder.encodeInto(stringChunk, target), read3 = _textEncoder$encodeIn.read, written = _textEncoder$encodeIn.written;
           writtenBytes += written;
-          if (read2 < stringChunk.length) {
+          if (read3 < stringChunk.length) {
             writeToDestination(destination, currentView);
             currentView = new Uint8Array(VIEW_SIZE);
-            writtenBytes = textEncoder.encodeInto(stringChunk.slice(read2), currentView).written;
+            writtenBytes = textEncoder.encodeInto(stringChunk.slice(read3), currentView).written;
           }
           if (writtenBytes === VIEW_SIZE) {
             writeToDestination(destination, currentView);
@@ -33287,10 +33287,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path) {
-  if (!path)
+function getElementAtPath(obj, path2) {
+  if (!path2)
     return obj;
-  return path.reduce((acc, key) => acc?.[key], obj);
+  return path2.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -33549,11 +33549,11 @@ function explicitlyAborted(x3, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path, issues) {
+function prefixIssues(path2, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path);
+    iss.path.unshift(path2);
     return iss;
   });
 }
@@ -34078,16 +34078,16 @@ function flattenError(error64, mapper = (issue2) => issue2.message) {
 }
 function formatError(error64, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error65, path = []) => {
+  const processError = (error65, path2 = []) => {
     for (const issue2 of error65.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else {
-        const fullpath = [...path, ...issue2.path];
+        const fullpath = [...path2, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -34126,17 +34126,17 @@ function formatError(error64, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error64, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error65, path = []) => {
+  const processError = (error65, path2 = []) => {
     var _a3;
     for (const issue2 of error65.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
       } else {
-        const fullpath = [...path, ...issue2.path];
+        const fullpath = [...path2, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -34175,8 +34175,8 @@ function treeifyError(error64, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path) {
+  const path2 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path2) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -52162,13 +52162,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path = ref.slice(1).split("/").filter(Boolean);
-  if (path.length === 0) {
+  const path2 = ref.slice(1).split("/").filter(Boolean);
+  if (path2.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path[0] === defsKey) {
-    const key = path[1] === void 0 ? void 0 : decodeJSONPointerSegment(path[1]);
+  if (path2[0] === defsKey) {
+    const key = path2[1] === void 0 ? void 0 : decodeJSONPointerSegment(path2[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -53683,22 +53683,22 @@ function resolveWorkspacePath(root3, p2) {
 }
 async function fsFor(ctx) {
   if (ctx.fsImpl) return ctx.fsImpl;
-  const fs = await import("node:fs/promises");
+  const fs2 = await import("node:fs/promises");
   const pathMod = await import("node:path");
   return {
     kind: "node",
     async readdir(p2) {
-      const entries = await fs.readdir(p2, { withFileTypes: true });
+      const entries = await fs2.readdir(p2, { withFileTypes: true });
       return entries.map((e3) => ({ name: e3.name, isDirectory: e3.isDirectory() }));
     },
     async stat(p2) {
-      const st = await fs.stat(p2);
+      const st = await fs2.stat(p2);
       if (!st.isFile()) return { isFile: false, size: 0 };
       return { isFile: true, size: st.size };
     },
     async readText(p2, maxBytes) {
-      const st = await fs.stat(p2);
-      const fh = await fs.open(p2, "r");
+      const st = await fs2.stat(p2);
+      const fh = await fs2.open(p2, "r");
       try {
         const buf = Buffer.alloc(Math.min(st.size, maxBytes));
         const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
@@ -53708,11 +53708,11 @@ async function fsFor(ctx) {
       }
     },
     async mkdir(p2) {
-      await fs.mkdir(p2, { recursive: true });
+      await fs2.mkdir(p2, { recursive: true });
     },
     async writeText(p2, content) {
-      await fs.mkdir(pathMod.dirname(p2), { recursive: true });
-      await fs.writeFile(p2, content, "utf8");
+      await fs2.mkdir(pathMod.dirname(p2), { recursive: true });
+      await fs2.writeFile(p2, content, "utf8");
     }
   };
 }
@@ -53720,8 +53720,8 @@ async function execFsList(input2, ctx) {
   const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input2.path ?? ""));
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input2.path ?? "")}" escapes the workspace root or is invalid` };
   try {
-    const fs = await fsFor(ctx);
-    const entries = await fs.readdir(resolved);
+    const fs2 = await fsFor(ctx);
+    const entries = await fs2.readdir(resolved);
     const lines = entries.slice(0, 100).map((e3) => e3.isDirectory ? `${e3.name}/` : e3.name);
     return { outcome: "ok", output: lines.length > 0 ? lines.join("\n") : "(empty directory)" };
   } catch (err) {
@@ -53732,10 +53732,10 @@ async function execFsRead(input2, ctx) {
   const resolved = resolveWorkspacePath(ctx.workspaceRoot, String(input2.path ?? ""));
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input2.path ?? "")}" escapes the workspace root or is invalid` };
   try {
-    const fs = await fsFor(ctx);
-    const st = await fs.stat(resolved);
+    const fs2 = await fsFor(ctx);
+    const st = await fs2.stat(resolved);
     if (!st.isFile) return { outcome: "error", output: "not a regular file" };
-    const { text, truncated } = await fs.readText(resolved, MAX_READ_BYTES);
+    const { text, truncated } = await fs2.readText(resolved, MAX_READ_BYTES);
     const tail = truncated ? `
 [truncated \u2014 file is ${st.size} bytes, first ${MAX_READ_BYTES} returned]` : "";
     return { outcome: "ok", output: text + tail };
@@ -53748,8 +53748,8 @@ async function execFsWrite(input2, ctx) {
   if (!resolved) return { outcome: "refused", output: `path refused: "${String(input2.path ?? "")}" escapes the workspace root or is invalid` };
   if (typeof input2.content !== "string") return { outcome: "error", output: `fs.write needs a string "content" field` };
   try {
-    const fs = await fsFor(ctx);
-    await fs.writeText(resolved, input2.content);
+    const fs2 = await fsFor(ctx);
+    await fs2.writeText(resolved, input2.content);
     return { outcome: "ok", output: `wrote ${new TextEncoder().encode(input2.content).length} bytes to ${input2.path}` };
   } catch (err) {
     return { outcome: "error", output: `fs.write failed: ${err instanceof Error ? err.message : String(err)}` };
@@ -55339,8 +55339,8 @@ function grantAllows(grant, capability) {
   return grant.granted.includes(capability);
 }
 function grantForPair(input2, deps = {}) {
-  const read2 = deps.standing ?? ((a3, b3) => standingFor(a3, b3));
-  return narrowGrant({ ...input2, standing: read2(input2.ownerA, input2.ownerB) });
+  const read3 = deps.standing ?? ((a3, b3) => standingFor(a3, b3));
+  return narrowGrant({ ...input2, standing: read3(input2.ownerA, input2.ownerB) });
 }
 var DELEGATION_CAPABILITIES, CAPABILITIES_BY_STANDING, IRREVERSIBLE_CAPABILITIES, SUPERVISED_CAPABILITIES, HUMAN_FIRST_CAPABILITIES, REQUIRE_HUMAN_FIRST_DEFAULT;
 var init_delegationGrant = __esm({
@@ -84108,17 +84108,17 @@ var init_three_core = __esm({
        * @param {number} [radialSegments=8] - The number of segments that make up the cross-section.
        * @param {boolean} [closed=false] - Whether the tube is closed or not.
        */
-      constructor(path = new QuadraticBezierCurve3(new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0)), tubularSegments = 64, radius = 1, radialSegments = 8, closed = false) {
+      constructor(path2 = new QuadraticBezierCurve3(new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0)), tubularSegments = 64, radius = 1, radialSegments = 8, closed = false) {
         super();
         this.type = "TubeGeometry";
         this.parameters = {
-          path,
+          path: path2,
           tubularSegments,
           radius,
           radialSegments,
           closed
         };
-        const frames = path.computeFrenetFrames(tubularSegments, closed);
+        const frames = path2.computeFrenetFrames(tubularSegments, closed);
         this.tangents = frames.tangents;
         this.normals = frames.normals;
         this.binormals = frames.binormals;
@@ -84144,7 +84144,7 @@ var init_three_core = __esm({
           generateIndices();
         }
         function generateSegment(i2) {
-          P3 = path.getPointAt(i2 / tubularSegments, P3);
+          P3 = path2.getPointAt(i2 / tubularSegments, P3);
           const N3 = frames.normals[i2];
           const B3 = frames.binormals[i2];
           for (let j2 = 0; j2 <= radialSegments; j2++) {
@@ -86173,8 +86173,8 @@ var init_three_core = __esm({
        * @param {string} path - The base path.
        * @return {Loader} A reference to this instance.
        */
-      setPath(path) {
-        this.path = path;
+      setPath(path2) {
+        this.path = path2;
         return this;
       }
       /**
@@ -87756,10 +87756,10 @@ var init_three_core = __esm({
     );
     _supportedObjectNames = ["material", "materials", "bones", "map"];
     Composite = class {
-      constructor(targetGroup, path, optionalParsedPath) {
-        const parsedPath = optionalParsedPath || PropertyBinding.parseTrackName(path);
+      constructor(targetGroup, path2, optionalParsedPath) {
+        const parsedPath = optionalParsedPath || PropertyBinding.parseTrackName(path2);
         this._targetGroup = targetGroup;
-        this._bindings = targetGroup.subscribe_(path, parsedPath);
+        this._bindings = targetGroup.subscribe_(path2, parsedPath);
       }
       getValue(array4, offset) {
         this.bind();
@@ -87793,9 +87793,9 @@ var init_three_core = __esm({
        * @param {string} path - The path.
        * @param {?Object} [parsedPath] - The parsed path.
        */
-      constructor(rootNode, path, parsedPath) {
-        this.path = path;
-        this.parsedPath = parsedPath || _PropertyBinding.parseTrackName(path);
+      constructor(rootNode, path2, parsedPath) {
+        this.path = path2;
+        this.parsedPath = parsedPath || _PropertyBinding.parseTrackName(path2);
         this.node = _PropertyBinding.findNode(rootNode, this.parsedPath.nodeName);
         this.rootNode = rootNode;
         this.getValue = this._getValue_unbound;
@@ -87810,11 +87810,11 @@ var init_three_core = __esm({
        * @param {?Object} [parsedPath] - The parsed path.
        * @return {PropertyBinding|Composite} The created property binding or composite.
        */
-      static create(root3, path, parsedPath) {
+      static create(root3, path2, parsedPath) {
         if (!(root3 && root3.isAnimationObjectGroup)) {
-          return new _PropertyBinding(root3, path, parsedPath);
+          return new _PropertyBinding(root3, path2, parsedPath);
         } else {
-          return new _PropertyBinding.Composite(root3, path, parsedPath);
+          return new _PropertyBinding.Composite(root3, path2, parsedPath);
         }
       }
       /**
@@ -90998,10 +90998,10 @@ function addUniform(container, uniformObject) {
   container.map[uniformObject.id] = uniformObject;
 }
 function parseUniform(activeInfo, addr, container) {
-  const path = activeInfo.name, pathLength = path.length;
+  const path2 = activeInfo.name, pathLength = path2.length;
   RePathPart.lastIndex = 0;
   while (true) {
-    const match = RePathPart.exec(path), matchEnd = RePathPart.lastIndex;
+    const match = RePathPart.exec(path2), matchEnd = RePathPart.lastIndex;
     let id = match[1];
     const idIsIndex = match[2] === "]", subscript = match[3];
     if (idIsIndex) id = id | 0;
@@ -157445,6 +157445,10 @@ var init_Memory = __esm({
 });
 
 // src/ui/screens/Docs.tsx
+var Docs_exports = {};
+__export(Docs_exports, {
+  Docs: () => Docs
+});
 function Docs() {
   const st = useVh();
   const [text, setText] = (0, import_react10.useState)("");
@@ -157570,6 +157574,11 @@ function Docs() {
           "Add one above. The Steward distills its ",
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "structure" }),
           " \u2014 procedure, decision rules, failure modes \u2014 into a knowledge proposal, then asks you before anything is installed."
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+          "Extraction is ",
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "mechanical" }),
+          ": the structure is read out of the text on this machine and no model is called. Nothing is summarized and nothing is sent anywhere."
         ] })
       ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "ledger", children: [
         /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "lh", children: [
@@ -157599,6 +157608,10 @@ function Docs() {
             r3.knownFailureModes && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
               "Known failure modes \u2014 ",
               r3.knownFailureModes
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "Distiller \u2014 " }),
+              r3.distiller.kind === "llm" ? `an LLM harness (${r3.distiller.harness}) distilled this document.` : "mechanical extraction: the structure was read out of the text itself and no model was called."
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
               r3.dataHandling === "local" ? "Handling: the content never left this machine." : `Handling: the content was sent to ${r3.providerInfo?.vendor ?? "a model provider"} (${r3.providerInfo?.endpointClass ?? "endpoint unknown"}).`,
@@ -158176,6 +158189,13 @@ var init_Shell = __esm({
 // probe/shellRender.test.tsx
 var import_server = __toESM(require_server_node(), 1);
 var import_react14 = __toESM(require_react(), 1);
+import fs from "node:fs";
+import path from "node:path";
+var ROOT = ".";
+var read2 = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
+function shellDoors() {
+  return [...read2("src/ui/Shell.tsx").matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)].map((m3) => ({ key: m3[1], label: m3[2] }));
+}
 var passed = 0;
 var failed = 0;
 var failures = [];
@@ -158208,6 +158228,7 @@ async function main() {
   const { Work: Work2 } = await Promise.resolve().then(() => (init_Work(), Work_exports));
   const { Receipts: Receipts2 } = await Promise.resolve().then(() => (init_Receipts(), Receipts_exports));
   const { Memory: Memory2 } = await Promise.resolve().then(() => (init_Memory(), Memory_exports));
+  const { Docs: Docs2 } = await Promise.resolve().then(() => (init_Docs(), Docs_exports));
   const { Settings: Settings2 } = await Promise.resolve().then(() => (init_Settings(), Settings_exports));
   const { Chat: Chat2 } = await Promise.resolve().then(() => (init_Chat(), Chat_exports));
   section("0. the shell renders cold (no storage, no provider, no WebGL)");
@@ -158219,14 +158240,30 @@ async function main() {
   }
   ok("Shell renders without throwing", html.length > 1e3, `${html.length} bytes`);
   const text = strip(html);
-  ok("the five doors are on screen", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d3) => text.includes(d3)), text.slice(0, 200));
+  const doors = shellDoors();
+  ok("the shell declares six doors", doors.length === 6, `declared ${doors.length}: ${doors.map((d3) => d3.label).join(" \xB7 ")}`);
+  ok("every declared door is on screen", doors.every((d3) => text.includes(d3.label)), `missing: ${doors.filter((d3) => !text.includes(d3.label)).map((d3) => d3.label).join(", ") || "none"}`);
+  ok("the Docs door is among them", doors.some((d3) => d3.key === "docs" && d3.label === "Docs"));
   ok("the hero asks the one question", /How can I help you today\s*\?/.test(text), "hero missing");
   ok("it is honest about plan-only without a provider", /plan only|Plan-only/i.test(text) && /Nothing executes yet/.test(text), "no plan-only statement");
   ok("no version number on the primary surface", !/\b19\.\d+\.\d+/.test(text), (text.match(/\b19\.\d+\.\d+/) ?? [""])[0]);
   ok("no agent name leaks (Generalist / specialist ids)", !/Generalist|business\.|code\./.test(text), "internal names leaked");
   ok("no boot splash, no keyboard-shortcut hints", !/vh-boot|⌘K|⌘N/.test(html), "leftover chrome");
   section("1. every door renders on its own, empty");
-  for (const [name, C2] of [["Steward", Steward2], ["Work", Work2], ["Receipts", Receipts2], ["Memory", Memory2], ["Settings", Settings2]]) {
+  const COMPONENTS = {
+    steward: Steward2,
+    work: Work2,
+    receipts: Receipts2,
+    docs: Docs2,
+    memory: Memory2,
+    settings: Settings2
+  };
+  for (const d3 of doors) {
+    const C2 = COMPONENTS[d3.key];
+    if (!C2) {
+      ok(`${d3.label} has a render target in this probe`, false, `no component mapped for key "${d3.key}"`);
+      continue;
+    }
     let h2 = "";
     let err = "";
     try {
@@ -158234,8 +158271,14 @@ async function main() {
     } catch (e3) {
       err = e3 instanceof Error ? e3.message : String(e3);
     }
-    ok(`${name} renders without throwing`, h2.length > 200 && !err, err || `${h2.length} bytes`);
+    ok(`${d3.label} renders without throwing`, h2.length > 200 && !err, err || `${h2.length} bytes`);
   }
+  const docs = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Docs2)));
+  ok(
+    "Docs: offers the document path, installs nothing on its own, and states it",
+    /Propose knowledge/.test(docs) && /Load a file/.test(docs) && /No documents yet/.test(docs) && /asks you before anything is installed/.test(docs) && /structure/.test(docs),
+    "the Docs door lost its document path or its human-decision statement"
+  );
   let chatHtml = "";
   try {
     chatHtml = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Chat2, { title: "Steward" }));
@@ -158256,9 +158299,9 @@ async function main() {
     resolved = d3;
   }, askedAt: (/* @__PURE__ */ new Date()).toISOString() }, busy: true });
   ok("a pending gate is visible in the store", useVh2.getState().gate?.ask.action === "delete branch");
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const workSrc = fs.readFileSync(path.join(process.cwd(), "src/ui/screens/Work.tsx"), "utf8");
+  const fs2 = await import("node:fs");
+  const path2 = await import("node:path");
+  const workSrc = fs2.readFileSync(path2.join(process.cwd(), "src/ui/screens/Work.tsx"), "utf8");
   ok("Work never shows the empty state while a gate is pending", /\{!lastResp && !busy && !gate \? \(/.test(workSrc), "empty-state guard must include !gate");
   ok("Work floats the GateCard over the graph", /gate && <div className="gate-float"><GateCard \/><\/div>/.test(workSrc));
   useVh2.getState().decideGate({ approved: false, reason: "not now" });
