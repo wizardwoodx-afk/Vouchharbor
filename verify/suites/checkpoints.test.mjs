@@ -1,5 +1,78 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
+// src/persist/quotaSafe.ts
+var NOTICE_KEY = "vh.persist.notices";
+var NOTICE_CAP = 40;
+function resolveStorage(store) {
+  if (store !== void 0) return store;
+  try {
+    const ls = globalThis.localStorage;
+    return ls && typeof ls.setItem === "function" ? ls : null;
+  } catch {
+    return null;
+  }
+}
+function isQuotaError(e) {
+  if (!e || typeof e !== "object") return false;
+  const name = e.name;
+  const code = e.code;
+  return name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED" || code === 22 || code === 1014;
+}
+function persistNotices(store) {
+  const s = resolveStorage(store);
+  if (!s) return [];
+  try {
+    const raw = s.getItem?.(NOTICE_KEY) ?? null;
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function notePersist(key, kind, detail, store) {
+  const s = resolveStorage(store);
+  if (!s) return;
+  try {
+    const list2 = persistNotices(s);
+    list2.push({ at: (/* @__PURE__ */ new Date()).toISOString(), key, kind, detail });
+    const trimmed = list2.slice(-NOTICE_CAP);
+    s.setItem?.(NOTICE_KEY, JSON.stringify(trimmed));
+  } catch {
+  }
+}
+function writeFirstThatFits(key, ladder, store) {
+  const rungs = ladder.length;
+  const s = resolveStorage(store);
+  if (rungs === 0) {
+    const refused2 = "no payload was offered (empty write ladder) \u2014 nothing was written.";
+    notePersist(key, "refused", refused2, store);
+    return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+  }
+  if (!s) {
+    return { ok: false, rung: -1, rungs, dropped: "", refused: "no storage on this host \u2014 the caller's in-memory copy is the session's only record." };
+  }
+  for (let i = 0; i < rungs; i++) {
+    const rung = ladder[i];
+    try {
+      s.setItem(key, rung.value);
+      if (i > 0) {
+        notePersist(key, "degraded", `rung ${i}/${rungs - 1}: ${rung.dropped}`, s);
+      }
+      return { ok: true, rung: i, rungs, dropped: i > 0 ? rung.dropped : "" };
+    } catch (e) {
+      if (!isQuotaError(e)) {
+        const refused2 = `write to "${key}" failed for a non-quota reason (${String(e)}) \u2014 refused rather than shrinking the payload, which would not have helped.`;
+        notePersist(key, "refused", refused2, s);
+        return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+      }
+    }
+  }
+  const refused = `every rung of the ladder failed on quota \u2014 even the smallest payload does not fit this origin. Nothing was written; the caller keeps its in-memory copy.`;
+  notePersist(key, "refused", refused, s);
+  return { ok: false, rung: -1, rungs, dropped: "", refused };
+}
+
 // src/graph/checkpoints.ts
 var CHECKPOINT_CAP = 25;
 var seq = 0;
@@ -43,10 +116,14 @@ function loadCheckpoints() {
 function saveCheckpoints(list2) {
   memory.length = 0;
   memory.push(...list2);
-  try {
-    if (typeof localStorage !== "undefined") localStorage.setItem(LS_KEY, JSON.stringify(list2));
-  } catch {
+  const rung = (n) => JSON.stringify(list2.slice(0, n));
+  const ladder = [{ value: rung(list2.length), dropped: "" }];
+  for (const keep of [12, 6, 3, 1]) {
+    if (keep < list2.length) {
+      ladder.push({ value: rung(keep), dropped: `kept the ${keep} newest checkpoint(s), dropped ${list2.length - keep} older one(s) to fit the storage budget` });
+    }
   }
+  return writeFirstThatFits(LS_KEY, ladder);
 }
 
 // src/domain/types.ts

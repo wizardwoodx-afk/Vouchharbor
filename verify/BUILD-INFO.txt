@@ -1,9 +1,9 @@
-Vouch Harbor 19.7.12 Keyholder  (engine build record — the product is Velvet Hand; it shows no version)
-built: 19.7.12 Keyholder
+Vouch Harbor 19.7.13 Keyholder  (engine build record — the product is Velvet Hand; it shows no version)
+built: 19.7.13 Keyholder
 ts:   2026-09-21T07:55:00Z
 git:  local
 node: certified on v22.23.2 (declared engines floor >=22.12.0) — the complete
-      gate set (tsc / unit / 156 probe suites / 155 offline bundles / vite) was
+      gate set (tsc / unit / 155 probe suites / 154 offline bundles / vite) was
       re-executed end to end on this runtime with a clean node_modules, zero
       EBADENGINE warnings; node 20.20.2 remains a secondary supported runtime
 protocol: vh-proof-receipt/2
@@ -121,3 +121,50 @@ the pre-seed Agentic Test Protocol v1 (24/24 on this build).
     verifiedBy "retrieval" vs "disclosure" sealed in the digest
     (probe/liveData, 27 checks)
   · captains probe 38 checks incl. the synthesis contract in multi-member runs
+
+19.7.13 (Keyholder) — the Docs door and the release-hygiene pass.
+
+  DOCS (new door). The engine could always distill a document into an approved
+  knowledge skill (mission/knowledgeSkills.ts: propose → human decision →
+  installed skills) but no surface reached it. src/ui/screens/Docs.tsx is that
+  surface: paste a document or load a .md/.txt file, the engine extracts
+  STRUCTURE (procedure, decision rules, failure modes, chapter hints) and returns
+  a proposal, and the human approves or dismisses it — one decision per proposal,
+  recorded with who and when. A document with no extractable structure is
+  REFUSED in words. Nothing installs itself. Every proposal discloses its
+  handling (local vs provider) and never counts approved knowledge as a measured
+  effect. The shell is now six doors: Steward · Work · Receipts · Docs · Memory ·
+  Settings, and probe/navAlign pins six — it previously matched only five keys
+  and said "exactly five doors", so a sixth door would have passed the gate
+  VACUOUSLY while the shell no longer matched its own description.
+
+  PERFORMANCE. (1) The 3D graph's force simulation ran forever: 3d-force-graph
+  keeps ticking the engine after convergence, so an open Memory door burned a
+  core indefinitely. warmupTicks settles the layout before first paint and
+  cooldownTicks/cooldownTime stop the engine once it is still; the data-update
+  effect calls d3ReheatSimulation() so newly arrived nodes still relax (without
+  that, the cooldown would have frozen them at their spawn positions). The graph
+  also honours the OS reduced-motion preference — a user who asked their system
+  for less motion no longer gets a field that never stops turning. (2) Recall
+  lowercased the whole transcript once per (probe × session) — 30–60 passes per
+  query once aliases and stems expand. It lowers once per session now and checks
+  the keyword Set first, skipping the transcript scan on a hit. Same matches,
+  same order; the work happens once.
+
+  HONESTY OF SCOPE. `rendererConfig` (discrete-GPU hint at construction) was
+  evaluated and LEFT OUT: the shipped ForceGraph3D type definitions do not declare
+  it and the renderer is created before any post-construction call could take
+  effect, so it would have been a cast past the types for an option that may be
+  silently ignored. The three perf changes above are the declared, in-force ones.
+
+  RELEASE HYGIENE (the sixth-review follow-ups, all closed). The engine identity
+  now says 19.7.13 across every site the bump tool drives (package.json,
+  package-lock, src/version.ts, Cargo.toml, tauri.conf.json, this record, reachMcp)
+  — the tree had carried 19.7.13-era changes while still calling itself 19.7.12.
+  The stale "156 probe suites / 155 offline bundles" line in this record is
+  corrected to the measured 155 / 154 (the body below already said 155 / 154, so
+  the file contradicted itself). BUILD-NATIVE.md and INSTALL-ON-LAPTOP.md now state
+  the real engines floor (node 22.12+, was "20 or newer" against a
+  `>=22.12.0` package.json). README no longer claims memory "is encrypted": it can
+  be encrypted at rest with the local vault, and it can be switched off — which is
+  what the code has always done and what graphSecurityStatus() reports.

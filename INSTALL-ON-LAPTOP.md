@@ -11,7 +11,7 @@ on this laptop and run the installer it produces.
 
 | Tool | How | Check |
 |---|---|---|
-| **Node.js 20+** | https://nodejs.org → LTS installer | `node --version` → v20 or newer |
+| **Node.js 22.12+** | https://nodejs.org → LTS installer | `node --version` → v22.12 or newer |
 | **Rust** | https://rustup.rs → run `rustup-init.exe` (accept defaults) | `rustc --version` → 1.80+ |
 | **MSVC Build Tools** | Visual Studio Installer → "Desktop development with C++" workload (rustup will prompt for this) | `cl` exists in a VS dev prompt |
 | **WebView2** | Preinstalled on Windows 11 — nothing to do | — |

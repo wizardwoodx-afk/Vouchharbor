@@ -5,6 +5,7 @@ import { Steward } from "./screens/Steward";
 import { Work } from "./screens/Work";
 import { Receipts } from "./screens/Receipts";
 import { Memory } from "./screens/Memory";
+import { Docs } from "./screens/Docs";
 import { Settings } from "./screens/Settings";
 import { Chat } from "./screens/Chat";
 
@@ -12,6 +13,7 @@ const NAV: Array<{ key: Screen; label: string; icon: string }> = [
   { key: "steward", label: "Steward", icon: "steward" },
   { key: "work", label: "Work", icon: "crew" },
   { key: "receipts", label: "Receipts", icon: "receipts" },
+  { key: "docs", label: "Docs", icon: "docs" },
   { key: "memory", label: "Memory", icon: "memory" },
   { key: "settings", label: "Settings", icon: "settings" },
 ];
@@ -53,6 +55,7 @@ export function Shell(): React.ReactElement {
         {screen === "steward" && <Steward />}
         {screen === "work" && <Work />}
         {screen === "receipts" && <Receipts />}
+        {screen === "docs" && <Docs />}
         {screen === "memory" && <Memory />}
         {screen === "settings" && <Settings />}
         {screen === "chat" && <Chat title={stewardName} />}

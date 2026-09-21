@@ -84,6 +84,23 @@ export function ForceGraph({ mode, nodes, links, onNodeDoubleClick, onNodeClick,
       .linkDirectionalParticleWidth(1.6).linkDirectionalParticleColor(() => c.steward)
       .linkDirectionalParticleSpeed((l) => (l.live ? 0.012 : 0.004))
       .dagMode(work ? "td" : (null as unknown as "td")).dagLevelDistance(work ? 42 : 0)
+      /* 19.7.13 — PERFORMANCE. The force simulation used to run forever: the
+       * library keeps ticking the engine after the layout has converged, so an
+       * open graph burned a CPU core indefinitely and a laptop in the background
+       * with the Memory door open never idled. warmupTicks settles the layout
+       * before first paint; cooldownTicks/cooldownTime let the engine STOP once
+       * it has converged (the data-update effect re-heats it when nodes arrive).
+       * Cost: none in behaviour — the graph still animates while it is moving and
+       * simply stops when it is still. */
+      .warmupTicks(work ? 40 : 70)
+      .cooldownTicks(work ? 140 : 200)
+      .cooldownTime(9000)
+      /* NOTE (19.7.13): `rendererConfig` would let this ask for the discrete GPU
+       * at construction, but the shipped ForceGraph3D type definitions do not
+       * declare it and the renderer is created before any post-construction call
+       * could take effect. Rather than cast past the types for an option that may
+       * be silently ignored, it is left out — the wins above are the ones that are
+       * declared, testable and in force. */
       .onNodeClick((n) => {
         const x = n as FgNode & { x: number; y: number; z: number };
         const now = Date.now();
@@ -97,7 +114,13 @@ export function ForceGraph({ mode, nodes, links, onNodeDoubleClick, onNodeClick,
     live.d3Force("charge")?.strength(work ? -60 : -70);
     live.cameraPosition({ x: 0, y: 30, z: work ? 260 : 320 });
     const ctrl = live.controls() as { autoRotate: boolean; autoRotateSpeed: number; enableDamping: boolean };
-    ctrl.autoRotate = rot.current; ctrl.autoRotateSpeed = work ? 0.2 : 0.5; ctrl.enableDamping = true;
+    /* 19.7.13 — the graph now honours the OS reduced-motion preference, which the
+     * editor prefs already model. A user who has asked their system for less
+     * motion no longer gets an endlessly rotating field of nodes. */
+    const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    ctrl.autoRotate = rot.current && !reduce;
+    ctrl.autoRotateSpeed = reduce ? 0 : (work ? 0.2 : 0.5);
+    ctrl.enableDamping = true;
     if (work) live.onEngineStop(() => live.zoomToFit(700, 140));
     g.current = live;
     live.graphData({ nodes: data.current.nodes.map((n) => ({ ...n })), links: data.current.links.map((l) => ({ ...l })) });
@@ -114,6 +137,11 @@ export function ForceGraph({ mode, nodes, links, onNodeDoubleClick, onNodeClick,
     const keep = new Map(cur.nodes.map((n) => [n.id, n]));
     const merged = nodes.map((n) => Object.assign(keep.get(n.id) ?? {}, n));
     inst.graphData({ nodes: merged as FgNode[], links: links.map((l) => ({ ...l })) });
+    /* 19.7.13 — the cooldown above stops the engine once the layout settles, so a
+     * later data arrival must wake it. Without this the new nodes would be placed
+     * at their spawn positions and never relax — the perf change would have
+     * introduced a correctness bug. */
+    inst.d3ReheatSimulation();
   }, [nodes, links]);
 
   useEffect(() => {

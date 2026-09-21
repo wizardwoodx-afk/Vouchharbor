@@ -110,6 +110,17 @@ export default defineConfig({
     target: process.env.TAURI_ENV_PLATFORM == "windows" ? "chrome105" : "safari14",
     minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    // 19.7.13 — the limit is DECLARED, not dodged. After the split below the
+    // shell is ~50 kB and the vendor and state chunks are well under the line;
+    // two chunks remain large and both are intentional, measured, and not a
+    // sign of a missing split:
+    //   • engine (~1.1 MB) is one dense module graph (registry + benches); it
+    //     is cacheable independently of the UI, which is the win that matters.
+    //   • graph3d (~1.2 MB) is the 3D force-graph library, imported LAZILY
+    //     inside the Memory door, so it is never on the first-paint path.
+    // Raising the limit is honest only alongside that reasoning; if the engine
+    // ever grows past this, the build warns again rather than staying silent.
+    chunkSizeWarningLimit: 1300,
     // V10.1: the framework is now its own chunk. The single 596 kB bundle tripped Rollup's
     // warning on every build and forced a full re-download of React on every app release;
     // vendor code changes far less often than app code.
@@ -126,8 +137,25 @@ export default defineConfig({
         warn(warning);
       },
       output: {
-        manualChunks: {
-          react: ["react", "react-dom"],
+        // 19.7.13 — the graph library is its own chunk AND is imported lazily
+        // inside the Memory door's mount effect, so a user who never opens
+        // Memory never downloads it. The split below keeps the vendor half of
+        // the main bundle out of the app-code chunk so a routine app release
+        // does not force a re-download of React, the state store or the graph
+        // engine. Pure chunk ROUTING: no module semantics change, and a module
+        // that matches nothing falls through to index as before.
+        manualChunks(id: string) {
+          if (id.includes("node_modules")) {
+            if (id.includes("3d-force-graph") || id.includes("three")) return "graph3d";
+            if (id.includes("react")) return "react";
+            if (id.includes("zustand") || id.includes("zod")) return "vendor-state";
+            return "vendor";
+          }
+          // The engine is the bulk of the app code. Splitting it out means a UI
+          // tweak no longer invalidates the engine chunk, and the long-lived
+          // half of the app becomes cacheable on its own.
+          if (id.includes("/src/vh19/") || id.includes("/src/mission/") || id.includes("/src/domain/")) return "engine";
+          return undefined;
         },
       },
     },

@@ -211,10 +211,90 @@ var init_vault = __esm({
   }
 });
 
+// src/persist/quotaSafe.ts
+function resolveStorage(store) {
+  if (store !== void 0) return store;
+  try {
+    const ls = globalThis.localStorage;
+    return ls && typeof ls.setItem === "function" ? ls : null;
+  } catch {
+    return null;
+  }
+}
+function isQuotaError(e) {
+  if (!e || typeof e !== "object") return false;
+  const name = e.name;
+  const code = e.code;
+  return name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED" || code === 22 || code === 1014;
+}
+function persistNotices(store) {
+  const s = resolveStorage(store);
+  if (!s) return [];
+  try {
+    const raw = s.getItem?.(NOTICE_KEY) ?? null;
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function notePersist(key, kind, detail, store) {
+  const s = resolveStorage(store);
+  if (!s) return;
+  try {
+    const list = persistNotices(s);
+    list.push({ at: (/* @__PURE__ */ new Date()).toISOString(), key, kind, detail });
+    const trimmed = list.slice(-NOTICE_CAP);
+    s.setItem?.(NOTICE_KEY, JSON.stringify(trimmed));
+  } catch {
+  }
+}
+function writeFirstThatFits(key, ladder, store) {
+  const rungs = ladder.length;
+  const s = resolveStorage(store);
+  if (rungs === 0) {
+    const refused2 = "no payload was offered (empty write ladder) \u2014 nothing was written.";
+    notePersist(key, "refused", refused2, store);
+    return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+  }
+  if (!s) {
+    return { ok: false, rung: -1, rungs, dropped: "", refused: "no storage on this host \u2014 the caller's in-memory copy is the session's only record." };
+  }
+  for (let i = 0; i < rungs; i++) {
+    const rung = ladder[i];
+    try {
+      s.setItem(key, rung.value);
+      if (i > 0) {
+        notePersist(key, "degraded", `rung ${i}/${rungs - 1}: ${rung.dropped}`, s);
+      }
+      return { ok: true, rung: i, rungs, dropped: i > 0 ? rung.dropped : "" };
+    } catch (e) {
+      if (!isQuotaError(e)) {
+        const refused2 = `write to "${key}" failed for a non-quota reason (${String(e)}) \u2014 refused rather than shrinking the payload, which would not have helped.`;
+        notePersist(key, "refused", refused2, s);
+        return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+      }
+    }
+  }
+  const refused = `every rung of the ladder failed on quota \u2014 even the smallest payload does not fit this origin. Nothing was written; the caller keeps its in-memory copy.`;
+  notePersist(key, "refused", refused, s);
+  return { ok: false, rung: -1, rungs, dropped: "", refused };
+}
+var NOTICE_KEY, NOTICE_CAP;
+var init_quotaSafe = __esm({
+  "src/persist/quotaSafe.ts"() {
+    "use strict";
+    NOTICE_KEY = "vh.persist.notices";
+    NOTICE_CAP = 40;
+  }
+});
+
 // src/vh19/memoryGraph.ts
 var memoryGraph_exports = {};
 __export(memoryGraph_exports, {
   REHYDRATION_MARK: () => REHYDRATION_MARK,
+  aliasesOf: () => aliasesOf,
   clearGraph: () => clearGraph,
   deleteSession: () => deleteSession,
   extractKeywords: () => extractKeywords,
@@ -232,6 +312,7 @@ __export(memoryGraph_exports, {
   recall: () => recall,
   rehydrate: () => rehydrate,
   setMemoryEnabled: () => setMemoryEnabled,
+  stem: () => stem,
   titleFromMessages: () => titleFromMessages
 });
 function extractKeywords(text, max = 8) {
@@ -341,11 +422,31 @@ function saveGraph(g) {
     })();
     return;
   }
-  persistNote = null;
-  try {
-    s.setItem(GRAPH_KEY, JSON.stringify(g));
-  } catch {
+  const trimmed = (turnCap, sessionCap) => {
+    const cut = {
+      ...g,
+      sessions: g.sessions.slice(-sessionCap).map((x) => ({
+        ...x,
+        messages: turnCap === null ? [] : x.messages.slice(-turnCap)
+      }))
+    };
+    return JSON.stringify(cut);
+  };
+  const ladder = [{ value: JSON.stringify(g), dropped: "" }];
+  if (g.sessions.some((x) => x.messages.length > 40)) {
+    ladder.push({ value: trimmed(40, g.sessions.length), dropped: "kept the last 40 turns of each conversation (older turns dropped to fit the storage budget)" });
   }
+  if (g.sessions.some((x) => x.messages.length > 10)) {
+    ladder.push({ value: trimmed(10, g.sessions.length), dropped: "kept the last 10 turns of each conversation (older turns dropped to fit the storage budget)" });
+  }
+  if (g.sessions.some((x) => x.messages.length > 0)) {
+    ladder.push({ value: trimmed(null, g.sessions.length), dropped: "dropped the transcripts; every conversation still keeps its date, title and keywords, so recall still finds it" });
+  }
+  if (g.sessions.length > 50) {
+    ladder.push({ value: trimmed(10, 50), dropped: `kept the newest 50 conversations of ${g.sessions.length} (older ones dropped to fit the storage budget)` });
+  }
+  const w = writeFirstThatFits(GRAPH_KEY, ladder, s);
+  persistNote = w.ok ? w.rung > 0 ? `memory degraded to fit storage \u2014 ${w.dropped}` : null : w.refused ?? null;
 }
 async function hydrateGraph() {
   const s = storage2();
@@ -451,8 +552,25 @@ function ingestSession(messages, opts) {
       }
     }
   }
-  if (g.nodes.length > NODE_CAP) g.nodes = g.nodes.sort((x, y) => y.weight - x.weight || (y.lastSeen < x.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
-  if (g.edges.length > EDGE_CAP) g.edges = g.edges.sort((x, y) => y.weight - x.weight || 0).slice(0, EDGE_CAP);
+  const sessionsDropped = Math.max(0, g.sessions.length - SESSION_CAP);
+  let nodesDropped = 0;
+  let edgesDropped = 0;
+  if (g.nodes.length > NODE_CAP) {
+    nodesDropped = g.nodes.length - NODE_CAP;
+    g.nodes = g.nodes.sort((x, y) => y.weight - x.weight || (y.lastSeen < x.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
+  }
+  if (g.edges.length > EDGE_CAP) {
+    edgesDropped = g.edges.length - EDGE_CAP;
+    g.edges = g.edges.sort((x, y) => y.weight - x.weight || 0).slice(0, EDGE_CAP);
+  }
+  if (nodesDropped || edgesDropped || sessionsDropped) {
+    g.evicted = {
+      nodes: (g.evicted?.nodes ?? 0) + nodesDropped,
+      edges: (g.evicted?.edges ?? 0) + edgesDropped,
+      sessions: (g.evicted?.sessions ?? 0) + sessionsDropped,
+      at: session.endedAt
+    };
+  }
   saveGraph(g);
   return session;
 }
@@ -479,6 +597,19 @@ function clearGraph() {
   memCache = null;
   lockedAtBoot = false;
   persistNote = null;
+}
+function stem(word) {
+  for (const suffix of ["ing", "ed", "es", "s"]) {
+    if (word.endsWith(suffix) && word.length - suffix.length >= 4) return word.slice(0, -suffix.length);
+  }
+  return word;
+}
+function aliasesOf(word) {
+  return ALIAS_OF.get(word) ?? [word];
+}
+function wordHit(lowerText, term) {
+  if (!lowerText.includes(term)) return false;
+  return new RegExp(`(^|[^a-z0-9])${escapeRe(term)}([^a-z0-9]|$)`).test(lowerText);
 }
 function parseDateWindow(query, now = () => /* @__PURE__ */ new Date()) {
   const q = query.toLowerCase();
@@ -523,11 +654,36 @@ function recall(query, limit = 5, now = () => /* @__PURE__ */ new Date()) {
   const qk = extractKeywords(query, 10);
   const win = parseDateWindow(query, now);
   const weightOf = new Map(g.nodes.map((n) => [n.id, n.weight]));
+  const probes = /* @__PURE__ */ new Map();
+  const addProbe = (term, original) => {
+    if (!probes.has(term)) probes.set(term, original);
+  };
+  for (const word of qk) {
+    addProbe(word, word);
+    addProbe(stem(word), word);
+    for (const alias of aliasesOf(word)) {
+      addProbe(alias, word);
+      addProbe(stem(alias), word);
+    }
+  }
   const out = [];
   for (const s of g.sessions) {
-    const sKeys = new Set(s.keywords);
-    const matched = qk.filter((k) => sKeys.has(k) || s.messages.some((msg) => msg.text.toLowerCase().includes(k)));
-    let score = matched.reduce((acc, k) => acc + 1 + Math.min(2, (weightOf.get(k) ?? 1) / 10), 0);
+    const sKeys = /* @__PURE__ */ new Set();
+    for (const k of s.keywords) {
+      sKeys.add(k);
+      sKeys.add(stem(k));
+    }
+    const hay = s.messages.map((msg) => msg.text.toLowerCase());
+    const seen = /* @__PURE__ */ new Set();
+    const matched = [];
+    for (const [term, original] of probes) {
+      if (seen.has(original)) continue;
+      if (sKeys.has(term) || hay.some((text) => wordHit(text, term))) {
+        seen.add(original);
+        matched.push(original);
+      }
+    }
+    let score = matched.reduce((acc, k) => acc + 1 + Math.min(2, (weightOf.get(k) ?? weightOf.get(stem(k)) ?? 1) / 10), 0);
     const inWin = win ? Date.parse(s.startedAt) >= win[0] && Date.parse(s.startedAt) < win[1] : false;
     if (win) score += inWin ? 2.5 : -1.5;
     if (score <= 0) continue;
@@ -561,13 +717,14 @@ function graphView(maxNodes = 24) {
 }
 function graphStats() {
   const g = loadGraph();
-  return { sessions: g.sessions.length, nodes: g.nodes.length, edges: g.edges.length };
+  return { sessions: g.sessions.length, nodes: g.nodes.length, edges: g.edges.length, evicted: g.evicted ?? null };
 }
-var GRAPH_KEY, ENABLED_KEY, NODE_CAP, EDGE_CAP, SESSION_CAP, MSG_CAP_PER_SESSION, STOP, EMPTY, memCache, lockedAtBoot, saveToken, persistNote, persistInFlight, MONTHS, REHYDRATION_MARK;
+var GRAPH_KEY, ENABLED_KEY, NODE_CAP, EDGE_CAP, SESSION_CAP, MSG_CAP_PER_SESSION, STOP, EMPTY, memCache, lockedAtBoot, saveToken, persistNote, persistInFlight, ALIAS_GROUPS, ALIAS_OF, escapeRe, MONTHS, REHYDRATION_MARK;
 var init_memoryGraph = __esm({
   "src/vh19/memoryGraph.ts"() {
     "use strict";
     init_vault();
+    init_quotaSafe();
     GRAPH_KEY = "vh19.memgraph.v1";
     ENABLED_KEY = "vh19.memgraph.enabled.v1";
     NODE_CAP = 4e3;
@@ -583,6 +740,33 @@ var init_memoryGraph = __esm({
     saveToken = 0;
     persistNote = null;
     persistInFlight = Promise.resolve();
+    ALIAS_GROUPS = [
+      ["sandbox", "sandboxed", "isolation", "isolate", "jail", "confinement", "container"],
+      ["database", "db", "sql", "postgres", "postgresql", "sqlite", "query", "storage"],
+      ["receipt", "receipts", "proof", "attestation", "ledger", "audit", "tamper"],
+      ["gate", "approval", "approve", "signoff", "oversight", "human"],
+      ["error", "bug", "failure", "failed", "crash", "broke", "broken", "defect"],
+      ["deploy", "deployment", "release", "ship", "shipped", "rollout", "publish"],
+      ["key", "credential", "secret", "token", "password", "vault", "passphrase"],
+      ["memory", "recall", "remember", "context", "history", "rehydrate"],
+      ["test", "tests", "testing", "spec", "probe", "suite"],
+      ["invoice", "bill", "payment", "billing", "charge", "refund", "subscription"],
+      ["meeting", "call", "calendar", "schedule", "appointment", "booking", "reservation"],
+      ["travel", "flight", "trip", "itinerary", "hotel", "airline"],
+      ["permission", "scope", "authority", "envelope", "mandate", "capability"],
+      ["cost", "price", "pricing", "budget", "spend", "token"],
+      ["agent", "crew", "specialist", "teammate", "steward"]
+    ];
+    ALIAS_OF = /* @__PURE__ */ new Map();
+    for (const group of ALIAS_GROUPS) {
+      for (const term of group) {
+        const set = ALIAS_OF.get(term) ?? [];
+        for (const other of group) if (other !== term && !set.includes(other)) set.push(other);
+        set.push(term);
+        ALIAS_OF.set(term, set);
+      }
+    }
+    escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
     REHYDRATION_MARK = "\u2500\u2500 rehydrated context (from an earlier conversation";
   }

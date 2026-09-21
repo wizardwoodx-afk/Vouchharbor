@@ -38,7 +38,22 @@ ok("root resolves to Velvet Hand", pkg.name === "velvet-hand", `name=${String(pk
 
 ok("App renders the shell and nothing else", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc), "App must be the shell door");
 ok("the multi-dock shell and the console are gone from the app entry", !/Sidebar|Helm|VIEWS|NextConsole/.test(appSrc), "stale shell chrome in App.tsx");
-ok("the sidebar lists exactly five doors", (shellSrc.match(/\{ key: "(steward|work|receipts|memory|settings)", label:/g) ?? []).length === 5, "door count drifted");
+/* 19.7.13 — this pin said "exactly five doors" and matched only those five keys,
+   so a SIXTH door (src/ui/screens/Docs.tsx) would have been added while the check
+   stayed green — a gate that had stopped describing the shell. The door list is
+   now the full set, the count matches the labels actually rendered, and the
+   render wiring for every door is pinned alongside it. */
+const NAV_KEYS = ["steward", "work", "receipts", "docs", "memory", "settings"];
+const navEntries = shellSrc.match(/\{ key: "([a-z]+)", label: "[A-Za-z ]+", icon: "[a-z]+" \}/g) ?? [];
+ok("the sidebar lists exactly six doors", navEntries.length === 6, `door count drifted: ${navEntries.length}`);
+ok("the six doors are Steward · Work · Receipts · Docs · Memory · Settings",
+  NAV_KEYS.every((k) => new RegExp(`key: "${k}", label:`).test(shellSrc)) &&
+  NAV_KEYS.every((k) => new RegExp(`screen === "${k}"`).test(shellSrc)),
+  "a door is listed but not rendered, or vice versa");
+ok("the Docs door renders the document-distillation surface",
+  /screen === "docs" && <Docs \/>/.test(shellSrc) && /Propose knowledge/.test(read("src/ui/screens/Docs.tsx")) &&
+  /Nothing is installed until you decide/.test(read("src/ui/screens/Docs.tsx")),
+  "the Docs door must reach the knowledge proposal seam and install nothing itself");
 ok("no Crew door — the crew is internal", !/label:\s*"Crew"/.test(shellSrc) && !/label:\s*"Agents"/.test(shellSrc), "the crew must not face the user");
 ok("the status pill and the owner card sit below the doors and open Settings", /className="status" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc) && /className="me" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc), "sidebar foot not wired");
 ok("no keyboard-shortcut hints on the surface", !/⌘K|⌘N|Cmd\+K|Ctrl\+K/.test(shellSrc + read("src/ui/screens/Steward.tsx")), "shortcut hints leaked");

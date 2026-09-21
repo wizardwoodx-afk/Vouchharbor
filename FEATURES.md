@@ -32,6 +32,22 @@ The engine underneath is **Vouch Harbor**.
 - Export as a file. Receipts are hash-chained; a doctored ledger refuses to
   verify.
 
+## Docs
+
+- Teach the Steward from your own documents: paste one, or load a `.md` / `.txt`
+  file. The engine distills **structure**, not a summary — procedure, decision
+  rules, known failure modes, chapter hints.
+- **A raw blob is refused, in words.** A document with no extractable structure
+  comes back with the reason, not a vague acceptance.
+- **Nothing installs itself.** Each document becomes a *proposal*; only your
+  approval mirrors it into an installed knowledge skill, and the decision records
+  who and when. One decision per proposal.
+- **Handling is disclosed, never implied.** Every proposal says whether the
+  content stayed on this machine or went to the selected model provider, and
+  names the endpoint class when it did.
+- **Knowledge is not a measured claim.** Approved knowledge is human-approved
+  knowledge; it is never counted as a measured effect.
+
 ## Memory
 
 - Every conversation becomes a keyword graph you can move through in 3D

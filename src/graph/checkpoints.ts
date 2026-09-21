@@ -12,6 +12,7 @@
  * localStorage is unavailable (Node probes, sandboxed iframes).
  */
 import type { WorkflowGraph } from "../domain/types";
+import { writeFirstThatFits, type PersistRung, type PersistResult } from "../persist/quotaSafe";
 
 export interface GraphCheckpoint {
   id: string;
@@ -74,12 +75,26 @@ export function loadCheckpoints(): GraphCheckpoint[] {
   }
 }
 
-export function saveCheckpoints(list: GraphCheckpoint[]): void {
+/**
+ * 19.7.13 — save through the quota ladder instead of swallowing the throw.
+ *
+ * The old body caught `QuotaExceededError` and said nothing: a named checkpoint
+ * the user had just taken was written to memory and lost at reload, silently.
+ * The list is capped at CHECKPOINT_CAP, but each entry carries a full graph
+ * clone, so a large graph reaches the origin budget well before the cap does.
+ * Now the write walks a declared ladder — full, then progressively fewer of the
+ * OLDEST checkpoints — and whatever it gives up is named in the notice ledger.
+ * The return value is additive: existing callers may keep ignoring it.
+ */
+export function saveCheckpoints(list: GraphCheckpoint[]): PersistResult {
   memory.length = 0;
   memory.push(...list);
-  try {
-    if (typeof localStorage !== "undefined") localStorage.setItem(LS_KEY, JSON.stringify(list));
-  } catch {
-    /* memory copy already holds it */
+  const rung = (n: number): string => JSON.stringify(list.slice(0, n));
+  const ladder: PersistRung[] = [{ value: rung(list.length), dropped: "" }];
+  for (const keep of [12, 6, 3, 1]) {
+    if (keep < list.length) {
+      ladder.push({ value: rung(keep), dropped: `kept the ${keep} newest checkpoint(s), dropped ${list.length - keep} older one(s) to fit the storage budget` });
+    }
   }
+  return writeFirstThatFits(LS_KEY, ladder);
 }

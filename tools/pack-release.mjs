@@ -99,7 +99,17 @@ if (overlay.length > 0) makeZip("overlay", overlay);
    the same way versionDrift does. */
 const VH_SHORT = (fs.readFileSync(path.join(root, "src/version.ts"), "utf8").match(/VH_SHORT = "([^"]+)"/) ?? [, "19.7"])[1];
 const REQUIRED_IN_FULL = ["tsconfig.json", "package.json", "verify/run.mjs", "VERIFY.sh", "src/version.ts", "README.md", `VH-${VH_SHORT}-UPGRADE.md`, "FEATURES.md"];
-const missing = REQUIRED_IN_FULL.filter((rel) => !full.includes(rel));
+/**
+ * accept the archived home too. The product rebrand moved the versioned record
+ * (changelog, upgrade guides, design notes) under docs/history/ BY ROLE — which
+ * is correct, and which left this check looking for the upgrade guide at the
+ * root it no longer occupies. The result was the worst kind of gate: the zips
+ * were written and then the tool exited 1, so a release job would fail on a
+ * documentation move while the artifact it produced was perfectly fine.
+ * The file is still REQUIRED; only where it is allowed to live has widened.
+ */
+const inFull = (rel) => full.includes(rel) || full.includes(`docs/history/${rel}`);
+const missing = REQUIRED_IN_FULL.filter((rel) => !inFull(rel));
 if (missing.length > 0) {
   console.error(`\nREFUSING: the full tree is missing ${missing.join(", ")} — it would not be independently verifiable.`);
   process.exit(1);

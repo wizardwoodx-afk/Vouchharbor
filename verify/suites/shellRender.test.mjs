@@ -1370,7 +1370,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context);
         }
-        function useState8(initialState) {
+        function useState9(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1378,7 +1378,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useReducer(reducer, initialArg, init5);
         }
-        function useRef3(initialValue) {
+        function useRef4(initialValue) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
@@ -2172,8 +2172,8 @@ var require_react_development = __commonJS({
         exports.useLayoutEffect = useLayoutEffect;
         exports.useMemo = useMemo4;
         exports.useReducer = useReducer;
-        exports.useRef = useRef3;
-        exports.useState = useState8;
+        exports.useRef = useRef4;
+        exports.useState = useState9;
         exports.useSyncExternalStore = useSyncExternalStore;
         exports.useTransition = useTransition;
         exports.version = ReactVersion;
@@ -5440,10 +5440,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React12 = require_react();
+        var React13 = require_react();
         var stream = __require("stream");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React12.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn2(format) {
           {
             {
@@ -7349,7 +7349,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         }
         function flattenOptionChildren(children2) {
           var content = "";
-          React12.Children.forEach(children2, function(child) {
+          React13.Children.forEach(children2, function(child) {
             if (child == null) {
               return;
             }
@@ -9363,7 +9363,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         function basicStateReducer(state2, action) {
           return typeof action === "function" ? action(state2) : action;
         }
-        function useState8(initialState) {
+        function useState9(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -9453,7 +9453,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           workInProgressHook.memoizedState = [nextValue, nextDeps];
           return nextValue;
         }
-        function useRef3(initialValue) {
+        function useRef4(initialValue) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var previousRef = workInProgressHook.memoizedState;
@@ -9544,8 +9544,8 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           useContext,
           useMemo: useMemo4,
           useReducer,
-          useRef: useRef3,
-          useState: useState8,
+          useRef: useRef4,
+          useState: useState9,
           useInsertionEffect: noop2,
           useLayoutEffect,
           useCallback,
@@ -10886,10 +10886,10 @@ var require_react_dom_server_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React12 = require_react();
+        var React13 = require_react();
         var util = __require("util");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React12.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn2(format) {
           {
             {
@@ -12892,7 +12892,7 @@ var require_react_dom_server_node_development = __commonJS({
         }
         function flattenOptionChildren(children2) {
           var content = "";
-          React12.Children.forEach(children2, function(child) {
+          React13.Children.forEach(children2, function(child) {
             if (child == null) {
               return;
             }
@@ -14842,7 +14842,7 @@ var require_react_dom_server_node_development = __commonJS({
         function basicStateReducer(state2, action) {
           return typeof action === "function" ? action(state2) : action;
         }
-        function useState8(initialState) {
+        function useState9(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -14932,7 +14932,7 @@ var require_react_dom_server_node_development = __commonJS({
           workInProgressHook.memoizedState = [nextValue, nextDeps];
           return nextValue;
         }
-        function useRef3(initialValue) {
+        function useRef4(initialValue) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var previousRef = workInProgressHook.memoizedState;
@@ -15023,8 +15023,8 @@ var require_react_dom_server_node_development = __commonJS({
           useContext,
           useMemo: useMemo4,
           useReducer,
-          useRef: useRef3,
-          useState: useState8,
+          useRef: useRef4,
+          useState: useState9,
           useInsertionEffect: noop2,
           useLayoutEffect,
           useCallback,
@@ -65602,6 +65602,85 @@ var init_vault = __esm({
   }
 });
 
+// src/persist/quotaSafe.ts
+function resolveStorage(store) {
+  if (store !== void 0) return store;
+  try {
+    const ls = globalThis.localStorage;
+    return ls && typeof ls.setItem === "function" ? ls : null;
+  } catch {
+    return null;
+  }
+}
+function isQuotaError(e3) {
+  if (!e3 || typeof e3 !== "object") return false;
+  const name = e3.name;
+  const code = e3.code;
+  return name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED" || code === 22 || code === 1014;
+}
+function persistNotices(store) {
+  const s2 = resolveStorage(store);
+  if (!s2) return [];
+  try {
+    const raw = s2.getItem?.(NOTICE_KEY) ?? null;
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function notePersist(key, kind, detail, store) {
+  const s2 = resolveStorage(store);
+  if (!s2) return;
+  try {
+    const list = persistNotices(s2);
+    list.push({ at: (/* @__PURE__ */ new Date()).toISOString(), key, kind, detail });
+    const trimmed = list.slice(-NOTICE_CAP);
+    s2.setItem?.(NOTICE_KEY, JSON.stringify(trimmed));
+  } catch {
+  }
+}
+function writeFirstThatFits(key, ladder, store) {
+  const rungs = ladder.length;
+  const s2 = resolveStorage(store);
+  if (rungs === 0) {
+    const refused2 = "no payload was offered (empty write ladder) \u2014 nothing was written.";
+    notePersist(key, "refused", refused2, store);
+    return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+  }
+  if (!s2) {
+    return { ok: false, rung: -1, rungs, dropped: "", refused: "no storage on this host \u2014 the caller's in-memory copy is the session's only record." };
+  }
+  for (let i2 = 0; i2 < rungs; i2++) {
+    const rung = ladder[i2];
+    try {
+      s2.setItem(key, rung.value);
+      if (i2 > 0) {
+        notePersist(key, "degraded", `rung ${i2}/${rungs - 1}: ${rung.dropped}`, s2);
+      }
+      return { ok: true, rung: i2, rungs, dropped: i2 > 0 ? rung.dropped : "" };
+    } catch (e3) {
+      if (!isQuotaError(e3)) {
+        const refused2 = `write to "${key}" failed for a non-quota reason (${String(e3)}) \u2014 refused rather than shrinking the payload, which would not have helped.`;
+        notePersist(key, "refused", refused2, s2);
+        return { ok: false, rung: -1, rungs, dropped: "", refused: refused2 };
+      }
+    }
+  }
+  const refused = `every rung of the ladder failed on quota \u2014 even the smallest payload does not fit this origin. Nothing was written; the caller keeps its in-memory copy.`;
+  notePersist(key, "refused", refused, s2);
+  return { ok: false, rung: -1, rungs, dropped: "", refused };
+}
+var NOTICE_KEY, NOTICE_CAP;
+var init_quotaSafe = __esm({
+  "src/persist/quotaSafe.ts"() {
+    "use strict";
+    NOTICE_KEY = "vh.persist.notices";
+    NOTICE_CAP = 40;
+  }
+});
+
 // src/vh19/memoryGraph.ts
 function extractKeywords(text, max2 = 8) {
   const words = text.toLowerCase().replace(/[^a-z0-9\s'-]/g, " ").split(/\s+/).filter(Boolean);
@@ -65707,11 +65786,31 @@ function saveGraph(g3) {
     })();
     return;
   }
-  persistNote = null;
-  try {
-    s2.setItem(GRAPH_KEY, JSON.stringify(g3));
-  } catch {
+  const trimmed = (turnCap, sessionCap) => {
+    const cut = {
+      ...g3,
+      sessions: g3.sessions.slice(-sessionCap).map((x3) => ({
+        ...x3,
+        messages: turnCap === null ? [] : x3.messages.slice(-turnCap)
+      }))
+    };
+    return JSON.stringify(cut);
+  };
+  const ladder = [{ value: JSON.stringify(g3), dropped: "" }];
+  if (g3.sessions.some((x3) => x3.messages.length > 40)) {
+    ladder.push({ value: trimmed(40, g3.sessions.length), dropped: "kept the last 40 turns of each conversation (older turns dropped to fit the storage budget)" });
   }
+  if (g3.sessions.some((x3) => x3.messages.length > 10)) {
+    ladder.push({ value: trimmed(10, g3.sessions.length), dropped: "kept the last 10 turns of each conversation (older turns dropped to fit the storage budget)" });
+  }
+  if (g3.sessions.some((x3) => x3.messages.length > 0)) {
+    ladder.push({ value: trimmed(null, g3.sessions.length), dropped: "dropped the transcripts; every conversation still keeps its date, title and keywords, so recall still finds it" });
+  }
+  if (g3.sessions.length > 50) {
+    ladder.push({ value: trimmed(10, 50), dropped: `kept the newest 50 conversations of ${g3.sessions.length} (older ones dropped to fit the storage budget)` });
+  }
+  const w4 = writeFirstThatFits(GRAPH_KEY, ladder, s2);
+  persistNote = w4.ok ? w4.rung > 0 ? `memory degraded to fit storage \u2014 ${w4.dropped}` : null : w4.refused ?? null;
 }
 function graphSecurityStatus() {
   const vs = vaultStatus().status;
@@ -65789,8 +65888,25 @@ function ingestSession(messages, opts) {
       }
     }
   }
-  if (g3.nodes.length > NODE_CAP) g3.nodes = g3.nodes.sort((x3, y3) => y3.weight - x3.weight || (y3.lastSeen < x3.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
-  if (g3.edges.length > EDGE_CAP) g3.edges = g3.edges.sort((x3, y3) => y3.weight - x3.weight || 0).slice(0, EDGE_CAP);
+  const sessionsDropped = Math.max(0, g3.sessions.length - SESSION_CAP);
+  let nodesDropped = 0;
+  let edgesDropped = 0;
+  if (g3.nodes.length > NODE_CAP) {
+    nodesDropped = g3.nodes.length - NODE_CAP;
+    g3.nodes = g3.nodes.sort((x3, y3) => y3.weight - x3.weight || (y3.lastSeen < x3.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
+  }
+  if (g3.edges.length > EDGE_CAP) {
+    edgesDropped = g3.edges.length - EDGE_CAP;
+    g3.edges = g3.edges.sort((x3, y3) => y3.weight - x3.weight || 0).slice(0, EDGE_CAP);
+  }
+  if (nodesDropped || edgesDropped || sessionsDropped) {
+    g3.evicted = {
+      nodes: (g3.evicted?.nodes ?? 0) + nodesDropped,
+      edges: (g3.evicted?.edges ?? 0) + edgesDropped,
+      sessions: (g3.evicted?.sessions ?? 0) + sessionsDropped,
+      at: session4.endedAt
+    };
+  }
   saveGraph(g3);
   return session4;
 }
@@ -65817,6 +65933,19 @@ function clearGraph() {
   memCache = null;
   lockedAtBoot = false;
   persistNote = null;
+}
+function stem(word) {
+  for (const suffix of ["ing", "ed", "es", "s"]) {
+    if (word.endsWith(suffix) && word.length - suffix.length >= 4) return word.slice(0, -suffix.length);
+  }
+  return word;
+}
+function aliasesOf(word) {
+  return ALIAS_OF.get(word) ?? [word];
+}
+function wordHit(lowerText, term) {
+  if (!lowerText.includes(term)) return false;
+  return new RegExp(`(^|[^a-z0-9])${escapeRe(term)}([^a-z0-9]|$)`).test(lowerText);
 }
 function parseDateWindow(query, now4 = () => /* @__PURE__ */ new Date()) {
   const q2 = query.toLowerCase();
@@ -65861,11 +65990,36 @@ function recall(query, limit = 5, now4 = () => /* @__PURE__ */ new Date()) {
   const qk = extractKeywords(query, 10);
   const win = parseDateWindow(query, now4);
   const weightOf = new Map(g3.nodes.map((n2) => [n2.id, n2.weight]));
+  const probes = /* @__PURE__ */ new Map();
+  const addProbe = (term, original) => {
+    if (!probes.has(term)) probes.set(term, original);
+  };
+  for (const word of qk) {
+    addProbe(word, word);
+    addProbe(stem(word), word);
+    for (const alias of aliasesOf(word)) {
+      addProbe(alias, word);
+      addProbe(stem(alias), word);
+    }
+  }
   const out = [];
   for (const s2 of g3.sessions) {
-    const sKeys = new Set(s2.keywords);
-    const matched = qk.filter((k2) => sKeys.has(k2) || s2.messages.some((msg) => msg.text.toLowerCase().includes(k2)));
-    let score = matched.reduce((acc, k2) => acc + 1 + Math.min(2, (weightOf.get(k2) ?? 1) / 10), 0);
+    const sKeys = /* @__PURE__ */ new Set();
+    for (const k2 of s2.keywords) {
+      sKeys.add(k2);
+      sKeys.add(stem(k2));
+    }
+    const hay = s2.messages.map((msg) => msg.text.toLowerCase());
+    const seen = /* @__PURE__ */ new Set();
+    const matched = [];
+    for (const [term, original] of probes) {
+      if (seen.has(original)) continue;
+      if (sKeys.has(term) || hay.some((text) => wordHit(text, term))) {
+        seen.add(original);
+        matched.push(original);
+      }
+    }
+    let score = matched.reduce((acc, k2) => acc + 1 + Math.min(2, (weightOf.get(k2) ?? weightOf.get(stem(k2)) ?? 1) / 10), 0);
     const inWin = win ? Date.parse(s2.startedAt) >= win[0] && Date.parse(s2.startedAt) < win[1] : false;
     if (win) score += inWin ? 2.5 : -1.5;
     if (score <= 0) continue;
@@ -65899,13 +66053,14 @@ function graphView(maxNodes = 24) {
 }
 function graphStats() {
   const g3 = loadGraph();
-  return { sessions: g3.sessions.length, nodes: g3.nodes.length, edges: g3.edges.length };
+  return { sessions: g3.sessions.length, nodes: g3.nodes.length, edges: g3.edges.length, evicted: g3.evicted ?? null };
 }
-var GRAPH_KEY, ENABLED_KEY, NODE_CAP, EDGE_CAP, SESSION_CAP, MSG_CAP_PER_SESSION, STOP, EMPTY2, memCache, lockedAtBoot, saveToken, persistNote, persistInFlight, MONTHS, REHYDRATION_MARK;
+var GRAPH_KEY, ENABLED_KEY, NODE_CAP, EDGE_CAP, SESSION_CAP, MSG_CAP_PER_SESSION, STOP, EMPTY2, memCache, lockedAtBoot, saveToken, persistNote, persistInFlight, ALIAS_GROUPS, ALIAS_OF, escapeRe, MONTHS, REHYDRATION_MARK;
 var init_memoryGraph = __esm({
   "src/vh19/memoryGraph.ts"() {
     "use strict";
     init_vault();
+    init_quotaSafe();
     GRAPH_KEY = "vh19.memgraph.v1";
     ENABLED_KEY = "vh19.memgraph.enabled.v1";
     NODE_CAP = 4e3;
@@ -65921,6 +66076,33 @@ var init_memoryGraph = __esm({
     saveToken = 0;
     persistNote = null;
     persistInFlight = Promise.resolve();
+    ALIAS_GROUPS = [
+      ["sandbox", "sandboxed", "isolation", "isolate", "jail", "confinement", "container"],
+      ["database", "db", "sql", "postgres", "postgresql", "sqlite", "query", "storage"],
+      ["receipt", "receipts", "proof", "attestation", "ledger", "audit", "tamper"],
+      ["gate", "approval", "approve", "signoff", "oversight", "human"],
+      ["error", "bug", "failure", "failed", "crash", "broke", "broken", "defect"],
+      ["deploy", "deployment", "release", "ship", "shipped", "rollout", "publish"],
+      ["key", "credential", "secret", "token", "password", "vault", "passphrase"],
+      ["memory", "recall", "remember", "context", "history", "rehydrate"],
+      ["test", "tests", "testing", "spec", "probe", "suite"],
+      ["invoice", "bill", "payment", "billing", "charge", "refund", "subscription"],
+      ["meeting", "call", "calendar", "schedule", "appointment", "booking", "reservation"],
+      ["travel", "flight", "trip", "itinerary", "hotel", "airline"],
+      ["permission", "scope", "authority", "envelope", "mandate", "capability"],
+      ["cost", "price", "pricing", "budget", "spend", "token"],
+      ["agent", "crew", "specialist", "teammate", "steward"]
+    ];
+    ALIAS_OF = /* @__PURE__ */ new Map();
+    for (const group of ALIAS_GROUPS) {
+      for (const term of group) {
+        const set3 = ALIAS_OF.get(term) ?? [];
+        for (const other of group) if (other !== term && !set3.includes(other)) set3.push(other);
+        set3.push(term);
+        ALIAS_OF.set(term, set3);
+      }
+    }
+    escapeRe = (t2) => t2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
     REHYDRATION_MARK = "\u2500\u2500 rehydrated context (from an earlier conversation";
   }
@@ -66207,7 +66389,7 @@ var require_react_jsx_runtime_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React12 = require_react();
+        var React13 = require_react();
         var REACT_ELEMENT_TYPE = Symbol.for("react.element");
         var REACT_PORTAL_TYPE = Symbol.for("react.portal");
         var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
@@ -66233,7 +66415,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return null;
         }
-        var ReactSharedInternals = React12.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function error64(format) {
           {
             {
@@ -67083,11 +67265,11 @@ var require_react_jsx_runtime_development = __commonJS({
             return jsxWithValidation(type, props, key, false);
           }
         }
-        var jsx11 = jsxWithValidationDynamic;
-        var jsxs10 = jsxWithValidationStatic;
+        var jsx12 = jsxWithValidationDynamic;
+        var jsxs11 = jsxWithValidationStatic;
         exports.Fragment = REACT_FRAGMENT_TYPE;
-        exports.jsx = jsx11;
-        exports.jsxs = jsxs10;
+        exports.jsx = jsx12;
+        exports.jsxs = jsxs11;
       })();
     }
   }
@@ -67349,6 +67531,340 @@ var init_rsi = __esm({
   }
 });
 
+// src/mission/lessons.ts
+var init_lessons = __esm({
+  "src/mission/lessons.ts"() {
+    "use strict";
+    init_ledger2();
+  }
+});
+
+// src/mission/selfImprove.ts
+var init_selfImprove = __esm({
+  "src/mission/selfImprove.ts"() {
+    "use strict";
+    init_ledger2();
+  }
+});
+
+// src/mission/ledger.ts
+function canWrite(type, writer) {
+  switch (type) {
+    case "STANCE":
+      return writer === "agent" || writer === "human" ? { ok: true, reason: "STANCE is live turn state; the runtime writes it" } : { ok: false, reason: "the experiment writes no live state" };
+    case "PRECEDENT":
+    case "SCAR":
+      return writer === "agent" || writer === "human" ? { ok: true, reason: `${type} is written from MEASURED run facts only (reflection enforces this)` } : { ok: false, reason: "the experiment settles strategies, not episodes" };
+    case "DOCTRINE":
+      return writer === "human" ? { ok: true, reason: "house rules are human-written" } : { ok: false, reason: `DOCTRINE is human-only; ${writer} may propose, never write` };
+    case "RECOURSE":
+      return writer === "experiment" || writer === "human" ? { ok: true, reason: "RECOURSE changes only via measured adoption or human approval" } : { ok: false, reason: "an agent run cannot install strategies or skills on its own" };
+  }
+}
+function enforceWrite(type, writer) {
+  const v2 = canWrite(type, writer);
+  if (!v2.ok) throw new Error(`ledger: refused \u2014 ${writer} may not write ${type} (${v2.reason})`);
+}
+var init_ledger2 = __esm({
+  "src/mission/ledger.ts"() {
+    "use strict";
+    init_lessons();
+    init_selfImprove();
+    init_skillEvolution();
+  }
+});
+
+// src/mission/skillEvolution.ts
+function mergeProposals(memory, fresh) {
+  const next = [...memory];
+  for (const f4 of fresh) {
+    if (!next.some((p2) => p2.name === f4.name && p2.source === f4.source)) next.push(f4);
+  }
+  return next.slice(-PROPOSAL_CAP);
+}
+function loadSkills() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const p2 = JSON.parse(raw);
+      if (Array.isArray(p2)) return p2;
+    }
+  } catch {
+  }
+  return [];
+}
+function saveSkills(memory, writer = "human") {
+  for (const m3 of memory) if (m3.status === "approved") enforceWrite("RECOURSE", writer);
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(memory));
+  } catch {
+  }
+}
+var PROPOSAL_CAP, LS_KEY;
+var init_skillEvolution = __esm({
+  "src/mission/skillEvolution.ts"() {
+    "use strict";
+    init_ledger2();
+    PROPOSAL_CAP = 20;
+    LS_KEY = "vh.skills.v1";
+  }
+});
+
+// src/mission/knowledgeSkills.ts
+function extractStructure(content) {
+  const lines = content.split(/\r?\n/);
+  const frameworks = [];
+  const decisionRules = [];
+  const codePatterns = [];
+  const chapterHints = [];
+  let inFence = false;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (/^```/.test(line)) {
+      inFence = !inFence;
+      if (!inFence && codePatterns.length < 8) codePatterns.push("fenced code block");
+      continue;
+    }
+    if (inFence) continue;
+    const heading = /^#{1,4}\s+(.+)$/.exec(line);
+    if (heading) {
+      const t2 = heading[1].replace(/[*_`]/g, "").trim();
+      if (chapterHints.length < 24) chapterHints.push(t2);
+      if (/framework|model|pattern|principle|method|strategy|guide|checklist|design rule/i.test(t2)) frameworks.push(t2);
+      continue;
+    }
+    const bullet = /^[-*•]\s+(.+)$/.exec(line);
+    const text = bullet ? bullet[1] : line;
+    if ((ARROW.test(text) || RULE_HINTS.test(text)) && text.length > 24 && text.length < 500 && decisionRules.length < 16) {
+      decisionRules.push(text.replace(/^[-*•]\s*/, "").trim());
+    }
+  }
+  return { frameworks, decisionRules, codePatterns, chapterHints };
+}
+async function sha256Hex3(content) {
+  const d3 = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(content));
+  return [...new Uint8Array(d3)].map((b3) => b3.toString(16).padStart(2, "0")).join("");
+}
+function loadKnowledgeProposals() {
+  try {
+    const raw = globalThis.localStorage?.getItem(LS_KEY2);
+    if (raw) {
+      const p2 = JSON.parse(raw);
+      if (Array.isArray(p2)) return p2;
+    }
+  } catch {
+  }
+  return [];
+}
+function saveKnowledgeProposals(memory) {
+  try {
+    globalThis.localStorage?.setItem(LS_KEY2, JSON.stringify(memory));
+  } catch {
+  }
+}
+function defaultVendorFor(harness) {
+  return HARNESS_DEFAULT_VENDOR[harness] ?? `${harness}'s configured provider`;
+}
+function loopbackHost(host) {
+  const h2 = host.toLowerCase();
+  return h2 === "localhost" || h2 === "127.0.0.1" || h2 === "::1" || h2 === "[::1]";
+}
+function classifyEndpoint(baseUrl) {
+  if (!baseUrl || !baseUrl.trim()) {
+    return { endpointClass: "cloud-default", note: "no endpoint override visible \u2014 the harness's default cloud provider" };
+  }
+  try {
+    const host = new URL(baseUrl.trim()).hostname;
+    if (loopbackHost(host)) {
+      return { endpointClass: "local-configured", note: `endpoint override points at loopback (${host}) \u2014 content stays on this machine` };
+    }
+    return { endpointClass: "unknown", note: `endpoint override points at a non-loopback host (${host}) \u2014 VH cannot determine where it terminates` };
+  } catch {
+    return { endpointClass: "unknown", note: "endpoint override is not a valid URL \u2014 VH cannot determine where content goes" };
+  }
+}
+async function proposeKnowledgeSkill(args) {
+  const content = (args.content ?? "").trim();
+  if (content.length < MIN_CONTENT) {
+    return { ok: false, error: `document too small (${content.length} chars; need >= ${MIN_CONTENT}) \u2014 nothing to distill` };
+  }
+  if (content.length > MAX_CONTENT) {
+    return { ok: false, error: `document too large (${content.length} chars; cap ${MAX_CONTENT}) \u2014 distill a chapter, not a library` };
+  }
+  const structure = extractStructure(content);
+  if (structure.frameworks.length === 0 && structure.decisionRules.length === 0 && structure.chapterHints.length === 0) {
+    return { ok: false, error: "no extractable structure (headings, rules, frameworks) \u2014 VH distills structure, not summaries; a raw blob is refused" };
+  }
+  const nowIso3 = args.nowIso ?? (/* @__PURE__ */ new Date()).toISOString();
+  const sourceName = args.sourceName?.trim() || null;
+  const sha = await sha256Hex3(content);
+  let distiller = { kind: "mechanical", note: null };
+  let dataHandling = "local";
+  let providerInfo = null;
+  let llmProcedure = "";
+  let llmFailureModes = [];
+  if (args.llm) {
+    try {
+      const bin = await args.llm.deps.resolveBin?.(args.llm.harness);
+      if (!bin) {
+        distiller = { kind: "mechanical", note: `LLM distillation requested via "${args.llm.harness}" but no local binary was found \u2014 mechanical structure only` };
+      } else {
+        dataHandling = "provider";
+        const vendor = defaultVendorFor(args.llm.harness);
+        const overrideNames = HARNESS_ENV_OVERRIDES[args.llm.harness] ?? [];
+        let endpoint;
+        if (overrideNames.length > 0 && args.llm.deps.readEnv) {
+          try {
+            const vals = await args.llm.deps.readEnv(overrideNames);
+            const found = vals.find((v2) => typeof v2 === "string" && v2.trim().length > 0);
+            if (found === void 0) {
+              endpoint = { endpointClass: "cloud-default", endpointBasis: "detected", note: "no endpoint override visible to VH \u2014 the harness's default cloud provider" };
+            } else {
+              const c3 = classifyEndpoint(found);
+              endpoint = { endpointClass: c3.endpointClass, endpointBasis: "detected", note: c3.note };
+            }
+          } catch {
+            endpoint = { endpointClass: "unknown", endpointBasis: "not-visible", note: "VH could not read the harness's endpoint override" };
+          }
+        } else if (args.llm.declaredEndpoint) {
+          endpoint = args.llm.declaredEndpoint === "local" ? { endpointClass: "local-configured", endpointBasis: "user-declared", note: "you declared this harness uses a local model endpoint" } : { endpointClass: "cloud-default", endpointBasis: "user-declared", note: "you declared this harness uses its default cloud provider" };
+        } else {
+          endpoint = {
+            endpointClass: "unknown",
+            endpointBasis: "not-visible",
+            note: `VH runs ${args.llm.harness} with your environment and cannot see its endpoint override settings \u2014 the destination is whatever the harness's own configuration decides`
+          };
+        }
+        providerInfo = { vendor, ...endpoint };
+        const res = await args.llm.deps.cliInvoke?.({
+          bin,
+          argv: ["-p", LLM_PROMPT(content)],
+          cwd: ".",
+          timeoutSecs: 600
+        });
+        const stdout = (res?.stdout ?? "").trim();
+        let parsed = null;
+        if (stdout) {
+          try {
+            parsed = JSON.parse(stdout.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, ""));
+          } catch {
+            parsed = null;
+          }
+        }
+        if (!res || res.exitCode !== 0 || res.timedOut || !parsed || typeof parsed.procedure !== "string" || !parsed.procedure.trim()) {
+          distiller = { kind: "mechanical", note: `LLM distillation via "${args.llm.harness}" returned no usable structure \u2014 mechanical structure only` };
+        } else {
+          distiller = { kind: "llm", harness: args.llm.harness, note: null };
+          llmProcedure = (typeof parsed.procedure === "string" ? parsed.procedure : "").trim();
+          if (Array.isArray(parsed.knownFailureModes)) {
+            llmFailureModes = parsed.knownFailureModes.filter((x3) => typeof x3 === "string").slice(0, 8);
+          }
+        }
+      }
+    } catch (err) {
+      distiller = { kind: "mechanical", note: `LLM distillation via "${args.llm.harness}" failed (${err instanceof Error ? err.message : String(err).slice(0, 120)}) \u2014 mechanical structure only` };
+    }
+  }
+  const frameworks = structure.frameworks.slice(0, 12);
+  const rules = structure.decisionRules.slice(0, 16);
+  const summary = (structure.chapterHints.slice(0, 3).join(" / ") || "Untitled document") + (frameworks.length > 0 ? ` \u2014 frameworks: ${frameworks.slice(0, 4).join(", ")}` : "");
+  const mechanicalProcedure = [
+    ...frameworks.length > 0 ? [`Frameworks: ${frameworks.join("; ")}`] : [],
+    ...rules.map((r3) => `- ${r3}`)
+  ].join("\n");
+  const procedure = llmProcedure ? `LLM-distilled guidance:
+${llmProcedure}
+
+Extracted rules:
+${mechanicalProcedure}` : mechanicalProcedure || "Structured notes extracted from the source document.";
+  const knownFailureModes = llmFailureModes.length > 0 ? llmFailureModes.join("\n- ") : "Not measured: knowledge skill \u2014 failures are only knowable after real use.";
+  const proposal = {
+    id: `kn-${uid("knw").slice(0, 14)}`,
+    dataHandling,
+    providerInfo,
+    title: sourceName ?? structure.chapterHints[0] ?? "Knowledge skill",
+    summary,
+    procedure,
+    preconditions: "The document source is owned by the operator (book/file with rights to read); this skill only applies to work it names.",
+    toolStrategy: "Use the distilled rules as guidance during execution; treat them as human-approved knowledge, not as verified measurement.",
+    verificationStrategy: "The repository's own verification gate still decides; this knowledge never bypasses GATE.",
+    knownFailureModes,
+    claimsMeasuredEffect: false,
+    provenance: { sourceName, sourceSha256: sha, byteLength: new TextEncoder().encode(content).byteLength, tool: KNOWLEDGE_TOOL, distilledAt: nowIso3 },
+    distiller,
+    status: "proposed",
+    decidedBy: null,
+    decidedAt: null,
+    decidedNote: null
+  };
+  const memory = loadKnowledgeProposals();
+  memory.push(proposal);
+  saveKnowledgeProposals(memory);
+  return { ok: true, proposal };
+}
+function decideKnowledgeProposal(args) {
+  const memory = loadKnowledgeProposals();
+  const p2 = memory.find((x3) => x3.id === args.id);
+  if (!p2) return { ok: false, error: `no knowledge proposal matches ${args.id}` };
+  if (p2.status !== "proposed") return { ok: false, error: `proposal ${args.id} was already ${p2.status} \u2014 one decision per proposal` };
+  const nowIso3 = args.nowIso ?? (/* @__PURE__ */ new Date()).toISOString();
+  let mirrored = false;
+  if (args.decision === "APPROVED") {
+    const skills = loadSkills();
+    const line = {
+      id: `kn-${p2.id.replace("kn-", "")}`,
+      name: p2.title.slice(0, 60),
+      description: `[knowledge] ${p2.summary.slice(0, 160)} \u2014 ${p2.procedure.slice(0, 440)}`,
+      source: "knowledge",
+      sourceMissionId: `knowledge:${p2.provenance.sourceSha256.slice(0, 16)}`,
+      status: "approved",
+      learnedAt: Date.parse(nowIso3) || Date.now()
+    };
+    saveSkills(mergeProposals(skills, [line]), "human");
+    mirrored = true;
+  }
+  p2.status = args.decision === "APPROVED" ? "approved" : "discarded";
+  p2.decidedBy = args.by;
+  p2.decidedAt = nowIso3;
+  p2.decidedNote = args.note ?? null;
+  saveKnowledgeProposals(memory);
+  return { ok: true, proposal: p2, mirrored };
+}
+var KNOWLEDGE_TOOL, LS_KEY2, RULE_HINTS, ARROW, HARNESS_DEFAULT_VENDOR, HARNESS_ENV_OVERRIDES, LLM_PROMPT, MIN_CONTENT, MAX_CONTENT;
+var init_knowledgeSkills = __esm({
+  "src/mission/knowledgeSkills.ts"() {
+    "use strict";
+    init_id();
+    init_skillEvolution();
+    KNOWLEDGE_TOOL = "vh-knowledge-forge/mechanical-v1";
+    LS_KEY2 = "vh.knowledgeSkills.v1";
+    RULE_HINTS = /\b(must|never|always|only|when|if|avoid|prefer|before|after)\b/i;
+    ARROW = /→|=>|->|⇒/;
+    HARNESS_DEFAULT_VENDOR = {
+      claude: "Anthropic",
+      codex: "OpenAI",
+      gemini: "Google",
+      grok: "xAI",
+      qwen: "Alibaba Qwen",
+      opencode: "configurable (see opencode's own provider settings)",
+      openclaude: "configurable",
+      cursor: "configurable (Cursor's model picker)"
+    };
+    HARNESS_ENV_OVERRIDES = {
+      claude: ["ANTHROPIC_BASE_URL"],
+      codex: ["OPENAI_BASE_URL"],
+      opencode: ["OPENCODE_BASE_URL", "OPENAI_BASE_URL", "ANTHROPIC_BASE_URL"]
+    };
+    LLM_PROMPT = (content) => `You are a book-distiller. Extract STRUCTURE, not a summary, from the document below. Reply with ONLY a JSON object: {"title": string, "summary": string (<=2 lines), "procedure": string (compact step guidance), "decisionRules": string[], "knownFailureModes": string[]}. No markdown fences.
+
+DOCUMENT:
+${content.slice(0, 6e4)}`;
+    MIN_CONTENT = 60;
+    MAX_CONTENT = 4e5;
+  }
+});
+
 // src/ui/store.ts
 var store_exports = {};
 __export(store_exports, {
@@ -67408,6 +67924,7 @@ var init_store = __esm({
     init_goals();
     init_rsi();
     init_rsirals();
+    init_knowledgeSkills();
     USER = "vh-owner";
     PROVIDER_STORAGE_KEY = "vh.provider.remembered.v1";
     THEME_KEY = "vh.theme.v2";
@@ -67444,6 +67961,7 @@ var init_store = __esm({
       memOn: memoryEnabled(),
       sessions: listSessions(),
       openSession: null,
+      knowledge: loadKnowledgeProposals(),
       handoffs: listHandoffs(),
       initiative: loadInitiative(),
       savedTokens: 0,
@@ -67565,6 +68083,29 @@ ${text}`;
       setMemory: (on) => {
         setMemoryEnabled(on);
         set3({ memOn: on });
+      },
+      /**
+       * 19.7.13 — Docs: propose a document as knowledge.
+       *
+       * The engine owns the judgement, not the UI: `proposeKnowledgeSkill` refuses a
+       * document that carries no extractable structure (headings, rules, frameworks)
+       * with a written reason, and it reports where the content went — "local" when
+       * nothing left the machine, "provider" when an LLM pass sent it to the selected
+       * harness. The door shows that verdict verbatim. Nothing is installed here: a
+       * proposal waits for the human in `decideDocument`.
+       */
+      addDocument: async (content, sourceName) => {
+        const r3 = await proposeKnowledgeSkill({ content, sourceName: sourceName.trim() || null });
+        if (!r3.ok) return { ok: false, note: r3.error };
+        set3({ knowledge: loadKnowledgeProposals() });
+        return { ok: true, note: r3.proposal.id };
+      },
+      /** The human's one decision per proposal; approval mirrors it into skills. */
+      decideDocument: (id, approved, note) => {
+        const r3 = decideKnowledgeProposal({ id, decision: approved ? "APPROVED" : "REJECTED", by: get2().ownerHandle, note: note.trim() || null });
+        if (!r3.ok) return { ok: false, note: r3.error };
+        set3({ knowledge: loadKnowledgeProposals() });
+        return { ok: true, note: r3.proposal.status };
       },
       clearMemory: () => {
         clearGraph();
@@ -155093,9 +155634,9 @@ var init_float_tooltip = __esm({
     isReactRenderable = function isReactRenderable2(o2) {
       return t(W(o2));
     };
-    render = function render2(jsx11, domEl) {
+    render = function render2(jsx12, domEl) {
       delete domEl.__k;
-      R(_reactElement2VNode(jsx11), domEl);
+      R(_reactElement2VNode(jsx12), domEl);
     };
     css_248z = ".float-tooltip-kap {\n  position: absolute;\n  width: max-content; /* prevent shrinking near right edge */\n  max-width: max(50%, 150px);\n  padding: 3px 5px;\n  border-radius: 3px;\n  font: 12px sans-serif;\n  color: #eee;\n  background: rgba(0,0,0,0.6);\n  pointer-events: none;\n}\n";
     styleInject(css_248z);
@@ -156332,7 +156873,7 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
       inst = new Ctor(host).width(host.clientWidth).height(host.clientHeight).backgroundColor("rgba(0,0,0,0)").showNavInfo(false).nodeColor((n2) => c3[n2.kind] ?? c3.keyword).nodeOpacity(0.92).nodeResolution(32).nodeRelSize(work ? 3.4 : 2.6).nodeVal((n2) => n2.val ?? 2).nodeLabel((n2) => {
         const x3 = n2;
         return `<div style="font:12px Geist,system-ui;background:${c3.bg};color:${c3.fg};padding:6px 9px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:280px">${esc2(x3.name)}${x3.sub ? `<br><span style="opacity:.7">${esc2(x3.sub)}</span>` : ""}<br><span style="opacity:.55;font-family:'Geist Pixel',monospace;font-size:10px;letter-spacing:.08em">${x3.kind.toUpperCase()}${x3.live ? " \xB7 RUNNING" : ""}</span></div>`;
-      }).linkColor(() => work ? c3.wlink : c3.link).linkWidth((l2) => l2.live ? 1.6 : work ? 0.9 : 0.5).linkOpacity(0.95).linkDirectionalArrowLength(work ? 3.5 : 0).linkDirectionalArrowRelPos(1).linkDirectionalArrowColor(() => c3.you).linkDirectionalParticles((l2) => work ? l2.live ? 4 : 1 : 0).linkDirectionalParticleWidth(1.6).linkDirectionalParticleColor(() => c3.steward).linkDirectionalParticleSpeed((l2) => l2.live ? 0.012 : 4e-3).dagMode(work ? "td" : null).dagLevelDistance(work ? 42 : 0).onNodeClick((n2) => {
+      }).linkColor(() => work ? c3.wlink : c3.link).linkWidth((l2) => l2.live ? 1.6 : work ? 0.9 : 0.5).linkOpacity(0.95).linkDirectionalArrowLength(work ? 3.5 : 0).linkDirectionalArrowRelPos(1).linkDirectionalArrowColor(() => c3.you).linkDirectionalParticles((l2) => work ? l2.live ? 4 : 1 : 0).linkDirectionalParticleWidth(1.6).linkDirectionalParticleColor(() => c3.steward).linkDirectionalParticleSpeed((l2) => l2.live ? 0.012 : 4e-3).dagMode(work ? "td" : null).dagLevelDistance(work ? 42 : 0).warmupTicks(work ? 40 : 70).cooldownTicks(work ? 140 : 200).cooldownTime(9e3).onNodeClick((n2) => {
         const x3 = n2;
         const now4 = Date.now();
         if (now4 - last.current.at < 350 && last.current.id === x3.id) {
@@ -156349,8 +156890,9 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
       live.d3Force("charge")?.strength(work ? -60 : -70);
       live.cameraPosition({ x: 0, y: 30, z: work ? 260 : 320 });
       const ctrl = live.controls();
-      ctrl.autoRotate = rot.current;
-      ctrl.autoRotateSpeed = work ? 0.2 : 0.5;
+      const reduce = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      ctrl.autoRotate = rot.current && !reduce;
+      ctrl.autoRotateSpeed = reduce ? 0 : work ? 0.2 : 0.5;
       ctrl.enableDamping = true;
       if (work) live.onEngineStop(() => live.zoomToFit(700, 140));
       g3.current = live;
@@ -156374,6 +156916,7 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
     const keep = new Map(cur.nodes.map((n2) => [n2.id, n2]));
     const merged = nodes.map((n2) => Object.assign(keep.get(n2.id) ?? {}, n2));
     inst.graphData({ nodes: merged, links: links.map((l2) => ({ ...l2 })) });
+    inst.d3ReheatSimulation();
   }, [nodes, links]);
   (0, import_react5.useEffect)(() => {
     const ctrl = g3.current?.controls();
@@ -156901,36 +157444,218 @@ var init_Memory = __esm({
   }
 });
 
+// src/ui/screens/Docs.tsx
+function Docs() {
+  const st = useVh();
+  const [text, setText] = (0, import_react10.useState)("");
+  const [name, setName2] = (0, import_react10.useState)("");
+  const [note, setNote] = (0, import_react10.useState)(null);
+  const [busy, setBusy] = (0, import_react10.useState)(false);
+  const [open2, setOpen] = (0, import_react10.useState)(null);
+  const file2 = (0, import_react10.useRef)(null);
+  const rows = st.knowledge.slice().sort((a3, b3) => a3.provenance.distilledAt < b3.provenance.distilledAt ? 1 : -1);
+  const proposed = rows.filter((r3) => r3.status === "proposed");
+  const approved = rows.filter((r3) => r3.status === "approved");
+  async function propose() {
+    const content = text.trim();
+    if (!content || busy) return;
+    setBusy(true);
+    setNote(null);
+    try {
+      const r3 = await st.addDocument(content, name);
+      if (r3.ok) {
+        setText("");
+        setName2("");
+        setNote({ kind: "ok", text: `Proposed as ${r3.note}. Nothing is installed until you decide \u2014 find it below.` });
+      } else {
+        setNote({ kind: "warn", text: r3.note });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function loadFile(f4) {
+    if (!f4) return;
+    if (f4.size > MAX_FILE) {
+      setNote({ kind: "warn", text: `${f4.name} is ${(f4.size / 1e6).toFixed(1)} MB \u2014 larger than the ${(MAX_FILE / 1e6).toFixed(0)} MB reading cap. Distill a chapter, not a library.` });
+      return;
+    }
+    try {
+      const body = await f4.text();
+      setText(body);
+      if (!name.trim()) setName2(f4.name.replace(/\.(md|markdown|txt|text)$/i, ""));
+      setNote({ kind: "ok", text: `Loaded ${f4.name} (${body.length.toLocaleString()} characters). Nothing has left this machine.` });
+    } catch (e3) {
+      setNote({ kind: "warn", text: `could not read ${f4.name}: ${String(e3)}` });
+    }
+  }
+  function decide(id, ok2) {
+    const r3 = st.decideDocument(id, ok2, "");
+    setNote(r3.ok ? { kind: "ok", text: ok2 ? `Approved \u2014 the knowledge is now an installed skill (${r3.note}).` : `Dismissed (${r3.note}). One decision per proposal, recorded.` } : { kind: "warn", text: r3.note });
+  }
+  const fmt = (iso) => {
+    try {
+      const d3 = new Date(iso);
+      return `${d3.toLocaleDateString([], { month: "short", day: "2-digit" })} \xB7 ${d3.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+    } catch {
+      return "\u2014";
+    }
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h2", { children: "Docs" }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "sub", children: rows.length ? `${rows.length} proposal${rows.length === 1 ? "" : "s"}` : "teach it from your own documents" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "page narrow", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "kpis", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: proposed.length }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Waiting on you" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: approved.length }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Approved" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: rows.filter((r3) => r3.dataHandling === "local").length }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Stayed on this machine" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: rows.filter((r3) => r3.status === "discarded").length }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Dismissed" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("label", { className: "lbl", htmlFor: "doc-name", children: "Source name" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { id: "doc-name", className: "input", placeholder: "e.g. Incident review handbook \u2014 chapter 3", value: name, onChange: (e3) => setName2(e3.target.value) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("label", { className: "lbl", htmlFor: "doc-body", children: "Document" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+            "textarea",
+            {
+              id: "doc-body",
+              className: "input",
+              rows: 9,
+              placeholder: "Paste the document. Headings, numbered procedure and rules distill well; a wall of prose without structure is refused \u2014 truthfully, in words.",
+              value: text,
+              onChange: (e3) => setText(e3.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", onClick: () => void propose(), disabled: busy || text.trim().length < 60, children: busy ? "Distilling\u2026" : "Propose knowledge" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => file2.current?.click(), children: "Load a file" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+            "input",
+            {
+              ref: file2,
+              type: "file",
+              accept: ".md,.markdown,.txt,.text,text/*",
+              style: { display: "none" },
+              onChange: (e3) => {
+                void loadFile(e3.target.files?.[0] ?? null);
+                e3.target.value = "";
+              }
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: text.trim().length < 60 ? `${text.trim().length}/60 characters minimum` : `${text.trim().length.toLocaleString()} characters ready` })
+        ] }),
+        note && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: `note ${note.kind === "warn" ? "warn" : ""}`, children: note.text })
+      ] }),
+      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "No documents yet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { children: [
+          "Add one above. The Steward distills its ",
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "structure" }),
+          " \u2014 procedure, decision rules, failure modes \u2014 into a knowledge proposal, then asks you before anything is installed."
+        ] })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "ledger", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "lh", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "When" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Document" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Handling" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Status" }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {})
+        ] }),
+        rows.map((r3) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_react10.default.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { className: `lr ${open2 === r3.id ? "open" : ""}`, onClick: () => setOpen(open2 === r3.id ? null : r3.id), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "mono", children: fmt(r3.provenance.distilledAt) }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "t", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: r3.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: r3.provenance.sourceName || "pasted document" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "mono", children: r3.dataHandling === "local" ? "on this machine" : "provider" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `pill ${r3.status}`, children: r3.status === "proposed" ? "waiting" : r3.status }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `dot ${r3.status === "approved" ? "ok" : r3.status === "proposed" ? "pending" : "refused"}` })
+          ] }),
+          open2 === r3.id && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "ld", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: r3.summary }) }),
+            r3.procedure && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+              "Procedure \u2014 ",
+              r3.procedure
+            ] }),
+            r3.knownFailureModes && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+              "Known failure modes \u2014 ",
+              r3.knownFailureModes
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+              r3.dataHandling === "local" ? "Handling: the content never left this machine." : `Handling: the content was sent to ${r3.providerInfo?.vendor ?? "a model provider"} (${r3.providerInfo?.endpointClass ?? "endpoint unknown"}).`,
+              " ",
+              "Claims: knowledge is approved human knowledge \u2014 it is never counted as a measured effect."
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "acts", children: r3.status === "proposed" ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, true), children: "Approve" }),
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, false), children: "Dismiss" })
+            ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: r3.status === "approved" ? `Approved by ${r3.decidedBy ?? "owner"} \u2014 installed as a knowledge skill.` : `Dismissed by ${r3.decidedBy ?? "owner"}${r3.decidedAt ? ` \xB7 ${fmt(r3.decidedAt)}` : ""}.` }) })
+          ] })
+        ] }, r3.id))
+      ] })
+    ] }) })
+  ] });
+}
+var import_react10, import_jsx_runtime9, MAX_FILE;
+var init_Docs = __esm({
+  "src/ui/screens/Docs.tsx"() {
+    "use strict";
+    import_react10 = __toESM(require_react(), 1);
+    init_store();
+    import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+    MAX_FILE = 2e6;
+  }
+});
+
 // src/ui/screens/Settings.tsx
 var Settings_exports = {};
 __export(Settings_exports, {
   Settings: () => Settings
 });
 function Settings() {
-  const [sect, setSect] = (0, import_react10.useState)("provider");
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("header", { className: "top", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h2", { children: "Settings" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "settings", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("nav", { className: "snav", children: SECTS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { "aria-current": sect === k2 ? "page" : void 0, onClick: () => setSect(k2), children: l2 }, k2)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "sbody", children: [
-        sect === "provider" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Provider, {}),
-        sect === "vault" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Vault, {}),
-        sect === "autonomy" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Autonomy, {}),
-        sect === "federation" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Federation, {}),
-        sect === "appearance" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Appearance, {}),
-        sect === "about" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(About, {})
+  const [sect, setSect] = (0, import_react11.useState)("provider");
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("header", { className: "top", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h2", { children: "Settings" }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "settings", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("nav", { className: "snav", children: SECTS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { "aria-current": sect === k2 ? "page" : void 0, onClick: () => setSect(k2), children: l2 }, k2)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "sbody", children: [
+        sect === "provider" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Provider, {}),
+        sect === "vault" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Vault, {}),
+        sect === "autonomy" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Autonomy, {}),
+        sect === "federation" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Federation, {}),
+        sect === "appearance" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Appearance, {}),
+        sect === "about" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(About, {})
       ] })
     ] }) })
   ] });
 }
 function Provider() {
   const { provider, setProvider, forgetProvider, securityNote, vault } = useVh();
-  const [kind, setKind] = (0, import_react10.useState)(provider?.kind ?? "openai-compatible");
-  const [baseUrl, setBase] = (0, import_react10.useState)(provider?.baseUrl ?? PROVIDER_DEFAULTS["openai-compatible"]);
-  const [model, setModel] = (0, import_react10.useState)(provider?.model ?? "");
-  const [key, setKey] = (0, import_react10.useState)("");
-  const [persist2, setPersist] = (0, import_react10.useState)(vault.status === "unlocked");
-  const [note, setNote] = (0, import_react10.useState)(securityNote);
+  const [kind, setKind] = (0, import_react11.useState)(provider?.kind ?? "openai-compatible");
+  const [baseUrl, setBase] = (0, import_react11.useState)(provider?.baseUrl ?? PROVIDER_DEFAULTS["openai-compatible"]);
+  const [model, setModel] = (0, import_react11.useState)(provider?.model ?? "");
+  const [key, setKey] = (0, import_react11.useState)("");
+  const [persist2, setPersist] = (0, import_react11.useState)(vault.status === "unlocked");
+  const [note, setNote] = (0, import_react11.useState)(securityNote);
   const pick2 = (k2) => {
     setKind(k2);
     setBase(PROVIDER_DEFAULTS[k2]);
@@ -156940,131 +157665,131 @@ function Provider() {
     setNote(r3.note);
     setKey("");
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Provider" }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "Without a provider the Steward plans but never executes. With one, every step is gated and receipted. Keys never leave this device." }),
-    provider && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "row", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "led ok" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: KINDS.find((k2) => k2[0] === provider.kind)?.[1] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "faint mono", children: provider.model }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm ghost danger", style: { marginLeft: "auto" }, onClick: forgetProvider, children: "Remove key" })
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Provider" }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Without a provider the Steward plans but never executes. With one, every step is gated and receipted. Keys never leave this device." }),
+    provider && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "led ok" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: KINDS.find((k2) => k2[0] === provider.kind)?.[1] }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint mono", children: provider.model }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost danger", style: { marginLeft: "auto" }, onClick: forgetProvider, children: "Remove key" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "seg", children: KINDS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { "aria-pressed": kind === k2, onClick: () => pick2(k2), children: l2 }, k2)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Base URL" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", value: baseUrl, onChange: (e3) => setBase(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "seg", children: KINDS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { "aria-pressed": kind === k2, onClick: () => pick2(k2), children: l2 }, k2)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Base URL" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", value: baseUrl, onChange: (e3) => setBase(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Model" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", placeholder: MODEL_HINT[kind], value: model, onChange: (e3) => setModel(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Model" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", placeholder: MODEL_HINT[kind], value: model, onChange: (e3) => setModel(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "API key" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", type: "password", autoComplete: "off", placeholder: provider ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (leave blank to keep)" : "paste your key", value: key, onChange: (e3) => setKey(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "API key" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", type: "password", autoComplete: "off", placeholder: provider ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (leave blank to keep)" : "paste your key", value: key, onChange: (e3) => setKey(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "check", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { type: "checkbox", checked: persist2, onChange: (e3) => setPersist(e3.target.checked) }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "check", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { type: "checkbox", checked: persist2, onChange: (e3) => setPersist(e3.target.checked) }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { children: [
         "Remember on this device ",
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: vault.status === "unlocked" ? "sealed in the vault, AES-256-GCM" : "requires an unlocked vault \u2014 otherwise the key lives in memory for this session only" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: vault.status === "unlocked" ? "sealed in the vault, AES-256-GCM" : "requires an unlocked vault \u2014 otherwise the key lives in memory for this session only" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn primary", disabled: !key.trim() && !provider, onClick: () => void save3(), children: provider ? "Update" : "Connect" }),
-      note && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: note })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn primary", disabled: !key.trim() && !provider, onClick: () => void save3(), children: provider ? "Update" : "Connect" }),
+      note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note })
     ] })
   ] });
 }
 function Vault() {
   const { vault, createVault, unlockVault, lock } = useVh();
-  const [pass, setPass] = (0, import_react10.useState)("");
-  const [note, setNote] = (0, import_react10.useState)(null);
+  const [pass, setPass] = (0, import_react11.useState)("");
+  const [note, setNote] = (0, import_react11.useState)(null);
   const act = async () => {
     const r3 = vault.status === "no-passphrase" ? await createVault(pass) : await unlockVault(pass);
     setNote(r3.note);
     if (r3.ok) setPass("");
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Vault" }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "One passphrase seals your provider key and memory at rest. There is no recovery \u2014 length is the only strength no one can take from you." }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "row", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `led ${vault.status === "unlocked" ? "ok" : vault.status === "sealed-locked" ? "warn" : ""}` }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: vault.status === "unlocked" ? "Unlocked" : vault.status === "sealed-locked" ? "Locked" : "Not created" }),
-      vault.kdf && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "faint mono", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Vault" }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "One passphrase seals your provider key and memory at rest. There is no recovery \u2014 length is the only strength no one can take from you." }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: `led ${vault.status === "unlocked" ? "ok" : vault.status === "sealed-locked" ? "warn" : ""}` }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: vault.status === "unlocked" ? "Unlocked" : vault.status === "sealed-locked" ? "Locked" : "Not created" }),
+      vault.kdf && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "faint mono", children: [
         vault.kdf,
         " \xB7 ",
         vault.iterations?.toLocaleString(),
         " rounds"
       ] }),
-      vault.status === "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm ghost", style: { marginLeft: "auto" }, onClick: lock, children: "Lock now" })
+      vault.status === "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost", style: { marginLeft: "auto" }, onClick: lock, children: "Lock now" })
     ] }),
-    vault.status !== "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "field", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Passphrase" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", type: "password", autoComplete: "off", value: pass, onChange: (e3) => setPass(e3.target.value), onKeyDown: (e3) => {
+    vault.status !== "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Passphrase" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", type: "password", autoComplete: "off", value: pass, onChange: (e3) => setPass(e3.target.value), onKeyDown: (e3) => {
           if (e3.key === "Enter") void act();
         } })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn primary", disabled: pass.length < 8, onClick: () => void act(), children: vault.status === "no-passphrase" ? "Create vault" : "Unlock" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: note ?? "at least 8 characters" })
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn primary", disabled: pass.length < 8, onClick: () => void act(), children: vault.status === "no-passphrase" ? "Create vault" : "Unlock" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note ?? "at least 8 characters" })
       ] })
     ] }),
-    vault.status === "unlocked" && note && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: note })
+    vault.status === "unlocked" && note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note })
   ] });
 }
 function Autonomy() {
   const { initiative, setAutonomy, wakeNow, stewardName, renameSteward } = useVh();
-  const [name, setName2] = (0, import_react10.useState)(stewardName);
+  const [name, setName2] = (0, import_react11.useState)(stewardName);
   const mcp = mcpRuntimeServers();
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Autonomy" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "lead", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Autonomy" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", children: [
         "How much your Steward may do without being asked. Above Off, a heartbeat every ",
         Math.round(HEARTBEAT_DEFAULT_MS / 6e4),
         " minutes decides, then executes safe acts through the real engine \u2014 every act receipted, every risky one stopped at the gate."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "radios", children: [0, 1, 2, 3].map((l2) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "check", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { type: "radio", name: "auto", checked: initiative.level === l2, onChange: () => setAutonomy(l2) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "radios", children: [0, 1, 2, 3].map((l2) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "check", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { type: "radio", name: "auto", checked: initiative.level === l2, onChange: () => setAutonomy(l2) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { children: [
           AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[0],
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[1] })
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[1] })
         ] })
       ] }, l2)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "row", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "faint", children: "Scheduled follow-ups" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: initiative.followUps.length }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "faint", style: { marginLeft: 16 }, children: "Breaker" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: initiative.breakerUntil && initiative.breakerUntil > Date.now() ? "tripped" : "closed" }),
-        initiative.level > 0 && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn ghost", style: { marginLeft: "auto" }, onClick: () => void wakeNow(), children: "Run a heartbeat now" })
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint", children: "Scheduled follow-ups" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: initiative.followUps.length }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint", style: { marginLeft: 16 }, children: "Breaker" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: initiative.breakerUntil && initiative.breakerUntil > Date.now() ? "tripped" : "closed" }),
+        initiative.level > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn ghost", style: { marginLeft: "auto" }, onClick: () => void wakeNow(), children: "Run a heartbeat now" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Steward" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "The name your Steward answers to." }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: name, onChange: (e3) => setName2(e3.target.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", disabled: !name.trim() || name === stewardName, onClick: () => renameSteward(name.trim()), children: "Rename" })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Steward" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "The name your Steward answers to." }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: name, onChange: (e3) => setName2(e3.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: !name.trim() || name === stewardName, onClick: () => renameSteward(name.trim()), children: "Rename" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Tools" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: mcp.length ? `${mcp.length} governed MCP tool${mcp.length === 1 ? "" : "s"} available to the crew.` : "No external MCP tools enabled \u2014 the crew uses its built-in, receipted tools." })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Tools" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: mcp.length ? `${mcp.length} governed MCP tool${mcp.length === 1 ? "" : "s"} available to the crew.` : "No external MCP tools enabled \u2014 the crew uses its built-in, receipted tools." })
     ] })
   ] });
 }
 function Federation() {
-  const [ownerA, setOwnerA] = (0, import_react10.useState)("you");
-  const [ownerB, setOwnerB] = (0, import_react10.useState)("peer");
-  const [cap, setCap] = (0, import_react10.useState)(DELEGATION_CAPABILITIES[0]);
-  const [task, setTask] = (0, import_react10.useState)("Ship the release notes draft");
-  const [days, setDays] = (0, import_react10.useState)(30);
-  const [regDomain, setRegDomain] = (0, import_react10.useState)(REGULATED_DOMAIN_SLUGS[0] ?? "");
-  const [regBy, setRegBy] = (0, import_react10.useState)("");
-  const [tick2, setTick] = (0, import_react10.useState)(0);
-  const [busy, setBusy] = (0, import_react10.useState)(false);
-  const [note, setNote] = (0, import_react10.useState)(null);
+  const [ownerA, setOwnerA] = (0, import_react11.useState)("you");
+  const [ownerB, setOwnerB] = (0, import_react11.useState)("peer");
+  const [cap, setCap] = (0, import_react11.useState)(DELEGATION_CAPABILITIES[0]);
+  const [task, setTask] = (0, import_react11.useState)("Ship the release notes draft");
+  const [days, setDays] = (0, import_react11.useState)(30);
+  const [regDomain, setRegDomain] = (0, import_react11.useState)(REGULATED_DOMAIN_SLUGS[0] ?? "");
+  const [regBy, setRegBy] = (0, import_react11.useState)("");
+  const [tick2, setTick] = (0, import_react11.useState)(0);
+  const [busy, setBusy] = (0, import_react11.useState)(false);
+  const [note, setNote] = (0, import_react11.useState)(null);
   const pair = pairKey(ownerA.trim(), ownerB.trim());
   const grant = liveGrant();
   const usage = liveUsage(grant);
@@ -157082,60 +157807,60 @@ function Federation() {
       setTick((n2) => n2 + 1);
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Standing grant" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "Two named humans, an enumerated capability list, a crossing budget and an expiry. Nothing crosses without one." }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerA, onChange: (e3) => setOwnerA(e3.target.value), placeholder: "you" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerB, onChange: (e3) => setOwnerB(e3.target.value), placeholder: "peer" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 90 }, type: "number", min: 1, value: days, onChange: (e3) => setDays(Number(e3.target.value) || 1), title: "days" }),
-        !grant ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", disabled: busy || !ownerA.trim() || !ownerB.trim(), onClick: () => void run(async () => {
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Standing grant" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Two named humans, an enumerated capability list, a crossing budget and an expiry. Nothing crosses without one." }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerA, onChange: (e3) => setOwnerA(e3.target.value), placeholder: "you" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerB, onChange: (e3) => setOwnerB(e3.target.value), placeholder: "peer" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 90 }, type: "number", min: 1, value: days, onChange: (e3) => setDays(Number(e3.target.value) || 1), title: "days" }),
+        !grant ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !ownerA.trim() || !ownerB.trim(), onClick: () => void run(async () => {
           const r3 = await issueLiveGrant({ capabilities: [cap], maxCrossings: 5, windowMs: 24 * 3600 * 1e3, windowMax: 2, expiresInMs: days * 24 * 3600 * 1e3, initiatorHuman: ownerA.trim(), responderHuman: ownerB.trim() });
           return r3.ok ? "grant issued \u2014 both sides signed" : r3.refusal ?? "grant refused";
-        }), children: "Issue grant" }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn ghost", disabled: busy, onClick: () => void run(async () => {
+        }), children: "Issue grant" }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn ghost", disabled: busy, onClick: () => void run(async () => {
           revokeLiveGrant("initiator", ownerA.trim(), "owner revoked in Settings");
           return "grant revoked";
         }), children: "Revoke" })
       ] }),
-      grant && usage && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", style: { marginTop: 10 }, children: standingNotice(grant, usage.initiator) })
+      grant && usage && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", style: { marginTop: 10 }, children: standingNotice(grant, usage.initiator) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Crossing" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "One task rides one capability across the pair. Refusals are written in words and receipted like successes." }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("select", { className: "input", value: cap, onChange: (e3) => setCap(e3.target.value), children: DELEGATION_CAPABILITIES.map((c3) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("option", { value: c3, children: c3 }, c3)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { flex: 1, minWidth: 200 }, value: task, onChange: (e3) => setTask(e3.target.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", disabled: busy || !task.trim(), onClick: () => void run(async () => {
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Crossing" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "One task rides one capability across the pair. Refusals are written in words and receipted like successes." }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("select", { className: "input", value: cap, onChange: (e3) => setCap(e3.target.value), children: DELEGATION_CAPABILITIES.map((c3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("option", { value: c3, children: c3 }, c3)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { flex: 1, minWidth: 200 }, value: task, onChange: (e3) => setTask(e3.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !task.trim(), onClick: () => void run(async () => {
           const r3 = await runLiveCrossing({ capability: cap, task: task.trim(), ownerA: ownerA.trim(), ownerB: ownerB.trim() });
           return `${r3.outcome.status}: ${r3.outcome.detail}`;
         }), children: "Run crossing" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Common ledger" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "Both stores, compared \u2014 derived from the two sets, never stored, so it is byte-identical on either side." }),
-      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "lead faint", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Common ledger" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Both stores, compared \u2014 derived from the two sets, never stored, so it is byte-identical on either side." }),
+      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead faint", children: [
         "No crossings for ",
         pair,
         " yet."
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("ul", { className: "rails", children: rows.slice(-8).reverse().map((r3) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("li", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: ledgerRowSentence(r3) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: r3.disagrees ? "disagrees" : r3.seenBy })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ul", { className: "rails", children: rows.slice(-8).reverse().map((r3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: ledgerRowSentence(r3) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: r3.disagrees ? "disagrees" : r3.seenBy })
       ] }, r3.crossingId)) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Regulated bench" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "Regulated specialists route only under a signed activation \u2014 a named person, a jurisdiction, a context, a renew-by date." }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("select", { className: "input", value: regDomain, onChange: (e3) => setRegDomain(e3.target.value), children: REGULATED_DOMAIN_SLUGS.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("option", { value: d3, children: d3 }, d3)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 180 }, value: regBy, onChange: (e3) => setRegBy(e3.target.value), placeholder: "enabled by (your name)" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", disabled: busy || !regBy.trim(), onClick: () => void run(async () => {
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Regulated bench" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Regulated specialists route only under a signed activation \u2014 a named person, a jurisdiction, a context, a renew-by date." }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("select", { className: "input", value: regDomain, onChange: (e3) => setRegDomain(e3.target.value), children: REGULATED_DOMAIN_SLUGS.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("option", { value: d3, children: d3 }, d3)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 180 }, value: regBy, onChange: (e3) => setRegBy(e3.target.value), placeholder: "enabled by (your name)" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !regBy.trim(), onClick: () => void run(async () => {
           const r3 = await enableRegulatedBench({ domains: [regDomain], enabledBy: regBy.trim(), jurisdiction: "IN", context: "preparer", renewBy: Date.now() + 90 * 24 * 3600 * 1e3 });
           return r3.ok ? "regulated bench enabled \u2014 signed" : r3.refusal ?? "activation refused";
         }), children: "Enable" })
       ] }),
-      activation && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "lead", style: { marginTop: 10 }, children: [
+      activation && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", style: { marginTop: 10 }, children: [
         "Active: ",
         activation.domains.join(", "),
         " \xB7 by ",
@@ -157146,31 +157871,31 @@ function Federation() {
         activation.context
       ] })
     ] }),
-    note && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", style: { color: "var(--accent)" }, children: note })
+    note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", style: { color: "var(--accent)" }, children: note })
   ] });
 }
 function Appearance() {
   const { theme, setTheme, ownerHandle } = useVh();
-  const [h2, setH] = (0, import_react10.useState)(ownerHandle);
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Appearance" }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "lead", children: "Two finishes. Both keep the same contrast and the same accent." }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "themes", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { "aria-pressed": theme === "dark", onClick: () => setTheme("dark"), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "sw dark" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "Charcoal" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: "dark" })
+  const [h2, setH] = (0, import_react11.useState)(ownerHandle);
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Appearance" }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Two finishes. Both keep the same contrast and the same accent." }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "themes", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("button", { "aria-pressed": theme === "dark", onClick: () => setTheme("dark"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sw dark" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Charcoal" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: "dark" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { "aria-pressed": theme === "light", onClick: () => setTheme("light"), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "sw light" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "Bone" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: "light" })
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("button", { "aria-pressed": theme === "light", onClick: () => setTheme("light"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sw light" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Bone" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: "light" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { style: { marginTop: 28 }, children: "You" }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: h2, onChange: (e3) => setH(e3.target.value), placeholder: "your handle" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", disabled: !h2.trim() || h2 === ownerHandle, onClick: () => {
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { style: { marginTop: 28 }, children: "You" }),
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: h2, onChange: (e3) => setH(e3.target.value), placeholder: "your handle" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: !h2.trim() || h2 === ownerHandle, onClick: () => {
         try {
           localStorage.setItem("vh.owner.handle", h2.trim());
         } catch {
@@ -157181,51 +157906,51 @@ function Appearance() {
   ] });
 }
 function About() {
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "About" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "klist about", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Product" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: PRODUCT_NAME })
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "About" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "klist about", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Product" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: PRODUCT_NAME })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Engine" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: ENGINE_CREDIT })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Engine" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: ENGINE_CREDIT })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Where it runs" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "On this device \xB7 no telemetry" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Where it runs" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "On this device \xB7 no telemetry" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Honesty contract" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Executes only with a provider \xB7 pauses at the gate \xB7 refuses in words \xB7 receipts everything" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Honesty contract" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Executes only with a provider \xB7 pauses at the gate \xB7 refuses in words \xB7 receipts everything" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Egress" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Nothing leaves without a signed authority (requestEgress) and a receipt" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Egress" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Nothing leaves without a signed authority (requestEgress) and a receipt" })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Guardrail manifest" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "lead", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Guardrail manifest" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", children: [
         "What ",
         PRODUCT_NAME,
         " physically cannot do. Enforced in code, not in prompts \u2014 each line is a check that runs and is pinned by a test."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("ul", { className: "rails", children: GUARDRAILS.map(([t2, tag]) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("li", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: t2 }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: tag })
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ul", { className: "rails", children: GUARDRAILS.map(([t2, tag]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: t2 }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: tag })
       ] }, t2)) })
     ] })
   ] });
 }
-var import_react10, import_jsx_runtime9, SECTS, KINDS, MODEL_HINT, GUARDRAILS;
+var import_react11, import_jsx_runtime10, SECTS, KINDS, MODEL_HINT, GUARDRAILS;
 var init_Settings = __esm({
   "src/ui/screens/Settings.tsx"() {
     "use strict";
-    import_react10 = __toESM(require_react(), 1);
+    import_react11 = __toESM(require_react(), 1);
     init_store();
     init_providers();
     init_initiative();
@@ -157235,7 +157960,7 @@ var init_Settings = __esm({
     init_standing();
     init_ledger();
     init_vouchMesh();
-    import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
     SECTS = [["provider", "Provider"], ["vault", "Vault"], ["autonomy", "Autonomy"], ["federation", "Federation"], ["appearance", "Appearance"], ["about", "About"]];
     KINDS = [["openai-compatible", "OpenAI-compatible"], ["anthropic", "Anthropic"], ["gemini", "Gemini"]];
     MODEL_HINT = { "openai-compatible": "gpt-4o-mini", anthropic: "claude-3-5-haiku-latest", gemini: "gemini-2.0-flash" };
@@ -157264,9 +157989,9 @@ __export(Chat_exports, {
 });
 function Chat({ title }) {
   const { msgs, busy, send, go, openSession, gate } = useVh();
-  const [draft, setDraft] = (0, import_react11.useState)("");
-  const end = (0, import_react11.useRef)(null);
-  (0, import_react11.useEffect)(() => {
+  const [draft, setDraft] = (0, import_react12.useState)("");
+  const end = (0, import_react12.useRef)(null);
+  (0, import_react12.useEffect)(() => {
     end.current?.scrollIntoView({ block: "end" });
   }, [msgs.length, gate]);
   const fmt = (iso) => {
@@ -157276,84 +158001,84 @@ function Chat({ title }) {
       return "";
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("header", { className: "top", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h2", { children: openSession?.title ?? "Conversation" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sub", children: openSession ? "from memory" : "this session" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "right", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost", onClick: () => go("memory"), children: "\u2190 Back to memory" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost", onClick: () => go("work"), children: "Watch the work" })
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h2", { children: openSession?.title ?? "Conversation" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "sub", children: openSession ? "from memory" : "this session" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "right", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost", onClick: () => go("memory"), children: "\u2190 Back to memory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost", onClick: () => go("work"), children: "Watch the work" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "thread", children: [
-      msgs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "empty", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Nothing here yet" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: "Start with the Steward and the conversation will appear here." })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "thread", children: [
+      msgs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Nothing here yet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { children: "Start with the Steward and the conversation will appear here." })
       ] }),
-      msgs.map((m3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: `msg ${m3.role === "user" ? "user" : ""}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "who", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: m3.role === "user" ? "You" : title }),
+      msgs.map((m3) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: `msg ${m3.role === "user" ? "user" : ""}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "who", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: m3.role === "user" ? "You" : title }),
             " \xB7 ",
             fmt(m3.at),
-            m3.rehydratedFrom ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+            m3.rehydratedFrom ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
               " \xB7 ",
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "faint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "faint", children: [
                 "continuing \u201C",
                 m3.rehydratedFrom,
                 "\u201D"
               ] })
             ] }) : null
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: m3.text }),
-          m3.resp && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "meta", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: `pill ${m3.resp.outcome === "refused" ? "bad" : m3.resp.executed ? "ok" : "warn"}`, children: m3.resp.outcome }),
-            m3.resp.specialistIds.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "pill", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { children: m3.text }),
+          m3.resp && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "meta", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: `pill ${m3.resp.outcome === "refused" ? "bad" : m3.resp.executed ? "ok" : "warn"}`, children: m3.resp.outcome }),
+            m3.resp.specialistIds.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill", children: [
               m3.resp.specialistIds.length,
               " agent",
               m3.resp.specialistIds.length === 1 ? "" : "s"
             ] }),
-            m3.tok && m3.tok.savedTokens > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "pill", children: [
+            m3.tok && m3.tok.savedTokens > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill", children: [
               "\u2212",
               m3.tok.savedTokens,
               " tokens"
             ] }),
-            m3.resp.provenanceDigest && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "pill mono", title: "provenance digest", children: [
+            m3.resp.provenanceDigest && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill mono", title: "provenance digest", children: [
               m3.resp.provenanceDigest.slice(0, 8),
               "\u2026"
             ] })
           ] })
         ] })
       ] }, m3.id)),
-      gate && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "msg", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GateCard, {}) })
+      gate && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "msg", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GateCard, {}) })
       ] }),
-      busy && !gate && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "msg", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "who", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: title }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "faint", children: "Working \u2014 watch the graph in Work." })
+      busy && !gate && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "msg", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "who", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: title }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "faint", children: "Working \u2014 watch the graph in Work." })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { ref: end })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { ref: end })
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "dock", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Composer, { small: true, value: draft, onChange: setDraft, onSend: () => {
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "dock", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Composer, { small: true, value: draft, onChange: setDraft, onSend: () => {
       void send(draft);
       setDraft("");
     }, busy, placeholder: "Continue this conversation\u2026" }) })
   ] });
 }
-var import_react11, import_jsx_runtime10;
+var import_react12, import_jsx_runtime11;
 var init_Chat = __esm({
   "src/ui/screens/Chat.tsx"() {
     "use strict";
-    import_react11 = __toESM(require_react(), 1);
+    import_react12 = __toESM(require_react(), 1);
     init_store();
     init_Composer();
     init_GateCard();
-    import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
@@ -157364,81 +158089,84 @@ __export(Shell_exports, {
 });
 function Shell() {
   const { screen, go, provider, busy, ownerHandle, vault, boot, newMission, gate, stewardName } = useVh();
-  (0, import_react12.useEffect)(() => {
+  (0, import_react13.useEffect)(() => {
     void boot();
   }, [boot]);
   const counts = {
     work: busy || gate ? 1 : 0,
     receipts: useVh.getState().receipts().filter((r3) => r3.state !== "pending").length
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "app", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("aside", { className: "side", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "brand", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "mark", "aria-hidden": true }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: PRODUCT_NAME }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: "ON-DEVICE \xB7 RECEIPTED" })
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "app", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("aside", { className: "side", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "brand", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "mark", "aria-hidden": true }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: PRODUCT_NAME }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("small", { children: "ON-DEVICE \xB7 RECEIPTED" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { className: "new", onClick: newMission, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "New mission" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { className: "ic ic-steward" })
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "new", onClick: newMission, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { children: "New mission" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: "ic ic-steward" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("nav", { className: "nav", children: NAV.map((n2) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { onClick: () => go(n2.key), "aria-current": screen === n2.key || screen === "chat" && n2.key === "memory" ? "page" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { className: `ic ic-${n2.icon}` }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("nav", { className: "nav", children: NAV.map((n2) => /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { onClick: () => go(n2.key), "aria-current": screen === n2.key || screen === "chat" && n2.key === "memory" ? "page" : void 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: `ic ic-${n2.icon}` }),
         n2.label,
-        counts[n2.key] ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "n", children: counts[n2.key] }) : null
+        counts[n2.key] ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "n", children: counts[n2.key] }) : null
       ] }, n2.key)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "side-foot", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { className: "status", onClick: () => go("settings"), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: `led ${provider ? "ok" : "warn"}` }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: provider ? "Connected" : "Plan-only" }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: provider ? provider.model || provider.kind : "no provider" })
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "side-foot", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "status", onClick: () => go("settings"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: `led ${provider ? "ok" : "warn"}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { children: provider ? "Connected" : "Plan-only" }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("small", { children: provider ? provider.model || provider.kind : "no provider" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { className: "me", onClick: () => go("settings"), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av", children: initials(ownerHandle) }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: ownerHandle }),
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("small", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "me", onClick: () => go("settings"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "av", children: initials(ownerHandle) }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: ownerHandle }),
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("small", { children: [
               "OWNER \xB7 ",
               vault.status === "unlocked" ? "KEY SEALED" : vault.status === "sealed-locked" ? "VAULT LOCKED" : "NO VAULT"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { className: "ic ic-chev" })
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: "ic ic-chev" })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("main", { className: "main", children: [
-      screen === "steward" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Steward, {}),
-      screen === "work" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Work, {}),
-      screen === "receipts" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Receipts, {}),
-      screen === "memory" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Memory, {}),
-      screen === "settings" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Settings, {}),
-      screen === "chat" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Chat, { title: stewardName })
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("main", { className: "main", children: [
+      screen === "steward" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Steward, {}),
+      screen === "work" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Work, {}),
+      screen === "receipts" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Receipts, {}),
+      screen === "docs" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Docs, {}),
+      screen === "memory" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Memory, {}),
+      screen === "settings" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Settings, {}),
+      screen === "chat" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Chat, { title: stewardName })
     ] })
   ] });
 }
 function initials(s2) {
   return s2.replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase() || "VH";
 }
-var import_react12, import_jsx_runtime11, NAV;
+var import_react13, import_jsx_runtime12, NAV;
 var init_Shell = __esm({
   "src/ui/Shell.tsx"() {
     "use strict";
-    import_react12 = __toESM(require_react(), 1);
+    import_react13 = __toESM(require_react(), 1);
     init_brand();
     init_store();
     init_Steward();
     init_Work();
     init_Receipts();
     init_Memory();
+    init_Docs();
     init_Settings();
     init_Chat();
-    import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
     NAV = [
       { key: "steward", label: "Steward", icon: "steward" },
       { key: "work", label: "Work", icon: "crew" },
       { key: "receipts", label: "Receipts", icon: "receipts" },
+      { key: "docs", label: "Docs", icon: "docs" },
       { key: "memory", label: "Memory", icon: "memory" },
       { key: "settings", label: "Settings", icon: "settings" }
     ];
@@ -157447,7 +158175,7 @@ var init_Shell = __esm({
 
 // probe/shellRender.test.tsx
 var import_server = __toESM(require_server_node(), 1);
-var import_react13 = __toESM(require_react(), 1);
+var import_react14 = __toESM(require_react(), 1);
 var passed = 0;
 var failed = 0;
 var failures = [];
@@ -157485,7 +158213,7 @@ async function main() {
   section("0. the shell renders cold (no storage, no provider, no WebGL)");
   let html = "";
   try {
-    html = (0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(Shell2));
+    html = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Shell2));
   } catch (err) {
     ok("Shell renders without throwing", false, err instanceof Error ? err.message : String(err));
   }
@@ -157502,7 +158230,7 @@ async function main() {
     let h2 = "";
     let err = "";
     try {
-      h2 = (0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(C2));
+      h2 = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(C2));
     } catch (e3) {
       err = e3 instanceof Error ? e3.message : String(e3);
     }
@@ -157510,17 +158238,17 @@ async function main() {
   }
   let chatHtml = "";
   try {
-    chatHtml = (0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(Chat2, { title: "Steward" }));
+    chatHtml = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Chat2, { title: "Steward" }));
   } catch (e3) {
     chatHtml = "";
   }
   ok("Chat renders empty without throwing", chatHtml.length > 200 && /Nothing here yet/.test(strip(chatHtml)));
   section("2. the empty states say the truth, not a loading spinner");
-  const work = strip((0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(Work2)));
+  const work = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Work2)));
   ok("Work: 'No work yet' \u2014 not a spinner, not fake nodes", /No work yet/.test(work) && !/spinner|loading/i.test(work));
-  const receipts = strip((0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(Receipts2)));
+  const receipts = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Receipts2)));
   ok("Receipts: KPI strip renders zeros, not blanks", /0 Verified/.test(receipts) && /No receipts yet/.test(receipts));
-  const memory = strip((0, import_server.renderToStaticMarkup)((0, import_react13.createElement)(Memory2)));
+  const memory = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Memory2)));
   ok("Memory: names where memory lives (on device)", /Nothing remembered yet|Memory is off/.test(memory) && /this device/.test(memory));
   section("3. state moves the surface \u2014 a gate renders as a decision, never a silent skip");
   let resolved = null;

@@ -22,6 +22,7 @@
  */
 
 import { vaultStatus, vaultSeal, vaultDecrypt } from "./vault";
+import { writeFirstThatFits, type PersistRung } from "../persist/quotaSafe";
 
 const GRAPH_KEY = "vh19.memgraph.v1";
 const ENABLED_KEY = "vh19.memgraph.enabled.v1";
@@ -52,6 +53,9 @@ export interface MgGraph {
   edges: MgEdge[];
   sessions: MgSession[];
   updatedAt: string;
+  /** 19.7.13 — running totals of what the caps have pruned. Absent on graphs
+   *  written before this build (treated as zero, never as "nothing was lost"). */
+  evicted?: { nodes: number; edges: number; sessions: number; at: string };
 }
 
 /* ── stopword floor (short, closed list — deterministic, no surprises) ──── */
@@ -192,8 +196,38 @@ function saveGraph(g: MgGraph): void {
     })();
     return;
   }
-  persistNote = null;
-  try { s.setItem(GRAPH_KEY, JSON.stringify(g)); } catch { /* quota — keep memory copy */ }
+  // 19.7.13 — the plaintext path walks a LADDER instead of swallowing the
+  // quota throw. Before this, a full origin meant the whole graph lived only
+  // in memory (and the session's transcript was gone at reload) with a code
+  // comment as the only witness. Now the degradation is chosen, bounded and
+  // NAMED: rung 0 is the whole graph; each rung below keeps more of what makes
+  // a session findable (date, title, keywords) and less of the raw transcript,
+  // because the keyword graph is the product while the transcript is weight.
+  const trimmed = (turnCap: number | null, sessionCap: number): string => {
+    const cut: MgGraph = {
+      ...g,
+      sessions: g.sessions.slice(-sessionCap).map((x) => ({
+        ...x,
+        messages: turnCap === null ? [] : x.messages.slice(-turnCap),
+      })),
+    };
+    return JSON.stringify(cut);
+  };
+  const ladder: PersistRung[] = [{ value: JSON.stringify(g), dropped: "" }];
+  if (g.sessions.some((x) => x.messages.length > 40)) {
+    ladder.push({ value: trimmed(40, g.sessions.length), dropped: "kept the last 40 turns of each conversation (older turns dropped to fit the storage budget)" });
+  }
+  if (g.sessions.some((x) => x.messages.length > 10)) {
+    ladder.push({ value: trimmed(10, g.sessions.length), dropped: "kept the last 10 turns of each conversation (older turns dropped to fit the storage budget)" });
+  }
+  if (g.sessions.some((x) => x.messages.length > 0)) {
+    ladder.push({ value: trimmed(null, g.sessions.length), dropped: "dropped the transcripts; every conversation still keeps its date, title and keywords, so recall still finds it" });
+  }
+  if (g.sessions.length > 50) {
+    ladder.push({ value: trimmed(10, 50), dropped: `kept the newest 50 conversations of ${g.sessions.length} (older ones dropped to fit the storage budget)` });
+  }
+  const w = writeFirstThatFits(GRAPH_KEY, ladder, s);
+  persistNote = w.ok ? (w.rung > 0 ? `memory degraded to fit storage — ${w.dropped}` : null) : (w.refused ?? null);
 }
 
 /**
@@ -312,9 +346,30 @@ export function ingestSession(messages: MgMessage[], opts: { id: string; title?:
       }
     }
   }
-  // evict weakest/oldest beyond caps
-  if (g.nodes.length > NODE_CAP) g.nodes = g.nodes.sort((x, y) => (y.weight - x.weight) || (y.lastSeen < x.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
-  if (g.edges.length > EDGE_CAP) g.edges = g.edges.sort((x, y) => (y.weight - x.weight) || 0).slice(0, EDGE_CAP);
+  // 19.7.13 — eviction is now COUNTED and reported. It was always silent:
+  // nodes and edges over the cap were sliced away with nothing recording that
+  // the graph had been pruned, so a user whose memory had quietly shrunk had
+  // no way to learn it. The counts ride on the graph and surface through
+  // graphStats(); the policy itself is unchanged.
+  const sessionsDropped = Math.max(0, g.sessions.length - SESSION_CAP);
+  let nodesDropped = 0;
+  let edgesDropped = 0;
+  if (g.nodes.length > NODE_CAP) {
+    nodesDropped = g.nodes.length - NODE_CAP;
+    g.nodes = g.nodes.sort((x, y) => (y.weight - x.weight) || (y.lastSeen < x.lastSeen ? -1 : 1)).slice(0, NODE_CAP);
+  }
+  if (g.edges.length > EDGE_CAP) {
+    edgesDropped = g.edges.length - EDGE_CAP;
+    g.edges = g.edges.sort((x, y) => (y.weight - x.weight) || 0).slice(0, EDGE_CAP);
+  }
+  if (nodesDropped || edgesDropped || sessionsDropped) {
+    g.evicted = {
+      nodes: (g.evicted?.nodes ?? 0) + nodesDropped,
+      edges: (g.evicted?.edges ?? 0) + edgesDropped,
+      sessions: (g.evicted?.sessions ?? 0) + sessionsDropped,
+      at: session.endedAt,
+    };
+  }
   saveGraph(g);
   return session;
 }
@@ -345,6 +400,78 @@ export function clearGraph(): void {
 }
 
 /* ── date parsing for "that day when X" recall ──────────────────────────── */
+
+/**
+ * 19.7.13 — RECALL WIDENING. The graph is built from keywords, which made the
+ * memory exact-match only: "what did we decide about the sandbox" found a
+ * session whose keywords said `sandbox`, but "that time we dealt with the
+ * container escape" found NOTHING, because `container` and `escape` were never
+ * nodes. That is a retrieval ceiling, not a bug — but it made a memory that
+ * "works" feel like it "forgot".
+ *
+ * The fix is deliberately CLOSED. Only the words below widen, and only in the
+ * direction written here; a query with no known word in it still recalls
+ * nothing, which is the honest answer and the one the probes pin. This is
+ * therefore still deterministic and still cheap — no embeddings, no network, no
+ * model call in the recall path. An eventual semantic seat belongs BESIDE this
+ * (as a resolver that maps a paraphrase to one of these terms), never inside it.
+ */
+const ALIAS_GROUPS: string[][] = [
+  ["sandbox", "sandboxed", "isolation", "isolate", "jail", "confinement", "container"],
+  ["database", "db", "sql", "postgres", "postgresql", "sqlite", "query", "storage"],
+  ["receipt", "receipts", "proof", "attestation", "ledger", "audit", "tamper"],
+  ["gate", "approval", "approve", "signoff", "oversight", "human"],
+  ["error", "bug", "failure", "failed", "crash", "broke", "broken", "defect"],
+  ["deploy", "deployment", "release", "ship", "shipped", "rollout", "publish"],
+  ["key", "credential", "secret", "token", "password", "vault", "passphrase"],
+  ["memory", "recall", "remember", "context", "history", "rehydrate"],
+  ["test", "tests", "testing", "spec", "probe", "suite"],
+  ["invoice", "bill", "payment", "billing", "charge", "refund", "subscription"],
+  ["meeting", "call", "calendar", "schedule", "appointment", "booking", "reservation"],
+  ["travel", "flight", "trip", "itinerary", "hotel", "airline"],
+  ["permission", "scope", "authority", "envelope", "mandate", "capability"],
+  ["cost", "price", "pricing", "budget", "spend", "token"],
+  ["agent", "crew", "specialist", "teammate", "steward"],
+];
+
+const ALIAS_OF = new Map<string, string[]>();
+for (const group of ALIAS_GROUPS) {
+  for (const term of group) {
+    const set = ALIAS_OF.get(term) ?? [];
+    for (const other of group) if (other !== term && !set.includes(other)) set.push(other);
+    set.push(term);
+    ALIAS_OF.set(term, set);
+  }
+}
+
+/** Light, deterministic suffix normalization so "sandboxed"/"sandboxing" meet
+ *  "sandbox". Never shortens a word below four characters, so short tokens are
+ *  left exactly as typed. */
+export function stem(word: string): string {
+  for (const suffix of ["ing", "ed", "es", "s"]) {
+    if (word.endsWith(suffix) && word.length - suffix.length >= 4) return word.slice(0, -suffix.length);
+  }
+  return word;
+}
+
+/** Every term an alias is allowed to widen to. Unknown words widen to themselves only. */
+export function aliasesOf(word: string): string[] {
+  return ALIAS_OF.get(word) ?? [word];
+}
+
+/**
+ * Substring matching inside message text is a PRECISION hazard, not just a
+ * performance one: a query word "out" used to match the word "outside", so a
+ * session could be recalled on a fragment and the user would be shown a
+ * conversation that never discussed the thing. The cheap `includes` stays as a
+ * prefilter — true substring hits are rare, so the regex below almost never
+ * runs — and the match is confirmed on a word boundary before it counts.
+ */
+const escapeRe = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function wordHit(lowerText: string, term: string): boolean {
+  if (!lowerText.includes(term)) return false;
+  return new RegExp(`(^|[^a-z0-9])${escapeRe(term)}([^a-z0-9]|$)`).test(lowerText);
+}
 
 export interface Recalled { session: MgSession; score: number; matchedKeywords: string[]; dateMatch: boolean }
 
@@ -403,11 +530,47 @@ export function recall(query: string, limit = 5, now: () => Date = () => new Dat
   const qk = extractKeywords(query, 10);
   const win = parseDateWindow(query, now);
   const weightOf = new Map(g.nodes.map((n) => [n.id, n.weight]));
+
+  // Widen each typed word through the closed alias/stem map. The Map is keyed by
+  // the EXPANDED term and valued by the word the human actually typed, so
+  // matchedKeywords can always report the query in the user's own words —
+  // expansion never changes what recall CLAIMS it matched on.
+  // Insertion order is stable, so scoring is deterministic.
+  const probes = new Map<string, string>();
+  const addProbe = (term: string, original: string): void => {
+    if (!probes.has(term)) probes.set(term, original);
+  };
+  for (const word of qk) {
+    addProbe(word, word);
+    addProbe(stem(word), word);
+    for (const alias of aliasesOf(word)) {
+      addProbe(alias, word);
+      addProbe(stem(alias), word);
+    }
+  }
+
   const out: Recalled[] = [];
   for (const s of g.sessions) {
-    const sKeys = new Set(s.keywords);
-    const matched = qk.filter((k) => sKeys.has(k) || s.messages.some((msg) => msg.text.toLowerCase().includes(k)));
-    let score = matched.reduce((acc, k) => acc + 1 + Math.min(2, (weightOf.get(k) ?? 1) / 10), 0);
+    const sKeys = new Set<string>();
+    for (const k of s.keywords) { sKeys.add(k); sKeys.add(stem(k)); }
+    // 19.7.13 — PERF. This loop runs once per (probe × session) and the probe
+    // set is 30-60 entries deep once aliases and stems expand, so lowercasing
+    // every message inside it lowercased the whole transcript dozens of times
+    // per query. Lower the transcript ONCE here and search the prepared text.
+    // Same matches, same order — the work just happens once instead of N times.
+    const hay = s.messages.map((msg) => msg.text.toLowerCase());
+    const seen = new Set<string>();
+    const matched: string[] = [];
+    for (const [term, original] of probes) {
+      if (seen.has(original)) continue;
+      // the keyword set is checked first because it is a Set lookup: when it
+      // hits, the transcript scan is skipped entirely.
+      if (sKeys.has(term) || hay.some((text) => wordHit(text, term))) {
+        seen.add(original);
+        matched.push(original);
+      }
+    }
+    let score = matched.reduce((acc, k) => acc + 1 + Math.min(2, (weightOf.get(k) ?? weightOf.get(stem(k)) ?? 1) / 10), 0);
     const inWin = win ? Date.parse(s.startedAt) >= win[0] && Date.parse(s.startedAt) < win[1] : false;
     if (win) score += inWin ? 2.5 : -1.5; // a date query that misses the window demotes hard
     if (score <= 0) continue;
@@ -452,7 +615,11 @@ export function graphView(maxNodes = 24): { nodes: MgNode[]; edges: MgEdge[] } {
 }
 
 /** Cheap stats line for the UI. */
-export function graphStats(): { sessions: number; nodes: number; edges: number } {
+export function graphStats(): { sessions: number; nodes: number; edges: number; evicted: { nodes: number; edges: number; sessions: number; at: string } | null } {
   const g = loadGraph();
-  return { sessions: g.sessions.length, nodes: g.nodes.length, edges: g.edges.length };
+  // 19.7.13 — `evicted` is null ONLY when nothing has ever been pruned. A graph
+  // written before this build has no record either way, and reporting null for
+  // it is correct: this function never claims to know about a past it did not
+  // witness. The UI reads it to say, in words, that memory has been trimmed.
+  return { sessions: g.sessions.length, nodes: g.nodes.length, edges: g.edges.length, evicted: g.evicted ?? null };
 }

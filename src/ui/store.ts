@@ -17,6 +17,10 @@ import { engineExecutor } from "../vh19/initiativeBridge";
 import { loadGoals } from "../vh19/goals";
 import { recordRsiSignal, rsiState, revertRsiMemory } from "../vh19/rsi";
 import { rsiralsCanaryCheck } from "../vh19/rsirals";
+/* 19.7.13 — the Docs door's engine seam. Knowledge is PROPOSED by the engine and
+ * DECIDED by the human (no skill installs on its own); the store holds the
+ * proposal list so the door re-renders from one source of truth. */
+import { loadKnowledgeProposals, proposeKnowledgeSkill, decideKnowledgeProposal, type KnowledgeProposal } from "../mission/knowledgeSkills";
 
 /* RSI evidence intake (19.4.2 discipline, now on the ONE live path): real gate
  * denials, failures and live-data misses become curriculum, and a canary that
@@ -33,7 +37,7 @@ export const USER = "vh-owner";
 const PROVIDER_STORAGE_KEY = "vh.provider.remembered.v1";
 const THEME_KEY = "vh.theme.v2";
 
-export type Screen = "steward" | "work" | "receipts" | "memory" | "settings" | "chat";
+export type Screen = "steward" | "work" | "receipts" | "docs" | "memory" | "settings" | "chat";
 export type Theme = "dark" | "light";
 
 export interface Msg { id: number; role: "user" | "vh"; text: string; at: string; resp?: GeneralistResponse; tok?: OptimDelta; rehydratedFrom?: string }
@@ -46,6 +50,8 @@ interface UiState {
   gate: PendingGate | null;
   provider: ProviderConfig | null; vault: VaultStatusInfo; securityNote: string | null;
   memOn: boolean; sessions: MgSession[]; openSession: MgSession | null;
+  /** 19.7.13 — knowledge proposals (Docs door). Approved ones become skills. */
+  knowledge: KnowledgeProposal[];
   handoffs: HandoffRecord[]; initiative: InitiativeState; savedTokens: number;
   stewardName: string; ownerHandle: string;
 
@@ -59,6 +65,10 @@ interface UiState {
   unlockVault: (pass: string) => Promise<{ ok: boolean; note: string }>;
   lock: () => void;
   setMemory: (on: boolean) => void;
+  /** Propose a document as knowledge — the engine decides whether it is structure or a blob. */
+  addDocument: (content: string, sourceName: string) => Promise<{ ok: boolean; note: string }>;
+  /** The human's one decision per proposal. Approving mirrors it into installed skills. */
+  decideDocument: (id: string, approved: boolean, note: string) => { ok: boolean; note: string };
   clearMemory: () => void;
   forgetSession: (id: string) => void;
   openConversation: (id: string) => void;
@@ -106,6 +116,7 @@ export const useVh = create<UiState>((set, get) => ({
   gate: null,
   provider: null, vault: vaultStatus(), securityNote: null,
   memOn: memoryEnabled(), sessions: listSessions(), openSession: null,
+  knowledge: loadKnowledgeProposals(),
   handoffs: listHandoffs(), initiative: loadInitiative(), savedTokens: 0,
   stewardName: generalistName(), ownerHandle: readHandle(),
 
@@ -194,6 +205,32 @@ export const useVh = create<UiState>((set, get) => ({
   lock: () => { lockVault(); set({ vault: vaultStatus() }); },
 
   setMemory: (on) => { setMemoryEnabled(on); set({ memOn: on }); },
+
+  /**
+   * 19.7.13 — Docs: propose a document as knowledge.
+   *
+   * The engine owns the judgement, not the UI: `proposeKnowledgeSkill` refuses a
+   * document that carries no extractable structure (headings, rules, frameworks)
+   * with a written reason, and it reports where the content went — "local" when
+   * nothing left the machine, "provider" when an LLM pass sent it to the selected
+   * harness. The door shows that verdict verbatim. Nothing is installed here: a
+   * proposal waits for the human in `decideDocument`.
+   */
+  addDocument: async (content, sourceName) => {
+    const r = await proposeKnowledgeSkill({ content, sourceName: sourceName.trim() || null });
+    if (!r.ok) return { ok: false, note: r.error };
+    set({ knowledge: loadKnowledgeProposals() });
+    return { ok: true, note: r.proposal.id };
+  },
+
+  /** The human's one decision per proposal; approval mirrors it into skills. */
+  decideDocument: (id, approved, note) => {
+    const r = decideKnowledgeProposal({ id, decision: approved ? "APPROVED" : "REJECTED", by: get().ownerHandle, note: note.trim() || null });
+    if (!r.ok) return { ok: false, note: r.error };
+    set({ knowledge: loadKnowledgeProposals() });
+    return { ok: true, note: r.proposal.status };
+  },
+
   clearMemory: () => { clearGraph(); set({ sessions: listSessions() }); },
   forgetSession: (id) => { deleteSession(id); set({ sessions: listSessions(), openSession: get().openSession?.id === id ? null : get().openSession }); },
   openConversation: (id) => {

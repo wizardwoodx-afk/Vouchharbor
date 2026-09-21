@@ -40,7 +40,7 @@ Verify:
 
 ```powershell
 rustc --version    # 1.80 or newer (Cargo.toml pins rust-version = "1.80")
-node --version     # 20 or newer
+node --version     # 22.12 or newer (package.json engines floor)
 ```
 
 ---

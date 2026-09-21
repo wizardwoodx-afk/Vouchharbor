@@ -18,9 +18,14 @@ can verify later. Built on the **Vouch Harbor** engine.
   agents → tools → receipts. Risky actions pause here for your approval.
 - **Receipts** — a compact ledger of everything that happened, each line
   digest-stamped; export it as a file.
+- **Docs** — teach the Steward from your own documents. Paste one or load a
+  file; the engine distills its *structure* (procedure, decision rules, failure
+  modes) into a knowledge proposal and you approve or dismiss it. It will not
+  summarize, it will not install anything on its own, and it tells you whether
+  the content stayed on this machine.
 - **Memory** — your conversations become a graph you can move through;
-  double-click a node to return to that conversation. Memory is encrypted
-  and can be switched off.
+  double-click a node to return to that conversation. Memory can be
+  encrypted at rest with the local vault, and can be switched off.
 - **Settings** — provider, vault, autonomy level, federation with another
   owner, appearance, and the guardrail manifest.
 

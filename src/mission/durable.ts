@@ -19,8 +19,20 @@
  * wraps whatever the host offers — localStorage getItem/setItem, an injected
  * Map (probes), or an ephemeral Map when the host has neither. The Tauri FS
  * seat (the same envelope on disk) is the next storage. Nothing phones home.
+ *
+ * 19.7.13 — THE WEBVIEW CRYPTO FIX. Until this build the module hashed with
+ * `node:crypto`, which the browser bundle aliases to a stub that THROWS
+ * (src/browser/nodeStubs/crypto.ts). Every browser-edition call therefore ended
+ * in that throw — and the one live call site wraps `durableSave` in a try/catch
+ * that swallows the error, so the failure was INVISIBLE: in the web edition
+ * durable missions never saved at all. The digest is now `pureSha256`
+ * (src/vh19/pureHash.ts), a from-scratch FIPS 180-4 implementation that is
+ * byte-identical to node:crypto — probe/meshRuntime already pins that
+ * equivalence on fixed vectors. Receipt and envelope digests are unchanged, so
+ * every previously issued snapshot still verifies; this module no longer
+ * imports a builtin, so the same code runs on Node, Tauri and the WebView.
  */
-import { createHash } from "node:crypto";
+import { pureSha256 } from "../vh19/pureHash";
 import type { MissionRuntime } from "./missionRuntime";
 import type { PersistedMissionState } from "./checkpoints";
 
@@ -64,8 +76,12 @@ export function defaultDurableKV(): DurableKV {
   return { get: (k) => mem.get(k) ?? null, set: (k, v) => void mem.set(k, v) };
 }
 
-const enc = new TextEncoder();
-export const digestOf = (s: string): string => createHash("sha256").update(enc.encode(s)).digest("hex");
+/**
+ * The envelope digest. Runs on every host (WebView included) because it never
+ * touches a builtin — see the 19.7.13 note in the header. Byte-identical to the
+ * node:crypto form this replaced, so old snapshots keep verifying.
+ */
+export const digestOf = (s: string): string => pureSha256(s);
 const key = (missionId: string) => `vh.durable.${missionId}`;
 
 export function durableSave(runtime: MissionRuntime, store: DurableKVLike = defaultDurableKV()): DurableEnvelope {
@@ -115,7 +131,7 @@ export class DoneLedger {
     }
   }
   static actionId(missionId: string, nodeId: string, taskTitle: string): string {
-    return createHash("sha256").update(enc.encode(`${missionId}::${nodeId}::${taskTitle}`)).digest("hex").slice(0, 32);
+    return pureSha256(`${missionId}::${nodeId}::${taskTitle}`).slice(0, 32);
   }
   isDone(actionId: string): boolean { return this.done.has(actionId); }
   /** Mark done ONLY after verified completion — callers pass the verification evidence. */

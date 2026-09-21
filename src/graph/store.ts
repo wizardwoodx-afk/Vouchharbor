@@ -9,6 +9,7 @@ import { uid } from "../app/id";
 import { createNodeFromDef } from "./factory";
 import { layeredLayout } from "./layout";
 import { NODE_W, nodeH } from "../canvas/geometry";
+import { writeFirstThatFits, type PersistResult } from "../persist/quotaSafe";
 
 interface HistoryEntry {
   graph: WorkflowGraph;
@@ -74,12 +75,14 @@ export function getEditorPrefs(): EditorPrefs {
   }
   return { snap: 16, autosaveMs: 1200, theme: "obsidian", showMinimap: true, showGrid: true, reducedMotion: false };
 }
-export function saveEditorPrefs(p: EditorPrefs): void {
-  try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify(p));
-  } catch {
-    /* ignore */
-  }
+export function saveEditorPrefs(p: EditorPrefs): PersistResult {
+  // 19.7.13 — routed through the quota ladder for one reason: a prefs write that
+  // fails because the origin is full must leave a NOTICE. Swallowing it silently
+  // meant the app could be running on defaults forever while the user believed
+  // their settings were saved. The payload is tiny, so rung 0 is the only rung;
+  // the ladder exists here for the notice, not for the shrinking.
+  const value = JSON.stringify(p);
+  return writeFirstThatFits(PREFS_KEY, [{ value, dropped: "" }]);
 }
 
 export interface GraphState {

@@ -14,7 +14,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.12";
+    VH_VERSION = "19.7.13";
     VH_SHORT = "19.7";
     VH_CODENAME = "Keyholder";
     VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;

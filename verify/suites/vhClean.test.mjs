@@ -309,7 +309,7 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "19.7.12";
+var VH_VERSION = "19.7.13";
 var VH_SHORT = "19.7";
 var VH_CODENAME = "Keyholder";
 var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;

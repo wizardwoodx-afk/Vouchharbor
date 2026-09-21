@@ -24,7 +24,7 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.12";
+    VH_VERSION = "19.7.13";
     VH_SHORT = "19.7";
     VH_CODENAME = "Keyholder";
     VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
@@ -1470,7 +1470,7 @@ async function keychainBridge() {
     return null;
   }
 }
-function toHex(bytes) {
+function toHex2(bytes) {
   return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 function fromHex(hex) {
@@ -1509,7 +1509,7 @@ async function ensureIssuerIdentity() {
   try {
     const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
     const rawPub = new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey));
-    const publicKeyHex = toHex(rawPub);
+    const publicKeyHex = toHex2(rawPub);
     const identity = {
       keyId: `vouch-issuer-${publicKeyHex.slice(0, 12)}`,
       publicKeyHex,
@@ -1536,7 +1536,7 @@ async function signHexDigest(hexDigest) {
   if (!holder) return null;
   try {
     const sig = new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, holder.privateKey, fromHex(hexDigest)));
-    return { alg: "EdDSA", keyId: holder.identity.keyId, publicKeyHex: holder.identity.publicKeyHex, sigHex: toHex(sig) };
+    return { alg: "EdDSA", keyId: holder.identity.keyId, publicKeyHex: holder.identity.publicKeyHex, sigHex: toHex2(sig) };
   } catch {
     return null;
   }
@@ -1706,8 +1706,137 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+// src/vh19/pureHash.ts
+var K = [
+  1116352408,
+  1899447441,
+  3049323471,
+  3921009573,
+  961987163,
+  1508970993,
+  2453635748,
+  2870763221,
+  3624381080,
+  310598401,
+  607225278,
+  1426881987,
+  1925078388,
+  2162078206,
+  2614888103,
+  3248222580,
+  3835390401,
+  4022224774,
+  264347078,
+  604807628,
+  770255983,
+  1249150122,
+  1555081692,
+  1996064986,
+  2554220882,
+  2821834349,
+  2952996808,
+  3210313671,
+  3336571891,
+  3584528711,
+  113926993,
+  338241895,
+  666307205,
+  773529912,
+  1294757372,
+  1396182291,
+  1695183700,
+  1986661051,
+  2177026350,
+  2456956037,
+  2730485921,
+  2820302411,
+  3259730800,
+  3345764771,
+  3516065817,
+  3600352804,
+  4094571909,
+  275423344,
+  430227734,
+  506948616,
+  659060556,
+  883997877,
+  958139571,
+  1322822218,
+  1537002063,
+  1747873779,
+  1955562222,
+  2024104815,
+  2227730452,
+  2361852424,
+  2428436474,
+  2756734187,
+  3204031479,
+  3329325298
+];
+var rotr = (x, n) => (x >>> n | x << 32 - n) >>> 0;
+var utf8 = (text) => new TextEncoder().encode(text);
+function sha256Bytes(data) {
+  const bitLen = data.length * 8;
+  const padded = new Uint8Array((data.length + 8 >> 6 << 6) + 64);
+  padded.set(data);
+  padded[data.length] = 128;
+  const dv = new DataView(padded.buffer);
+  dv.setUint32(padded.length - 4, bitLen >>> 0);
+  dv.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296));
+  let h0 = 1779033703, h1 = 3144134277, h2 = 1013904242, h3 = 2773480762;
+  let h4 = 1359893119, h5 = 2600822924, h6 = 528734635, h7 = 1541459225;
+  const w = new Uint32Array(64);
+  for (let off = 0; off < padded.length; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ w[i - 15] >>> 3;
+      const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ w[i - 2] >>> 10;
+      w[i] = w[i - 16] + s0 + w[i - 7] + s1 >>> 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+      const ch = e & f ^ ~e & g;
+      const t1 = h + S1 + ch + K[i] + w[i] >>> 0;
+      const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+      const maj = a & b ^ a & c ^ b & c;
+      const t2 = S0 + maj >>> 0;
+      h = g;
+      g = f;
+      f = e;
+      e = d + t1 >>> 0;
+      d = c;
+      c = b;
+      b = a;
+      a = t1 + t2 >>> 0;
+    }
+    h0 = h0 + a >>> 0;
+    h1 = h1 + b >>> 0;
+    h2 = h2 + c >>> 0;
+    h3 = h3 + d >>> 0;
+    h4 = h4 + e >>> 0;
+    h5 = h5 + f >>> 0;
+    h6 = h6 + g >>> 0;
+    h7 = h7 + h >>> 0;
+  }
+  const out = new Uint8Array(32);
+  const ov = new DataView(out.buffer);
+  ov.setUint32(0, h0);
+  ov.setUint32(4, h1);
+  ov.setUint32(8, h2);
+  ov.setUint32(12, h3);
+  ov.setUint32(16, h4);
+  ov.setUint32(20, h5);
+  ov.setUint32(24, h6);
+  ov.setUint32(28, h7);
+  return out;
+}
+var toHex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+function pureSha256(text) {
+  return toHex(sha256Bytes(utf8(text)));
+}
+
 // src/mission/durable.ts
-import { createHash } from "node:crypto";
 function asKV2(store2) {
   if (typeof store2.get === "function" && typeof store2.set === "function" && typeof store2.getItem !== "function") {
     return store2;
@@ -1725,8 +1854,7 @@ function defaultDurableKV() {
   const mem = /* @__PURE__ */ new Map();
   return { get: (k) => mem.get(k) ?? null, set: (k, v) => void mem.set(k, v) };
 }
-var enc = new TextEncoder();
-var digestOf = (s) => createHash("sha256").update(enc.encode(s)).digest("hex");
+var digestOf = (s) => pureSha256(s);
 var key = (missionId) => `vh.durable.${missionId}`;
 function durableSave(runtime, store2 = defaultDurableKV()) {
   const state = runtime.persist();
@@ -1767,7 +1895,7 @@ var DoneLedger = class {
   }
   done = /* @__PURE__ */ new Set();
   static actionId(missionId, nodeId, taskTitle) {
-    return createHash("sha256").update(enc.encode(`${missionId}::${nodeId}::${taskTitle}`)).digest("hex").slice(0, 32);
+    return pureSha256(`${missionId}::${nodeId}::${taskTitle}`).slice(0, 32);
   }
   isDone(actionId) {
     return this.done.has(actionId);
@@ -1885,7 +2013,7 @@ var TriggerEngine = class {
 init_skillStore();
 
 // src/browser/receipted.ts
-import { createHash as createHash2 } from "node:crypto";
+import { createHash } from "node:crypto";
 var ReceiptedBrowser = class {
   constructor(deps) {
     this.deps = deps;
@@ -1894,7 +2022,7 @@ var ReceiptedBrowser = class {
   entries = [];
   seal(e) {
     const prev = this.chain;
-    const hash = createHash2("sha256").update(`${prev}|${e.seq}|${e.at}|${JSON.stringify(e.action)}|${e.ok}|${e.detail}`).digest("hex");
+    const hash = createHash("sha256").update(`${prev}|${e.seq}|${e.at}|${JSON.stringify(e.action)}|${e.ok}|${e.detail}`).digest("hex");
     this.chain = hash;
     return { ...e, prev, hash };
   }
