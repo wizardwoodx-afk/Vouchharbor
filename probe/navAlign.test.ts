@@ -1,11 +1,12 @@
 /**
- * probe/navAlign.test.ts — shell alignment probe (19.7.12 UI redesign).
+ * probe/navAlign.test.ts — shell alignment probe (the one shell, src/ui/Shell.tsx).
  *
- * 19.7.12 replaced the 19.6.6 console with one quiet shell: five doors
- * (Steward · Work · Receipts · Memory · Settings), one store, one composer.
+ * The 19.7.12 redesign replaced the 19.6.6 console with one quiet shell; 19.7.13
+ * added the sixth door. The live door set is six — Steward · Work · Receipts ·
+ * Docs · Memory · Settings — with one store and one composer.
  * This suite pins the structure mechanically:
  *  - App renders the shell and nothing else
- *  - the sidebar carries exactly the five doors + status + owner — every one wired
+ *  - the sidebar carries exactly the six doors + status + owner — every one wired
  *  - the composer is the single command surface (Enter sends through the store)
  *  - the human gate is a card with approve/refuse, never a silent skip
  *  - the crew is internal: Work shows AGENT nn, never a specialist name

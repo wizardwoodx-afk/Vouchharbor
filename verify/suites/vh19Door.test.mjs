@@ -15586,11 +15586,11 @@ function section(name) {
   console.log(`
 == ${name}`);
 }
-section("1. the shell opens on the Steward \u2014 19.7.12 (UI): one shell, five doors");
+section("1. the shell opens on the Steward \u2014 one shell, six doors");
 var appSrc = read("src/App.tsx");
 var storeSrc = read("src/ui/store.ts");
 var shellSrc = read("src/ui/Shell.tsx");
-ok("App.tsx renders the 19.7.12 shell as the whole app", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc));
+ok("App.tsx renders the shell as the whole app", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc));
 ok("the legacy multi-dock shell, the VH-19 door and the 19.6.6 console are gone from the app entry", !/Comp:\s*Vh19\b/.test(appSrc) && !/Sidebar|Helm|NextConsole|views\//.test(appSrc));
 ok("the retired VH-19 door (with its plaintext provider loader) is NOT in the tree", !fs.existsSync(path.join(ROOT, "src/views/Vh19.tsx")) && !fs.existsSync(path.join(ROOT, "src/views")));
 ok("the Steward keeps its one name, through the store", /generalistName\(\)/.test(storeSrc) && /stewardName/.test(shellSrc));

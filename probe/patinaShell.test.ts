@@ -1,10 +1,11 @@
 /**
- * Shell probe — 19.7.12 (UI).
+ * Shell probe — the one shell (src/ui/Shell.tsx).
  *
  * History: this suite pinned the Patina shell (harbor.tsx + five views), then the
- * 19.6.6 Federation Console. Both are retired. The 19.7.12 redesign ships ONE
- * shell (src/ui/Shell.tsx), six doors (Steward · Work · Receipts · Docs · Memory ·
- * Settings) and ONE store (src/ui/store.ts) that is the only path to the engine.
+ * 19.6.6 Federation Console. Both are retired. The 19.7.12 redesign shipped ONE
+ * shell and ONE store (src/ui/store.ts) that is the only path to the engine;
+ * 19.7.13 added the sixth door (Docs). The live door set is Steward · Work ·
+ * Receipts · Docs · Memory · Settings.
  * The guarantees are the same ones the older shells were held to: the app
  * mounts exactly this shell, the screens never bypass the store to reach the
  * engine, every primary action is wired, and the human gate cannot be skipped.
@@ -25,11 +26,12 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-section("0. the 19.7.12 shell files exist — and the retired shells do not");
+section("0. the shell files exist — and the retired shells do not");
 const SHELL_FILES = [
   "src/App.tsx", "src/main.tsx", "src/ui/Shell.tsx", "src/ui/store.ts", "src/ui/vh.css",
   "src/ui/graph/ForceGraph.tsx",
   "src/ui/screens/Steward.tsx", "src/ui/screens/Work.tsx", "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Docs.tsx",
   "src/ui/screens/Memory.tsx", "src/ui/screens/Settings.tsx", "src/ui/screens/Chat.tsx",
   "src/ui/screens/GateCard.tsx", "src/ui/screens/Composer.tsx",
 ];

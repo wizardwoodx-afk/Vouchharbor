@@ -75,7 +75,7 @@ ok(
   read("src/mission/twoNode.ts").includes("RelayNode") && read("probe/twoNodeAlign.test.ts").includes("NEVER saw the raw rows")
 );
 ok(
-  "guardrail 15 \u2014 every guardrail above is surfaced as a manifest in Settings \u2192 About (19.7.12 UI)",
+  "guardrail 15 \u2014 every guardrail above is surfaced as a manifest in Settings \u2192 About",
   read("src/ui/screens/Settings.tsx").includes("Guardrail manifest") && (read("src/ui/screens/Settings.tsx").match(/^\s*\["No |^\s*\["Capability|^\s*\["Aggregates|^\s*\["The /gm) ?? []).length === 13
 );
 console.log(`

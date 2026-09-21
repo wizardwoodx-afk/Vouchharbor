@@ -3448,7 +3448,7 @@ describe("the old OSS engine is gone", () => {
     }
   });
 });
-describe("the shell is wired (19.7.12 UI)", () => {
+describe("the shell is wired", () => {
   it2("App routes everything to the one Shell \u2014 the old doors are gone", () => {
     const app = fs.readFileSync(path.join(ROOT, "src", "App.tsx"), "utf8");
     assert.ok(/<Shell\s*\/>/.test(app));

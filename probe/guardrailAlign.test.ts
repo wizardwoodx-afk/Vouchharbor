@@ -54,7 +54,7 @@ ok("guardrail 13 — the privacy budget is durable, per-requester, and tamper-ev
   read("src/mission/capability.ts").includes("vh.privacy.ledger") && read("src/mission/capability.ts").includes("verifyPrivacyLedger") && read("src/mission/capability.ts").includes("digest chain is broken"));
 ok("guardrail 14 — the two-machine proof: the coordinator sees identity, request, authorization and receipt — never rows",
   read("src/mission/twoNode.ts").includes("RelayNode") && read("probe/twoNodeAlign.test.ts").includes("NEVER saw the raw rows"));
-ok("guardrail 15 — every guardrail above is surfaced as a manifest in Settings → About (19.7.12 UI)",
+ok("guardrail 15 — every guardrail above is surfaced as a manifest in Settings → About",
   read("src/ui/screens/Settings.tsx").includes("Guardrail manifest") && (read("src/ui/screens/Settings.tsx").match(/^\s*\["No |^\s*\["Capability|^\s*\["Aggregates|^\s*\["The /gm) ?? []).length === 13);
 
 console.log(`\n${passed} passed, ${failed} failed`);

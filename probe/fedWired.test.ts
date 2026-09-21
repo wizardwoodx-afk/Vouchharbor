@@ -263,7 +263,7 @@ test("15 · the routing path is wired to the regulated gate", () => {
   assert.ok(src.includes("regulated activation incomplete"), "the refusal must name the gap");
 });
 
-test("16 · the product runs the live seam, not a mock of it (Settings → Federation, 19.7.12 UI)", () => {
+test("16 · the product runs the live seam, not a mock of it (Settings → Federation)", () => {
   const src = readFileSync(path.join(ROOT, "src", "ui", "screens", "Settings.tsx"), "utf8");
   for (const needle of ["issueLiveGrant", "runLiveCrossing", "enableRegulatedBench", "liveLedgerView", "Common ledger"]) {
     assert.ok(src.includes(needle), `Settings must wire ${needle}`);

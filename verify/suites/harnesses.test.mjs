@@ -9027,7 +9027,7 @@ ok(
   ipcSrc.includes("customHarnessList") && ipcSrc.includes("customHarnessSave") && ipcSrc.includes("customHarnessDelete") && ipcSrc.includes("vouch.customHarnesses")
 );
 section("4. the Connect tab and the runtime path");
-ok("19.7.12 (UI): no Teams/Connect page ships \u2014 the crew is internal", !fs.existsSync(path3.join(process.cwd(), "src/pages/TeamsPage.tsx")) && !fs.existsSync(path3.join(process.cwd(), "src/pages")));
+ok("no Teams/Connect page ships \u2014 the crew is internal", !fs.existsSync(path3.join(process.cwd(), "src/pages/TeamsPage.tsx")) && !fs.existsSync(path3.join(process.cwd(), "src/pages")));
 ok("the custom-harness validator still exists in the domain (validateCustomHarness)", typeof validateCustomHarness === "function" && /export function validateCustomHarness\(/.test(read("src/domain/harness.ts")));
 ok("no orphan of the retired page survives (mirrorCustomHarnesses left with TeamsPage)", !/mirrorCustomHarnesses/.test(read("src/domain/harness.ts") + ipcSrc + agentTeamSrc + runnerSrc));
 ok(

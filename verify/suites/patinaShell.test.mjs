@@ -22,7 +22,7 @@ function section(name) {
   console.log(`
 == ${name}`);
 }
-section("0. the 19.7.12 shell files exist \u2014 and the retired shells do not");
+section("0. the shell files exist \u2014 and the retired shells do not");
 var SHELL_FILES = [
   "src/App.tsx",
   "src/main.tsx",
@@ -33,6 +33,7 @@ var SHELL_FILES = [
   "src/ui/screens/Steward.tsx",
   "src/ui/screens/Work.tsx",
   "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Docs.tsx",
   "src/ui/screens/Memory.tsx",
   "src/ui/screens/Settings.tsx",
   "src/ui/screens/Chat.tsx",

@@ -185,7 +185,9 @@ ok("ipc exposes the custom-harness trio with a web-preview fallback",
 // ═══════════════════════════════════ 4. the Connect tab and the runtime path
 section("4. the Connect tab and the runtime path");
 
-ok("19.7.12 (UI): no Teams/Connect page ships — the crew is internal", !fs.existsSync(path.join(process.cwd(), "src/pages/TeamsPage.tsx")) && !fs.existsSync(path.join(process.cwd(), "src/pages")));
+/* 19.7.12 retired the Teams/Connect page; the claim below is current state, so it carries no
+   version stamp — a dated label rots into a false one the moment the tree moves on. */
+ok("no Teams/Connect page ships — the crew is internal", !fs.existsSync(path.join(process.cwd(), "src/pages/TeamsPage.tsx")) && !fs.existsSync(path.join(process.cwd(), "src/pages")));
 ok("the custom-harness validator still exists in the domain (validateCustomHarness)", typeof validateCustomHarness === "function" && /export function validateCustomHarness\(/.test(read("src/domain/harness.ts")));
 ok("no orphan of the retired page survives (mirrorCustomHarnesses left with TeamsPage)", !/mirrorCustomHarnesses/.test(read("src/domain/harness.ts") + ipcSrc + agentTeamSrc + runnerSrc));
 ok("19.7.4 [Crew]: the runner is a label desk — custom ids resolve to the native runtime, nothing spawns",
