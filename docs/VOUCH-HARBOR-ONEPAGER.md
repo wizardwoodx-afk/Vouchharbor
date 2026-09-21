@@ -1,6 +1,6 @@
 # VOUCH HARBOR — one-pager (pre-seed)
 
-*Vouch Harbor Labs · v19.7.10.1 [Screenwright] · September 2026*
+*Vouch Harbor Labs · v19.7.12 [Keyholder] (UI) · September 2026*
 *The brand layer and the product story as shipped.*
 
 ---
@@ -158,7 +158,7 @@ fleets, the MCP calls, the drills, and the product's changes to itself.**
 
 ## Traction & stage (honest)
 
-- Complete, working product — v19.7.10.1, 45+ releases, **156 probe
+- Complete, working product — v19.7.12, 45+ releases, **155 probe
   suites / 134 offline verification bundles**, byte-pinned offline
   verification pack (runs in ~2.5 min with zero network), CI on the
   Windows pre-seed platform (Node 22, the supported runtime) plus

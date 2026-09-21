@@ -7,9 +7,11 @@ import fs from "node:fs";
 import path from "node:path";
 var root = ".";
 var read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
-var panels = read("src/panels/ExecutivePanels.tsx");
-var proof = read("src/pages/ProofPage.tsx");
-var audit = read("src/pages/AuditPage.tsx");
+var assurance = read("src/mission/assuranceScore.ts");
+var finOps = read("src/mission/finOps.ts");
+var evidencePack = read("src/mission/evidencePack.ts");
+var vault = read("src/mission/receiptVault.ts");
+var surfaces = read("src/mission/evidenceSurfaces.ts");
 var passed = 0;
 var failures = [];
 var ok = (label, cond, detail = "") => {
@@ -20,26 +22,24 @@ var ok = (label, cond, detail = "") => {
 var section = (t) => console.log(`
 == ${t} ==
 `);
-test("executivePanels \u2014 the composition layer is pinned", () => {
-  section("1. the composition exists and rides the real engines");
-  ok("the panel module exists", panels.length > 1e3, "file too small");
-  ok("Trust Center uses the REAL assurance engine (scoreAssurance)", panels.includes("scoreAssurance"));
-  ok("Cost per Outcome uses the REAL chargeback engine (rowFor)", /rowFor/.test(panels));
-  ok("Trust Center renders the REAL control crosswalk (EVIDENCE_CONTROL_MAPPINGS)", panels.includes("EVIDENCE_CONTROL_MAPPINGS"));
-  ok("Trust Center reads the LIVE receipt vault (globalReceiptVault)", panels.includes("globalReceiptVault"));
-  section("2. the honesty contract");
-  ok("web edition is labeled (labeled demo badge)", panels.includes("labeled demo \xB7 web edition"));
-  ok("the unmeasured honesty string survives the composition", panels.includes("unmeasured"));
-  ok("no hardcoded palette hex outside the theme system", !/#[0-9a-fA-F]{6}\b/.test(panels.replace(/var\(--[a-z-]+\)/g, "")), "found a literal hex");
-  ok("the Trust Pack names the zero-install verifier", panels.includes("tools/verify-receipt.mjs"));
-  section("3. the doors actually render the planes");
-  ok("Proof door renders the Trust Center", proof.includes("<TrustCenterPanel />"));
-  ok("Audit door renders the Assurance Scorecard", audit.includes("<AssuranceScorecardPanel />"));
-  ok("Audit door renders Cost per Outcome", audit.includes("<CostPerOutcomePanel />"));
-  section("4. exports an artifact, not a claim");
-  ok("Trust Pack export is wired (downloadText)", panels.includes("downloadText"));
-  ok("chargeback CSV export is wired", panels.includes("vouch-cost-per-outcome.csv"));
-  ok("the exported pack carries the crosswalk controls", panels.includes("## Control crosswalk"));
+test("executivePanels \u2014 the engines behind the retired panels are pinned", () => {
+  section("1. the engines exist and are the real ones");
+  ok("the assurance engine exists (scoreAssurance)", /export function scoreAssurance\(/.test(assurance));
+  ok("the chargeback engine exists (rowFor)", /export function rowFor\(/.test(finOps));
+  ok("the control crosswalk exists (EVIDENCE_CONTROL_MAPPINGS)", /EVIDENCE_CONTROL_MAPPINGS/.test(evidencePack));
+  ok("the LIVE receipt vault exists (globalReceiptVault)", /export const globalReceiptVault = new ReceiptVault\(\)/.test(vault));
+  ok("the surfaces module composes assurance + chargeback from LOOP STATE, not from a view", /assuranceFromLoopState/.test(surfaces) && /chargebackFromLoopState/.test(surfaces));
+  section("2. the honesty contract lives in the engines, not in a panel");
+  ok("the unmeasured honesty string survives in the assurance engine", /unevaluated|unmeasured/.test(assurance));
+  ok("the evidence pack names the zero-install verifier", /tools\/verify-receipt\.mjs/.test(evidencePack + read("src/mission/securityReview.ts")));
+  section("3. the retired composition is GONE \u2014 no demo panel ships as a product surface");
+  for (const f of ["src/panels/ExecutivePanels.tsx", "src/pages/ProofPage.tsx", "src/pages/AuditPage.tsx"]) {
+    ok(`${f} is not in the tree`, !fs.existsSync(path.join(root, f)));
+  }
+  ok("no 'labeled demo' badge survives anywhere under src/ui", !fs.readdirSync(path.join(root, "src/ui"), { recursive: true }).some((f) => {
+    const abs = path.join(root, "src/ui", String(f));
+    return fs.statSync(abs).isFile() && /labeled demo/.test(fs.readFileSync(abs, "utf8"));
+  }));
   console.log(`
 ${passed} passed, ${failures.length} failed`);
   if (failures.length > 0) {

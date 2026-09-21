@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.10.1 [Screenwright] — release verification record
+# Vouch Harbor 19.7.12 [Keyholder] (UI) — release verification record
 
 
 Every number below was produced by running the named command in **this archive**,
@@ -7,6 +7,61 @@ on **node v22.23.2** (the CI runtime; the declared `engines` floor is
 for it. On a machine WITHOUT node_modules and without network,
 `sh VERIFY.sh` runs the one truly zero-dependency gate: the bundled
 offline pack (the runner reports its own suite count). The protocol selftest needs `cd protocol && npm install`.
+
+## The 19.7.12 record — the redesign (UI)
+
+The user-facing product was rebuilt end to end: one shell (`src/ui/Shell.tsx`)
+with five doors — Steward · Work · Receipts · Memory · Settings — one
+stylesheet (`src/ui/vh.css`: charcoal/bone, champagne accent, Instrument
+Serif + Geist, no blue, no animation gimmicks), and one store
+(`src/ui/store.ts`) that is the single production caller of the engine.
+The retired trees (`src/views`, `src/pages`, `src/panels/*` except
+ErrorBoundary/Toast, `src/app/{Helm,Sidebar,harbor,…}`, `src/styles`) are
+DELETED — including the old VH-19 door's plaintext provider loader, which
+is the reviewer's item (3). The crew is internal: no Crew screen, agents
+render as AGENT nn.
+
+What the review of the first 19.7.12 cut asked for, and what shipped:
+
+| Review finding | Fix shipped | Proof it is real |
+|---|---|---|
+| Release identity was split (19.7.9 / 19.7.12 in different files) | `tools/bump-version.mjs` drives every identity site from `src/version.ts`; README, BUILD-INFO, this file, docs, engines and the offline MANIFEST all say 19.7.12 | probe/versionDrift 42/42; `grep -rn "19\.7\.9" --include=*.md` finds only historical records |
+| Gate had run on node 20 | The whole gate re-ran on **node v22.12.0** (engines rebuilt there too) | table below |
+| Retired `Vh19.tsx` still carried a plaintext provider loader | File deleted with its tree; `boot()` purges any legacy plaintext key on first run and keeps it in memory only; no `localStorage.setItem(...provider...)` exists under `src/ui` | probe/vh19Door §2, probe/vhClean, probe/shellRender |
+| Probes/offline pack still pinned the old UI | probe/palette and probe/v10Page retired; **probe/shellRender** added (SSR-renders the Shell and every door, 22 checks); vh19Door rewritten engine-first; 14 probes (theme, meridian, preflight, face, fedWired, graph3d, initiative, guardrailAlign, differentiatorAlign, knowledgeSkills, meshRuntime, productionStack, securityReview, teammates, scoreSourceOfTruth, navAlign) repointed from deleted files to the shell or the seam they wrapped — never loosened to "skip" | 155/155 dev runner; 154/154 offline pack |
+
+Two regressions the render/probe pass FOUND in the new shell and fixed
+(they would have shipped otherwise):
+
+- **Work showed "No work yet" while a gate was pending before any reply**
+  — empty-state guard now `!lastResp && !busy && !gate`.
+- **The initiative heartbeat and RSI evidence intake had been left behind
+  in the deleted console.** Both now live in the store: `wakeNow()` runs
+  `evaluateWake → applyWake → executeWakeActs(engineExecutor(...))` with the
+  SAME `runDeps()` a typed message takes; the heartbeat is armed above
+  level 0 and re-armed on every level change (Settings → Autonomy, "Run a
+  heartbeat now"); gate denials, failures and unverified live-data claims
+  become RSI curriculum with the canary rollback. probe/initiative 36/36
+  and probe/vh19Door 43/43 pin the store as the caller.
+- The federation plane (standing grant · crossing · common ledger ·
+  regulated bench) is back as Settings → Federation on the real
+  `vh19/federation/live` seam (probe/fedWired 18/18), and the guardrail
+  manifest renders in Settings → About (probe/guardrailAlign 15/15).
+
+Also: `3d-force-graph` is loaded lazily inside the mount effect so the
+shell is SSR/node-safe (probe/graph3d pins it); the render probe uses
+`react-dom/server` and needs no browser.
+
+**Tree.** `19.7.12 "Keyholder" (UI)`, working tree at build time, node v22.12.0, Linux x64.
+
+| Check | Command | Result |
+|---|---|---|
+| Types | `npx tsc --noEmit` | 0 errors |
+| Dev runner | `node tools/run-all-probes.mjs` | **155 passed, 0 failed** (node v22.12.0) |
+| Offline pack | `node verify/run.mjs` | **154 passed, 0 failed** (node v22.12.0); MANIFEST 19.7.12, suiteCount 154 |
+| Engines | `npm run mcp:build && npm run host:build` | rebuilt at 19.7.12; byte-identity probes green |
+| Web build | `npm run build` | `dist/` produced (vite) |
+| Identity | `probe/versionDrift` | 42/42 — package.json · src/version.ts · README · BUILD-INFO · docs · MANIFEST agree on 19.7.12 |
 
 ## The 19.7.10.1 record — the boundary, stated precisely
 

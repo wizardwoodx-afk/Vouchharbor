@@ -408,7 +408,7 @@ var browserRawStorage = (() => {
 
 // src/vh19/reachMcp.ts
 var REACH_MCP_NAME = "Agent Reach MCP";
-var REACH_MCP_VERSION = "19.7.10.1";
+var REACH_MCP_VERSION = "19.7.12";
 var REACH_MCP_DEFAULT_POLICY = {
   allowlist: ["ls", "cat", "echo", "grep"],
   maxRuntimeMs: 5e3,
@@ -560,9 +560,9 @@ describe("the wiring is structural, not incidental", () => {
     assert.ok(src.includes('from "./meshRuntime"'));
     assert.ok(src.includes("meshForHandoff"));
   });
-  it("the mesh is reachable from the production door (Vh19 \u2192 handoffs \u2192 meshRuntime \u2192 vouchMesh)", () => {
-    const door = fs.readFileSync(path.join(ROOT, "src", "views", "Vh19.tsx"), "utf8");
-    assert.ok(door.includes("../vh19/handoffs"), "the door consumes the handoff seam");
+  it("the mesh is reachable from the production door (store \u2192 handoffs \u2192 meshRuntime \u2192 vouchMesh)", () => {
+    const door = fs.readFileSync(path.join(ROOT, "src", "ui", "store.ts"), "utf8");
+    assert.ok(door.includes("../vh19/handoffs") && door.includes("recordHandoff(h)"), "the store consumes the handoff seam on every run");
     const mesh = fs.readFileSync(path.join(ROOT, "src", "vh19", "meshRuntime.ts"), "utf8");
     assert.ok(mesh.includes('from "./vouchMesh"'));
   });

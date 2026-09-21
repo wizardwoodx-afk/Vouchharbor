@@ -25246,10 +25246,10 @@ test("15 \xB7 the routing path is wired to the regulated gate", () => {
   assert.ok(src.includes("regulatedRoutingVerdict(specialists.map((s) => s.id))"), "the generalist must consult the gate over its selected specialists");
   assert.ok(src.includes("regulated activation incomplete"), "the refusal must name the gap");
 });
-test("16 \xB7 the console runs the live seam, not a mock of it", () => {
-  const src = readFileSync(path.join(ROOT, "src", "views", "NextConsole.tsx"), "utf8");
+test("16 \xB7 the product runs the live seam, not a mock of it (Settings \u2192 Federation, 19.7.12 UI)", () => {
+  const src = readFileSync(path.join(ROOT, "src", "ui", "screens", "Settings.tsx"), "utf8");
   for (const needle of ["issueLiveGrant", "runLiveCrossing", "enableRegulatedBench", "liveLedgerView", "Common ledger"]) {
-    assert.ok(src.includes(needle), `NextConsole must wire ${needle}`);
+    assert.ok(src.includes(needle), `Settings must wire ${needle}`);
   }
 });
 test("17 \xB7 the capability vocabulary rides the seam", () => {

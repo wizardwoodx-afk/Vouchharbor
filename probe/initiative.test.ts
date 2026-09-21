@@ -228,13 +228,16 @@ async function main(): Promise<void> {
   }
 
   // the mapping is defined ONCE (bridge) and the console uses the shared factory
-  const ncSrc = fs.readFileSync(path.join(ROOT, "src/views/NextConsole.tsx"), "utf8");
-  ok("the console builds the SHARED production executor (engineExecutor) — no inline copy",
+  // 19.7.12 (UI): the production caller is the store (src/ui/store.ts), not a console view.
+  const ncSrc = fs.readFileSync(path.join(ROOT, "src/ui/store.ts"), "utf8");
+  ok("the store builds the SHARED production executor (engineExecutor) — no inline copy",
     ncSrc.includes("engineExecutor({") && !ncSrc.includes("const executor: ActExecutor = async (act)"));
   ok("the executor carries the SAME dep set as a normal chat send (provider · gate · handoff · evidenceFetch · userId)",
-    /depsFactory: \(\) => \(\{[\s\S]{0,400}?provider,/.test(ncSrc) && ncSrc.includes("gate: gateFn,") && ncSrc.includes("evidenceFetch: typeof globalThis.fetch") && /userId: USER,/.test(ncSrc));
+    /depsFactory: \(\) => runDeps\(get, set, gateFn\)/.test(ncSrc) && /askVH19\(\{ text: sentText, userId: USER \}, runDeps\(get, set, gateFn\)\)/.test(ncSrc) && ncSrc.includes("gate: gateFn,") && ncSrc.includes("evidenceFetch: typeof globalThis.fetch") && /userId: USER,/.test(ncSrc));
   ok("gate-blocked user runs leave a capped check-back (production scheduleFollowUp caller)",
     ncSrc.includes('scheduleFollowUp("verify"') && ncSrc.includes('resp.outcome === "gated-out"'));
+  ok("the heartbeat is armed above level 0 and re-armed on every level change",
+    /setInterval\(\(\) => \{ void get\(\)\.wakeNow\(\); \}, HEARTBEAT_DEFAULT_MS\)/.test(ncSrc) && /armHeartbeat\(get\)/.test(ncSrc) && /level === 0/.test(ncSrc));
   ok("run failures feed the circuit breaker (production reportFailure caller)",
     ncSrc.includes("reportFailure(loadInitiative());") && ncSrc.includes("The run failed before it could answer"));
   ok("receipts say what ran — 'executed through the real engine' renders with per-act verdicts",

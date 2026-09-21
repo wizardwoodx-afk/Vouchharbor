@@ -1,4 +1,4 @@
-# Vouch Harbor 19.7.10.1 — the accountable agent OS (govern · execute · verify · learn)
+# Vouch Harbor 19.7.12 — the accountable agent OS (govern · execute · verify · learn)
 
 > **The proof layer for agent work.** Vouch Harbor runs fleets of AI coding agents on your own machine and turns every mission into signed, independently verifiable evidence — the assurance runtime for the age of agent audits.
 
@@ -20,7 +20,7 @@ surface area and then goes where none of them do:
 
 They watch the screen; we sign the work. The full RSI design — with the 2026 landscape (AlphaEvolve, Darwin Gödel Machine, Gödel Agent, STOP, SEAL, ADAS, RSIAgent) mapped against it — lives in [docs/RSI-FRAMEWORK.md](docs/RSI-FRAMEWORK.md), and the proprietary trust-rooted architecture in [docs/RSIRALS.md](docs/RSIRALS.md).
 
-### The current product state (19.7.10.1 [Screenwright])
+### The current product state (19.7.12 [Keyholder] (UI))
 
 ### NEW in 19.7.2.2 [Agent] — the crew works on its own: 700 new specialists, an Agentic MoE, an initiative loop that EXECUTES, runtime-enforced BEW, and a 3D memory graph
 
@@ -760,7 +760,7 @@ Full notes: [VH-19.3-UPGRADE.md](VH-19.3-UPGRADE.md).
 # Node 22 + Rust stable
 npm ci
 npm run typecheck     # tsc --noEmit
-npm test              # 156 suites
+npm test              # 155 suites
 npm run build         # vite production build
 
 npm run tauri dev     # desktop dev
@@ -768,7 +768,7 @@ npm run tauri:build   # nsis / dmg / appimage / deb
 
 # offline verification (Node alone — dependency-backed suites honestly fail/skip
 #   on a bare extraction; with `npm ci` everything runs)
-node verify/run.mjs             # 155 bundles, the full gate (~80s, no install needed)
+node verify/run.mjs             # 154 bundles, the full gate (~80s, no install needed)
 node verify/run.mjs --shard 1/4 # short execution window? run deterministic shards and merge
 node tools/quick-verify.mjs    # the 11 headline suites in ~1.3s, zero install
 # shorter window? run the same gate in pieces and merge:

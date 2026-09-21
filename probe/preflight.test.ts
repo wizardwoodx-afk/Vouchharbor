@@ -19,13 +19,15 @@ declare const VH_ROOT: string | undefined;
 const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 
 const engine = fs.readFileSync(path.join(ROOT, "src", "vouch", "engine", "vouch.ts"), "utf8");
-const helm = fs.readFileSync(path.join(ROOT, "src", "app", "Helm.tsx"), "utf8");
+// 19.7.12 (UI): the Helm was unmounted dead code since 19.6.6; the human gate now lives in the store + GateCard.
+const helm = fs.readFileSync(path.join(ROOT, "src", "ui", "store.ts"), "utf8");
+const gateCard = fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "GateCard.tsx"), "utf8");
 
 ok("simulateVouchAction exists (preflight prediction)", /simulateVouchAction/.test(engine), "no simulate");
 ok("risky tools are routed through the human gate", /RISKY_TOOLS/.test(engine) && /requestVouchApproval/.test(engine), "no gate");
-ok("the Helm renders pending approval count", /pendingApprovals/.test(helm), "helm ignores pending approvals");
+ok("the shell holds the pending gate and Work counts it (\"Waiting on you\")", /gate: PendingGate \| null/.test(helm) && fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "Work.tsx"), "utf8").includes("Waiting on you"), "shell ignores the pending gate");
 ok("every vouched receipt carries a simulation event when a risky tool ran", /vouch\.simulation/.test(engine), "no simulation event");
-ok("the real Harbor surfaces the gate (Approve/Deny buttons)", /resolveVouchApproval|actions\.approve/.test(fs.readFileSync(path.join(ROOT, "src", "app", "harbor.tsx"), "utf8")), "no approve/deny in harbor");
+ok("the real shell surfaces the gate (Approve / Refuse, both receipted)", /decideGate\(\{ approved: true \}\)/.test(gateCard) && /decideGate\(\{ approved: false, reason/.test(gateCard) && /decideGate:/.test(helm), "gate buttons missing");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); }

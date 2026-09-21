@@ -78,26 +78,27 @@ describe("the old OSS engine is gone", () => {
   });
 });
 
-describe("the console is wired", () => {
-  it("App routes the door to NextConsole", () => {
+describe("the shell is wired (19.7.12 UI)", () => {
+  it("App routes everything to the one Shell — the old doors are gone", () => {
     const app = fs.readFileSync(path.join(ROOT, "src", "App.tsx"), "utf8");
-    assert.ok(app.includes("NextConsole"));
-    assert.ok(!app.includes("Comp: Vh19"), "the old door is no longer the door");
+    assert.ok(/<Shell\s*\/>/.test(app));
+    assert.ok(!app.includes("NextConsole") && !app.includes("Comp: Vh19"), "the old doors are no longer the door");
   });
 
-  it("the new design sheet ships and Tailwind v4 is a real build input", () => {
+  it("the design system is ONE stylesheet with the house tokens (no Tailwind runtime, no blue)", () => {
     const main = fs.readFileSync(path.join(ROOT, "src", "main.tsx"), "utf8");
-    assert.ok(main.includes("vh-next.css"));
-    const css = fs.readFileSync(path.join(ROOT, "src", "styles", "vh-next.css"), "utf8");
-    assert.ok(css.includes('@import "tailwindcss"'));
-    const vite = fs.readFileSync(path.join(ROOT, "vite.config.ts"), "utf8");
-    assert.ok(vite.includes("@tailwindcss/vite"));
+    assert.ok(main.includes("ui/vh.css"));
+    const css = fs.readFileSync(path.join(ROOT, "src", "ui", "vh.css"), "utf8");
+    assert.ok(/#0D1010/i.test(css) && /#D5B26B/i.test(css) && /Instrument Serif/.test(css));
+    assert.ok(!/@import "tailwindcss"/.test(css));
   });
 
-  it("the console renders evidence, not vibes — gate banner, digest chips, plan-only honesty", () => {
-    const src = fs.readFileSync(path.join(ROOT, "src", "views", "NextConsole.tsx"), "utf8");
-    assert.ok(src.includes("HUMAN GATE"));
-    assert.ok(src.includes("trace") || src.includes("provenance"));
-    assert.ok(src.includes("plan-only — nothing executes without a provider"));
+  it("the shell renders evidence, not vibes — gate card, provenance digest, plan-only honesty", () => {
+    const gate = fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "GateCard.tsx"), "utf8");
+    const chat = fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "Chat.tsx"), "utf8");
+    const work = fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "Work.tsx"), "utf8");
+    assert.ok(gate.includes("Your approval is needed") && gate.includes("receipt  issued on approve AND on refuse"));
+    assert.ok(chat.includes("provenanceDigest"));
+    assert.ok(work.includes("Planned — connect a provider to execute"));
   });
 });

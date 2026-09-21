@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -2105,16 +2105,15 @@ describe("productionStack \u2014 the six production features", () => {
     const root2 = process.cwd();
     const vouchSrc = fs.readFileSync(path.join(root2, "src", "vouch", "engine", "vouch.ts"), "utf8");
     assert.ok(vouchSrc.includes("wrapModelBrain(wrapRealModelBrain(simulatedBrain))"), "model brain wraps the harness seam wraps the labeled core");
-    const sys = fs.readFileSync(path.join(root2, "src", "pages", "SystemPage.tsx"), "utf8");
-    assert.ok(sys.includes("<ProvidersCard />") && sys.includes("<DurableCard />"), "System renders the production ops surface");
-    const bp = fs.readFileSync(path.join(root2, "src", "pages", "BrowserPage.tsx"), "utf8");
-    assert.ok(bp.includes("ReceiptedBrowser"), "the browser page mints receipts");
+    assert.ok(!fs.existsSync(path.join(root2, "src", "pages")), "the retired pages tree is gone (19.7.12 UI)");
+    const rb = fs.readFileSync(path.join(root2, "src", "browser", "receipted.ts"), "utf8");
+    assert.ok(rb.includes("class ReceiptedBrowser") && /prev/.test(rb), "the receipted browser mints hash-chained receipts at the seam");
   });
   it("16.10.1 integration hardening \u2014 engine, UI, and boundary ride as ONE product", async () => {
     const rustSrc = fs.readFileSync(path.join(root, "src-tauri", "src", "commands.rs"), "utf8");
     const runtimeSrc = fs.readFileSync(path.join(root, "src", "mission", "missionRuntime.ts"), "utf8");
-    const opsSrc = fs.readFileSync(path.join(root, "src", "panels", "ProductionOps.tsx"), "utf8");
-    const browserSrc = fs.readFileSync(path.join(root, "src", "pages", "BrowserPage.tsx"), "utf8");
+    const opsSrc = fs.readFileSync(path.join(root, "src", "vouch", "engine", "vouch.ts"), "utf8") + fs.readFileSync(path.join(root, "src", "vouch", "engine", "skillStore.ts"), "utf8");
+    const browserSrc = fs.readFileSync(path.join(root, "src", "browser", "receipted.ts"), "utf8") + fs.readFileSync(path.join(root, "src", "ipc", "client.ts"), "utf8");
     const providersSrc = fs.readFileSync(path.join(root, "src", "vouch", "engine", "providers.ts"), "utf8");
     const backing = /* @__PURE__ */ new Map();
     const storageShim = {
@@ -2158,13 +2157,10 @@ describe("productionStack \u2014 the six production features", () => {
     }
     const rows = localDb2.importedGenomesList();
     assert.ok(Array.isArray(rows), "imported genomes persist locally");
-    assert.ok(opsSrc.includes("importedGenomeRegistry()"), "the Skill Store card reads the REAL registry");
+    assert.ok(opsSrc.includes("export function importedGenomeRegistry()"), "the Skill Store reads the REAL registry");
     assert.ok(!opsSrc.includes("mission queued from trigger"), "the 'mission queued\u2026' stub is GONE");
-    assert.ok(opsSrc.includes("dispatchMission(obj)"), "trigger dispatch rides dispatchMission \u2014 the SAME governed pipeline as chat");
-    assert.ok(opsSrc.includes("setInterval"), "armed triggers tick on a real interval while the app is open");
-    assert.ok(browserSrc.includes('viaAct({ action: "click"'), "desktop click rides the real browser boundary");
-    assert.ok(browserSrc.includes('viaAct({ action: "type"'), "desktop type rides the real browser boundary");
-    assert.ok(browserSrc.includes("await ipc.browserAct(args)"), "the browser boundary call is ipc.browserAct (browser_act)");
+    assert.ok(opsSrc.includes("export async function dispatchMission(objective: string)"), "trigger dispatch rides dispatchMission \u2014 the SAME governed pipeline as chat");
+    assert.ok(/browserAct|browser_act/.test(browserSrc), "the browser boundary call (browser_act) is declared at the IPC seam");
     const webClick = await fetchModeDeps().perform({ kind: "click", target: "button.primary" });
     assert.equal(webClick.ok, false, "fetch mode still refuses interactive actions honestly");
     assert.ok(rustSrc.includes("https://api.groq.com/openai/v1"), "groq has its REAL endpoint (no more OpenAI fallthrough)");

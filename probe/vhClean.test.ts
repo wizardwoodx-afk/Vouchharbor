@@ -35,11 +35,15 @@ const ROUTED_SURFACE: string[] = [
   "src/App.tsx",
   "src/main.tsx",
   "src/vouch/pages/VouchPage.tsx",
-  "src/pages/LoopPage.tsx",
-  "src/pages/ProofPage.tsx",
-  "src/pages/AuditPage.tsx",
-  "src/pages/SystemPage.tsx",
-  "src/pages/SettingsPage.tsx",
+  // 19.7.12 (UI): the routed pages are the five doors of src/ui.
+  "src/ui/Shell.tsx",
+  "src/ui/store.ts",
+  "src/ui/screens/Steward.tsx",
+  "src/ui/screens/Work.tsx",
+  "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Memory.tsx",
+  "src/ui/screens/Settings.tsx",
+  "src/ui/screens/Chat.tsx",
   "index.html",
   "package.json",
   "src-tauri/tauri.conf.json",
@@ -97,7 +101,7 @@ test("the whole control-plane module (src/vouch/**) carries no legacy name excep
 
 /* The clean identity covers the whole VISIBLE product surface: shell, pages,
  * panels, canvas, the IPC bridge, the browser stubs and the domain catalogs. */
-const UI_LAYER = ["src/app", "src/pages", "src/panels", "src/canvas", "src/ipc", "src/browser", "src/domain"];
+const UI_LAYER = ["src/app", "src/ui", "src/panels", "src/canvas", "src/ipc", "src/browser", "src/domain"];
 
 test("the visible product surface carries no legacy name (whole surface, not just the vouch tree)", () => {
   let scanned = 0;
@@ -113,7 +117,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
 });
 
 test("the web entry, IPC bridge, and styles carry no legacy name", () => {
-  for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/styles/vouch.css", "src/styles/redesign.css"]) {
+  for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/ui/vh.css", "index.html"]) {
     const src = stripWireTokens(read(rel));
     assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }

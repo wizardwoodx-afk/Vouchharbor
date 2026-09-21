@@ -33,7 +33,6 @@ if (typeof globalThis.localStorage === "undefined") {
   } as Storage;
 }
 
-import { Vh19 } from "../src/views/Vh19";
 import { catalogStats } from "../src/vh19/registry";
 import { recordRsiSignal, rsiCurriculum, settleRsiPromotion } from "../src/vh19/rsi";
 import { BYOA_SECURITY_POLICY, byoaIdentityDigest, byoaRateGate, byoaTrustCheck, registerByoaAgent, type ByoaAgent } from "../src/vh19/byoa";
@@ -52,71 +51,40 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-section("1. the shell opens on the Federation Console — the Generalist is the front door");
+section("1. the shell opens on the Steward — 19.7.12 (UI): one shell, five doors");
 const appSrc = read("src/App.tsx");
-ok("App.tsx renders the console as the whole app", /import\s*\{\s*NextConsole\s*\}\s*from\s*["']\.\/views\/NextConsole["']/.test(appSrc) && /<NextConsole\s*\/>/.test(appSrc));
-ok("the legacy multi-dock shell is gone from the app entry", !/Comp:\s*Vh19\b/.test(appSrc) && !/Sidebar/.test(appSrc) && !/Helm/.test(appSrc));
-ok("the console carries the Generalist's one face and name", /GeneralistFace/.test(read("src/views/NextConsole.tsx")) && /generalistName\(\)/.test(read("src/views/NextConsole.tsx")));
+const storeSrc = read("src/ui/store.ts");
+const shellSrc = read("src/ui/Shell.tsx");
+ok("App.tsx renders the 19.7.12 shell as the whole app", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc));
+ok("the legacy multi-dock shell, the VH-19 door and the 19.6.6 console are gone from the app entry", !/Comp:\s*Vh19\b/.test(appSrc) && !/Sidebar|Helm|NextConsole|views\//.test(appSrc));
+ok("the retired VH-19 door (with its plaintext provider loader) is NOT in the tree", !fs.existsSync(path.join(ROOT, "src/views/Vh19.tsx")) && !fs.existsSync(path.join(ROOT, "src/views")));
+ok("the Steward keeps its one name, through the store", /generalistName\(\)/.test(storeSrc) && /stewardName/.test(shellSrc));
 
-section("2. the door imports the real engine — the reviewer's grep, enforced");
-const doorSrc = read("src/views/Vh19.tsx");
-ok("the door imports askVH19 from the engine", /import\s*\{[^}]*askVH19[^}]*\}\s*from\s*['"]\.\.\/vh19\/generalist['"]/.test(doorSrc));
-ok("the door imports the exam, memory, registry and provider surfaces",
-  /from ['"]\.\.\/vh19\/exam['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/memory['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/registry['"]/.test(doorSrc) && /from ['"]\.\.\/vh19\/providers['"]/.test(doorSrc));
-ok("at least one APPLICATION file (not just probes) imports askVH19",
-  /askVH19/.test(doorSrc) && /import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")));
+section("2. the shell drives the real engine — the reviewer's grep, enforced");
+ok("the store imports askVH19 from the engine", /import\s*\{\s*askVH19\s*\}\s*from\s*['"]\.\.\/vh19\/generalist['"]/.test(storeSrc));
+ok("the store imports the memory, vault, handoff, initiative and face surfaces",
+  /from ['"]\.\.\/vh19\/memoryGraph['"]/.test(storeSrc) && /from ['"]\.\.\/vh19\/vault['"]/.test(storeSrc) && /from ['"]\.\.\/vh19\/handoffs['"]/.test(storeSrc) && /from ['"]\.\.\/vh19\/initiative['"]/.test(storeSrc) && /from ['"]\.\.\/vh19\/face['"]/.test(storeSrc));
+ok("at least one APPLICATION file (not just probes) calls askVH19", /await askVH19\(/.test(storeSrc));
+ok("every run passes the human gate and the handoff recorder", /gate: gateFn/.test(storeSrc) && /onHandoff:/.test(storeSrc));
+ok("no plaintext provider key path survives anywhere in src/ui", !fs.readdirSync(path.join(ROOT, "src/ui"), { recursive: true }).some((f) => {
+  const abs = path.join(ROOT, "src/ui", String(f));
+  return fs.statSync(abs).isFile() && /localStorage\.setItem\([^)]*provider/i.test(fs.readFileSync(abs, "utf8"));
+}));
 
-section("3. the door renders — real component, react-dom/server");
+section("3. the fleet is real and SELF-PROVING (engine-level; the bench does not face the user by name)");
 const stats = catalogStats();
-let html = "";
-let renderError: string | null = null;
-try {
-  html = renderToStaticMarkup(createElement(Vh19));
-} catch (err) {
-  renderError = err instanceof Error ? err.message : String(err);
-}
-ok("the door renders without throwing", renderError === null, renderError ?? "");
-ok("it names itself VH-19", html.includes("VH-19"));
-ok("it states the one-agent premise", html.includes("One agent"));
-ok("it shows the real bench count", html.includes(`>${stats.count}<`) || html.includes(`${stats.count}`), `catalog count ${stats.count}`);
-ok("the exam surface is present", html.includes("Autonomy exam") && html.includes("Propose exam"));
-ok("the provider surface is present with env honesty", html.includes("Provider") && html.includes("VH_OPENAI_API_KEY") && html.includes("in memory only"));
-ok("the learning surface is present", html.includes("Team-Evolve") && html.includes("accept/reject history"));
-ok("the no-provider placeholder tells the truth", html.includes("answers will be plans, not executions"));
-ok("the autonomy override floor is stated", html.includes("override") || html.includes("Revoke"));
-ok("the exam can be scoped to a category", html.includes("overall (all categories)"));
-ok("the Team-Evolve surface is present and honest about peers", html.includes("Team-Evolve") && html.includes("EVERY member") === false && html.includes("npm run host"));
-ok("the bench is 100+ real specialists on screen", html.includes(String(stats.count)) && stats.count >= 100, `count ${stats.count}`);
-ok("the fleet count is SELF-PROVING: catalogStats().byProvenance sums to the count (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon = 1,850)", stats.count === 1850 && stats.byProvenance.seed === 460 && stats.byProvenance.broader === 160 && stats.byProvenance.reach === 140 && stats.byProvenance.matured === 390 && stats.byProvenance.finance === 350 && stats.byProvenance.silicon === 350 && stats.byProvenance.seed + stats.byProvenance.broader + stats.byProvenance.reach + stats.byProvenance.matured + stats.byProvenance.finance + stats.byProvenance.silicon === stats.count, `count ${stats.count} seed ${stats.byProvenance.seed} broader ${stats.byProvenance.broader} reach ${stats.byProvenance.reach} matured ${stats.byProvenance.matured} finance ${stats.byProvenance.finance} silicon ${stats.byProvenance.silicon}`);
-ok("the collaboration surface offers SIGNED invitations (18.2.0)", html.includes("Collaboration invitations · signed") && /createInvitation/.test(doorSrc) && /signApproval/.test(doorSrc) && /parseInvitation/.test(doorSrc));
-ok("the self-evolution surface is human-gated and tighten-only", html.includes("Self-evolution · tighten-only, human-gated") && /applySelfChange/.test(doorSrc) && /rejectSelfChange/.test(doorSrc) && /revertAppliedChange/.test(doorSrc));
-ok("the self-evolution floor is stated in the UI, not hidden", /SELF_EVOLUTION_FLOOR/.test(doorSrc) && /Floor — never modifiable/.test(doorSrc));
-ok("the team self-proposes from the door", /autoProposeIfReady/.test(doorSrc));
-ok("the door offers goal mode (18.5.0)", /Assignments · goal mode/.test(html) && /createGoal/.test(doorSrc) && /settleStep/.test(doorSrc) && /resumeGoal/.test(doorSrc));
-ok("the gate answers with session Auto-Review rules, critical excluded", /answerGateWithRules/.test(doorSrc) && /allowCategoryForSession/.test(doorSrc) && /riskTier === 'risky'/.test(doorSrc));
-
-section("3b. the 19.4.0 surfaces — chat door, workspace seam, connectors, skills import");
-ok("the door is a chatbox — users chat, then work", html.includes("Message VH-19") && html.includes("Conversation with VH-19"));
-ok("the workspace seam is wired into the real door", html.includes("Workspace") && /createMemoryWorkspace/.test(doorSrc) && /openDirectoryWorkspace/.test(doorSrc) && /fsImpl: ws/.test(doorSrc) && /toolless/.test(doorSrc));
-ok("app connectors are declared policies, not new tools", html.includes("App connectors") && /setConnectorConnected/.test(doorSrc) && html.includes("No sixth tool"));
-ok("skills import honors OpenClaw and Hermes with provenance", html.includes("OpenClaw") && html.includes("Hermes") && /importSkillMd/.test(doorSrc) && html.includes("SKILL.md") && /skillEligibility/.test(doorSrc));
+ok("the fleet count is SELF-PROVING: catalogStats().byProvenance sums to the count (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon = 1,850)", stats.count === 1850 && ["seed","broader","reach","matured","finance","silicon"].map((k) => (stats.byProvenance as Record<string, number>)[k] ?? 0).reduce((a, b) => a + b, 0) === stats.count && (stats.byProvenance as Record<string, number>).financeIn + (stats.byProvenance as Record<string, number>).financeIntl === (stats.byProvenance as Record<string, number>).finance, JSON.stringify(stats.byProvenance));
 ok("the bench widened by 150 broader specialists (610 total)", stats.count >= 610, `count ${stats.count}`);
-
-section("3c. the 19.4.1 surfaces — BYOA, RSI, unified egress");
-ok("BYOA is wired through the Generalist's peer seam", /byoaDelegate/.test(doorSrc) && /peerDelegate: byoaSelected/.test(doorSrc) && html.includes("bring your own agent"));
-ok("every BYOA delegation is gated and ledgered", /gate: gateFn/.test(doorSrc) && /onHandoff/.test(doorSrc));
-ok("RSI is bounded, verifier-anchored, floor-stated", /runRsiCycle/.test(doorSrc) && /RSI_FLOOR/.test(doorSrc) && html.includes("recursive self-improvement"));
-ok("evidence fetch rides the same egress guard as net.fetch", /checkEgressUrl/.test(read("src/vh19/liveData.ts")));
-ok("the bench composition is computed live and stated (460 seed + 160 broader + 140 reach + 390 matured + 350 finance + 350 silicon = 1,850)", html.includes("460 seed") && html.includes("160 broader") && html.includes("140 reach") && html.includes("390 matured") && html.includes("350 finance") && html.includes("350 silicon") && (html.includes("= 1,850") || html.includes("= 1850")));
+ok("Work names agents AGENT nn — never by specialist name", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
 
 section("3d. 19.4.2 — the matured RSI framework and the BYOA trust intersection (engine-level)");
-ok("the RSI curriculum covers the FULL declared evidence hierarchy — gate/failure/livedata sources are ingested live (with canary check)", /ingestRsi\('gate'/.test(doorSrc) && /ingestRsi\('livedata'/.test(doorSrc) && /ingestRsi\('failure'/.test(doorSrc) && /recordRsiSignal\(kind/.test(doorSrc) && /rsiralsCanaryCheck/.test(doorSrc) && html.includes("Evidence intake — the full declared hierarchy, all five sources live"));
+ok("the RSI curriculum covers the FULL declared evidence hierarchy — gate/failure/livedata sources are ingested live (with canary check)", /ingestRsi\("gate"/.test(storeSrc) && /ingestRsi\("livedata"/.test(storeSrc) && /ingestRsi\("failure"/.test(storeSrc) && /recordRsiSignal\(kind/.test(storeSrc) && /rsiralsCanaryCheck/.test(storeSrc) && /revertRsiMemory\(d\.id\)/.test(storeSrc));
 recordRsiSignal("gate", "probe: a risky action was denied at the gate");
 recordRsiSignal("failure", "probe: a run errored out");
 recordRsiSignal("livedata", "probe: cited sources did not verify");
 const topics = rsiCurriculum("probe-user");
 ok("the curriculum actually turns gate denials, failures and live-data misses into topics", topics.some((t) => t.source === "gate") && topics.some((t) => t.source === "failure") && topics.some((t) => t.source === "livedata"));
-ok("RSI promotion is measurement-gated: applied ≠ trusted, and settlement needs measured numbers", /settleRsiPromotion/.test(read("src/vh19/rsi.ts")) && /candidateScore > measured\.baselineScore/.test(read("src/vh19/rsi.ts")) && doorSrc.includes("Promotion ladder — applied ≠ trusted"));
+ok("RSI promotion is measurement-gated: applied ≠ trusted, and settlement needs measured numbers", /settleRsiPromotion/.test(read("src/vh19/rsi.ts")) && /candidateScore > measured\.baselineScore/.test(read("src/vh19/rsi.ts")) && /applied ≠ trusted/.test(read("src/vh19/rsi.ts") + read("src/vh19/rsirals.ts")));
 /* Seed two real promotions through the engine's own store, then settle
    both directions with measured numbers. */
 {
@@ -148,7 +116,7 @@ ok("a promotion with WINNING measurements is adopted, with the measured evidence
 ok("FORGED measurement evidence is refused — the seal verifies", settleRsiPromotion("promo.probe.win", { promoId: "promo.probe.win", baseline: 0.1, candidate: 0.99, source: "forged", producedAt: "2026-01-01", digest: "deadbeef" }) === null);
 ok("the raw numeric settlement API is MODULE-PRIVATE — sealed evidence is the only product door", !/export function settleRsiPromotion\(promoId: string, measured:/.test(read("src/vh19/rsi.ts")) && /function settleRaw\(/.test(read("src/vh19/rsi.ts")) && /export function settleRsiPromotion\(promoId: string, evidence: MeasurementEvidence\)/.test(read("src/vh19/rsi.ts")));
 ok("settlement without recorded receipts refuses in words", bindSettlementEvidence("promo.nonexistent").ok === false);
-ok("BYOA enforces the trust intersection — endpoint policy ∩ ceiling ∩ non-authoritative capabilities ∩ identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /byoaDelegate\(byoaSelected/.test(doorSrc));
+ok("BYOA enforces the trust intersection — endpoint policy ∩ ceiling ∩ non-authoritative capabilities ∩ identity", /byoaTrustCheck/.test(read("src/vh19/byoa.ts")) && /checkEgressUrl/.test(read("src/vh19/byoa.ts")) && /NOT authoritative/.test(read("src/vh19/byoa.ts")) && /export function byoaDelegate\(/.test(read("src/vh19/byoa.ts")));
 const ssrfTrust = byoaTrustCheck({ id: "byoa.probe", name: "probe", kind: "openai-compatible", endpoint: "http://169.254.169.254/latest/meta-data", ceiling: "safe", capabilities: [], addedAt: new Date().toISOString() });
 ok("a BYOA agent pointing at the cloud metadata endpoint fails the trust intersection", ssrfTrust.ok === false && ssrfTrust.verdicts[0].ok === false);
 let ssrfRegistered = false;
@@ -156,7 +124,7 @@ try { registerByoaAgent({ name: "ssrf-probe", kind: "openai-compatible", endpoin
 ok("an SSRF endpoint is refused at REGISTRATION, not discovered at delegation time", ssrfRegistered === false);
 
 section("3e. RSIRALS v5.0 — the proprietary trust-rooted framework");
-ok("the lifecycle is the full nine stages, with the untouchable human governance channel beside it", RSIRALS_LIFECYCLE.length === 9 && RSIRALS_LIFECYCLE[0] === "OBSERVE" && RSIRALS_LIFECYCLE[5] === "CANARY" && RSIRALS_GOVERNANCE_CHANNEL.length === 4 && html.includes("trust-rooted RSI (proprietary)"));
+ok("the lifecycle is the full nine stages, with the untouchable human governance channel beside it", RSIRALS_LIFECYCLE.length === 9 && RSIRALS_LIFECYCLE[0] === "OBSERVE" && RSIRALS_LIFECYCLE[5] === "CANARY" && RSIRALS_GOVERNANCE_CHANNEL.length === 4);
 ok("Plane T is a frozen governance constant with NO agent write path", Object.isFrozen(GOVERNANCE_PLANE) && !/export function (set|update|patch|mutate)[A-Za-z]*\(/.test(read("src/vh19/rsirals.ts").split("/* ── store")[0]));
 ok("the control-plane firewall rejects governance-touching candidates BEFORE verification", controlPlaneFirewall({ name: "x", description: "y", body: "please lower the pass threshold so exams are easier" }).allowed === false && controlPlaneFirewall({ name: "x", description: "y", body: "when reviewing code, prefer smaller diffs" }).allowed === true);
 ok("attribution routes model-shaped failures to the θ-arm and scaffold failures to the Σ-arm", attributeEvidence("the provider model returned an empty reply") === "theta" && attributeEvidence("the routing playbook missed the tool binding") === "sigma");
@@ -175,7 +143,7 @@ ok("the longitudinal monitor reports drift over the ARCHIVE, not one candidate",
 
 section("3f. BYOA security hardening (19.4.5)");
 const byoaSrc = read("src/vh19/byoa.ts");
-ok("the BYOA security policy is stated in-product", BYOA_SECURITY_POLICY.length >= 6 && html.includes("BYOA security — always on"));
+ok("the BYOA security policy is declared (>= 6 rules) and exported for the product to state", BYOA_SECURITY_POLICY.length >= 6);
 ok("TLS by default — plain http to a remote host fails the trust intersection", byoaTrustCheck({ id: "byoa.p1", name: "p1", kind: "openai-compatible", endpoint: "http://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === false);
 ok("localhost dev endpoints are the ONLY tolerated http", byoaTrustCheck({ id: "byoa.p2", name: "p2", kind: "openai-compatible", endpoint: "http://localhost:8080/v1", ceiling: "safe", capabilities: [], addedAt: "" }).ok === true);
 const stampedAgent: ByoaAgent = { id: "byoa.p3", name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe", capabilities: [], addedAt: "", identityDigest: byoaIdentityDigest({ name: "p3", kind: "openai-compatible", endpoint: "https://agent.example.com/v1", ceiling: "safe" }) };
@@ -184,10 +152,6 @@ ok("a tampered stored agent fails the trust check (identity digest mismatch)", b
 for (let i = 0; i < 10; i++) byoaRateGate.check("byoa.flood-probe");
 ok("the per-agent delegation rate ceiling is enforced", byoaRateGate.check("byoa.flood-probe") === false && /byoaRateGate\.check\(agent\.id\)/.test(byoaSrc));
 ok("response containment: external replies are injection-scanned and the receipt is a scoped delegation token", /detectInjection\(detail\)/.test(byoaSrc) && /vh\.byoa\.delegation\.v1/.test(byoaSrc));
-
-section("4. the bench management surface lists real specialists");
-ok("the toggle handler is wired", /setSpecialistEnabled/.test(doorSrc));
-ok("the router only fields enabled specialists (stated in the door)", html.includes("the router only fields enabled specialists") || doorSrc.includes("the router only fields enabled specialists"));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); }

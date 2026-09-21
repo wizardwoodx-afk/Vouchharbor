@@ -22,8 +22,11 @@ function ok(label: string, cond: boolean, detail = ""): void {
 import { seedPositions, simulate, simulateStep, project, makeNode, Graph3D, type G3Node, type G3Edge } from "../src/vh19/graph3d";
 
 const fs = await import("node:fs");
-const consoleSrc = fs.readFileSync(path.join(ROOT, "src/views/NextConsole.tsx"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "src/styles/vh-next.css"), "utf8");
+/* 19.7.12 (UI): the product renders its graphs with 3d-force-graph (WebGL) in
+   src/ui/graph/ForceGraph.tsx; the zero-dependency vh19/graph3d engine stays as the
+   deterministic layout/projection library (used by the offline pack and receipts). */
+const consoleSrc = fs.readFileSync(path.join(ROOT, "src/ui/graph/ForceGraph.tsx"), "utf8");
+const css = fs.readFileSync(path.join(ROOT, "src/ui/vh.css"), "utf8");
 
 function graphA(): { nodes: G3Node[]; edges: G3Edge[] } {
   const nodes = [makeNode("gst", "GST", 5), makeNode("recon", "reconciliation", 3), makeNode("tds", "TDS", 2), makeNode("itr", "ITR", 1)];
@@ -68,20 +71,21 @@ function main(): void {
   ok("projection is centered at origin", Math.abs(pd.x - 400) < 0.001 && Math.abs(pd.y - 200) < 0.001);
 
   /* renderer wiring in the console */
-  ok("the console mounts Graph3DView (canvas), not a static SVG", consoleSrc.includes("<Graph3DView") && !consoleSrc.includes("svg viewBox=\"0 0 660 340\""));
+  ok("the product mounts a live WebGL graph (3d-force-graph), not a static SVG", consoleSrc.includes('import("3d-force-graph")') && !consoleSrc.includes("svg viewBox=\"0 0 660 340\""));
+  ok("the graph library is loaded lazily inside the mount effect (SSR/node-safe)", !/^import (?!type )[^;]*3d-force-graph/m.test(consoleSrc));
   ok("canvas carries the interaction contract (drag/zoom handlers in the engine)",
     (() => { const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8"); return src.includes("pointerdown") && src.includes("pointermove") && src.includes("wheel") && src.includes("idleUntil"); })());
   ok("the house finish is pinned: silver specular → graphite → glossy black stops",
     (() => { const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8"); return src.includes("236, 239, 244") && src.includes("52, 56, 66") && src.includes("8, 9, 12"); })());
   ok("edge styling is depth-faded silver", (() => { const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8"); return src.includes("rgba(200, 205, 214,"); })());
-  ok("graph plane hint tells the user how to move it", consoleSrc.includes("drag to rotate · scroll to zoom"));
+  ok("the graph is genuinely interactive — orbit controls, drag, zoom and rotation are wired", /enableNodeDrag|onNodeDrag|controls\(\)/.test(consoleSrc) && /autoRotate|rot/.test(consoleSrc));
   ok("zero-dependency engine (no three.js, no d3 import/require)", (() => {
     const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8");
     const imports = src.match(/^import[^;]*;/gm)?.join("\n") ?? "";
     return !imports.includes("three") && !imports.includes("d3") && !src.includes('require("three")') && !src.includes('require("d3');
   })());
-  ok("package.json gains no graph dependency", (() => { const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")); const deps = { ...pkg.dependencies, ...pkg.devDependencies }; return !Object.keys(deps).some((d) => /three|d3|force-graph|sigma/.test(d)); })());
-  ok("noir canvas ground is glossy black", css.includes("#0b0c10") || consoleSrc.includes("#0b0c10"));
+  ok("package.json gains exactly one graph dependency (3d-force-graph) and no d3/three direct dep", (() => { const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")); const deps = { ...pkg.dependencies, ...pkg.devDependencies }; const g = Object.keys(deps).filter((d) => /three|d3|force-graph|sigma/.test(d)); return g.length === 1 && g[0] === "3d-force-graph"; })());
+  ok("the graph canvas sits on the house dark ground (#0D1010) — no blue, no flat black", /#0D1010/i.test(css) && !/#000000\b/.test(css));
 
   /* the engine class exposes view state and disposes cleanly */
   ok("Graph3D exposes view + dispose (lifecycle)", typeof Graph3D.prototype.dispose === "function" && typeof Graph3D.prototype.view === "object");

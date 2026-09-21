@@ -162,9 +162,9 @@ async function verifyIssuerSignature(chainHashHex, sigHex, publicKeyHex) {
 }
 
 // src/version.ts
-var VH_VERSION = "19.7.10.1";
+var VH_VERSION = "19.7.12";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Screenwright";
+var VH_CODENAME = "Keyholder";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // src/mission/securityReview.ts
@@ -340,7 +340,8 @@ test("securityReview \u2014 the artifact is real, signed and honest about its li
   } else {
     assert.ok(v.reasons.some((r) => /UNSIGNED/i.test(r)), "the unsigned path is stated in words");
   }
-  const audit = fs.readFileSync(path.join(root, "src", "pages", "AuditPage.tsx"), "utf8");
-  assert.ok(audit.includes("buildSecurityReview"), "Audit door builds the artifact");
-  assert.ok(audit.includes("vh-security-review"), "Audit door names the wire format");
+  const mod = fs.readFileSync(path.join(root, "src", "mission", "securityReview.ts"), "utf8");
+  assert.ok(mod.includes("export async function buildSecurityReview"), "the artifact builder is exported at the seam");
+  assert.ok(mod.includes('"vh-security-review/1"'), "the seam names the wire format");
+  assert.ok(!fs.existsSync(path.join(root, "src", "pages", "AuditPage.tsx")), "the retired Audit page is gone (19.7.12 UI)");
 });

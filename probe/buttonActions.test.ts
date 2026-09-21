@@ -45,8 +45,12 @@ describe("buttonActions — Patina primary buttons mutate real state", () => {
     assert.strictEqual(vouchSession().activeThreadId, id, "the new thread becomes active");
     // App dispatches vh:focus-helm — source-pinned here because CustomEvent
     // lives on window (the action body literally dispatches it).
-    const harborSrc = read("src/app/harbor.tsx");
-    assert.ok(/vh:focus-helm/.test(harborSrc), "launchVoyage dispatches the helm-focus event");
+    // 19.7.12 (UI): the Patina shell (src/app/harbor.tsx) is retired; "New mission"
+    // in the 19.7.12 sidebar resets the store and returns to the Steward.
+    const shellSrc = read("src/ui/Shell.tsx");
+    const storeSrc = read("src/ui/store.ts");
+    assert.ok(/New mission/.test(shellSrc) && /onClick=\{newMission\}/.test(shellSrc), "the sidebar carries New mission wired to the store");
+    assert.ok(/newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc), "newMission mutates real store state");
   });
 
   it("Re-rate — reports the REAL assurance score, never a headcount", () => {
@@ -101,10 +105,8 @@ describe("buttonActions — Patina primary buttons mutate real state", () => {
   });
 
   it("Import topology — Chart's JSON parser accepts the documented topology shape", () => {
-    const chartSrc = read("src/views/Chart.tsx");
-    assert.ok(/Array\.isArray\(data\?\.nodes\)/.test(chartSrc), "Chart guards on Array.isArray(data.nodes)");
-    assert.ok(/String\(n\.name\|\|'node'\)/.test(chartSrc), "Chart maps node.name through String()");
-    assert.ok(/fileRef/.test(chartSrc), "Chart wires a hidden file input for import");
+    // 19.7.12 (UI): the Chart view is retired with the Patina shell; the transform
+    // below remains the documented topology contract and is executed directly.
     // Execute the same transform Chart applies in onImportFile, over a
     // representative topology payload. This is the behavioral contract:
     //   nodes → {id,name,role,harness,x,y,underWeigh,kind} with safe defaults.

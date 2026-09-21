@@ -175,9 +175,13 @@ async function main(): Promise<void> {
   ok("a missing-binary pass never invoked a CLI and stays local", (nb as import("../src/mission/knowledgeSkills").KnowledgeProposal).dataHandling === "local");
   ok("a garbage-output pass DID invoke the CLI — provider, even though the answer was unusable", (gp as import("../src/mission/knowledgeSkills").KnowledgeProposal).dataHandling === "provider");
   ok("a crashing pass DID invoke the CLI — provider, honestly recorded", (tp as import("../src/mission/knowledgeSkills").KnowledgeProposal).dataHandling === "provider");
-  const pageSrc = fs.readFileSync(path.join(process.cwd(), "src/pages/LoopPage.tsx"), "utf8");
-  ok("the Loop page discloses provider-sent content before a cloud pass", pageSrc.includes("sends the document to that harness's configured model provider") && pageSrc.includes("Mechanical distillation is fully local"));
-  ok("proposal cards show the data-handling chip", pageSrc.includes("data: sent to provider") && pageSrc.includes("data: local"));
+  // 19.7.12 (UI): the Loop page is retired; the knowledge forge has no user door in the
+  // redesigned product. The disclosure now has to live where it cannot be lost — on the
+  // proposal record itself (dataHandling) — and any future door must render that field.
+  ok("the forge records dataHandling on EVERY proposal so a door cannot omit the disclosure", /dataHandling/.test(forgeSrc) && /"provider"/.test(forgeSrc) && /"local"/.test(forgeSrc));
+  ok("no retired Loop page ships", !fs.existsSync(path.join(process.cwd(), "src/pages/LoopPage.tsx")));
+  ok("the forge itself states what a cloud pass does with the document", /(never left|content went|sent to)/.test(forgeSrc));
+  ok("the two data-handling values are exactly local | provider", /"local"/.test(forgeSrc) && /"provider"/.test(forgeSrc));
   ok("positioning is honest: no claim that extraction proves the knowledge correct", !forgeSrc.includes("the provable way") && /structured knowledge proposals|extract structure, not summaries/.test(forgeSrc), "wording drifted");
 
   section("3c. 12.2.0 — provider precision: vendor + endpoint class, no guessing");

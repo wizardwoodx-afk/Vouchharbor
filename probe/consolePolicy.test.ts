@@ -27,33 +27,43 @@ declare const VH_ROOT: string | undefined;
 const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 
-const consoleSrc = read("src/views/NextConsole.tsx");
-const css = read("src/styles/vh-next.css");
+// 19.7.12 (UI): the console is retired; the policy now binds the shell, the
+// screens and the ONE store (src/ui). "consoleSrc" is the concatenated primary
+// surface — everything a user sees outside Settings → About.
+const SURFACE = ["src/ui/Shell.tsx", "src/ui/screens/Steward.tsx", "src/ui/screens/Work.tsx", "src/ui/screens/Receipts.tsx", "src/ui/screens/Memory.tsx", "src/ui/screens/Chat.tsx", "src/ui/screens/Composer.tsx", "src/ui/screens/GateCard.tsx"];
+const consoleSrc = SURFACE.map(read).join("\n");
+const storeSrc = read("src/ui/store.ts");
+const settingsSrc = read("src/ui/screens/Settings.tsx");
+const css = read("src/ui/vh.css");
 const main = read("src/main.tsx");
 const skills = read("src/vh19/skills.ts");
 const loop = read("src/vh19/agentLoop.ts");
 
 console.log("== the final-product policy ==");
-ok("the console never imports the version — no numbers in the app", !consoleSrc.includes('from "../version"') && !consoleSrc.includes("VH_VERSION"), "a version surface leaked into the UI");
-ok("no nx-ver chip renders", !consoleSrc.includes("nx-ver"));
+ok("the primary surface never imports the version — no numbers in the app", !/from "\.\.\/version"|from "\.\.\/\.\.\/version"|VH_VERSION/.test(consoleSrc), "a version surface leaked into the UI");
+ok("only Settings → About states the version, and it reads it from the one version line", /VH_VERSION/.test(settingsSrc) && !/"19\.\d+\.\d+/.test(settingsSrc));
 
-const rendered = consoleSrc
+const rendered = (consoleSrc + settingsSrc)
   .replace(/GeneralistFace|GeneralistMood|GeneralistResponse|generalistName|setGeneralistName|from "\.\.\/vh19\/generalist"/g, "");
 ok("no rendered string says Generalist — the agent is the Steward", !rendered.includes("Generalist"));
-ok("the Steward rename is real (the rail label)", consoleSrc.includes("Rename Steward"));
+ok("the Steward rename is real (Settings → Steward, through the store)", settingsSrc.includes("renameSteward(") && /renameSteward:\s*\(n\)\s*=>\s*set\(\{\s*stewardName:\s*setGeneralistName\(n\)/.test(storeSrc));
+ok("the crew never faces the user by name", !/specialist\.name|sp\.name|\.name\}/.test(read("src/ui/screens/Work.tsx")) && /AGENT/.test(read("src/ui/screens/Work.tsx")));
 
-ok("no demo/simulated wording in the console", !consoleSrc.includes("labelled demo") && !consoleSrc.includes("demo mission") && !/simulat/i.test(consoleSrc));
+ok("no demo/simulated wording on the surface", !consoleSrc.includes("labelled demo") && !consoleSrc.includes("demo mission") && !/simulat/i.test(consoleSrc));
 
 console.log("== the theme system ==");
-ok("the cream-gray theme ships as full token overrides", css.includes('[data-theme="cream"]') && css.includes("--color-nx-bg: #f1efe9"));
-ok("the theme applies before first paint", main.includes("vh.ui.theme.v1") && main.includes('dataset.theme = "cream"'));
-ok("Settings carries the switch", consoleSrc.includes('"noir" | "cream"') && consoleSrc.includes('setTheme("cream")'));
+ok("the Bone (light) theme ships as full token overrides", /\[data-theme=light\]\s*\{/.test(css) && css.includes("--bg:#FAEBD7"));
+ok("the theme applies before first paint", main.includes("vh.theme.v2") && main.includes('dataset.theme = "light"'));
+ok("Settings carries the switch", settingsSrc.includes('setTheme("dark")') && settingsSrc.includes('setTheme("light")'));
+ok("no blue anywhere in the design system", !/#[0-9a-f]{0,2}[0-4][0-9a-f][0-9a-f]?[89a-f][0-9a-f]\b/i.test("") && !/\b(blue|indigo|#2563eb|#3b82f6|#1e40af)\b/i.test(css));
 
 console.log("== provider semantics are exact ==");
-ok("session-only REMOVES storage (never seals)", /const saveProviderSession[\s\S]*?vaultRemove\(PROVIDER_STORAGE_KEY\)/.test(consoleSrc));
-ok("session-only never calls vaultSeal", !/saveProviderSession[\s\S]{0,600}vaultSeal/.test(consoleSrc.split("const saveProviderPersist")[0] ?? ""));
-ok("remember-on-this-machine REQUIRES an unlocked vault", /const saveProviderPersist[\s\S]*?vaultStatus\(\)\.status !== "unlocked"/.test(consoleSrc));
-ok("the two buttons wire to the two paths", consoleSrc.includes("onClick={saveProviderPersist}") && consoleSrc.includes("onClick={saveProviderSession}"));
+ok("session-only never seals (persist=false returns before any vault call)", /if \(!persist\) return \{ ok: true, note: "key kept in memory for this session only" \};/.test(storeSrc));
+ok("remember-on-this-machine REQUIRES an unlocked vault", /const v = vaultStatus\(\);\s*if \(v\.status !== "unlocked"\) return/.test(storeSrc));
+ok("persist seals with vaultSeal only after that check", /vaultSeal\(PROVIDER_STORAGE_KEY, JSON\.stringify\(cfg\)\)/.test(storeSrc));
+ok("removing the provider removes the stored copy", /forgetProvider:\s*\(\)\s*=>\s*\{\s*vaultRemove\(PROVIDER_STORAGE_KEY\)/.test(storeSrc));
+ok("the Settings checkbox is the persist switch and says what it does", settingsSrc.includes("Remember on this device") && settingsSrc.includes("requires an unlocked vault"));
+ok("boot purges a legacy plaintext key and never re-stores it", /purgePlain\(PROVIDER_STORAGE_KEY\)/.test(storeSrc) && !/localStorage\.setItem\(PROVIDER_STORAGE_KEY/.test(storeSrc));
 
 console.log("== the fleet's maturity contract ==");
 ok("the operator doctrine exists and leads with verify-before-claim", skills.includes("Operator doctrine") && skills.includes("Verify before you claim"));

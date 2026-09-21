@@ -15259,18 +15259,17 @@ describe("coordination feed + playground", () => {
   });
 });
 describe("the wiring is structural", () => {
-  it("the door renders the Teammates desk with the labelled demo button", () => {
-    const src = fs.readFileSync(path.join(ROOT, "src", "views", "Vh19.tsx"), "utf8");
-    assert.ok(src.includes("Teammates \xB7 mission crew"), "desk title names the mission crew (final run state, not streaming)");
-    assert.ok(src.includes("Run sample mission (labelled demo)"));
-    assert.ok(src.includes("teammatesFromResponse"));
-    assert.ok(src.includes("trace digest {d.slice"), "card labels the sha256 digest precisely");
-    assert.ok(!src.includes("signed trace {d.slice"), "never relabelled a digest as a signature");
-    assert.ok(src.includes("authorityNote"), "the ECDSA authority line renders when the mandate exists");
+  it("Work renders the crew from the real response \u2014 anonymous agents, digests labelled as digests (19.7.12 UI)", () => {
+    const src = fs.readFileSync(path.join(ROOT, "src", "ui", "screens", "Work.tsx"), "utf8");
+    assert.ok(src.includes("memberRuns") && src.includes("toolReceipts"), "built from the real GeneralistResponse");
+    assert.ok(/AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(src), "agents are AGENT nn \u2014 the crew never faces the user by name");
+    assert.ok(src.includes("receipt ${t.digest.slice(0, 8)}"), "a digest is labelled receipt/digest, precisely");
+    assert.ok(!src.includes("signed trace"), "never relabelled a digest as a signature");
+    assert.ok(!src.includes("labelled demo"), "no demo button in the product \u2014 Work shows real runs only");
   });
-  it("the premium system ships the crew styles", () => {
-    const css = fs.readFileSync(path.join(ROOT, "src", "styles", "minimal.css"), "utf8");
-    assert.ok(css.includes(".tm-card") && css.includes(".tm-grid"));
+  it("the design system ships the Work graph + gate styles", () => {
+    const css = fs.readFileSync(path.join(ROOT, "src", "ui", "vh.css"), "utf8");
+    assert.ok(css.includes(".gate-float") && css.includes(".legend"));
   });
   it("the module states the honesty difference (shown vs signed) and the run-derived framing", () => {
     const src = fs.readFileSync(path.join(ROOT, "src", "vh19", "teammates.ts"), "utf8");

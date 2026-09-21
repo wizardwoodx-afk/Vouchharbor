@@ -211,9 +211,10 @@ describe("merge — one mission ID, one chain, one state (16.0)", () => {
 
   it("the shell join: the app mounts the Federation Console and it drives the real engine (19.6.6)", () => {
     const app = read("src/App.tsx");
-    assert.ok(/from\s*['"]\.\/views\/NextConsole['"]/.test(app), "the app mounts the Federation Console");
-    assert.ok(/<NextConsole\s*\/>/.test(app), "the console IS the app shell");
-    assert.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")), "the console drives the real askVH19 engine path");
+    // 19.7.12 (UI): the shell is src/ui/Shell.tsx; the one store drives the engine.
+    assert.ok(/from\s*['"]\.\/ui\/Shell['"]/.test(app), "the app mounts the 19.7.12 shell");
+    assert.ok(/<Shell\s*\/>/.test(app), "the shell IS the app");
+    assert.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/ui/store.ts")), "the ui store drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json")) as { name: string; version: string };
     assert.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
     assert.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");

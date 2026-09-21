@@ -13,9 +13,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -33254,7 +33254,7 @@ async function verifyMissionAuthorityRecord(rec, expectedMandateDigest, now = Da
 
 // src/vh19/reachMcp.ts
 var REACH_MCP_NAME = "Agent Reach MCP";
-var REACH_MCP_VERSION = "19.7.10.1";
+var REACH_MCP_VERSION = "19.7.12";
 var REACH_MCP_DEFAULT_POLICY = {
   allowlist: ["ls", "cat", "echo", "grep"],
   maxRuntimeMs: 5e3,

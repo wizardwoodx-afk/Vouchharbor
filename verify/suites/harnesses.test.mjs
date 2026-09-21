@@ -14,9 +14,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -8860,7 +8860,6 @@ var read = (p) => {
   if (fs.existsSync(history)) return fs.readFileSync(history, "utf8");
   return fs.readFileSync(direct, "utf8");
 };
-var teams = read("src/pages/TeamsPage.tsx");
 var ipcSrc = read("src/ipc/client.ts");
 var runnerSrc = read("src/engine/harnessRunner.ts");
 var rust = read("src-tauri/src/commands.rs");
@@ -8961,9 +8960,9 @@ ok(
   v1171.filter((id) => !AGENT_CAPABILITIES[id] || AGENT_CAPABILITIES[id].prompt.confidence !== "docs").join(", ") || "entry without a docs-graded prompt shape"
 );
 ok(
-  "HARNESS_BADGES in TeamsPage covers every id",
-  ids.every((id) => teams.includes(`${id}: { label:`)),
-  ids.filter((id) => !teams.includes(`${id}: { label:`)).join(", ")
+  "every harness id carries a human name in the registry (the retired TeamsPage badge table is no longer the source)",
+  HARNESSES.every((h) => typeof h.name === "string" && h.name.length > 0),
+  HARNESSES.filter((h) => !h.name).map((h) => h.id).join(", ")
 );
 var rustDetectIds = ["hermes", "claude", "codex", "opencode", "openclaude", "copilot", "cursor", "grok", "cline", "kilo", "aider", "gemini", "antigravity", "amp", "crush", "openhands", "qwen", "goose", "amazonq", "droid", "kimi", "auggie", "warp"];
 ok("the Rust detect list covers every executable harness", rustDetectIds.every((id) => rust.includes(`("${id}",`)), rustDetectIds.filter((id) => !rust.includes(`("${id}",`)).join(", "));
@@ -9028,13 +9027,9 @@ ok(
   ipcSrc.includes("customHarnessList") && ipcSrc.includes("customHarnessSave") && ipcSrc.includes("customHarnessDelete") && ipcSrc.includes("vouch.customHarnesses")
 );
 section("4. the Connect tab and the runtime path");
-ok('"connect" is a Teams tab', teams.includes('type ActiveTab = "connect" |'));
-ok("the Connect tab button is first in the row", teams.includes('activeTab === "connect" ? "primary" : ""'));
-ok("the panel smoke-tests harnesses via cliInvoke", teams.includes("Reply with exactly one word: CONNECTED"));
-ok("the panel shows the web-preview limitation honestly", teams.includes("You are in the web preview."));
-ok("the add-custom form validates before saving", teams.includes("validateCustomHarness(spec)"));
-ok("the seat picker offers custom harnesses", teams.includes("(custom)</option>"));
-ok("the custom registry hydrates the sync mirror for composeSeatArgv", teams.includes("mirrorCustomHarnesses(entries)"));
+ok("19.7.12 (UI): no Teams/Connect page ships \u2014 the crew is internal", !fs.existsSync(path3.join(process.cwd(), "src/pages/TeamsPage.tsx")) && !fs.existsSync(path3.join(process.cwd(), "src/pages")));
+ok("the custom-harness validator still exists in the domain (validateCustomHarness)", typeof validateCustomHarness === "function" && /export function validateCustomHarness\(/.test(read("src/domain/harness.ts")));
+ok("no orphan of the retired page survives (mirrorCustomHarnesses left with TeamsPage)", !/mirrorCustomHarnesses/.test(read("src/domain/harness.ts") + ipcSrc + agentTeamSrc + runnerSrc));
 ok(
   "19.7.4 [Crew]: the runner is a label desk \u2014 custom ids resolve to the native runtime, nothing spawns",
   runnerSrc.includes("isCustomHarness(raw)") && runnerSrc.includes("RETIRED_REFUSAL") && runnerSrc.includes("isRetiredHarness(raw)"),

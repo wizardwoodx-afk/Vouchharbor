@@ -302,8 +302,8 @@ function ok(label, cond, detail = "") {
   }
 }
 var fs = await import("node:fs");
-var consoleSrc = fs.readFileSync(path.join(ROOT, "src/views/NextConsole.tsx"), "utf8");
-var css = fs.readFileSync(path.join(ROOT, "src/styles/vh-next.css"), "utf8");
+var consoleSrc = fs.readFileSync(path.join(ROOT, "src/ui/graph/ForceGraph.tsx"), "utf8");
+var css = fs.readFileSync(path.join(ROOT, "src/ui/vh.css"), "utf8");
 function graphA() {
   const nodes = [makeNode("gst", "GST", 5), makeNode("recon", "reconciliation", 3), makeNode("tds", "TDS", 2), makeNode("itr", "ITR", 1)];
   const edges = [{ a: "gst", b: "recon", weight: 3 }, { a: "gst", b: "tds", weight: 1 }, { a: "recon", b: "itr", weight: 1 }];
@@ -352,7 +352,8 @@ function main() {
   const zoomed = project(probe, 0, 0, 620, 800, 400, 2);
   ok("zoom scales the projection", Math.abs(zoomed.x - 400) > Math.abs(atYaw0.x - 400) * 1.8);
   ok("projection is centered at origin", Math.abs(pd.x - 400) < 1e-3 && Math.abs(pd.y - 200) < 1e-3);
-  ok("the console mounts Graph3DView (canvas), not a static SVG", consoleSrc.includes("<Graph3DView") && !consoleSrc.includes('svg viewBox="0 0 660 340"'));
+  ok("the product mounts a live WebGL graph (3d-force-graph), not a static SVG", consoleSrc.includes('import("3d-force-graph")') && !consoleSrc.includes('svg viewBox="0 0 660 340"'));
+  ok("the graph library is loaded lazily inside the mount effect (SSR/node-safe)", !/^import (?!type )[^;]*3d-force-graph/m.test(consoleSrc));
   ok(
     "canvas carries the interaction contract (drag/zoom handlers in the engine)",
     (() => {
@@ -371,18 +372,19 @@ function main() {
     const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8");
     return src.includes("rgba(200, 205, 214,");
   })());
-  ok("graph plane hint tells the user how to move it", consoleSrc.includes("drag to rotate \xB7 scroll to zoom"));
+  ok("the graph is genuinely interactive \u2014 orbit controls, drag, zoom and rotation are wired", /enableNodeDrag|onNodeDrag|controls\(\)/.test(consoleSrc) && /autoRotate|rot/.test(consoleSrc));
   ok("zero-dependency engine (no three.js, no d3 import/require)", (() => {
     const src = fs.readFileSync(path.join(ROOT, "src/vh19/graph3d.ts"), "utf8");
     const imports = src.match(/^import[^;]*;/gm)?.join("\n") ?? "";
     return !imports.includes("three") && !imports.includes("d3") && !src.includes('require("three")') && !src.includes('require("d3');
   })());
-  ok("package.json gains no graph dependency", (() => {
+  ok("package.json gains exactly one graph dependency (3d-force-graph) and no d3/three direct dep", (() => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    return !Object.keys(deps).some((d) => /three|d3|force-graph|sigma/.test(d));
+    const g = Object.keys(deps).filter((d) => /three|d3|force-graph|sigma/.test(d));
+    return g.length === 1 && g[0] === "3d-force-graph";
   })());
-  ok("noir canvas ground is glossy black", css.includes("#0b0c10") || consoleSrc.includes("#0b0c10"));
+  ok("the graph canvas sits on the house dark ground (#0D1010) \u2014 no blue, no flat black", /#0D1010/i.test(css) && !/#000000\b/.test(css));
   ok("Graph3D exposes view + dispose (lifecycle)", typeof Graph3D.prototype.dispose === "function" && typeof Graph3D.prototype.view === "object");
   console.log(`
 ${passed} passed, ${failed} failed`);

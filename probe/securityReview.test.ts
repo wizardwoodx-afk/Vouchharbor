@@ -69,7 +69,9 @@ test("securityReview — the artifact is real, signed and honest about its limit
   }
 
   // 6. the artifact is reachable from the Audit door (the composition is wired)
-  const audit = fs.readFileSync(path.join(root, "src", "pages", "AuditPage.tsx"), "utf8");
-  assert.ok(audit.includes("buildSecurityReview"), "Audit door builds the artifact");
-  assert.ok(audit.includes("vh-security-review"), "Audit door names the wire format");
+  // 19.7.12 (UI): this page was unmounted dead code since 19.6.6 and is now deleted; pin the seam it wrapped.
+  const mod = fs.readFileSync(path.join(root, "src", "mission", "securityReview.ts"), "utf8");
+  assert.ok(mod.includes("export async function buildSecurityReview"), "the artifact builder is exported at the seam");
+  assert.ok(mod.includes('"vh-security-review/1"'), "the seam names the wire format");
+  assert.ok(!fs.existsSync(path.join(root, "src", "pages", "AuditPage.tsx")), "the retired Audit page is gone (19.7.12 UI)");
 });

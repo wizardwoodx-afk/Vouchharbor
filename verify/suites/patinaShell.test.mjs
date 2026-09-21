@@ -1,9 +1,10 @@
 import { createRequire as __mjCreateRequire } from "node:module"; const require = __mjCreateRequire(import.meta.url);
 
 // probe/patinaShell.test.ts
-import * as fs from "node:fs";
-import * as path from "node:path";
+import fs from "node:fs";
+import path from "node:path";
 var root = ".".length > 0 ? "." : process.cwd();
+var read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
 var passed = 0;
 var failed = 0;
 var failures = [];
@@ -21,61 +22,68 @@ function section(name) {
   console.log(`
 == ${name}`);
 }
-section("0. Patina shell files exist");
+section("0. the 19.7.12 shell files exist \u2014 and the retired shells do not");
 var SHELL_FILES = [
   "src/App.tsx",
-  "src/app/harbor.tsx",
-  // the single runtime bridge
-  "src/app/Sidebar.tsx",
-  "src/app/Helm.tsx",
-  "src/views/Harbor.tsx",
-  "src/views/Ship.tsx",
-  "src/views/Chart.tsx",
-  "src/views/Register.tsx",
-  "src/views/HarborMaster.tsx"
+  "src/main.tsx",
+  "src/ui/Shell.tsx",
+  "src/ui/store.ts",
+  "src/ui/vh.css",
+  "src/ui/graph/ForceGraph.tsx",
+  "src/ui/screens/Steward.tsx",
+  "src/ui/screens/Work.tsx",
+  "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Memory.tsx",
+  "src/ui/screens/Settings.tsx",
+  "src/ui/screens/Chat.tsx",
+  "src/ui/screens/GateCard.tsx",
+  "src/ui/screens/Composer.tsx"
 ];
 for (const f of SHELL_FILES) ok(`${f} exists`, fs.existsSync(path.join(root, f)));
-section("1. harbor.tsx is the ONLY runtime bridge \u2014 views do NOT bypass it");
-var viewFiles = SHELL_FILES.filter((f) => f.startsWith("src/views/"));
-for (const vf of viewFiles) {
-  const src = fs.readFileSync(path.join(root, vf), "utf8");
-  const nonTypeImports = src.split("\n").filter((l) => l.trim().startsWith("import ") && !/^import\s+type\s/.test(l.trim())).join("\n");
-  const reachesEngineDirect = /from ['"]\.\.\/(vouch|mission|engine|graph|domain|canvas)\//.test(nonTypeImports);
-  ok(`${vf} reaches the engine only through app/harbor`, !reachesEngineDirect, reachesEngineDirect ? "imports engine directly at runtime" : "");
+var RETIRED = ["src/views", "src/pages", "src/styles", "src/app/harbor.tsx", "src/app/Sidebar.tsx", "src/app/Helm.tsx", "src/panels/Splash.tsx", "src/panels/Onboarding.tsx"];
+for (const f of RETIRED) ok(`${f} is gone (no second UI in the tree)`, !fs.existsSync(path.join(root, f)));
+section("1. App mounts the shell and nothing else");
+var appSrc = read("src/App.tsx");
+ok("App imports Shell from ./ui/Shell", /from\s*["']\.\/ui\/Shell["']/.test(appSrc));
+ok("App renders <Shell />", /<Shell\s*\/>/.test(appSrc));
+ok("no retired shell import survives in App", !/NextConsole|views\/|pages\/|Sidebar|Helm/.test(appSrc));
+var mainSrc = read("src/main.tsx");
+ok("main imports exactly one stylesheet (ui/vh.css)", (mainSrc.match(/import\s+['"][^'"]+\.css['"]/g) ?? []).length === 1 && /ui\/vh\.css/.test(mainSrc));
+ok("no boot splash in index.html", !/vh-boot|@keyframes/.test(read("index.html")));
+section("2. the store is the ONLY path to the engine \u2014 screens never bypass it");
+var storeSrc = read("src/ui/store.ts");
+ok("the store drives askVH19", /import\s*\{\s*askVH19\s*\}\s*from\s*["']\.\.\/vh19\/generalist["']/.test(storeSrc) && /await askVH19\(/.test(storeSrc));
+ok("the store passes the human gate into the engine", /gate:\s*gateFn/.test(storeSrc) && /gate:\s*\{\s*ask,\s*resolve/.test(storeSrc));
+ok("the store records handoffs", /onHandoff:\s*\(h\)\s*=>\s*\{\s*recordHandoff\(h\)/.test(storeSrc));
+ok("the store ingests memory after every run (idempotent by session id)", /ingestSession\(all,\s*\{\s*id:\s*s\.chatSessionId/.test(storeSrc));
+for (const f of SHELL_FILES.filter((x) => x.startsWith("src/ui/screens/"))) {
+  const src = read(f);
+  ok(`${f} never imports the generalist engine directly`, !/vh19\/generalist/.test(src));
+  ok(`${f} never touches the provider vault directly`, !/vh19\/vault/.test(src));
 }
-section("2. every button with a 'primary' intent has an onClick/onSubmit handler");
-var allViewSources = SHELL_FILES.map((f) => ({ f, s: fs.readFileSync(path.join(root, f), "utf8") }));
-var buttonRe = /<button[^>]*className="[^"]*btn-primary[^"]*"[^>]*>/g;
-for (const { f, s } of allViewSources) {
-  const matches = [...s.matchAll(buttonRe)];
-  for (const m of matches) {
-    const tag = m[0];
-    const hasHandler = /onClick=\{/.test(tag) || /onSubmit=\{/.test(tag) || /type="submit"/.test(tag);
-    ok(`${f}: primary button has handler`, hasHandler, tag.slice(0, 120));
-  }
-}
-section("3. the four differentiator panels are present");
-var hb = fs.readFileSync(path.join(root, "src/views/HarborMaster.tsx"), "utf8");
-ok("HarborMaster has a Sweep tab (Ghost Agent Sweep)", /'Sweep'/.test(hb) && /Ghost Agent Sweep/.test(hb));
-ok("HarborMaster has a Backtest tab (Drill + Replay Bench)", /'Backtest'/.test(hb) && /Backtest Bench/.test(hb));
-ok("HarborMaster Lineage shows the Delegation Chain", /Delegation Chain/.test(hb));
-var reg = fs.readFileSync(path.join(root, "src/views/Register.tsx"), "utf8");
-ok("Register has the Hindsight Ledger", /Hindsight Ledger/.test(reg));
-section("4. the console submits through the real engine (askVH19) \u2014 19.6.6 redesign");
-var appSrc = fs.readFileSync(path.join(root, "src/App.tsx"), "utf8");
-var consoleSrc = fs.readFileSync(path.join(root, "src/views/NextConsole.tsx"), "utf8");
-ok("App mounts the Federation Console as the whole shell", /<NextConsole\s*\/>/.test(appSrc));
-ok("the console sends through askVH19 on Enter (not just a pretty input)", /import\s*\{\s*askVH19\s*\}/.test(consoleSrc) && /if \(e\.key === "Enter"\) void send\(\)/.test(consoleSrc));
-section("5. semantic 'action' buttons actually call domain actions");
-var harborSrc = fs.readFileSync(path.join(root, "src/app/harbor.tsx"), "utf8");
-ok("musterHand calls harborMusterHand (real seat creation)", /harborMusterHand/.test(harborSrc));
-ok("rerate calls harborRerate (not a forceRender no-op)", /harborRerate/.test(harborSrc));
-ok("Verify button calls verifyVouchReceipt", /verifyVouchReceipt/.test(harborSrc));
-ok("Run the drill calls runDrill", /runDrill/.test(harborSrc));
-ok("Add provider calls addProvider", /addProvider/.test(harborSrc));
-section("6. no simulated/mock timeline claims ship in the Patina shell");
-var timelineExists = fs.existsSync(path.join(root, "src/app/timeline.ts"));
-ok("old simulated timeline.ts is absent (replaced by harbor.tsx)", !timelineExists);
+section("3. the human gate: approve or refuse \u2014 never a silent skip");
+var gate = read("src/ui/screens/GateCard.tsx");
+ok("the gate card offers Approve once", /Approve once/.test(gate) && /decideGate\(\{\s*approved:\s*true\s*\}\)/.test(gate));
+ok("refusal carries a reason into the receipt", /decideGate\(\{\s*approved:\s*false,\s*reason:/.test(gate));
+ok("the gate names the risk tier", /riskTier/.test(gate));
+ok("Work floats the gate over the graph", /gate-float/.test(read("src/ui/screens/Work.tsx")) && /<GateCard\s*\/>/.test(read("src/ui/screens/Work.tsx")));
+ok("the store resolves exactly the pending gate", /decideGate:\s*\(d\)\s*=>\s*\{\s*const g = get\(\)\.gate;\s*if \(!g\) return;\s*set\(\{\s*gate:\s*null\s*\}\);\s*g\.resolve\(d\)/.test(storeSrc));
+section("4. every primary action is wired to real state");
+var shell = read("src/ui/Shell.tsx");
+ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc));
+ok("the five doors are Steward \xB7 Work \xB7 Receipts \xB7 Memory \xB7 Settings", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d) => new RegExp(`label:\\s*"${d}"`).test(shell)));
+ok("the crew never faces the user by name \u2014 Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
+var composer = read("src/ui/screens/Composer.tsx");
+ok("Enter sends (Shift+Enter breaks a line)", /e\.key === "Enter" && !e\.shiftKey/.test(composer) && /onSend\(\)/.test(composer));
+var settings = read("src/ui/screens/Settings.tsx");
+ok("Settings connects a provider through the store", /setProvider\(\{\s*kind,\s*baseUrl/.test(settings));
+ok("Settings creates/unlocks the vault through the store", /createVault\(pass\)/.test(settings) && /unlockVault\(pass\)/.test(settings));
+ok("the Memory door opens a remembered conversation on double-click", /onNodeDoubleClick=\{open\}/.test(read("src/ui/screens/Memory.tsx")) && /openConversation\(/.test(read("src/ui/screens/Memory.tsx")));
+section("5. two graphs, deliberately different");
+var fg = read("src/ui/graph/ForceGraph.tsx");
+ok("Work is a top-down DAG with arrows", /dagMode\(work \? "td"/.test(fg) && /linkDirectionalArrowLength\(work \? 3\.5 : 0\)/.test(fg));
+ok("Memory is an organic cluster (no DAG, no arrows, no particles)", /linkDirectionalParticles\(\(l\) => \(work \?/.test(fg));
+ok("the graph is a real OSS renderer (3d-force-graph), not a hand-rolled canvas", /from "3d-force-graph"/.test(fg));
 console.log(`
 ${passed} passed, ${failed} failed`);
 if (failed > 0) {

@@ -12,7 +12,7 @@ var SANCTIONED = /* @__PURE__ */ new Set([
   "src/vouch/engine/bridge.ts"
   // the adapter — gathers evidence, delegates to the scorer
 ]);
-var SURFACE_DIRS = ["src/views/", "src/panels/", "src/pages/", "src/app/"];
+var SURFACE_DIRS = ["src/ui/", "src/panels/", "src/app/"];
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
@@ -88,8 +88,8 @@ test("scoreSourceOfTruth \u2014 one metric has exactly one producer and one rend
     /assuranceEvidence\(\)/.test(bridge),
     "no evidence gatherer found"
   );
-  const kpiViews = files.filter((f) => /Safe harbor|Assurance score/.test(read(f)) && /useHarbor\(|state\.totals/.test(read(f)));
-  ok("the live-state KPI surfaces were found", kpiViews.length >= 2, `found ${kpiViews.length}`);
+  const kpiViews = files.filter((f) => /Safe harbor|Assurance score/.test(read(f)) && /useHarbor\(|state\.totals|assuranceKpi\(/.test(read(f)));
+  ok("no retired live-state KPI page survives (useHarbor is gone from the tree)", !files.some((f) => /useHarbor\(/.test(read(f))), files.filter((f) => /useHarbor\(/.test(read(f))).join(", "));
   const bypassing = kpiViews.filter((f) => !/assuranceKpi\(/.test(read(f)));
   ok(
     "every live-state assurance KPI renders via assuranceKpi()",

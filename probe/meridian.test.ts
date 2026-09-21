@@ -17,16 +17,19 @@ function ok(label: string, cond: boolean, detail = ""): void {
 
 declare const VH_ROOT: string | undefined;
 const ROOT = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
-const master = fs.readFileSync(path.join(ROOT, "src", "views", "HarborMaster.tsx"), "utf8");
-const register = fs.readFileSync(path.join(ROOT, "src", "views", "Register.tsx"), "utf8");
+/* 19.7.12 (UI): Harbor Master / Register were unmounted dead code since the
+   19.6.6 console and are now deleted. The meridian invariant survives at the
+   engine seams the tabs wrapped: the drill (Backtest) engine and the
+   delegation chain (Lineage) are real functions with reports, not UI props. */
+const drill = fs.readFileSync(path.join(ROOT, "src", "vouch", "engine", "drill.ts"), "utf8");
+const custody = fs.readFileSync(path.join(ROOT, "src", "mission", "custody.ts"), "utf8");
 
-ok("Harbor Master has the Sweep tab (Ghost Agent Sweep)", /'Sweep'/.test(master) && /Ghost Agent Sweep/.test(master), "missing sweep");
-ok("Harbor Master has the Backtest tab (Drill + Replay)", /'Backtest'/.test(master) && /Drill/.test(master) && /runDrill/.test(master), "missing backtest");
-ok("Harbor Master has the Lineage tab (Delegation Chain)", /'Lineage'/.test(master) && /Delegation Chain/.test(master), "missing lineage");
-ok("Register has the Hindsight Ledger", /Hindsight Ledger/.test(register), "missing hindsight");
-ok("Sweep actually runs when invoked", /runSweep|onClick=\{runSweep\}/.test(master), "sweep button inert");
-ok("Backtest actually invokes runDrill", /runDrill\(/.test(master), "drill button inert");
-ok("Windward allows adding a provider through the bridge", /actions\.addProvider|addProvider/.test(master), "add provider not wired");
+ok("the retired Harbor Master / Register views are gone", !fs.existsSync(path.join(ROOT, "src", "views")), "views tree still present");
+ok("Backtest — runDrill exists and writes a report", /export async function runDrill\(/.test(drill) && /export function drillReports\(/.test(drill), "drill seam missing");
+ok("Backtest — a tampered test file is a named canary, not silence", /export function testFileCanary\(/.test(drill) && /"tampered"/.test(drill), "canary missing");
+ok("Lineage — the delegation chain is signed custody, not a label", /delegationChain/.test(custody) && /export async function issueRootEnvelope\(/.test(custody), "delegation chain missing");
+ok("Lineage — no delegation may grow scope or outlive its parent", /scope/.test(custody) && /expiresAt/.test(custody), "bounds missing");
+ok("the governed door is the store: every run rides the gate + handoff recorder", (() => { const st = fs.readFileSync(path.join(ROOT, "src", "ui", "store.ts"), "utf8"); return /gate: gateFn/.test(st) && /recordHandoff\(h\)/.test(st); })(), "store not wired");
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); }

@@ -40,9 +40,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -26852,8 +26852,10 @@ describe3("buttonActions \u2014 Patina primary buttons mutate real state", () =>
     assert2.ok(id && id.length > 0, "newVouchThread returns a thread id");
     assert2.strictEqual(vouchThreads().length, before + 1, "a thread was added");
     assert2.strictEqual(vouchSession().activeThreadId, id, "the new thread becomes active");
-    const harborSrc = read("src/app/harbor.tsx");
-    assert2.ok(/vh:focus-helm/.test(harborSrc), "launchVoyage dispatches the helm-focus event");
+    const shellSrc = read("src/ui/Shell.tsx");
+    const storeSrc = read("src/ui/store.ts");
+    assert2.ok(/New mission/.test(shellSrc) && /onClick=\{newMission\}/.test(shellSrc), "the sidebar carries New mission wired to the store");
+    assert2.ok(/newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc), "newMission mutates real store state");
   });
   it("Re-rate \u2014 reports the REAL assurance score, never a headcount", () => {
     const before = harborRerate();
@@ -26911,10 +26913,6 @@ describe3("buttonActions \u2014 Patina primary buttons mutate real state", () =>
     }
   });
   it("Import topology \u2014 Chart's JSON parser accepts the documented topology shape", () => {
-    const chartSrc = read("src/views/Chart.tsx");
-    assert2.ok(/Array\.isArray\(data\?\.nodes\)/.test(chartSrc), "Chart guards on Array.isArray(data.nodes)");
-    assert2.ok(/String\(n\.name\|\|'node'\)/.test(chartSrc), "Chart maps node.name through String()");
-    assert2.ok(/fileRef/.test(chartSrc), "Chart wires a hidden file input for import");
     const payload = JSON.stringify({
       nodes: [
         { id: "helm", name: "Helm", role: "trigger", harness: "human", x: 40, y: 110, kind: "input" },

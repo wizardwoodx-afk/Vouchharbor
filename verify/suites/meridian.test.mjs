@@ -17,15 +17,17 @@ function ok(label, cond, detail = "") {
   }
 }
 var ROOT = ".".length > 0 ? "." : process.cwd();
-var master = fs.readFileSync(path.join(ROOT, "src", "views", "HarborMaster.tsx"), "utf8");
-var register = fs.readFileSync(path.join(ROOT, "src", "views", "Register.tsx"), "utf8");
-ok("Harbor Master has the Sweep tab (Ghost Agent Sweep)", /'Sweep'/.test(master) && /Ghost Agent Sweep/.test(master), "missing sweep");
-ok("Harbor Master has the Backtest tab (Drill + Replay)", /'Backtest'/.test(master) && /Drill/.test(master) && /runDrill/.test(master), "missing backtest");
-ok("Harbor Master has the Lineage tab (Delegation Chain)", /'Lineage'/.test(master) && /Delegation Chain/.test(master), "missing lineage");
-ok("Register has the Hindsight Ledger", /Hindsight Ledger/.test(register), "missing hindsight");
-ok("Sweep actually runs when invoked", /runSweep|onClick=\{runSweep\}/.test(master), "sweep button inert");
-ok("Backtest actually invokes runDrill", /runDrill\(/.test(master), "drill button inert");
-ok("Windward allows adding a provider through the bridge", /actions\.addProvider|addProvider/.test(master), "add provider not wired");
+var drill = fs.readFileSync(path.join(ROOT, "src", "vouch", "engine", "drill.ts"), "utf8");
+var custody = fs.readFileSync(path.join(ROOT, "src", "mission", "custody.ts"), "utf8");
+ok("the retired Harbor Master / Register views are gone", !fs.existsSync(path.join(ROOT, "src", "views")), "views tree still present");
+ok("Backtest \u2014 runDrill exists and writes a report", /export async function runDrill\(/.test(drill) && /export function drillReports\(/.test(drill), "drill seam missing");
+ok("Backtest \u2014 a tampered test file is a named canary, not silence", /export function testFileCanary\(/.test(drill) && /"tampered"/.test(drill), "canary missing");
+ok("Lineage \u2014 the delegation chain is signed custody, not a label", /delegationChain/.test(custody) && /export async function issueRootEnvelope\(/.test(custody), "delegation chain missing");
+ok("Lineage \u2014 no delegation may grow scope or outlive its parent", /scope/.test(custody) && /expiresAt/.test(custody), "bounds missing");
+ok("the governed door is the store: every run rides the gate + handoff recorder", (() => {
+  const st = fs.readFileSync(path.join(ROOT, "src", "ui", "store.ts"), "utf8");
+  return /gate: gateFn/.test(st) && /recordHandoff\(h\)/.test(st);
+})(), "store not wired");
 console.log(`
 ${passed} passed, ${failed} failed`);
 if (failed > 0) {

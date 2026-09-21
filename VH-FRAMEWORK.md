@@ -1,5 +1,5 @@
 # THE VH FRAMEWORK — text edition (PPT-ready)
-*Vouch Harbor Labs · VH 19.7.10.1 "Screenwright" · the complete product framework in one document.*
+*Vouch Harbor Labs · VH 19.7.12 "Keyholder" (UI) · the complete product framework in one document.*
 *Write your deck from this file. Every claim here is probe-pinned in this archive.*
 
 ---

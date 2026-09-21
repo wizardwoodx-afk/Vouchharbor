@@ -17,19 +17,19 @@ function ok(label, cond, detail = "") {
   }
 }
 var ROOT = ".".length > 0 ? "." : process.cwd();
-var css = fs.readFileSync(path.join(ROOT, "src", "styles", "atelier.css"), "utf8");
-ok("the Brooklyn sage signature is the accent", /--patina:\s*#586a66/i.test(css), "signature missing");
-ok("the canvas is Platinum, not near-black", /--bg:\s*#d8d5db/i.test(css), "canvas token missing");
-ok("ink is Gunmetal, not aged cream", /--text:\s*#2d3142/i.test(css), "ink token missing");
-ok("the five-color system names its owners in the sheet", /Gunmetal/.test(css) && /Greyish White/.test(css) && /Simple Plum/.test(css), "five-color provenance missing");
-ok("the signature is NOT a competitor's purple/cyan/blue", !/#7C3AED/i.test(css) && !/#06B6D4/i.test(css) && !/#007AFF/i.test(css), "purple/cyan detected");
-ok("the old patina green is retired from the token sheet", !/#3E7C71/i.test(css), "legacy patina still present");
-ok("typography is the system SF-first stack (premium minimal)", /-apple-system/.test(css) && /SF Pro/.test(css), "system stack missing");
-ok("the 19.4.0 refinement pass ships (hairlines, no chrome glow)", /HORIZON \(19\.4\.0/.test(css) && /border-soft/.test(css), "refinement pass missing");
-ok("Apple-proportioned radii (10/14/20)", /--radius-md:\s*10px/.test(css) && /--radius-lg:\s*14px/.test(css) && /--radius-xl:\s*20px/.test(css), "radii off");
-ok("nav hover is calm (no translate gimmick)", /\.nav-item:hover \{ transform: none/.test(css), "hover translate still present");
-var sidebar = fs.readFileSync(path.join(ROOT, "src", "app", "Sidebar.tsx"), "utf8");
-ok("the brand mark is the minimal horizon glyph, not the patina seal", /horizon/i.test(sidebar) && !/patinaG/.test(sidebar), "brand mark stale");
+var css = fs.readFileSync(path.join(ROOT, "src", "ui", "vh.css"), "utf8");
+var main = fs.readFileSync(path.join(ROOT, "src", "main.tsx"), "utf8");
+ok("one stylesheet \u2014 main.tsx imports vh.css and nothing else", /import '\.\/ui\/vh\.css'/.test(main) && (main.match(/\.css['"]/g) ?? []).length === 1);
+ok("the retired sheets are gone", !fs.existsSync(path.join(ROOT, "src", "styles")));
+ok("dark ground is charcoal #0D1010 with surface #232B2B (not flat black)", /--bg:\s*#0D1010/i.test(css) && /#232B2B/i.test(css) && !/--bg:\s*#000/i.test(css));
+ok("light ground is bone #FAEBD7 with ink #141919", /--bg:\s*#FAEBD7/i.test(css) && /#141919/i.test(css));
+ok("champagne #D5B26B is the sole accent", /--accent:\s*#D5B26B/i.test(css));
+ok("no blue, no competitor purple/cyan", !/#007AFF|#3B82F6|#2563EB|#7C3AED|#06B6D4/i.test(css));
+ok("Instrument Serif for brand/titles, Geist for body and mono", /Instrument Serif/.test(css) && /Geist/.test(css) && /Geist Mono/.test(css));
+ok("not Inter / JetBrains", !/Inter\b/.test(css.replace(/Instrument/g, "")) && !/JetBrains/.test(css));
+ok("weights stay light \u2014 nothing at 500 or above", !/font-weight:\s*(5|6|7|8|9)00/.test(css) && !/font-weight:\s*bold/.test(css));
+ok("no legacy animation gimmicks (splash, shimmer, glow keyframes)", !/@keyframes\s+(splash|shimmer|glow|pulseGlow|float)/.test(css));
+ok("themes are attribute-scoped so both ship in one sheet", /\[data-theme=dark\]|\[data-theme="dark"\]/.test(css) && /\[data-theme=light\]|\[data-theme="light"\]/.test(css));
 console.log(`
 ${passed} passed, ${failed} failed`);
 if (failed > 0) {

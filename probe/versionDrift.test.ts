@@ -93,11 +93,12 @@ ok(`BUILD-INFO.txt's built: line names ${VH_VERSION} (no stale build identity)`,
 
 section("2. the app imports the version instead of hardcoding it");
 const ipcClient = read("src/ipc/client.ts");
-const settings = read("src/pages/SettingsPage.tsx");
+// 19.7.12 (UI): SettingsPage is retired; Settings → About (src/ui/screens/Settings.tsx) is the one on-screen version surface.
+const settings = read("src/ui/screens/Settings.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
-ok("SettingsPage imports VH_VERSION", /from "\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
+ok("Settings → About imports VH_VERSION", /from "\.\.\/\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
-ok("no hardcoded release string survives in SettingsPage", !/VH \d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+/) ?? [""])[0]);
+ok("no hardcoded release string survives in Settings", !/VH \d+\.\d+|"19\.\d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+|"19\.\d+\.\d+/) ?? [""])[0]);
 
 section("3. the shipped documents name the current release");
 const OPERATIONAL_DOCS = ["README.md", "BUILD-NATIVE.md", "DESKTOP-NATIVE.md", "INSTALL-ON-LAPTOP.md", "DEPLOY-VERCEL.md", "docs/PLATFORM-LIMITS.md"];

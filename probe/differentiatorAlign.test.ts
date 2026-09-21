@@ -74,9 +74,10 @@ section("1. budget authority — spend caps are carried by the envelope and enfo
   const execSrc = fs.readFileSync(path.join(ROOT, "src/mission/teamExecutor.ts"), "utf8");
   ok("the executor wires budgetCheck: pre-flight refusal AND a per-wave stop",
     /budgetCheck\(req\.rootEnvelope, 0\)/.test(execSrc) && /budgetStop = bc\.reason/.test(execSrc));
-  const teamsSrc = fs.readFileSync(path.join(ROOT, "src/pages/TeamsPage.tsx"), "utf8");
-  ok("the runner UI exposes the budget cap and feeds it into the root envelope",
-    teamsSrc.includes("budgetUsd: budgetCap.trim()") && teamsSrc.includes("Budget Cap"));
+  // 19.7.12 (UI): the Teams runner page is retired (the crew is internal). The cap
+  // is enforced at the envelope and the executor — the two places that matter.
+  ok("the root envelope carries budgetUsd and budgetCheck enforces it (no UI can bypass it)",
+    /budgetUsd/.test(fs.readFileSync(path.join(ROOT, "src/mission/custody.ts"), "utf8")) && /export function budgetCheck\(/.test(fs.readFileSync(path.join(ROOT, "src/mission/custody.ts"), "utf8")));
 }
 
 section("2. proof dossier — policy-to-proof in one digest-stamped file");

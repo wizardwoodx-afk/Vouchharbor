@@ -1,20 +1,11 @@
-// Vouch Harbor 17.0 — "Seal"
+// Vouch Harbor 19.8 — "Keyholder"
 // Copyright (c) 2024-2026 K.S. the Vouch Harbor team / Vouch Harbor. All Rights Reserved.
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import VouchApp from './App';
-import './styles/atelier.css';
-// 19.3.0 UI refresh — the Premium design system (the VH-19 door and its desks).
-import './styles/premium.css';
-
-// Import font declarations
-import './styles/fonts.css';
-import './styles/minimal.css';
-// 19.6.6 — the Federation console design system (Tailwind v4 + nx tokens).
-import './styles/vh-next.css';
-// face idle motion (the sheet that makes animate="hover" move) — app layer only.
-import 'blobatar/motion.css';
+// 19.7.12 — one stylesheet. The design system lives in src/ui/vh.css; nothing else is imported.
+import './ui/vh.css';
 
 /* 18.3.0 — browser-build CSP. The desktop (Tauri) build enforces its own CSP in
  * tauri.conf.json; the plain-browser build previously had NONE. In dev/preview
@@ -62,24 +53,13 @@ try {
   for (const k of moved) localStorage.removeItem(k);
 } catch { /* storage unavailable — nothing to migrate */ }
 
-/* 19.7.2 — appearance boot: the saved finish applies before the first
- * paint (no flash). Storage may not exist (sandboxed embeds) — noir stands. */
+/* 19.8 — appearance boot: the saved finish applies before the first paint. */
 try {
-  if (localStorage.getItem("vh.ui.theme.v1") === "cream") document.documentElement.dataset.theme = "cream";
-} catch { /* noir stays */ }
+  if (localStorage.getItem("vh.theme.v2") === "light") document.documentElement.dataset.theme = "light";
+} catch { /* charcoal stays */ }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <VouchApp />
   </React.StrictMode>,
 );
-
-/* 19.7.0 — once the console has actually mounted, retire the boot splash's
- * light canvas: the boot script paints <html> light for the splash's sake,
- * and the console is dark. Left in place it leaked a light page background
- * behind the dark UI (observed). Two frames out is enough for the first
- * React commit to have painted. */
-requestAnimationFrame(() => requestAnimationFrame(() => {
-  document.documentElement.style.background = "";
-}));
-

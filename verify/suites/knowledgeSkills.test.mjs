@@ -33,7 +33,7 @@ var init_version = __esm({
   "src/version.ts"() {
     "use strict";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -713,9 +713,10 @@ async function main() {
   ok("a missing-binary pass never invoked a CLI and stays local", nb.dataHandling === "local");
   ok("a garbage-output pass DID invoke the CLI \u2014 provider, even though the answer was unusable", gp.dataHandling === "provider");
   ok("a crashing pass DID invoke the CLI \u2014 provider, honestly recorded", tp.dataHandling === "provider");
-  const pageSrc = fs.readFileSync(path.join(process.cwd(), "src/pages/LoopPage.tsx"), "utf8");
-  ok("the Loop page discloses provider-sent content before a cloud pass", pageSrc.includes("sends the document to that harness's configured model provider") && pageSrc.includes("Mechanical distillation is fully local"));
-  ok("proposal cards show the data-handling chip", pageSrc.includes("data: sent to provider") && pageSrc.includes("data: local"));
+  ok("the forge records dataHandling on EVERY proposal so a door cannot omit the disclosure", /dataHandling/.test(forgeSrc) && /"provider"/.test(forgeSrc) && /"local"/.test(forgeSrc));
+  ok("no retired Loop page ships", !fs.existsSync(path.join(process.cwd(), "src/pages/LoopPage.tsx")));
+  ok("the forge itself states what a cloud pass does with the document", /(never left|content went|sent to)/.test(forgeSrc));
+  ok("the two data-handling values are exactly local | provider", /"local"/.test(forgeSrc) && /"provider"/.test(forgeSrc));
   ok("positioning is honest: no claim that extraction proves the knowledge correct", !forgeSrc.includes("the provable way") && /structured knowledge proposals|extract structure, not summaries/.test(forgeSrc), "wording drifted");
   section("3c. 12.2.0 \u2014 provider precision: vendor + endpoint class, no guessing");
   ok("default vendor mapping is honest (claude\u2192Anthropic, codex\u2192OpenAI, opencode\u2192configurable)", defaultVendorFor("claude") === "Anthropic" && defaultVendorFor("codex") === "OpenAI" && /configurable/.test(defaultVendorFor("opencode")) && defaultVendorFor("mystery") === "mystery's configured provider");

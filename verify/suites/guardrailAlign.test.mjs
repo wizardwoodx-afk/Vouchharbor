@@ -56,7 +56,7 @@ ok(
 );
 ok(
   "guardrail 10 \u2014 no artifact leaves this machine without a signed egress authority + receipt",
-  read("src/mission/egress.ts").includes("no authority envelope; nothing leaves this machine") && read("src/pages/AuditPage.tsx").includes("requestEgress")
+  read("src/mission/egress.ts").includes("no authority envelope; nothing leaves this machine") && read("src/ui/screens/Settings.tsx").includes("requestEgress")
 );
 ok(
   "guardrail 11 \u2014 capability requests return answers only \u2014 aggregate whitelist, raw rows never leave",
@@ -75,8 +75,8 @@ ok(
   read("src/mission/twoNode.ts").includes("RelayNode") && read("probe/twoNodeAlign.test.ts").includes("NEVER saw the raw rows")
 );
 ok(
-  "guardrail 15 \u2014 every guardrail above is surfaced as a manifest on the Audit page",
-  read("src/pages/AuditPage.tsx").includes("Guardrail manifest")
+  "guardrail 15 \u2014 every guardrail above is surfaced as a manifest in Settings \u2192 About (19.7.12 UI)",
+  read("src/ui/screens/Settings.tsx").includes("Guardrail manifest") && (read("src/ui/screens/Settings.tsx").match(/^\s*\["No |^\s*\["Capability|^\s*\["Aggregates|^\s*\["The /gm) ?? []).length === 13
 );
 console.log(`
 ${passed} passed, ${failed} failed`);

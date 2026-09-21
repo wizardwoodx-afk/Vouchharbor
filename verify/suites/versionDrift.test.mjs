@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.7.10.1";
+var VH_VERSION = "19.7.12";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Screenwright";
+var VH_CODENAME = "Keyholder";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/versionDrift.test.ts
@@ -68,11 +68,11 @@ ok(
 );
 section("2. the app imports the version instead of hardcoding it");
 var ipcClient = read("src/ipc/client.ts");
-var settings = read("src/pages/SettingsPage.tsx");
+var settings = read("src/ui/screens/Settings.tsx");
 ok("ipc/client.ts imports VH_VERSION", /from "\.\.\/version"/.test(ipcClient) && /VH_VERSION/.test(ipcClient), "no import found");
-ok("SettingsPage imports VH_VERSION", /from "\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
+ok("Settings \u2192 About imports VH_VERSION", /from "\.\.\/\.\.\/version"/.test(settings) && /VH_VERSION/.test(settings), "no import found");
 ok("no hardcoded release string survives in ipc/client.ts", !/version:\s*"\d+\.\d+\.\d+"/.test(ipcClient), (ipcClient.match(/version:\s*"\d+\.\d+\.\d+"/) ?? [""])[0]);
-ok("no hardcoded release string survives in SettingsPage", !/VH \d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+/) ?? [""])[0]);
+ok("no hardcoded release string survives in Settings", !/VH \d+\.\d+|"19\.\d+\.\d+/.test(settings), (settings.match(/VH \d+\.\d+|"19\.\d+\.\d+/) ?? [""])[0]);
 section("3. the shipped documents name the current release");
 var OPERATIONAL_DOCS = ["README.md", "BUILD-NATIVE.md", "DESKTOP-NATIVE.md", "INSTALL-ON-LAPTOP.md", "DEPLOY-VERCEL.md", "docs/PLATFORM-LIMITS.md"];
 var docs = [...OPERATIONAL_DOCS];

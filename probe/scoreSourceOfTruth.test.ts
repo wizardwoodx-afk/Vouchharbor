@@ -44,7 +44,7 @@ const SANCTIONED = new Set([
 ]);
 
 /* Surfaces: anything that renders. These must never compute, only read. */
-const SURFACE_DIRS = ["src/views/", "src/panels/", "src/pages/", "src/app/"];
+const SURFACE_DIRS = ["src/ui/", "src/panels/", "src/app/"];
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -130,9 +130,12 @@ test("scoreSourceOfTruth — one metric has exactly one producer and one rendere
      themselves (e.g. panels/ExecutivePanels.tsx) are a different, sanctioned
      shape: they take the evidence as input and never synthesise it. The rule is
      about who OWNS the number, so it is scoped to live-state surfaces. */
+  /* 19.7.12 (UI): the legacy live-state KPI pages (useHarbor) are deleted. The
+     rule is now stricter: NO surface renders an assurance figure at all unless
+     it comes through assuranceKpi(); today none does. */
   const kpiViews = files.filter((f) =>
-    /Safe harbor|Assurance score/.test(read(f)) && /useHarbor\(|state\.totals/.test(read(f)));
-  ok("the live-state KPI surfaces were found", kpiViews.length >= 2, `found ${kpiViews.length}`);
+    /Safe harbor|Assurance score/.test(read(f)) && /useHarbor\(|state\.totals|assuranceKpi\(/.test(read(f)));
+  ok("no retired live-state KPI page survives (useHarbor is gone from the tree)", !files.some((f) => /useHarbor\(/.test(read(f))), files.filter((f) => /useHarbor\(/.test(read(f))).join(", "));
   const bypassing = kpiViews.filter((f) => !/assuranceKpi\(/.test(read(f)));
   ok("every live-state assurance KPI renders via assuranceKpi()",
     bypassing.length === 0, bypassing.join(", "));

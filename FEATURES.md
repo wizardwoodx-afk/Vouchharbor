@@ -845,7 +845,7 @@ Probes: `shipyard` 22 · `captains` 37 (incl. the multi-member execution pins).
 
 ## E. Version integrity
 
-Every manifest agrees on **19.7.10.1 "Screenwright"** (and on every release since
+Every manifest agrees on **19.7.12 "Keyholder" (UI)** (and on every release since
 this mechanism shipped): `src/version.ts`,
 `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`,
 `src-tauri/Cargo.lock`, `src-tauri/tauri.conf.json`, `verify/BUILD-INFO.txt`,

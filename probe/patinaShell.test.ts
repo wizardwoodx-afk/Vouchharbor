@@ -1,23 +1,20 @@
 /**
- * probe/patinaShell.test.ts
+ * Shell probe — 19.7.12 (UI).
  *
- * Patina (17.1) integration probe. Asserts that the new five-door shell
- * renders, that each important button produces the intended DOMAIN-SIDE
- * effect (not just a re-render), and that the Helm submits through the
- * real governed engine path instead of a mock.
- *
- * This is the guard against the 17.0/17.1 regression class:
- * "beautiful UI → stale/inert handler".
- *
- * Run via esbuild + jsdom in CI (see package.json "test") or directly via:
- *   npx esbuild probe/patinaShell.test.ts --bundle --platform=node --format=esm \
- *     --define:VH_ROOT='"'$(pwd)'"' --outfile=/tmp/ps.mjs && node /tmp/ps.mjs
+ * History: this suite pinned the Patina shell (harbor.tsx + five views), then the
+ * 19.6.6 Federation Console. Both are retired. The 19.7.12 redesign ships ONE
+ * shell (src/ui/Shell.tsx), five doors (Steward · Work · Receipts · Memory ·
+ * Settings) and ONE store (src/ui/store.ts) that is the only path to the engine.
+ * The guarantees are the same ones the older shells were held to: the app
+ * mounts exactly this shell, the screens never bypass the store to reach the
+ * engine, every primary action is wired, and the human gate cannot be skipped.
  */
-import * as fs from "node:fs";
-import * as path from "node:path";
+import fs from "node:fs";
+import path from "node:path";
 
 declare const VH_ROOT: string | undefined;
 const root = typeof VH_ROOT === "string" && VH_ROOT.length > 0 ? VH_ROOT : process.cwd();
+const read = (rel: string) => fs.readFileSync(path.join(root, rel), "utf8");
 
 let passed = 0;
 let failed = 0;
@@ -28,71 +25,64 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-section("0. Patina shell files exist");
+section("0. the 19.7.12 shell files exist — and the retired shells do not");
 const SHELL_FILES = [
-  "src/App.tsx",
-  "src/app/harbor.tsx",        // the single runtime bridge
-  "src/app/Sidebar.tsx",
-  "src/app/Helm.tsx",
-  "src/views/Harbor.tsx",
-  "src/views/Ship.tsx",
-  "src/views/Chart.tsx",
-  "src/views/Register.tsx",
-  "src/views/HarborMaster.tsx",
+  "src/App.tsx", "src/main.tsx", "src/ui/Shell.tsx", "src/ui/store.ts", "src/ui/vh.css",
+  "src/ui/graph/ForceGraph.tsx",
+  "src/ui/screens/Steward.tsx", "src/ui/screens/Work.tsx", "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Memory.tsx", "src/ui/screens/Settings.tsx", "src/ui/screens/Chat.tsx",
+  "src/ui/screens/GateCard.tsx", "src/ui/screens/Composer.tsx",
 ];
 for (const f of SHELL_FILES) ok(`${f} exists`, fs.existsSync(path.join(root, f)));
+const RETIRED = ["src/views", "src/pages", "src/styles", "src/app/harbor.tsx", "src/app/Sidebar.tsx", "src/app/Helm.tsx", "src/panels/Splash.tsx", "src/panels/Onboarding.tsx"];
+for (const f of RETIRED) ok(`${f} is gone (no second UI in the tree)`, !fs.existsSync(path.join(root, f)));
 
-section("1. harbor.tsx is the ONLY runtime bridge — views do NOT bypass it");
-const viewFiles = SHELL_FILES.filter(f => f.startsWith("src/views/"));
-const typeOnlyImport = /^import\s+type\s/m;
-for (const vf of viewFiles) {
-  const src = fs.readFileSync(path.join(root, vf), "utf8");
-  // Strip lines that start with `import type` — those carry zero runtime dependency.
-  const nonTypeImports = src.split("\n").filter(l => l.trim().startsWith("import ") && !/^import\s+type\s/.test(l.trim())).join("\n");
-  const reachesEngineDirect = /from ['"]\.\.\/(vouch|mission|engine|graph|domain|canvas)\//.test(nonTypeImports);
-  ok(`${vf} reaches the engine only through app/harbor`, !reachesEngineDirect, reachesEngineDirect ? "imports engine directly at runtime" : "");
+section("1. App mounts the shell and nothing else");
+const appSrc = read("src/App.tsx");
+ok("App imports Shell from ./ui/Shell", /from\s*["']\.\/ui\/Shell["']/.test(appSrc));
+ok("App renders <Shell />", /<Shell\s*\/>/.test(appSrc));
+ok("no retired shell import survives in App", !/NextConsole|views\/|pages\/|Sidebar|Helm/.test(appSrc));
+const mainSrc = read("src/main.tsx");
+ok("main imports exactly one stylesheet (ui/vh.css)", (mainSrc.match(/import\s+['"][^'"]+\.css['"]/g) ?? []).length === 1 && /ui\/vh\.css/.test(mainSrc));
+ok("no boot splash in index.html", !/vh-boot|@keyframes/.test(read("index.html")));
+
+section("2. the store is the ONLY path to the engine — screens never bypass it");
+const storeSrc = read("src/ui/store.ts");
+ok("the store drives askVH19", /import\s*\{\s*askVH19\s*\}\s*from\s*["']\.\.\/vh19\/generalist["']/.test(storeSrc) && /await askVH19\(/.test(storeSrc));
+ok("the store passes the human gate into the engine", /gate:\s*gateFn/.test(storeSrc) && /gate:\s*\{\s*ask,\s*resolve/.test(storeSrc));
+ok("the store records handoffs", /onHandoff:\s*\(h\)\s*=>\s*\{\s*recordHandoff\(h\)/.test(storeSrc));
+ok("the store ingests memory after every run (idempotent by session id)", /ingestSession\(all,\s*\{\s*id:\s*s\.chatSessionId/.test(storeSrc));
+for (const f of SHELL_FILES.filter((x) => x.startsWith("src/ui/screens/"))) {
+  const src = read(f);
+  ok(`${f} never imports the generalist engine directly`, !/vh19\/generalist/.test(src));
+  ok(`${f} never touches the provider vault directly`, !/vh19\/vault/.test(src));
 }
 
-section("2. every button with a 'primary' intent has an onClick/onSubmit handler");
-// Walk all views and count <button className="...btn-primary...">. Each must carry
-// an onClick={...}. We also catch <button className="btn btn-primary btn-sm">
-// patterns used throughout the shell.
-const allViewSources = SHELL_FILES.map(f => ({ f, s: fs.readFileSync(path.join(root, f), "utf8") }));
-const buttonRe = /<button[^>]*className="[^"]*btn-primary[^"]*"[^>]*>/g;
-for (const { f, s } of allViewSources) {
-  const matches = [...s.matchAll(buttonRe)];
-  for (const m of matches) {
-    const tag = m[0];
-    const hasHandler = /onClick=\{/.test(tag) || /onSubmit=\{/.test(tag) || /type="submit"/.test(tag);
-    ok(`${f}: primary button has handler`, hasHandler, tag.slice(0, 120));
-  }
-}
+section("3. the human gate: approve or refuse — never a silent skip");
+const gate = read("src/ui/screens/GateCard.tsx");
+ok("the gate card offers Approve once", /Approve once/.test(gate) && /decideGate\(\{\s*approved:\s*true\s*\}\)/.test(gate));
+ok("refusal carries a reason into the receipt", /decideGate\(\{\s*approved:\s*false,\s*reason:/.test(gate));
+ok("the gate names the risk tier", /riskTier/.test(gate));
+ok("Work floats the gate over the graph", /gate-float/.test(read("src/ui/screens/Work.tsx")) && /<GateCard\s*\/>/.test(read("src/ui/screens/Work.tsx")));
+ok("the store resolves exactly the pending gate", /decideGate:\s*\(d\)\s*=>\s*\{\s*const g = get\(\)\.gate;\s*if \(!g\) return;\s*set\(\{\s*gate:\s*null\s*\}\);\s*g\.resolve\(d\)/.test(storeSrc));
 
-section("3. the four differentiator panels are present");
-const hb = fs.readFileSync(path.join(root, "src/views/HarborMaster.tsx"), "utf8");
-ok("HarborMaster has a Sweep tab (Ghost Agent Sweep)", /'Sweep'/.test(hb) && /Ghost Agent Sweep/.test(hb));
-ok("HarborMaster has a Backtest tab (Drill + Replay Bench)", /'Backtest'/.test(hb) && /Backtest Bench/.test(hb));
-ok("HarborMaster Lineage shows the Delegation Chain", /Delegation Chain/.test(hb));
-const reg = fs.readFileSync(path.join(root, "src/views/Register.tsx"), "utf8");
-ok("Register has the Hindsight Ledger", /Hindsight Ledger/.test(reg));
+section("4. every primary action is wired to real state");
+const shell = read("src/ui/Shell.tsx");
+ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc));
+ok("the five doors are Steward · Work · Receipts · Memory · Settings", ["Steward", "Work", "Receipts", "Memory", "Settings"].every((d) => new RegExp(`label:\\s*"${d}"`).test(shell)));
+ok("the crew never faces the user by name — Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
+const composer = read("src/ui/screens/Composer.tsx");
+ok("Enter sends (Shift+Enter breaks a line)", /e\.key === "Enter" && !e\.shiftKey/.test(composer) && /onSend\(\)/.test(composer));
+const settings = read("src/ui/screens/Settings.tsx");
+ok("Settings connects a provider through the store", /setProvider\(\{\s*kind,\s*baseUrl/.test(settings));
+ok("Settings creates/unlocks the vault through the store", /createVault\(pass\)/.test(settings) && /unlockVault\(pass\)/.test(settings));
+ok("the Memory door opens a remembered conversation on double-click", /onNodeDoubleClick=\{open\}/.test(read("src/ui/screens/Memory.tsx")) && /openConversation\(/.test(read("src/ui/screens/Memory.tsx")));
 
-section("4. the console submits through the real engine (askVH19) — 19.6.6 redesign");
-const appSrc = fs.readFileSync(path.join(root, "src/App.tsx"), "utf8");
-const consoleSrc = fs.readFileSync(path.join(root, "src/views/NextConsole.tsx"), "utf8");
-ok("App mounts the Federation Console as the whole shell", /<NextConsole\s*\/>/.test(appSrc));
-ok("the console sends through askVH19 on Enter (not just a pretty input)", /import\s*\{\s*askVH19\s*\}/.test(consoleSrc) && /if \(e\.key === "Enter"\) void send\(\)/.test(consoleSrc));
-
-section("5. semantic 'action' buttons actually call domain actions");
-const harborSrc = fs.readFileSync(path.join(root, "src/app/harbor.tsx"), "utf8");
-ok("musterHand calls harborMusterHand (real seat creation)", /harborMusterHand/.test(harborSrc));
-ok("rerate calls harborRerate (not a forceRender no-op)", /harborRerate/.test(harborSrc));
-ok("Verify button calls verifyVouchReceipt", /verifyVouchReceipt/.test(harborSrc));
-ok("Run the drill calls runDrill", /runDrill/.test(harborSrc));
-ok("Add provider calls addProvider", /addProvider/.test(harborSrc));
-
-section("6. no simulated/mock timeline claims ship in the Patina shell");
-const timelineExists = fs.existsSync(path.join(root, "src/app/timeline.ts"));
-ok("old simulated timeline.ts is absent (replaced by harbor.tsx)", !timelineExists);
+section("5. two graphs, deliberately different");
+const fg = read("src/ui/graph/ForceGraph.tsx");
+ok("Work is a top-down DAG with arrows", /dagMode\(work \? "td"/.test(fg) && /linkDirectionalArrowLength\(work \? 3\.5 : 0\)/.test(fg));
+ok("Memory is an organic cluster (no DAG, no arrows, no particles)", /linkDirectionalParticles\(\(l\) => \(work \?/.test(fg));
+ok("the graph is a real OSS renderer (3d-force-graph), not a hand-rolled canvas", /from "3d-force-graph"/.test(fg));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) { console.log("\nfailures:"); for (const f of failures) console.log(`  - ${f}`); }

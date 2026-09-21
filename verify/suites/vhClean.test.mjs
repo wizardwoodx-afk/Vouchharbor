@@ -309,9 +309,9 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "19.7.10.1";
+var VH_VERSION = "19.7.12";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Screenwright";
+var VH_CODENAME = "Keyholder";
 var VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
 
 // probe/vhClean.test.ts
@@ -321,11 +321,15 @@ var ROUTED_SURFACE = [
   "src/App.tsx",
   "src/main.tsx",
   "src/vouch/pages/VouchPage.tsx",
-  "src/pages/LoopPage.tsx",
-  "src/pages/ProofPage.tsx",
-  "src/pages/AuditPage.tsx",
-  "src/pages/SystemPage.tsx",
-  "src/pages/SettingsPage.tsx",
+  // 19.7.12 (UI): the routed pages are the five doors of src/ui.
+  "src/ui/Shell.tsx",
+  "src/ui/store.ts",
+  "src/ui/screens/Steward.tsx",
+  "src/ui/screens/Work.tsx",
+  "src/ui/screens/Receipts.tsx",
+  "src/ui/screens/Memory.tsx",
+  "src/ui/screens/Settings.tsx",
+  "src/ui/screens/Chat.tsx",
   "index.html",
   "package.json",
   "src-tauri/tauri.conf.json"
@@ -363,7 +367,7 @@ test("the whole control-plane module (src/vouch/**) carries no legacy name excep
   }
   assert.ok(scanned >= 6, `expected at least 6 modules under ${VOUCHE_TREE}, scanned ${scanned}`);
 });
-var UI_LAYER = ["src/app", "src/pages", "src/panels", "src/canvas", "src/ipc", "src/browser", "src/domain"];
+var UI_LAYER = ["src/app", "src/ui", "src/panels", "src/canvas", "src/ipc", "src/browser", "src/domain"];
 test("the visible product surface carries no legacy name (whole surface, not just the vouch tree)", () => {
   let scanned = 0;
   for (const dir of UI_LAYER) {
@@ -377,7 +381,7 @@ test("the visible product surface carries no legacy name (whole surface, not jus
   assert.ok(scanned >= 30, `expected a real UI surface under the audited dirs, scanned ${scanned}`);
 });
 test("the web entry, IPC bridge, and styles carry no legacy name", () => {
-  for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/styles/vouch.css", "src/styles/redesign.css"]) {
+  for (const rel of ["src/main.tsx", "src/ipc/client.ts", "src/ipc/localDb.ts", "src/ui/vh.css", "index.html"]) {
     const src = stripWireTokens(read(rel));
     assert.equal(hasLegacyName(src), false, `${rel} still references a legacy name`);
   }

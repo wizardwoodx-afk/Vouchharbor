@@ -24,9 +24,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -1674,10 +1674,9 @@ section("1. budget authority \u2014 spend caps are carried by the envelope and e
     "the executor wires budgetCheck: pre-flight refusal AND a per-wave stop",
     /budgetCheck\(req\.rootEnvelope, 0\)/.test(execSrc) && /budgetStop = bc\.reason/.test(execSrc)
   );
-  const teamsSrc = fs.readFileSync(path.join(ROOT, "src/pages/TeamsPage.tsx"), "utf8");
   ok(
-    "the runner UI exposes the budget cap and feeds it into the root envelope",
-    teamsSrc.includes("budgetUsd: budgetCap.trim()") && teamsSrc.includes("Budget Cap")
+    "the root envelope carries budgetUsd and budgetCheck enforces it (no UI can bypass it)",
+    /budgetUsd/.test(fs.readFileSync(path.join(ROOT, "src/mission/custody.ts"), "utf8")) && /export function budgetCheck\(/.test(fs.readFileSync(path.join(ROOT, "src/mission/custody.ts"), "utf8"))
   );
 }
 section("2. proof dossier \u2014 policy-to-proof in one digest-stamped file");

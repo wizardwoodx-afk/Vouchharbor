@@ -2435,9 +2435,9 @@ var VH_VERSION, VH_SHORT, VH_CODENAME, VH_TITLE;
 var init_version = __esm({
   "src/version.ts"() {
     "use strict";
-    VH_VERSION = "19.7.10.1";
+    VH_VERSION = "19.7.12";
     VH_SHORT = "19.7";
-    VH_CODENAME = "Screenwright";
+    VH_CODENAME = "Keyholder";
     VH_TITLE = `Vouch Harbor ${VH_SHORT} "${VH_CODENAME}"`;
   }
 });
@@ -32521,9 +32521,9 @@ describe3("merge \u2014 one mission ID, one chain, one state (16.0)", () => {
   });
   it("the shell join: the app mounts the Federation Console and it drives the real engine (19.6.6)", () => {
     const app = read("src/App.tsx");
-    assert2.ok(/from\s*['"]\.\/views\/NextConsole['"]/.test(app), "the app mounts the Federation Console");
-    assert2.ok(/<NextConsole\s*\/>/.test(app), "the console IS the app shell");
-    assert2.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/views/NextConsole.tsx")), "the console drives the real askVH19 engine path");
+    assert2.ok(/from\s*['"]\.\/ui\/Shell['"]/.test(app), "the app mounts the 19.7.12 shell");
+    assert2.ok(/<Shell\s*\/>/.test(app), "the shell IS the app");
+    assert2.ok(/import\s*\{\s*askVH19\s*\}/.test(read("src/ui/store.ts")), "the ui store drives the real askVH19 engine path");
     const pkg = JSON.parse(read("package.json"));
     assert2.equal(pkg.name, "vouchharbor", "the product is named vouchharbor");
     assert2.equal(pkg.version, VH_VERSION, "the manifest agrees with the version line");

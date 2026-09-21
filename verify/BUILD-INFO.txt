@@ -1,5 +1,5 @@
-Vouch Harbor 19.7.10.1 Screenwright
-built: 19.7.10.1 Screenwright
+Vouch Harbor 19.7.12 Screenwright
+built: 19.7.12 Screenwright
 ts:   2026-09-21T07:55:00Z
 git:  local
 node: certified on v22.23.2 (declared engines floor >=22.12.0) — the complete
@@ -11,13 +11,23 @@ agent: heartbeat acts ride the SHARED production executor (engineExecutor — sa
 offline: full gate shards deterministically — node verify/run.mjs --shard 1/4 … 4/4 (merge the summaries)
 fleet: 1,850 established specialists (routed today) + 640 registered specialists (not routed) = 2,490 catalogued
 
-155 self-contained bundles in verify/suites (every probe suite except the pack's
+154 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 156 probe
-suites; the offline pack reproduces 155 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 155 probe
+suites; the offline pack reproduces 154 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-156 passed, 0 failed across 156 probe suites (node verify/run.mjs → 155 passed,
-0 failed for the offline-only subset). Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the fleet census (2,490 today)); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring; suites 137–140 are the Recall probes (the memory graph · the MCP market · the token pipeline · auto-repair + the A2A replay guard); suites 141–142 are the 19.7.1 security probes (the owner vault + encrypted memory · the MCP runtime); suite 143 is the 19.7.2 console-policy probe (the Steward rename · no version chrome · the noir/cream finishes · provider memory semantics · the operator doctrine); suite 144 is the BEW probe (the Behaviour Enforcement Workflow — in-prompt AND the runtime phase machine — on every sub-agent); suites 145–149 are the 19.7.2.2 [Agent] probes (the Agentic MoE · the initiative autonomy loop with its execution bridge · the 3D memory graph · the 350-finance bench · the 350-silicon bench) —
+155 passed, 0 failed across 155 probe suites (node verify/run.mjs → 154 passed,
+0 failed for the offline-only subset), run under Node v22.12.0. Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the fleet census (2,490 today)); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring; suites 137–140 are the Recall probes (the memory graph · the MCP market · the token pipeline · auto-repair + the A2A replay guard); suites 141–142 are the 19.7.1 security probes (the owner vault + encrypted memory · the MCP runtime); suite 143 is the 19.7.2 console-policy probe (the Steward rename · no version chrome · the noir/cream finishes · provider memory semantics · the operator doctrine); suite 144 is the BEW probe (the Behaviour Enforcement Workflow — in-prompt AND the runtime phase machine — on every sub-agent); suites 145–149 are the 19.7.2.2 [Agent] probes (the Agentic MoE · the initiative autonomy loop with its execution bridge · the 3D memory graph · the 350-finance bench · the 350-silicon bench) —
+the pre-seed Agentic Test Protocol v1 (24/24 on this build).
+
+19.7.12 (UI) — the redesign release: ONE shell (src/ui: Steward · Work ·
+Receipts · Memory · Settings), one stylesheet (src/ui/vh.css), the store
+(src/ui/store.ts) is the single production caller of askVH19 with the human
+gate, the handoff recorder, RSI evidence intake and the initiative heartbeat
+(engineExecutor, same deps as chat); the retired views/pages/panels trees and
+the plaintext provider loader in the old VH-19 door are DELETED; probe/palette
+and probe/v10Page are retired, probe/shellRender (SSR of every door) is added;
+14 probes repointed from retired files to the shell/seams they pin. Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the fleet census (2,490 today)); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring; suites 137–140 are the Recall probes (the memory graph · the MCP market · the token pipeline · auto-repair + the A2A replay guard); suites 141–142 are the 19.7.1 security probes (the owner vault + encrypted memory · the MCP runtime); suite 143 is the 19.7.2 console-policy probe (the Steward rename · no version chrome · the noir/cream finishes · provider memory semantics · the operator doctrine); suite 144 is the BEW probe (the Behaviour Enforcement Workflow — in-prompt AND the runtime phase machine — on every sub-agent); suites 145–149 are the 19.7.2.2 [Agent] probes (the Agentic MoE · the initiative autonomy loop with its execution bridge · the 3D memory graph · the 350-finance bench · the 350-silicon bench) —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
 
 19.7.2 "Noir" — the maturity release:
