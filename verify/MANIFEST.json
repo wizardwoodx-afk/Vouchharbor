@@ -1,7 +1,7 @@
 {
   "mjVersion": "19.7.13",
   "esbuild": "0.25.12",
-  "suiteCount": 154,
+  "suiteCount": 155,
   "note": "Self-contained bundles of every probe suite except offlinePack.test.ts (the pack's own freshness gate). Run with: node verify/run.mjs from the tree root. Built by tools/build-offline-verify.mjs. verify/specs/ holds pre-compiled entry points (the three batch specs and two command-line tools) so they run without node_modules.",
   "suites": {
     "a2a.test.mjs": "d0ff0d74b4fd90aaceac7857c83d8802df1b831bd0e433f8d6b90e2fcc6a0c07",
@@ -104,6 +104,7 @@
     "moe.test.mjs": "2aed9d700d0e273d3d60ed4748b3aa396e1597ac2785d46d2d213b4aeea6cba6",
     "moeV2.test.mjs": "48a58af44ab879cd81fe90a8a55ff64be8dc0e5c667b1ce1e8ce7821f9745ac0",
     "mosaicAlign.test.mjs": "9c4d1adb2da1fcf9c30e324e5d5bf59f84bef71c811a77e7ae5eaa5bdde6b216",
+    "munshi.test.mjs": "d04b536b158144fc8e09dca916b181da0f212b6493640656b95449ead45e2a12",
     "navAlign.test.mjs": "34097e881a6c4e6f158f70278b6dd9ccaaa7bfb7fe6ee30ab70e2480ee70eb81",
     "otelExport.test.mjs": "cc88b281527e1d1f9b24ab96e9ed6b8b9454c6f06525c09d1651591b600f8975",
     "patinaShell.test.mjs": "3d87759fa7ee7f51e3616217ec19e9457c459db152176e743c00fc5385d47b34",
