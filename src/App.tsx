@@ -1,5 +1,5 @@
 /**
- * VOUCH HARBOR — one shell, six doors.
+ * VOUCH HARBOR — one shell, seven doors.
  * Steward · Work · Receipts · Docs · Memory · Settings. The crew is internal and never
  * faces the user by name; what the user sees is the work flowing and its receipts.
  */

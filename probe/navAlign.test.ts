@@ -2,8 +2,9 @@
  * probe/navAlign.test.ts — shell alignment probe (the one shell, src/ui/Shell.tsx).
  *
  * The 19.7.12 redesign replaced the 19.6.6 console with one quiet shell; 19.7.13
- * added the sixth door, and the Munshi door (Indian finance) the seventh. The live
- * door set is seven — Steward · Work · Munshi · Receipts · Docs · Memory ·
+ * added the sixth door, and the Specialists door the seventh — the generalist domain
+ * surface, with the Indian-finance pack hosted as one of its nine domains. The live
+ * door set is seven — Steward · Work · Specialists · Receipts · Docs · Memory ·
  * Settings — with one store and one composer.
  * This suite pins the structure mechanically:
  *  - App renders the shell and nothing else
@@ -44,12 +45,12 @@ ok("the multi-dock shell and the console are gone from the app entry", !/Sidebar
    so a SIXTH door (src/ui/screens/Docs.tsx) would have been added while the check
    stayed green — a gate that had stopped describing the shell. The door list is
    now the full set, the count matches the labels actually rendered, and the
-   render wiring for every door is pinned alongside it. The Munshi door joined the
-   list, the count AND the wiring pin in the same change that shipped it. */
-const NAV_KEYS = ["steward", "work", "munshi", "receipts", "docs", "memory", "settings"];
+   render wiring for every door is pinned alongside it. The Specialists door joined
+   the list, the count AND the wiring pin in the same change that shipped it. */
+const NAV_KEYS = ["steward", "work", "specialists", "receipts", "docs", "memory", "settings"];
 const navEntries = shellSrc.match(/\{ key: "([a-z]+)", label: "[A-Za-z ]+", icon: "[a-z]+" \}/g) ?? [];
 ok("the sidebar lists exactly seven doors", navEntries.length === 7, `door count drifted: ${navEntries.length}`);
-ok("the seven doors are Steward · Work · Munshi · Receipts · Docs · Memory · Settings",
+ok("the seven doors are Steward · Work · Specialists · Receipts · Docs · Memory · Settings",
   NAV_KEYS.every((k) => new RegExp(`key: "${k}", label:`).test(shellSrc)) &&
   NAV_KEYS.every((k) => new RegExp(`screen === "${k}"`).test(shellSrc)),
   "a door is listed but not rendered, or vice versa");
@@ -57,16 +58,28 @@ ok("the Docs door renders the document-distillation surface",
   /screen === "docs" && <Docs \/>/.test(shellSrc) && /Propose knowledge/.test(read("src/ui/screens/Docs.tsx")) &&
   /Nothing is installed until you decide/.test(read("src/ui/screens/Docs.tsx")),
   "the Docs door must reach the knowledge proposal seam and install nothing itself");
+const specSrc = read("src/ui/screens/Specialists.tsx");
 const munshiSrc = read("src/ui/screens/Munshi.tsx");
-ok("the Munshi door reaches the Indian-finance engines",
-  /screen === "munshi" && <Munshi \/>/.test(shellSrc) &&
+ok("the Specialists door renders the generalist pack",
+  /screen === "specialists" && <Specialists \/>/.test(shellSrc) &&
+  /from "\.\.\/\.\.\/specialists"/.test(specSrc) &&
+  /toolsForDomain\(domain\)/.test(specSrc) && /DOMAINS\.map/.test(specSrc),
+  "the door must render the pack's own tool registry, not a hand-written list");
+ok("and hosts the finance pack as one domain among the others",
+  /financeTools \? <MunshiTools \/>/.test(specSrc) && /MunshiRoster domain="all"/.test(specSrc) &&
+  /from "\.\/Munshi"/.test(specSrc),
+  "the finance pack must be mounted, not duplicated");
+ok("the finance panel still reaches the Indian-finance engines",
   /validateGstin/.test(munshiSrc) && /computeTds/.test(munshiSrc) && /reconcile\(/.test(munshiSrc) &&
   /from "\.\.\/\.\.\/munshi"/.test(munshiSrc),
-  "the door must call the pack's deterministic engines, not restate their answers");
+  "the panel must call the pack's deterministic engines, not restate their answers");
 ok("and states plainly that computing is not filing",
   /do not file/i.test(munshiSrc) && /Nothing here touches GSTN/.test(munshiSrc) &&
   /RULESET/.test(munshiSrc),
-  "the door must say it computes on this machine, names the ruleset, and files nothing");
+  "the panel must say it computes on this machine, names the ruleset, and files nothing");
+ok("the generalist surface states the same boundary for every domain",
+  /Engines compute; they do not act/.test(specSrc) && /gated/.test(specSrc),
+  "the generalist door must carry the compute-not-act statement too");
 ok("no Crew door — the crew is internal", !/label:\s*"Crew"/.test(shellSrc) && !/label:\s*"Agents"/.test(shellSrc), "the crew must not face the user");
 ok("the status pill and the owner card sit below the doors and open Settings", /className="status" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc) && /className="me" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc), "sidebar foot not wired");
 ok("no keyboard-shortcut hints on the surface", !/⌘K|⌘N|Cmd\+K|Ctrl\+K/.test(shellSrc + read("src/ui/screens/Steward.tsx")), "shortcut hints leaked");

@@ -5,9 +5,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 // src/version.ts
-var VH_VERSION = "19.7.13";
+var VH_VERSION = "19.7.14";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Keyholder";
+var VH_CODENAME = "Munshi";
 var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 
 // probe/versionDrift.test.ts
@@ -65,6 +65,11 @@ ok(
   `BUILD-INFO.txt's built: line names ${VH_VERSION} (no stale build identity)`,
   new RegExp(`^built:\\s*${VH_VERSION.replace(/\./g, "\\.")}\\b`, "m").test(buildInfoIdentity),
   (buildInfoIdentity.split("\n").find((l) => l.startsWith("built:")) ?? "missing built: line").slice(0, 60)
+);
+ok(
+  `BUILD-INFO.txt's identity line names the codename ${VH_CODENAME} (a release renames the record)`,
+  buildInfoIdentity.split("\n")[0].includes(VH_CODENAME),
+  (buildInfoIdentity.split("\n")[0] ?? "missing").slice(0, 80)
 );
 section("2. the app imports the version instead of hardcoding it");
 var ipcClient = read("src/ipc/client.ts");

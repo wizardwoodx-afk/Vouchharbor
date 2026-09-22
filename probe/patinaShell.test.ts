@@ -33,6 +33,7 @@ const SHELL_FILES = [
   "src/ui/screens/Steward.tsx", "src/ui/screens/Work.tsx", "src/ui/screens/Receipts.tsx",
   "src/ui/screens/Docs.tsx",
   "src/ui/screens/Munshi.tsx",
+  "src/ui/screens/Specialists.tsx",
   "src/ui/screens/Memory.tsx", "src/ui/screens/Settings.tsx", "src/ui/screens/Chat.tsx",
   "src/ui/screens/GateCard.tsx", "src/ui/screens/Composer.tsx",
 ];
@@ -78,11 +79,11 @@ ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newM
    shell without failing it. The doors are now DERIVED from the shell source and the
    count is pinned, so the set can only change deliberately. */
 const shellDoors = [...shell.matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)].map((m) => m[1] as string);
-ok("the shell declares seven doors, Docs and Munshi among them",
-  shellDoors.length === 7 && shellDoors.includes("docs") && shellDoors.includes("munshi"),
+ok("the shell declares seven doors, Docs and Specialists among them",
+  shellDoors.length === 7 && shellDoors.includes("docs") && shellDoors.includes("specialists"),
   `declared ${shellDoors.length}: ${shellDoors.join(" · ")}`);
-ok("every door is Steward · Work · Munshi · Receipts · Docs · Memory · Settings",
-  ["steward", "work", "munshi", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
+ok("every door is Steward · Work · Specialists · Receipts · Docs · Memory · Settings",
+  ["steward", "work", "specialists", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
   shellDoors.join(" · "));
 ok("the crew never faces the user by name — Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));
 const composer = read("src/ui/screens/Composer.tsx");

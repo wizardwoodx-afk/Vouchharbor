@@ -399,6 +399,121 @@ ok("the three totals are returned for the tie-out",
   tdsRec.totalDeducted === P(35000) && tdsRec.totalDeposited === P(20000) && tdsRec.totalReported === P(25000));
 
 // ─────────────────────────────────────────────────────────────────────────────
+section("9b. the Act transition — which law governs, and what to quote");
+
+/* Rates did not change on 1 April 2026. The law did: the Income-tax Act, 2025 governs TDS
+   on the earlier of credit or payment falling on or after that date, resident TDS becomes a
+   table inside s.393, and quoting the old 194-series label on a return is a validation
+   failure. These checks hold the routing, the reference it prints, and — just as important —
+   the honesty of its confidence. */
+
+ok("31 March 2026 is governed by the 1961 Act",
+  munshi.statuteForEvent("2026-03-31").statute === "1961",
+  munshi.statuteForEvent("2026-03-31").act);
+ok("1 April 2026 is governed by the 2025 Act",
+  munshi.statuteForEvent("2026-04-01").statute === "2025",
+  munshi.statuteForEvent("2026-04-01").act);
+ok("the routing states the earlier-of-credit-or-payment rule it applies",
+  munshi.statuteForEvent("2026-04-01").basis.includes("earlier of credit or payment"));
+ok("the transition date is a value, not a magic string in a comparison",
+  munshi.TDS_TRANSITION_DATE === "2026-04-01");
+
+const oldC = munshi.statuteReference("194C", "2026-02-10");
+ok("a February deduction quotes s.194C under the 1961 Act",
+  oldC.statute === "1961" && oldC.section === "194C", `${oldC.act} s.${oldC.section}`);
+ok("and it forward-references what the section becomes",
+  oldC.crossReference.includes("393(1)") && oldC.crossReference.includes("6(i)"),
+  oldC.crossReference);
+
+const newC = munshi.statuteReference("194C", "2026-05-10");
+ok("a May deduction moves to s.393(1) under the 2025 Act",
+  newC.statute === "2025" && newC.section === "393(1)", `${newC.act} s.${newC.section}`);
+ok("with the table item for the payee class",
+  newC.tableRef !== null && newC.tableRef.includes("6(i).D(a)") && newC.tableRef.includes("6(i).D(b)"),
+  String(newC.tableRef));
+ok("and it cross-references the former section an accountant still knows",
+  newC.crossReference.includes("194C"), newC.crossReference);
+ok("the reference prints one readable line",
+  munshi.explainStatuteReference(newC).startsWith("Income-tax Act, 2025 · s.393(1)"),
+  munshi.explainStatuteReference(newC));
+
+ok("professional fees land on the 194J(b) table item with code 1027",
+  munshi.statuteReference("194J(b)", "2026-09-30").tableRef === "Sl. 6(iii).D(b)" &&
+  munshi.statuteReference("194J(b)", "2026-09-30").paymentCode === 1027);
+ok("technical fees land on 194J(a) with code 1026",
+  munshi.statuteReference("194J(a)", "2026-09-30").paymentCode === 1026);
+ok("partner payments move to s.393(3) (the 'any person' table)",
+  munshi.statuteReference("194T", "2026-09-30").section === "393(3)" &&
+  munshi.statuteReference("194T", "2026-09-30").tableRef === "Sl. 7");
+ok("non-resident payments move to s.393(2)",
+  munshi.statuteReference("195", "2026-09-30").section === "393(2)");
+ok("salary is its own section, not part of the 393 table",
+  munshi.statuteReference("192", "2026-09-30").section === "392");
+
+/* Where published sources disagree, the engine narrows its claim instead of picking one. */
+const r194r = munshi.statuteReference("194R", "2026-09-30");
+ok("a disputed payment code is withheld, not guessed",
+  r194r.tableRef === "Sl. 8(iv)" && r194r.paymentCode === null && r194r.confidence === "reported",
+  `${r194r.tableRef} / code ${String(r194r.paymentCode)} / ${r194r.confidence}`);
+ok("and the disagreement is named in the basis",
+  r194r.basis.includes("sources disagree"), r194r.basis.slice(0, 90));
+const r194m = munshi.statuteReference("194M", "2026-09-30");
+ok("a section with no mapping is declared unmapped rather than invented",
+  r194m.confidence === "unmapped" && r194m.tableRef === null,
+  `${r194m.confidence} / ${String(r194m.tableRef)}`);
+ok("and it tells the operator to confirm against the department's master",
+  r194m.basis.includes("validation master"), r194m.basis.slice(0, 80));
+
+ok("TCS moves to s.394 rather than disappearing",
+  munshi.statuteReference("206C(1)", "2026-09-30", "tcs").section === "394",
+  munshi.statuteReference("206C(1)", "2026-09-30", "tcs").basis.slice(0, 70));
+ok("the repealed 206C(1H) has no successor entry to quote",
+  munshi.statuteReference("206C(1H)", "2026-09-30", "tcs").basis.includes("repealed"),
+  munshi.statuteReference("206C(1H)", "2026-09-30", "tcs").basis.slice(0, 70));
+
+const fOld = munshi.returnFormFor("194C", "2026-03-31");
+ok("before the changeover the return form is the familiar 26Q",
+  fOld.form === "26Q" && fOld.certificate === "Form 16A" && fOld.confidence === "asserted");
+const fNew = munshi.returnFormFor("194C", "2026-05-10");
+ok("after it, the form numbering is stated but NOT asserted",
+  fNew.confidence === "reported" && fNew.basis.includes("does NOT assert"),
+  `${fNew.form} — ${fNew.confidence}`);
+ok("and the reason it is not asserted is named",
+  fNew.basis.includes("disagree"), fNew.basis.slice(0, 90));
+ok("salary keeps its own form numbering",
+  munshi.returnFormFor("192", "2026-03-31").form === "24Q");
+
+/* The verdict itself must carry the routing — otherwise the caller has a rate and no law. */
+const dated = munshi.computeTds({ section: "194C", amount: P(60000), payeeType: "company",
+  creditOrPaymentOn: "2026-05-10" });
+ok("a dated deduction returns the statute alongside the rate",
+  dated.statute === "2025" && dated.statuteReference?.section === "393(1)",
+  `${String(dated.statute)} / ${String(dated.statuteReference?.section)}`);
+ok("the form to file follows the date", dated.formToFile === "140", String(dated.formToFile));
+ok("the verdict's basis names the section to quote",
+  dated.basis.includes("393(1)"), dated.basis.slice(-90));
+const undated = munshi.computeTds({ section: "194C", amount: P(60000), payeeType: "company" });
+ok("an undated deduction still computes the rate",
+  undated.tds === dated.tds && undated.tds === P(1200), `${undated.tds} vs ${dated.tds}`);
+ok("but refuses to name a statute",
+  undated.statute === null && undated.statuteReference === null);
+ok("and says exactly why the answer is incomplete",
+  undated.warnings.some((w) => w.includes("earlier of the date of credit")),
+  JSON.stringify(undated.warnings));
+const backdated = munshi.computeTds({ section: "194C", amount: P(60000), payeeType: "company",
+  creditOrPaymentOn: "2026-03-20" });
+ok("the RATES are identical either side of the changeover",
+  backdated.tds === dated.tds && backdated.rate === dated.rate,
+  `${backdated.rate}% / ${backdated.tds} vs ${dated.rate}% / ${dated.tds}`);
+ok("only the legal reference moves",
+  backdated.statute === "1961" && backdated.formToFile === "26Q",
+  `${String(backdated.statute)} / ${String(backdated.formToFile)}`);
+ok("206AA still forces the higher rate under the new Act",
+  munshi.computeTds({ section: "194J(b)", amount: P(60000), panAvailable: false,
+    creditOrPaymentOn: "2026-06-01" }).rate === 20);
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 section("10. MSME — the 45-day clock that becomes a disallowance");
 
 ok("a micro manufacturer classifies as micro",

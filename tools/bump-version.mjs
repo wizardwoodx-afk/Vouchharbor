@@ -100,9 +100,19 @@ editFile("src-tauri/tauri.conf.json", (t, rel) => {
 /* ── 3. the offline pack's provenance identity ────────────────────────────── */
 editFile("verify/BUILD-INFO.txt", (t, rel) => {
   if (!require_(t, `Vouch Harbor ${OLD}`, rel)) return null;
-  return t
+  const esc = (v) => v.replace(/\./g, "\\.");
+  // 19.7.14: the codename lives in version.ts, but this record names the release too —
+  // renaming one without the other left the pack opening as a retired codename.
+  const out = t
     .replaceAll(`Vouch Harbor ${OLD}`, `Vouch Harbor ${NEW}`)
-    .replace(`built: ${OLD}`, `built: ${NEW}`);
+    .replace(`built: ${OLD}`, `built: ${NEW}`)
+    .replace(new RegExp(`^(Vouch Harbor ${esc(NEW)} )[^\\s(]+`), `$1${NAME}`)
+    .replace(new RegExp(`^(built:\\s*${esc(NEW)} )[^\\s\\n]+`, "m"), `$1${NAME}`);
+  if (!out.includes(`${NEW} ${NAME}`)) {
+    problems.push(`${rel}: codename ${NAME} did not land in the record`);
+    return null;
+  }
+  return out;
 });
 
 /* ── 4. the MCP server's own version constant and header ──────────────────── */

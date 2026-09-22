@@ -309,9 +309,9 @@ import * as path from "node:path";
 import { test } from "node:test";
 
 // src/version.ts
-var VH_VERSION = "19.7.13";
+var VH_VERSION = "19.7.14";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Keyholder";
+var VH_CODENAME = "Munshi";
 var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 
 // probe/vhClean.test.ts
@@ -327,6 +327,7 @@ var ROUTED_SURFACE = [
   "src/ui/screens/Steward.tsx",
   "src/ui/screens/Work.tsx",
   "src/ui/screens/Munshi.tsx",
+  "src/ui/screens/Specialists.tsx",
   "src/ui/screens/Receipts.tsx",
   "src/ui/screens/Memory.tsx",
   "src/ui/screens/Settings.tsx",

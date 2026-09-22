@@ -92,6 +92,13 @@ ok(`BUILD-INFO.txt's built: line names ${VH_VERSION} (no stale build identity)`,
   new RegExp(`^built:\\s*${VH_VERSION.replace(/\./g, "\\.")}\\b`, "m").test(buildInfoIdentity),
   (buildInfoIdentity.split("\n").find((l) => l.startsWith("built:")) ?? "missing built: line").slice(0, 60));
 
+// 19.7.14 (Munshi) — the codename moved in version.ts but the build record still
+// opened as the previous one: the bump tool names the release in `VH_CODENAME` and
+// nowhere else. The record now has to agree, so the drift cannot recur quietly.
+ok(`BUILD-INFO.txt's identity line names the codename ${VH_CODENAME} (a release renames the record)`,
+  buildInfoIdentity.split("\n")[0].includes(VH_CODENAME),
+  (buildInfoIdentity.split("\n")[0] ?? "missing").slice(0, 80));
+
 section("2. the app imports the version instead of hardcoding it");
 const ipcClient = read("src/ipc/client.ts");
 // 19.7.12 (UI): SettingsPage is retired; Settings → About (src/ui/screens/Settings.tsx) is the one on-screen version surface.

@@ -26,7 +26,7 @@ import { verifyMandateWeb } from "./authorityWeb";
 import type { Mandate } from "./authorityCore";
 
 export const REACH_MCP_NAME = "Agent Reach MCP";
-export const REACH_MCP_VERSION = "19.7.13";
+export const REACH_MCP_VERSION = "19.7.14";
 
 export const REACH_MCP_DEFAULT_POLICY: ExecPolicy = {
   allowlist: ["ls", "cat", "echo", "grep"],

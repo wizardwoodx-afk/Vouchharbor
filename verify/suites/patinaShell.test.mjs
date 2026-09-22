@@ -35,6 +35,7 @@ var SHELL_FILES = [
   "src/ui/screens/Receipts.tsx",
   "src/ui/screens/Docs.tsx",
   "src/ui/screens/Munshi.tsx",
+  "src/ui/screens/Specialists.tsx",
   "src/ui/screens/Memory.tsx",
   "src/ui/screens/Settings.tsx",
   "src/ui/screens/Chat.tsx",
@@ -75,13 +76,13 @@ var shell = read("src/ui/Shell.tsx");
 ok("New mission resets the store", /onClick=\{newMission\}/.test(shell) && /newMission:\s*\(\)\s*=>\s*set\(/.test(storeSrc));
 var shellDoors = [...shell.matchAll(/\{ key: "([a-z]+)", label: "([A-Za-z ]+)", icon: "[a-z]+" \}/g)].map((m) => m[1]);
 ok(
-  "the shell declares seven doors, Docs and Munshi among them",
-  shellDoors.length === 7 && shellDoors.includes("docs") && shellDoors.includes("munshi"),
+  "the shell declares seven doors, Docs and Specialists among them",
+  shellDoors.length === 7 && shellDoors.includes("docs") && shellDoors.includes("specialists"),
   `declared ${shellDoors.length}: ${shellDoors.join(" \xB7 ")}`
 );
 ok(
-  "every door is Steward \xB7 Work \xB7 Munshi \xB7 Receipts \xB7 Docs \xB7 Memory \xB7 Settings",
-  ["steward", "work", "munshi", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
+  "every door is Steward \xB7 Work \xB7 Specialists \xB7 Receipts \xB7 Docs \xB7 Memory \xB7 Settings",
+  ["steward", "work", "specialists", "receipts", "docs", "memory", "settings"].every((k) => shellDoors.includes(k)),
   shellDoors.join(" \xB7 ")
 );
 ok("the crew never faces the user by name \u2014 Work renders AGENT nn tags", /AGENT \$\{String\(i \+ 1\)\.padStart\(2, "0"\)\}/.test(read("src/ui/screens/Work.tsx")));

@@ -1,7 +1,7 @@
 {
   "name": "velvet-hand",
   "private": true,
-  "version": "19.7.13",
+  "version": "19.7.14",
   "description": "Vouch Harbor — one mission, one vouched chain: govern · execute · verify · learn.",
   "type": "module",
   "engines": {

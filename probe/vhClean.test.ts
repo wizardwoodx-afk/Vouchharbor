@@ -41,6 +41,7 @@ const ROUTED_SURFACE: string[] = [
   "src/ui/screens/Steward.tsx",
   "src/ui/screens/Work.tsx",
   "src/ui/screens/Munshi.tsx",
+  "src/ui/screens/Specialists.tsx",
   "src/ui/screens/Receipts.tsx",
   "src/ui/screens/Memory.tsx",
   "src/ui/screens/Settings.tsx",

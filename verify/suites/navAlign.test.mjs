@@ -29,11 +29,11 @@ var pkg = JSON.parse(read("package.json"));
 ok("root resolves to Velvet Hand", pkg.name === "velvet-hand", `name=${String(pkg.name)}`);
 ok("App renders the shell and nothing else", /import\s*\{\s*Shell\s*\}\s*from\s*["']\.\/ui\/Shell["']/.test(appSrc) && /<Shell\s*\/>/.test(appSrc), "App must be the shell door");
 ok("the multi-dock shell and the console are gone from the app entry", !/Sidebar|Helm|VIEWS|NextConsole/.test(appSrc), "stale shell chrome in App.tsx");
-var NAV_KEYS = ["steward", "work", "munshi", "receipts", "docs", "memory", "settings"];
+var NAV_KEYS = ["steward", "work", "specialists", "receipts", "docs", "memory", "settings"];
 var navEntries = shellSrc.match(/\{ key: "([a-z]+)", label: "[A-Za-z ]+", icon: "[a-z]+" \}/g) ?? [];
 ok("the sidebar lists exactly seven doors", navEntries.length === 7, `door count drifted: ${navEntries.length}`);
 ok(
-  "the seven doors are Steward \xB7 Work \xB7 Munshi \xB7 Receipts \xB7 Docs \xB7 Memory \xB7 Settings",
+  "the seven doors are Steward \xB7 Work \xB7 Specialists \xB7 Receipts \xB7 Docs \xB7 Memory \xB7 Settings",
   NAV_KEYS.every((k) => new RegExp(`key: "${k}", label:`).test(shellSrc)) && NAV_KEYS.every((k) => new RegExp(`screen === "${k}"`).test(shellSrc)),
   "a door is listed but not rendered, or vice versa"
 );
@@ -42,16 +42,32 @@ ok(
   /screen === "docs" && <Docs \/>/.test(shellSrc) && /Propose knowledge/.test(read("src/ui/screens/Docs.tsx")) && /Nothing is installed until you decide/.test(read("src/ui/screens/Docs.tsx")),
   "the Docs door must reach the knowledge proposal seam and install nothing itself"
 );
+var specSrc = read("src/ui/screens/Specialists.tsx");
 var munshiSrc = read("src/ui/screens/Munshi.tsx");
 ok(
-  "the Munshi door reaches the Indian-finance engines",
-  /screen === "munshi" && <Munshi \/>/.test(shellSrc) && /validateGstin/.test(munshiSrc) && /computeTds/.test(munshiSrc) && /reconcile\(/.test(munshiSrc) && /from "\.\.\/\.\.\/munshi"/.test(munshiSrc),
-  "the door must call the pack's deterministic engines, not restate their answers"
+  "the Specialists door renders the generalist pack",
+  /screen === "specialists" && <Specialists \/>/.test(shellSrc) && /from "\.\.\/\.\.\/specialists"/.test(specSrc) && /toolsForDomain\(domain\)/.test(specSrc) && /DOMAINS\.map/.test(specSrc),
+  "the door must render the pack's own tool registry, not a hand-written list"
+);
+ok(
+  "and hosts the finance pack as one domain among the others",
+  /financeTools \? <MunshiTools \/>/.test(specSrc) && /MunshiRoster domain="all"/.test(specSrc) && /from "\.\/Munshi"/.test(specSrc),
+  "the finance pack must be mounted, not duplicated"
+);
+ok(
+  "the finance panel still reaches the Indian-finance engines",
+  /validateGstin/.test(munshiSrc) && /computeTds/.test(munshiSrc) && /reconcile\(/.test(munshiSrc) && /from "\.\.\/\.\.\/munshi"/.test(munshiSrc),
+  "the panel must call the pack's deterministic engines, not restate their answers"
 );
 ok(
   "and states plainly that computing is not filing",
   /do not file/i.test(munshiSrc) && /Nothing here touches GSTN/.test(munshiSrc) && /RULESET/.test(munshiSrc),
-  "the door must say it computes on this machine, names the ruleset, and files nothing"
+  "the panel must say it computes on this machine, names the ruleset, and files nothing"
+);
+ok(
+  "the generalist surface states the same boundary for every domain",
+  /Engines compute; they do not act/.test(specSrc) && /gated/.test(specSrc),
+  "the generalist door must carry the compute-not-act statement too"
 );
 ok("no Crew door \u2014 the crew is internal", !/label:\s*"Crew"/.test(shellSrc) && !/label:\s*"Agents"/.test(shellSrc), "the crew must not face the user");
 ok("the status pill and the owner card sit below the doors and open Settings", /className="status" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc) && /className="me" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc), "sidebar foot not wired");

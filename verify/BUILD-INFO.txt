@@ -1,9 +1,9 @@
-Vouch Harbor 19.7.13 Keyholder  (engine build record — the product is Velvet Hand; it shows no version)
-built: 19.7.13 Keyholder
+Vouch Harbor 19.7.14 Munshi  (engine build record — the product is Velvet Hand; it shows no version)
+built: 19.7.14 Munshi
 ts:   2026-09-21T07:55:00Z
 git:  local
 node: certified on v22.23.2 (declared engines floor >=22.12.0) — the complete
-      gate set (tsc / unit / 156 probe suites / 155 offline bundles / vite) was
+      gate set (tsc / unit / 157 probe suites / 156 offline bundles / vite) was
       re-executed end to end on this runtime with a clean node_modules, zero
       EBADENGINE warnings; node 20.20.2 remains a secondary supported runtime
 protocol: vh-proof-receipt/2
@@ -18,23 +18,53 @@ Munshi — the Indian-finance specialist pack (new capability on the SAME engine
   language model: GSTIN checksums, the GSTR-1 and 3B drafts, the 3B hard-lock
   crosswalk, s.50 interest on net cash liability, the s.47 caps, the multi-pass
   2B reconcile, TDS thresholds and the s.43B(h) clock are deterministic engines
-  pinned to a dated ruleset (IN-2026.04) whose basis dates are stated, and every
+  pinned to a dated ruleset (IN-2026.09) whose basis dates are stated, and every
   result returns the rule it applied. Agents that file, pay or answer the
   department carry requiresApproval: true, so the human gate holds wherever money
   or statutory exposure is involved. probe/munshi.test.ts pins the arithmetic
-  (165 checks), which is what moved the counts below to 156 / 155. The shell
-  gains a seventh door, src/ui/screens/Munshi.tsx: the same engines reachable from the
-  surface — GSTIN, TDS, the 2B reconcile, due dates, the IRN window and e-way validity,
-  the 43B(h) clock, interest and late fee, plus the full roster with each agent's gate —
-  every figure computed on this machine with the same basis line it would carry in a
-  receipt, and nothing filed, paid or transmitted by the door.
+  (199 checks).
 
-155 self-contained bundles in verify/suites (every probe suite except the pack's
+  THE TDS STATUTE TRANSITION. Rates and thresholds did not change on 1 April 2026, but
+  the law did: the Income-tax Act, 2025 governs TDS on the EARLIER of the date of credit
+  and the date of payment falling on or after that date, where resident TDS is a table
+  inside s.393, salary is s.392 and TCS is s.394 — and quoting the old 194-series label
+  on a return is a validation failure. src/munshi/tdsStatute.ts routes on that date, and
+  computeTds now returns the Act, the section to quote, the table item, the payment code
+  and the cross-reference to the other Act's label alongside the rate. The references
+  carry a confidence level and are not all equal: "asserted" where independent published
+  mappings agree, "reported" where a code is provisional or the sources disagree (194R's
+  sub-codes), "unmapped" where this ruleset carries no table item at all (194-IA, 194M) —
+  and in that last case the engine says so instead of inventing a reference. An undated
+  deduction still computes the rate and refuses to name a statute. The ruleset stamp moves
+  to IN-2026.09 to mark the change.
+
+  THE GENERALIST PACK. src/specialists/ generalises what the finance pack proved:
+  deterministic engines behind domain specialists, a stated basis on every result, and a
+  human gate wherever the last step would change something real. Eight domains —
+  frontend (colour, WCAG contrast, type scale, grid drift), engineering (SemVer and range
+  expansion, commit linting, HTTP retry semantics, backoff ladders, cron with the
+  day-field rule), API (token-bucket simulation, payload budgets, idempotency keys,
+  paging), data (percentiles, IQR outliers, two-proportion tests, sample sizing), security
+  (credential patterns, entropy, JWT decoding without verification, CSP), reliability
+  (error budgets, capacity runway, severity, deploy risk), docs (Flesch readability,
+  reading time, heading structure, terminology drift) and growth (unit economics, funnels,
+  RICE, revenue trajectory) — 33 tools and 40 specialists, every one driven by
+  probe/specialists.test.ts (150 checks) against its own declared defaults, twice, to prove
+  determinism rather than assert it. The tools render from a declared field spec, so the
+  shell holds no domain logic and a new domain is a data change.
+
+  THE DOOR. The shell's seventh door is now src/ui/screens/Specialists.tsx — the generalist
+  surface, with the Indian-finance pack (src/ui/screens/Munshi.tsx) hosted as one domain
+  among nine rather than as a fintech-only screen. Every figure is computed on this machine
+  with the same basis line it would carry in a receipt, and nothing is filed, paid,
+  deployed or sent.
+
+156 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero
-npm dependencies — node builtins only). The dev runner exercises 156 probe
-suites; the offline pack reproduces 155 of them with zero install and the
+npm dependencies — node builtins only). The dev runner exercises 157 probe
+suites; the offline pack reproduces 156 of them with zero install and the
 freshness gate pins the byte-identity of the shipped bundles. Green gate:
-156 passed, 0 failed across 156 probe suites (node verify/run.mjs → 155 passed,
+157 passed, 0 failed across 157 probe suites (node verify/run.mjs → 156 passed,
 0 failed for the offline-only subset), run under Node v22.12.0. Suite 122 is probe/agenticTest (pre-seed Agentic Test Protocol v1); suite 123 is probe/authority (the Authority Suite + VouchMesh); suite 124 is probe/reachPlane (Agent Reach MCP + wired computer-use); suite 125 is probe/meshRuntime (VouchMesh wired into the live handoff seam); suite 126 is probe/teammates (the Teammates plane — crew UX, VH-hardened); suites 127–130 are the Reach batch probes (beacon · delegation grant · pair memory · the 200-specialist batch); suites 131–135 are the Federation probes (the signed approval · the crossing · the sigil · the identity anchor · the fleet census (2,490 today)); probe/face pins the redesigned console's face system; probe/fedWired pins the production federation wiring; suites 137–140 are the Recall probes (the memory graph · the MCP market · the token pipeline · auto-repair + the A2A replay guard); suites 141–142 are the 19.7.1 security probes (the owner vault + encrypted memory · the MCP runtime); suite 143 is the 19.7.2 console-policy probe (the Steward rename · no version chrome · the noir/cream finishes · provider memory semantics · the operator doctrine); suite 144 is the BEW probe (the Behaviour Enforcement Workflow — in-prompt AND the runtime phase machine — on every sub-agent); suites 145–149 are the 19.7.2.2 [Agent] probes (the Agentic MoE · the initiative autonomy loop with its execution bridge · the 3D memory graph · the 350-finance bench · the 350-silicon bench) —
 the pre-seed Agentic Test Protocol v1 (24/24 on this build).
 

@@ -1,5 +1,10 @@
 /**
- * Velvet Hand — the Munshi door: the Indian finance desk.
+ * Velvet Hand — Munshi: the Indian finance pack.
+ *
+ * It ships twice on purpose: as the finance DOMAIN inside the Specialists door (the
+ * generalist surface hosts it there, alongside frontend, engineering, API, data,
+ * security, reliability, docs and growth) and as a door of its own, because a finance
+ * desk reads better alone than as one tab of nine.
  *
  * WHY THIS DOOR EXISTS: `src/munshi/` shipped 47 specialists and a dated ruleset, but
  * nothing in the shell reached them. A capability no surface can reach is, from the
@@ -16,7 +21,7 @@
  *     path at all: a wrong ITC figure and a right one look identical to the person signing
  *     the return, so no number on this screen is a language model's opinion.
  *   • it does not hide its basis. Every result prints the rule, the date and the ruleset
- *     version it came from (`IN-2026.04`), which is what makes a figure checkable against
+ *     version it came from (`IN-2026.09`), which is what makes a figure checkable against
  *     the statute instead of merely plausible.
  *
  * SCOPE, STATED PLAINLY: these are the fastest-moving statutory clocks in Indian finance
@@ -31,6 +36,7 @@ import {
   AGENTS, RULESET, agentsByDomain, rosterStatus,
   validateGstin, explainGstin, vendorKey,
   computeTds, TDS_TABLE, tdsSection, type PayeeType,
+  statuteReference, explainStatuteReference, returnFormFor,
   reconcile,
   parseAmount, formatINR, rupeesToPaise,
   dueDates, daysOverdue, type ReturnKind,
@@ -153,8 +159,14 @@ function TdsTool(): React.ReactElement {
   const [payeeType, setPayeeType] = useState<PayeeType>("company");
   const [panOk, setPanOk] = useState(true);
   const [senior, setSenior] = useState(false);
+  /* The earlier of the date of credit and the date of payment decides WHICH ACT governs the
+     deduction. Defaulted to today, because today is after the changeover and the honest
+     default is the law currently in force — not the label the engine was written against. */
+  const [eventDate, setEventDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const meta = tdsSection(section);
+  const ref = statuteReference(section, eventDate);
+  const formInfo = returnFormFor(section, eventDate);
   const verdict = useMemo(() => computeTds({
     section,
     amount: parseAmount(amount) ?? 0,
@@ -162,7 +174,8 @@ function TdsTool(): React.ReactElement {
     payeeType,
     panAvailable: panOk,
     isSeniorCitizen: senior,
-  }), [section, amount, prev, payeeType, panOk, senior]);
+    creditOrPaymentOn: eventDate,
+  }), [section, amount, prev, payeeType, panOk, senior, eventDate]);
 
   return (
     <>
@@ -170,10 +183,21 @@ function TdsTool(): React.ReactElement {
         <div className="card-b">
           <Field label="Section" hint={meta ? `threshold ${formatINR(meta.threshold)} ${meta.thresholdBasis} · form ${meta.form}` : undefined}>
             <select className="input" value={section} onChange={(e) => setSection(e.target.value)}>
-              {TDS_TABLE.map((s) => <option key={s.section} value={s.section}>{s.section} — {s.what}</option>)}
+              {TDS_TABLE.map((s) => {
+                const r = statuteReference(s.section, eventDate);
+                return (
+                  <option key={s.section} value={s.section}>
+                    {s.section} — {s.what}{r.statute === "2025" ? `  →  s.${r.section}${r.tableRef ? ` Table ${r.tableRef}` : ""}` : ""}
+                  </option>
+                );
+              })}
             </select>
           </Field>
           <div className="row" style={{ padding: "12px 0", borderTop: 0 }}>
+            <Field label="Earlier of credit / payment"
+              hint="This decides which ACT governs the deduction — on or after 1 April 2026 the Income-tax Act, 2025 applies, and the 194-series label must not be quoted on the return.">
+              <input className="input mono" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            </Field>
             <Field label="This payment (₹)"><input className="input" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
             <Field label="Already paid this year (₹)"><input className="input" value={prev} onChange={(e) => setPrev(e.target.value)} /></Field>
             <Field label="Payee">
@@ -194,9 +218,21 @@ function TdsTool(): React.ReactElement {
         <div className="kpis" style={{ marginBottom: 10 }}>
           <div><b className="mono" style={{ fontSize: 22 }}>{formatINR(verdict.tds)}</b><span>to deduct</span></div>
           <div><b>{verdict.rate}%</b><span>rate applied</span></div>
-          <div><b>{verdict.form ?? "—"}</b><span>return form</span></div>
+          <div><b className="mono" style={{ fontSize: 15 }}>s.{ref.section}</b><span>quote this section</span></div>
+          <div><b className="mono" style={{ fontSize: 15 }}>{verdict.formToFile ?? "—"}</b><span>form to file</span></div>
+        </div>
+        <div className="note" style={{ marginBottom: 10 }}>
+          <b>{ref.act}</b> — {explainStatuteReference(ref)}
+          <div className="hint" style={{ marginTop: 6 }}>{ref.crossReference}</div>
+          {ref.tableRef === null && (
+            <div className="hint" style={{ marginTop: 6 }}>
+              No table item is carried for this section in ruleset {RULESET} — the rate above is computed, but do
+              not quote a table reference this engine has not verified.
+            </div>
+          )}
         </div>
         <Basis text={verdict.basis} />
+        <Basis text={formInfo.basis} />
         {verdict.warnings.length > 0 && (
           <div className="note warn" style={{ marginTop: 10 }}>
             {verdict.warnings.map((w, i) => <div key={i}>· {w}</div>)}
@@ -559,16 +595,97 @@ function FeeTool(): React.ReactElement {
   );
 }
 
-/* ── the door ──────────────────────────────────────────────────────────────── */
+/* ── the pack, as sections any surface can host ────────────────────────────── */
 
-export function Munshi(): React.ReactElement {
+/**
+ * The finance tools. Exported rather than inlined into the door because the generalist
+ * Specialists surface hosts exactly this panel — the domain lives in one place and is
+ * mounted in two, which is what stops a second copy of a tool drifting from the first.
+ */
+export function MunshiTools(): React.ReactElement {
   const [tab, setTab] = useState<ToolId>("gstin");
-  const [domain, setDomain] = useState<Domain | "all">("all");
+  return (
+    <>
+      <div className="seg">
+        {TOOLS.map((t) => (
+          <button key={t.id} aria-pressed={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</button>
+        ))}
+      </div>
+
+      {tab === "gstin" && <GstinTool />}
+      {tab === "tds" && <TdsTool />}
+      {tab === "recon" && <ReconTool />}
+      {tab === "dates" && <DatesTool />}
+      {tab === "einvoice" && <EInvoiceTool />}
+      {tab === "msme" && <MsmeTool />}
+      {tab === "fee" && <FeeTool />}
+
+      <div className="note" style={{ marginTop: 14 }}>
+        <b>These engines compute; they do not file.</b> Nothing here touches GSTN, a bank or a portal, and nothing
+        leaves this machine. Filing needs credentials and a GSP/ASP channel — an operator-granted capability. The
+        agents that end in a filing or a payment are marked <b>gated</b> below and stay behind the human decision.
+      </div>
+    </>
+  );
+}
+
+/**
+ * The finance roster. `domain` is controlled by the host when the host already offers a
+ * domain selector; left undefined, this section renders its own.
+ */
+export function MunshiRoster({ domain }: { domain?: Domain | "all" } = {}): React.ReactElement {
+  const [own, setOwn] = useState<Domain | "all">("all");
   const [open, setOpen] = useState<string | null>(null);
-  const roster = rosterStatus();
-  const listed = domain === "all" ? AGENTS : agentsByDomain(domain);
+  const active = domain ?? own;
+  const listed = active === "all" ? AGENTS : agentsByDomain(active);
   const domains = Object.keys(DOMAIN_LABEL) as Domain[];
 
+  return (
+    <>
+      {domain === undefined && (
+        <div className="seg">
+          <button aria-pressed={own === "all"} onClick={() => setOwn("all")}>all {AGENTS.length}</button>
+          {domains.map((d) => (
+            <button key={d} aria-pressed={own === d} onClick={() => setOwn(d)}>{DOMAIN_LABEL[d]} {agentsByDomain(d).length}</button>
+          ))}
+        </div>
+      )}
+
+      <div className="ledger">
+        <div className="lh"><span>·</span><span>Specialist</span><span>Domain</span><span>Runs on</span><span>Gate</span></div>
+        {listed.map((a) => (
+          <React.Fragment key={a.id}>
+            <button className={`lr ${open === a.id ? "open" : ""}`} onClick={() => setOpen(open === a.id ? null : a.id)}>
+              <span className={`dot ${a.requiresApproval ? "pending" : "ok"}`} />
+              <span className="t"><b>{a.name}</b><small className="mono">{a.id}</small></span>
+              <span className="mono">{DOMAIN_LABEL[a.domain] ?? a.domain}</span>
+              <span className="mono">{a.status === "engine" ? "engine" : "workflow"}</span>
+              <span className={`pill ${a.requiresApproval ? "warn" : "ok"}`}>{a.requiresApproval ? "gated" : "open"}</span>
+            </button>
+            {open === a.id && (
+              <div className="ld">
+                <p>{a.purpose}</p>
+                <p className="hint"><b>Engine — </b><span className="mono">{a.engine}</span></p>
+                <p className="hint"><b>In — </b>{a.inputs}</p>
+                <p className="hint"><b>Out — </b>{a.output}</p>
+                <p className="hint"><b>The receipt attests — </b>{a.receipt}</p>
+                {a.requiresApproval && (
+                  <p className="hint"><b>Gate — </b>this agent ends at a filing, a payment or a filed document. It prepares; a human decides; the decision is recorded.</p>
+                )}
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ── the finance door, composed ────────────────────────────────────────────── */
+
+/** Kept as a door of its own as well as a panel: the finance desk reads better alone. */
+export function Munshi(): React.ReactElement {
+  const roster = rosterStatus();
   return (
     <>
       <header className="top">
@@ -587,60 +704,10 @@ export function Munshi(): React.ReactElement {
           <div><b className="mono" style={{ fontSize: 17 }}>{RULESET}</b><span>ruleset stamped on every result</span></div>
         </div>
 
-        <div className="seg">
-          {TOOLS.map((t) => (
-            <button key={t.id} aria-pressed={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</button>
-          ))}
-        </div>
-
-        {tab === "gstin" && <GstinTool />}
-        {tab === "tds" && <TdsTool />}
-        {tab === "recon" && <ReconTool />}
-        {tab === "dates" && <DatesTool />}
-        {tab === "einvoice" && <EInvoiceTool />}
-        {tab === "msme" && <MsmeTool />}
-        {tab === "fee" && <FeeTool />}
-
-        <div className="note" style={{ marginTop: 14 }}>
-          <b>These engines compute; they do not file.</b> Nothing here touches GSTN, a bank or a portal, and nothing
-          leaves this machine. Filing needs credentials and a GSP/ASP channel — an operator-granted capability. The
-          agents that end in a filing or a payment are marked <b>gated</b> below and stay behind the human decision.
-        </div>
+        <MunshiTools />
 
         <h3 style={{ margin: "22px 2px 10px" }}>The specialists</h3>
-        <div className="seg">
-          <button aria-pressed={domain === "all"} onClick={() => setDomain("all")}>all {AGENTS.length}</button>
-          {domains.map((d) => (
-            <button key={d} aria-pressed={domain === d} onClick={() => setDomain(d)}>{DOMAIN_LABEL[d]} {agentsByDomain(d).length}</button>
-          ))}
-        </div>
-
-        <div className="ledger">
-          <div className="lh"><span>·</span><span>Specialist</span><span>Domain</span><span>Runs on</span><span>Gate</span></div>
-          {listed.map((a) => (
-            <React.Fragment key={a.id}>
-              <button className={`lr ${open === a.id ? "open" : ""}`} onClick={() => setOpen(open === a.id ? null : a.id)}>
-                <span className={`dot ${a.requiresApproval ? "pending" : "ok"}`} />
-                <span className="t"><b>{a.name}</b><small className="mono">{a.id}</small></span>
-                <span className="mono">{DOMAIN_LABEL[a.domain] ?? a.domain}</span>
-                <span className="mono">{a.status === "engine" ? "engine" : "workflow"}</span>
-                <span className={`pill ${a.requiresApproval ? "warn" : "ok"}`}>{a.requiresApproval ? "gated" : "open"}</span>
-              </button>
-              {open === a.id && (
-                <div className="ld">
-                  <p>{a.purpose}</p>
-                  <p className="hint"><b>Engine — </b><span className="mono">{a.engine}</span></p>
-                  <p className="hint"><b>In — </b>{a.inputs}</p>
-                  <p className="hint"><b>Out — </b>{a.output}</p>
-                  <p className="hint"><b>The receipt attests — </b>{a.receipt}</p>
-                  {a.requiresApproval && (
-                    <p className="hint"><b>Gate — </b>this agent ends at a filing, a payment or a filed document. It prepares; a human decides; the decision is recorded.</p>
-                  )}
-                </div>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+        <MunshiRoster />
       </div></div>
     </>
   );

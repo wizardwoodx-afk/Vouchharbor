@@ -17,6 +17,7 @@ __export(munshi_exports, {
   STATE_CODES: () => STATE_CODES,
   TCS_TABLE: () => TCS_TABLE,
   TDS_TABLE: () => TDS_TABLE,
+  TDS_TRANSITION_DATE: () => TDS_TRANSITION_DATE,
   ZERO: () => ZERO,
   add: () => add,
   agentCount: () => agentCount,
@@ -34,6 +35,7 @@ __export(munshi_exports, {
   eInvoiceStatus: () => eInvoiceStatus,
   ewayBillValidity: () => ewayBillValidity,
   explainGstin: () => explainGstin,
+  explainStatuteReference: () => explainStatuteReference,
   financialYearOf: () => financialYearOf,
   findAgent: () => findAgent,
   formatCompact: () => formatCompact,
@@ -65,12 +67,15 @@ __export(munshi_exports, {
   rateForHsn: () => rateForHsn,
   reconcile: () => reconcile,
   reconcileTds: () => reconcileTds,
+  returnFormFor: () => returnFormFor,
   rosterStatus: () => rosterStatus,
   roundReturnTotals: () => roundReturnTotals,
   roundToRupee: () => roundToRupee,
   rulesetStamp: () => rulesetStamp,
   rupeesToPaise: () => rupeesToPaise,
   splitIntraState: () => splitIntraState,
+  statuteForEvent: () => statuteForEvent,
+  statuteReference: () => statuteReference,
   sub: () => sub,
   taxPeriodOf: () => taxPeriodOf,
   tcsSection: () => tcsSection,
@@ -82,13 +87,14 @@ __export(munshi_exports, {
 });
 
 // src/munshi/ruleset.ts
-var RULESET = "IN-2026.04";
+var RULESET = "IN-2026.09";
 var RULESET_BASIS = Object.freeze({
   gstRates: "22 September 2025 (56th GST Council) \u2014 12% and 28% slabs abolished for most goods and services",
   gstr3bLock: "July 2025 tax period onwards \u2014 auto-populated liability fields are non-editable; corrections move to GSTR-1 / GSTR-1A",
   einvoice30Day: "1 April 2025 \u2014 30-day IRP reporting limit for AATO \u20B910 crore and above (Rule 48(4)/48(5))",
   einvoiceMandate: "1 August 2023 \u2014 e-invoicing mandatory at AATO \u20B95 crore and above",
   tds: "Finance Act 2025, effective 1 April 2025 \u2014 206AB/206CCA omitted, 206C(1H) repealed, 194T introduced, 194J threshold \u20B950,000",
+  tdsAct2026: "1 April 2026 \u2014 the Income-tax Act, 2025 governs TDS on the EARLIER of credit or payment falling on or after that date: salary s.392, residents s.393 (one table), non-residents s.393(2), any person s.393(3), TCS s.394; rates and thresholds unchanged, the section reference changes",
   msme: "Section 43B(h) \u2014 payments to micro and small enterprises within 45 days (15 where no agreement)",
   ims: "Invoice Management System \u2014 accept / reject / pending actioning drives the recipient's GSTR-2B"
 });
@@ -918,6 +924,173 @@ function ewayBillValidity(distanceKm, cargo = "normal") {
   return { days, basis: `Rule 138(10) \u2014 ${perDay} km per day for ${cargo} cargo over ${distanceKm} km` };
 }
 
+// src/munshi/tdsStatute.ts
+var TDS_TRANSITION_DATE = "2026-04-01";
+var ACT_NAME = Object.freeze({
+  "1961": "Income-tax Act, 1961",
+  "2025": "Income-tax Act, 2025"
+});
+var MAPPINGS = Object.freeze({
+  // ── salary ────────────────────────────────────────────────────────────────
+  "192": { section: "392", tableRef: null, paymentCode: null },
+  "192A": { section: "392(7)", tableRef: null, paymentCode: 1004 },
+  // ── 393(1): residents, one table, eight categories ────────────────────────
+  "193": { section: "393(1)", tableRef: "Sl. 5(i)", paymentCode: 1019 },
+  "194": { section: "393(1)", tableRef: "Sl. 7", paymentCode: 1029 },
+  "194A": {
+    section: "393(1)",
+    tableRef: "Sl. 5(ii).D(a) senior / 5(ii).D(b) other / 5(iii) non-bank",
+    paymentCode: null,
+    note: "the three 194A populations (senior \u20B91,00,000, other \u20B950,000, non-bank \u20B910,000) map to three separate table entries with codes 1020 / 1021 / 1022 \u2014 the entry follows the payer, not this table row"
+  },
+  "194C": {
+    section: "393(1)",
+    tableRef: "Sl. 6(i).D(a) individual/HUF \xB7 6(i).D(b) other",
+    paymentCode: null,
+    note: "codes 1023 (1%, individual/HUF payee) and 1024 (2%, any other payee) \u2014 the code follows the payee, so this row carries both references"
+  },
+  "194D": { section: "393(1)", tableRef: "Sl. 1(i)", paymentCode: 1005 },
+  "194DA": { section: "393(1)", tableRef: "Sl. 8(i)", paymentCode: 1030 },
+  "194H": { section: "393(1)", tableRef: "Sl. 1(ii)", paymentCode: 1006 },
+  "194-I(a)": { section: "393(1)", tableRef: "Sl. 2(ii).D(a)", paymentCode: 1008 },
+  "194-I(b)": { section: "393(1)", tableRef: "Sl. 2(ii).D(b)", paymentCode: 1009 },
+  "194-IA": {
+    section: "393(1)",
+    tableRef: null,
+    paymentCode: null,
+    note: "no table item for the transfer-of-immovable-property deduction is corroborated in the sources this ruleset carries \u2014 do not quote one until the utility master confirms it"
+  },
+  "194-IB": {
+    section: "393(1)",
+    tableRef: "Sl. 2(i)",
+    paymentCode: 1007,
+    note: "the payment code for this entry is published as PROVISIONAL pending CBDT's final master; treat 1007 as unconfirmed"
+  },
+  "194-IC": { section: "393(1)", tableRef: "Sl. 3(ii)", paymentCode: 1011 },
+  "194J(a)": { section: "393(1)", tableRef: "Sl. 6(iii).D(a)", paymentCode: 1026 },
+  "194J(b)": { section: "393(1)", tableRef: "Sl. 6(iii).D(b)", paymentCode: 1027 },
+  "194K": { section: "393(1)", tableRef: "Sl. 4(i)", paymentCode: 1013 },
+  "194LA": { section: "393(1)", tableRef: "Sl. 3(iii)", paymentCode: 1012 },
+  "194M": {
+    section: "393(1)",
+    tableRef: null,
+    paymentCode: null,
+    note: "not corroborated in the mappings this ruleset carries"
+  },
+  "194-O": { section: "393(1)", tableRef: "Sl. 8(v)", paymentCode: 1035 },
+  "194Q": { section: "393(1)", tableRef: "Sl. 8(ii)", paymentCode: 1031 },
+  "194R": {
+    section: "393(1)",
+    tableRef: "Sl. 8(iv)",
+    paymentCode: null,
+    note: "sources disagree on the sub-codes for cash (1033 per one, 1034 per another) and in-kind benefit \u2014 the table item is agreed, the code is not, so no code is asserted"
+  },
+  "194S": { section: "393(1)", tableRef: "Sl. 8(vi)", paymentCode: 1037 },
+  // ── 393(3): payments to any person ────────────────────────────────────────
+  "194B": { section: "393(3)", tableRef: "Sl. 1", paymentCode: 1058 },
+  "194BA": { section: "393(3)", tableRef: "Sl. 2", paymentCode: 1060 },
+  "194G": { section: "393(3)", tableRef: "Sl. 4", paymentCode: 1063 },
+  "194N": {
+    section: "393(3)",
+    tableRef: "Sl. 5",
+    paymentCode: null,
+    note: "the code splits by the filer's own status (1064 / 1065) and by whether the payee has filed returns \u2014 the table item is agreed, the code is not fixed"
+  },
+  "194T": { section: "393(3)", tableRef: "Sl. 7", paymentCode: 1067 },
+  // ── 393(2): non-residents ─────────────────────────────────────────────────
+  "195": { section: "393(2)", tableRef: "Sl. 17", paymentCode: 1057 }
+});
+var TCS_MAPPING = Object.freeze({
+  "206C(1)": { section: "394", tableRef: null, paymentCode: null },
+  "206C(1F)": { section: "394", tableRef: null, paymentCode: null },
+  "206C(1G)": { section: "394", tableRef: null, paymentCode: null },
+  "206C(1H)": {
+    section: "394",
+    tableRef: null,
+    paymentCode: null,
+    note: "206C(1H) was repealed from 1 April 2025 and is carried in this pack as a repeal notice; it has no successor entry to quote"
+  }
+});
+function statuteForEvent(earlierOfCreditOrPayment) {
+  const iso = earlierOfCreditOrPayment.trim();
+  const newAct = iso >= TDS_TRANSITION_DATE;
+  return newAct ? {
+    statute: "2025",
+    act: ACT_NAME["2025"],
+    basis: `${iso} is on or after ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["2025"]}, where resident TDS is s.393, salary is s.392 and TCS is s.394`
+  } : {
+    statute: "1961",
+    act: ACT_NAME["1961"],
+    basis: `${iso} is before ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["1961"]}, so the 194-series reference applies even if the payment or the challan lands after the changeover`
+  };
+}
+function statuteReference(section2, earlierOfCreditOrPayment, kind = "tds") {
+  const routing = statuteForEvent(earlierOfCreditOrPayment);
+  const mapping = (kind === "tcs" ? TCS_MAPPING : MAPPINGS)[section2];
+  if (routing.statute === "1961") {
+    const forward = mapping ? `under the 2025 Act this becomes s.${mapping.section}` + (mapping.tableRef ? `, Table ${mapping.tableRef}` : "") + (mapping.paymentCode ? `, payment code ${mapping.paymentCode}` : "") : "this ruleset carries no 2025-Act mapping for this section";
+    return {
+      statute: "1961",
+      act: routing.act,
+      section: section2,
+      tableRef: null,
+      paymentCode: null,
+      crossReference: `${section2} \u2014 ${forward}`,
+      confidence: mapping ? "asserted" : "unmapped",
+      basis: `s.${section2} of the ${ACT_NAME["1961"]} \u2014 ${routing.basis}`
+    };
+  }
+  if (!mapping) {
+    return {
+      statute: "2025",
+      act: routing.act,
+      section: section2,
+      tableRef: null,
+      paymentCode: null,
+      crossReference: `former s.${section2} of the ${ACT_NAME["1961"]}`,
+      confidence: "unmapped",
+      basis: `${routing.basis}. WARNING: this ruleset carries no ${ACT_NAME["2025"]} reference for s.${section2} \u2014 the rate is computed, the section reference to quote is NOT asserted here. Confirm the table item against the department's validation master before filing.`
+    };
+  }
+  const hasReference = mapping.tableRef !== null || mapping.paymentCode !== null;
+  const confidence = !hasReference ? "unmapped" : mapping.note ? "reported" : "asserted";
+  return {
+    statute: "2025",
+    act: routing.act,
+    section: mapping.section,
+    tableRef: mapping.tableRef,
+    paymentCode: mapping.paymentCode,
+    crossReference: `corresponds to former s.${section2} of the ${ACT_NAME["1961"]}`,
+    confidence,
+    basis: `s.${mapping.section} of the ${ACT_NAME["2025"]}` + (mapping.tableRef ? `, Table ${mapping.tableRef}` : "") + (mapping.paymentCode ? `, payment code ${mapping.paymentCode}` : "") + ` \u2014 ${routing.basis}` + (mapping.note ? `. ${mapping.note}` : "") + (confidence === "unmapped" ? ". The section is asserted; the TABLE ITEM is not \u2014 confirm it against the department's validation master before filing" : "")
+  };
+}
+function explainStatuteReference(ref) {
+  const bits = [`${ref.act} \xB7 s.${ref.section}`];
+  if (ref.tableRef) bits.push(`Table ${ref.tableRef}`);
+  if (ref.paymentCode !== null) bits.push(`code ${ref.paymentCode}`);
+  bits.push(`(${ref.confidence})`);
+  return bits.join(" \xB7 ");
+}
+function returnFormFor(section2, earlierOfCreditOrPayment) {
+  const routing = statuteForEvent(earlierOfCreditOrPayment);
+  if (routing.statute === "1961") {
+    const salary = section2 === "192";
+    return {
+      form: salary ? "24Q" : "26Q",
+      certificate: salary ? "Form 16" : "Form 16A",
+      confidence: "asserted",
+      basis: `quarterly statements under the ${ACT_NAME["1961"]}: Form 24Q (salary) / 26Q (non-salary), certificates Form 16 / 16A`
+    };
+  }
+  return {
+    form: section2 === "192" ? "not asserted" : "140",
+    certificate: section2 === "192" ? "not asserted" : "131",
+    confidence: "reported",
+    basis: `quarterly statements move to the 2025 Act's own numbering \u2014 Form 140 for non-salary TDS and Form 131 for the certificate are the forms reported in practice, but this ruleset does NOT assert them: sources disagree (some still cite 26Q), and the department's utility master is the authority. The section reference above is the part that is asserted.`
+  };
+}
+
 // src/munshi/tds.ts
 var L = 1e7;
 var TDS_TABLE = Object.freeze([
@@ -1217,6 +1390,14 @@ function tdsSection(section2) {
   return TDS_TABLE.find((s) => s.section.toUpperCase() === section2.toUpperCase());
 }
 function computeTds(input) {
+  const warnings = [];
+  const eventDate = input.creditOrPaymentOn?.trim();
+  const ref = eventDate ? statuteReference(input.section, eventDate) : null;
+  const formInfo = eventDate ? returnFormFor(input.section, eventDate) : null;
+  if (!eventDate) {
+    warnings.push("the earlier of the date of credit and the date of payment was not supplied \u2014 the RATE is computed, but which Act governs and which section reference to quote are NOT: from 1 April 2026 the Income-tax Act, 2025 governs and the 194-series label must not be used");
+  }
+  if (ref?.confidence === "unmapped") warnings.push(ref.basis);
   const s = tdsSection(input.section);
   if (!s) {
     return {
@@ -1225,11 +1406,20 @@ function computeTds(input) {
       tds: 0,
       section: input.section,
       form: null,
+      formToFile: formInfo?.form ?? null,
+      statute: ref?.statute ?? null,
+      statuteReference: ref,
+      formBasis: formInfo?.basis ?? "statute not determined without a credit/payment date",
       basis: `section ${input.section} is not in the ${RULESET} table \u2014 do not deduct on a guess`,
-      warnings: ["unknown section"]
+      warnings: ["unknown section", ...warnings]
     };
   }
-  const warnings = [];
+  const routing = {
+    formToFile: formInfo?.form ?? s.form,
+    statute: ref?.statute ?? null,
+    statuteReference: ref,
+    formBasis: formInfo?.basis ?? "statute not determined without a credit/payment date"
+  };
   const previously = input.previouslyPaid ?? 0;
   const cumulative2 = previously + input.amount;
   const threshold = s.section === "194A" && input.isSeniorCitizen ? L : s.threshold;
@@ -1249,6 +1439,7 @@ function computeTds(input) {
       tds: 0,
       section: s.section,
       form: s.form,
+      ...routing,
       basis: `${s.section}: ${s.basis} \u2014 the rate must be determined from the payee's status, not from a table`,
       warnings: ["rate not auto-determinable"]
     };
@@ -1261,6 +1452,7 @@ function computeTds(input) {
       tds: 0,
       section: s.section,
       form: s.form,
+      ...routing,
       basis: `threshold not crossed (${s.thresholdBasis}); ${s.basis}`,
       warnings
     };
@@ -1283,7 +1475,8 @@ function computeTds(input) {
     tds,
     section: s.section,
     form: s.form,
-    basis: `s.${s.section} at ${rate2}% on ${amountToDeduct} paise \u2014 ${s.basis}`,
+    ...routing,
+    basis: `s.${s.section} at ${rate2}% on ${amountToDeduct} paise \u2014 ${s.basis}` + (ref ? `. Reference to quote \u2014 ${ref.basis}` : ""),
     warnings
   };
 }
@@ -2636,6 +2829,186 @@ ok(
 ok(
   "the three totals are returned for the tie-out",
   tdsRec.totalDeducted === P(35e3) && tdsRec.totalDeposited === P(2e4) && tdsRec.totalReported === P(25e3)
+);
+section("9b. the Act transition \u2014 which law governs, and what to quote");
+ok(
+  "31 March 2026 is governed by the 1961 Act",
+  statuteForEvent("2026-03-31").statute === "1961",
+  statuteForEvent("2026-03-31").act
+);
+ok(
+  "1 April 2026 is governed by the 2025 Act",
+  statuteForEvent("2026-04-01").statute === "2025",
+  statuteForEvent("2026-04-01").act
+);
+ok(
+  "the routing states the earlier-of-credit-or-payment rule it applies",
+  statuteForEvent("2026-04-01").basis.includes("earlier of credit or payment")
+);
+ok(
+  "the transition date is a value, not a magic string in a comparison",
+  TDS_TRANSITION_DATE === "2026-04-01"
+);
+var oldC = statuteReference("194C", "2026-02-10");
+ok(
+  "a February deduction quotes s.194C under the 1961 Act",
+  oldC.statute === "1961" && oldC.section === "194C",
+  `${oldC.act} s.${oldC.section}`
+);
+ok(
+  "and it forward-references what the section becomes",
+  oldC.crossReference.includes("393(1)") && oldC.crossReference.includes("6(i)"),
+  oldC.crossReference
+);
+var newC = statuteReference("194C", "2026-05-10");
+ok(
+  "a May deduction moves to s.393(1) under the 2025 Act",
+  newC.statute === "2025" && newC.section === "393(1)",
+  `${newC.act} s.${newC.section}`
+);
+ok(
+  "with the table item for the payee class",
+  newC.tableRef !== null && newC.tableRef.includes("6(i).D(a)") && newC.tableRef.includes("6(i).D(b)"),
+  String(newC.tableRef)
+);
+ok(
+  "and it cross-references the former section an accountant still knows",
+  newC.crossReference.includes("194C"),
+  newC.crossReference
+);
+ok(
+  "the reference prints one readable line",
+  explainStatuteReference(newC).startsWith("Income-tax Act, 2025 \xB7 s.393(1)"),
+  explainStatuteReference(newC)
+);
+ok(
+  "professional fees land on the 194J(b) table item with code 1027",
+  statuteReference("194J(b)", "2026-09-30").tableRef === "Sl. 6(iii).D(b)" && statuteReference("194J(b)", "2026-09-30").paymentCode === 1027
+);
+ok(
+  "technical fees land on 194J(a) with code 1026",
+  statuteReference("194J(a)", "2026-09-30").paymentCode === 1026
+);
+ok(
+  "partner payments move to s.393(3) (the 'any person' table)",
+  statuteReference("194T", "2026-09-30").section === "393(3)" && statuteReference("194T", "2026-09-30").tableRef === "Sl. 7"
+);
+ok(
+  "non-resident payments move to s.393(2)",
+  statuteReference("195", "2026-09-30").section === "393(2)"
+);
+ok(
+  "salary is its own section, not part of the 393 table",
+  statuteReference("192", "2026-09-30").section === "392"
+);
+var r194r = statuteReference("194R", "2026-09-30");
+ok(
+  "a disputed payment code is withheld, not guessed",
+  r194r.tableRef === "Sl. 8(iv)" && r194r.paymentCode === null && r194r.confidence === "reported",
+  `${r194r.tableRef} / code ${String(r194r.paymentCode)} / ${r194r.confidence}`
+);
+ok(
+  "and the disagreement is named in the basis",
+  r194r.basis.includes("sources disagree"),
+  r194r.basis.slice(0, 90)
+);
+var r194m = statuteReference("194M", "2026-09-30");
+ok(
+  "a section with no mapping is declared unmapped rather than invented",
+  r194m.confidence === "unmapped" && r194m.tableRef === null,
+  `${r194m.confidence} / ${String(r194m.tableRef)}`
+);
+ok(
+  "and it tells the operator to confirm against the department's master",
+  r194m.basis.includes("validation master"),
+  r194m.basis.slice(0, 80)
+);
+ok(
+  "TCS moves to s.394 rather than disappearing",
+  statuteReference("206C(1)", "2026-09-30", "tcs").section === "394",
+  statuteReference("206C(1)", "2026-09-30", "tcs").basis.slice(0, 70)
+);
+ok(
+  "the repealed 206C(1H) has no successor entry to quote",
+  statuteReference("206C(1H)", "2026-09-30", "tcs").basis.includes("repealed"),
+  statuteReference("206C(1H)", "2026-09-30", "tcs").basis.slice(0, 70)
+);
+var fOld = returnFormFor("194C", "2026-03-31");
+ok(
+  "before the changeover the return form is the familiar 26Q",
+  fOld.form === "26Q" && fOld.certificate === "Form 16A" && fOld.confidence === "asserted"
+);
+var fNew = returnFormFor("194C", "2026-05-10");
+ok(
+  "after it, the form numbering is stated but NOT asserted",
+  fNew.confidence === "reported" && fNew.basis.includes("does NOT assert"),
+  `${fNew.form} \u2014 ${fNew.confidence}`
+);
+ok(
+  "and the reason it is not asserted is named",
+  fNew.basis.includes("disagree"),
+  fNew.basis.slice(0, 90)
+);
+ok(
+  "salary keeps its own form numbering",
+  returnFormFor("192", "2026-03-31").form === "24Q"
+);
+var dated = computeTds({
+  section: "194C",
+  amount: P(6e4),
+  payeeType: "company",
+  creditOrPaymentOn: "2026-05-10"
+});
+ok(
+  "a dated deduction returns the statute alongside the rate",
+  dated.statute === "2025" && dated.statuteReference?.section === "393(1)",
+  `${String(dated.statute)} / ${String(dated.statuteReference?.section)}`
+);
+ok("the form to file follows the date", dated.formToFile === "140", String(dated.formToFile));
+ok(
+  "the verdict's basis names the section to quote",
+  dated.basis.includes("393(1)"),
+  dated.basis.slice(-90)
+);
+var undated = computeTds({ section: "194C", amount: P(6e4), payeeType: "company" });
+ok(
+  "an undated deduction still computes the rate",
+  undated.tds === dated.tds && undated.tds === P(1200),
+  `${undated.tds} vs ${dated.tds}`
+);
+ok(
+  "but refuses to name a statute",
+  undated.statute === null && undated.statuteReference === null
+);
+ok(
+  "and says exactly why the answer is incomplete",
+  undated.warnings.some((w) => w.includes("earlier of the date of credit")),
+  JSON.stringify(undated.warnings)
+);
+var backdated = computeTds({
+  section: "194C",
+  amount: P(6e4),
+  payeeType: "company",
+  creditOrPaymentOn: "2026-03-20"
+});
+ok(
+  "the RATES are identical either side of the changeover",
+  backdated.tds === dated.tds && backdated.rate === dated.rate,
+  `${backdated.rate}% / ${backdated.tds} vs ${dated.rate}% / ${dated.tds}`
+);
+ok(
+  "only the legal reference moves",
+  backdated.statute === "1961" && backdated.formToFile === "26Q",
+  `${String(backdated.statute)} / ${String(backdated.formToFile)}`
+);
+ok(
+  "206AA still forces the higher rate under the new Act",
+  computeTds({
+    section: "194J(b)",
+    amount: P(6e4),
+    panAvailable: false,
+    creditOrPaymentOn: "2026-06-01"
+  }).rate === 20
 );
 section("10. MSME \u2014 the 45-day clock that becomes a disallowance");
 ok(

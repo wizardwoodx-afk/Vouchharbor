@@ -13,6 +13,7 @@
  */
 import { RULESET } from "./ruleset";
 import { type Paise, rate as applyRate, roundToRupee } from "./money";
+import { statuteReference, returnFormFor, type Statute, type StatuteReference } from "./tdsStatute";
 
 export type TdsForm = "24Q" | "26Q" | "27Q" | "26QB" | "27EQ";
 
@@ -121,6 +122,16 @@ export interface TdsInput {
   /** false triggers Section 206AA. */
   panAvailable?: boolean;
   isSeniorCitizen?: boolean;
+  /**
+   * The EARLIER of the date of credit and the date of payment, ISO yyyy-mm-dd.
+   *
+   * This is not a nicety. On or after 1 April 2026 the Income-tax Act, 2025 governs the
+   * deduction and the old 194-series reference must not be quoted on the return; before
+   * that date the 1961 Act does. Without this input the answer is incomplete, and the
+   * engine says so rather than defaulting to whichever Act it happens to be compiled
+   * against.
+   */
+  creditOrPaymentOn?: string;
 }
 
 export interface TdsVerdict {
@@ -128,8 +139,17 @@ export interface TdsVerdict {
   rate: number;
   tds: Paise;
   section: string;
+  /** The form on the 1961-Act table — the historical label. `formToFile` is what applies. */
   form: TdsForm | null;
+  /** The form that applies on the date supplied. */
+  formToFile: string | null;
+  /** null when no credit/payment date was supplied — the statute is then undetermined. */
+  statute: Statute | null;
+  /** The section to QUOTE, its table item, its payment code and the cross-reference. */
+  statuteReference: StatuteReference | null;
   basis: string;
+  /** Basis for the form numbering, kept separate because its confidence is lower. */
+  formBasis: string;
   warnings: string[];
 }
 
@@ -142,14 +162,36 @@ export interface TdsVerdict {
  * or under-deducts (a demand).
  */
 export function computeTds(input: TdsInput): TdsVerdict {
+  const warnings: string[] = [];
+  const eventDate = input.creditOrPaymentOn?.trim();
+  const ref = eventDate ? statuteReference(input.section, eventDate) : null;
+  const formInfo = eventDate ? returnFormFor(input.section, eventDate) : null;
+  if (!eventDate) {
+    warnings.push("the earlier of the date of credit and the date of payment was not supplied — the "
+      + "RATE is computed, but which Act governs and which section reference to quote are NOT: from "
+      + "1 April 2026 the Income-tax Act, 2025 governs and the 194-series label must not be used");
+  }
+  if (ref?.confidence === "unmapped") warnings.push(ref.basis);
+
   const s = tdsSection(input.section);
   if (!s) {
     return { applicable: false, rate: 0, tds: 0, section: input.section, form: null,
+             formToFile: formInfo?.form ?? null,
+             statute: ref?.statute ?? null,
+             statuteReference: ref,
+             formBasis: formInfo?.basis ?? "statute not determined without a credit/payment date",
              basis: `section ${input.section} is not in the ${RULESET} table — do not deduct on a guess`,
-             warnings: ["unknown section"] };
+             warnings: ["unknown section", ...warnings] };
   }
 
-  const warnings: string[] = [];
+  /** Every path below carries the routing, so no answer is half a question. */
+  const routing = {
+    formToFile: formInfo?.form ?? s.form,
+    statute: ref?.statute ?? null,
+    statuteReference: ref,
+    formBasis: formInfo?.basis ?? "statute not determined without a credit/payment date",
+  };
+
   const previously = input.previouslyPaid ?? 0;
   const cumulative = previously + input.amount;
   const threshold = s.section === "194A" && input.isSeniorCitizen ? L : s.threshold;
@@ -165,6 +207,7 @@ export function computeTds(input: TdsInput): TdsVerdict {
   }
   if (s.rate === null && !s.byPayee) {
     return { applicable: true, rate: 0, tds: 0, section: s.section, form: s.form,
+             ...routing,
              basis: `${s.section}: ${s.basis} — the rate must be determined from the payee's status, `
                + "not from a table",
              warnings: ["rate not auto-determinable"] };
@@ -173,6 +216,7 @@ export function computeTds(input: TdsInput): TdsVerdict {
   const crossed = s.thresholdBasis === "annual" ? cumulative > threshold : input.amount > threshold;
   if (!crossed) {
     return { applicable: false, rate, tds: 0, section: s.section, form: s.form,
+             ...routing,
              basis: `threshold not crossed (${s.thresholdBasis}); ${s.basis}`, warnings };
   }
 
@@ -196,7 +240,10 @@ export function computeTds(input: TdsInput): TdsVerdict {
   const tds = roundToRupee(applyRate(amountToDeduct, rate));
   return {
     applicable: true, rate, tds, section: s.section, form: s.form,
-    basis: `s.${s.section} at ${rate}% on ${amountToDeduct} paise — ${s.basis}`, warnings,
+    ...routing,
+    basis: `s.${s.section} at ${rate}% on ${amountToDeduct} paise — ${s.basis}`
+      + (ref ? `. Reference to quote — ${ref.basis}` : ""),
+    warnings,
   };
 }
 

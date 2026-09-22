@@ -38,5 +38,6 @@ export * from "./gst/itc";
 export * from "./gst/returns";
 export * from "./gst/statutory";
 export * from "./tds";
+export * from "./tdsStatute";
 export * from "./msme";
 export { AGENTS, agentsByDomain, findAgent, agentCount, rosterStatus, type Agent, type Domain } from "./agents";
