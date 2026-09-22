@@ -15586,7 +15586,7 @@ function section(name) {
   console.log(`
 == ${name}`);
 }
-section("1. the shell opens on the Steward \u2014 one shell, six doors");
+section("1. the shell opens on the Steward \u2014 one shell, seven doors");
 var appSrc = read("src/App.tsx");
 var storeSrc = read("src/ui/store.ts");
 var shellSrc = read("src/ui/Shell.tsx");

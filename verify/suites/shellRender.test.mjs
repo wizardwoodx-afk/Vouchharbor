@@ -54,7 +54,7 @@ var require_react_production_min = __commonJS({
     var x3 = Symbol.for("react.memo");
     var y3 = Symbol.for("react.lazy");
     var z4 = Symbol.iterator;
-    function A2(a3) {
+    function A3(a3) {
       if (null === a3 || "object" !== typeof a3) return null;
       a3 = z4 && a3[z4] || a3["@@iterator"];
       return "function" === typeof a3 ? a3 : null;
@@ -97,10 +97,10 @@ var require_react_production_min = __commonJS({
     var I2 = Array.isArray;
     var J2 = Object.prototype.hasOwnProperty;
     var K3 = { current: null };
-    var L2 = { key: true, ref: true, __self: true, __source: true };
+    var L3 = { key: true, ref: true, __self: true, __source: true };
     function M2(a3, b3, e3) {
       var d3, c3 = {}, k2 = null, h2 = null;
-      if (null != b3) for (d3 in void 0 !== b3.ref && (h2 = b3.ref), void 0 !== b3.key && (k2 = "" + b3.key), b3) J2.call(b3, d3) && !L2.hasOwnProperty(d3) && (c3[d3] = b3[d3]);
+      if (null != b3) for (d3 in void 0 !== b3.ref && (h2 = b3.ref), void 0 !== b3.key && (k2 = "" + b3.key), b3) J2.call(b3, d3) && !L3.hasOwnProperty(d3) && (c3[d3] = b3[d3]);
       var g3 = arguments.length - 2;
       if (1 === g3) c3.children = e3;
       else if (1 < g3) {
@@ -153,7 +153,7 @@ var require_react_production_min = __commonJS({
         var f4 = d3 + Q2(k2, g3);
         h2 += R2(k2, b3, e3, f4, c3);
       }
-      else if (f4 = A2(a3), "function" === typeof f4) for (a3 = f4.call(a3), g3 = 0; !(k2 = a3.next()).done; ) k2 = k2.value, f4 = d3 + Q2(k2, g3++), h2 += R2(k2, b3, e3, f4, c3);
+      else if (f4 = A3(a3), "function" === typeof f4) for (a3 = f4.call(a3), g3 = 0; !(k2 = a3.next()).done; ) k2 = k2.value, f4 = d3 + Q2(k2, g3++), h2 += R2(k2, b3, e3, f4, c3);
       else if ("object" === k2) throw b3 = String(a3), Error("Objects are not valid as a React child (found: " + ("[object Object]" === b3 ? "object with keys {" + Object.keys(a3).join(", ") + "}" : b3) + "). If you meant to render a collection of children, use an array instead.");
       return h2;
     }
@@ -218,7 +218,7 @@ var require_react_production_min = __commonJS({
         void 0 !== b3.ref && (k2 = b3.ref, h2 = K3.current);
         void 0 !== b3.key && (c3 = "" + b3.key);
         if (a3.type && a3.type.defaultProps) var g3 = a3.type.defaultProps;
-        for (f4 in b3) J2.call(b3, f4) && !L2.hasOwnProperty(f4) && (d3[f4] = void 0 === b3[f4] && void 0 !== g3 ? g3[f4] : b3[f4]);
+        for (f4 in b3) J2.call(b3, f4) && !L3.hasOwnProperty(f4) && (d3[f4] = void 0 === b3[f4] && void 0 !== g3 ? g3[f4] : b3[f4]);
       }
       var f4 = arguments.length - 2;
       if (1 === f4) d3.children = e3;
@@ -1370,7 +1370,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context);
         }
-        function useState9(initialState) {
+        function useState10(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1398,7 +1398,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo4(create2, deps) {
+        function useMemo5(create2, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useMemo(create2, deps);
         }
@@ -2170,10 +2170,10 @@ var require_react_development = __commonJS({
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
         exports.useLayoutEffect = useLayoutEffect;
-        exports.useMemo = useMemo4;
+        exports.useMemo = useMemo5;
         exports.useReducer = useReducer;
         exports.useRef = useRef4;
-        exports.useState = useState9;
+        exports.useState = useState10;
         exports.useSyncExternalStore = useSyncExternalStore;
         exports.useTransition = useTransition;
         exports.version = ReactVersion;
@@ -2815,7 +2815,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       "" === b3 ? a3 = d3 : (d3 && a3.push("<!-- -->"), a3.push(u2(b3)), a3 = true);
       return a3;
     }
-    var A2 = Object.assign;
+    var A3 = Object.assign;
     var Ia = Symbol.for("react.element");
     var Ja = Symbol.for("react.portal");
     var Ka = Symbol.for("react.fragment");
@@ -2943,7 +2943,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       var g3 = b3.contextType;
       a3.context = "object" === typeof g3 && null !== g3 ? g3._currentValue2 : d3;
       g3 = b3.getDerivedStateFromProps;
-      "function" === typeof g3 && (g3 = g3(c3, f4), f4 = null === g3 || void 0 === g3 ? f4 : A2({}, f4, g3), a3.state = f4);
+      "function" === typeof g3 && (g3 = g3(c3, f4), f4 = null === g3 || void 0 === g3 ? f4 : A3({}, f4, g3), a3.state = f4);
       if ("function" !== typeof b3.getDerivedStateFromProps && "function" !== typeof a3.getSnapshotBeforeUpdate && ("function" === typeof a3.UNSAFE_componentWillMount || "function" === typeof a3.componentWillMount)) if (b3 = a3.state, "function" === typeof a3.componentWillMount && a3.componentWillMount(), "function" === typeof a3.UNSAFE_componentWillMount && a3.UNSAFE_componentWillMount(), b3 !== a3.state && fb.enqueueReplaceState(a3, a3.state, null), null !== e3.queue && 0 < e3.queue.length) if (b3 = e3.queue, g3 = e3.replace, e3.queue = null, e3.replace = false, g3 && 1 === b3.length) a3.state = b3[0];
       else {
         e3 = g3 ? b3[0] : a3.state;
@@ -2951,7 +2951,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         for (g3 = g3 ? 1 : 0; g3 < b3.length; g3++) {
           var h2 = b3[g3];
           h2 = "function" === typeof h2 ? h2.call(a3, e3, c3, d3) : h2;
-          null != h2 && (f4 ? (f4 = false, e3 = A2({}, e3, h2)) : A2(e3, h2));
+          null != h2 && (f4 ? (f4 = false, e3 = A3({}, e3, h2)) : A3(e3, h2));
         }
         a3.state = e3;
       }
@@ -2990,7 +2990,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     var I2 = null;
     var J2 = null;
     var K3 = false;
-    var L2 = false;
+    var L3 = false;
     var M2 = 0;
     var N3 = null;
     var O2 = 0;
@@ -3008,7 +3008,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     }
     function tb() {
       ob = H2 = null;
-      L2 = false;
+      L3 = false;
       I2 = null;
       O2 = 0;
       J2 = N3 = null;
@@ -3064,7 +3064,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     }
     function wb(a3, b3, c3) {
       if (25 <= O2) throw Error("Too many re-renders. React limits the number of renders to prevent an infinite loop.");
-      if (a3 === H2) if (L2 = true, a3 = { action: c3, next: null }, null === N3 && (N3 = /* @__PURE__ */ new Map()), c3 = N3.get(b3), void 0 === c3) N3.set(b3, a3);
+      if (a3 === H2) if (L3 = true, a3 = { action: c3, next: null }, null === N3 && (N3 = /* @__PURE__ */ new Map()), c3 = N3.get(b3), void 0 === c3) N3.set(b3, a3);
       else {
         for (b3 = c3; null !== b3.next; ) b3 = b3.next;
         b3.next = a3;
@@ -3163,7 +3163,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       H2 = {};
       ob = b3;
       M2 = 0;
-      for (a3 = c3(d3, f4); L2; ) L2 = false, M2 = 0, O2 += 1, J2 = null, a3 = c3(d3, f4);
+      for (a3 = c3(d3, f4); L3; ) L3 = false, M2 = 0, O2 += 1, J2 = null, a3 = c3(d3, f4);
       tb();
       return a3;
     }
@@ -3175,7 +3175,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         else {
           c3 = c3.getChildContext();
           for (var h2 in c3) if (!(h2 in e3)) throw Error((Za(d3) || "Unknown") + '.getChildContext(): key "' + h2 + '" is not defined in childContextTypes.');
-          d3 = A2({}, g3, c3);
+          d3 = A3({}, g3, c3);
         }
         b3.legacyContext = d3;
         W2(a3, b3, f4);
@@ -3184,7 +3184,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     }
     function Hb(a3, b3) {
       if (a3 && a3.defaultProps) {
-        b3 = A2({}, b3);
+        b3 = A3({}, b3);
         a3 = a3.defaultProps;
         for (var c3 in a3) void 0 === b3[c3] && (b3[c3] = a3[c3]);
         return b3;
@@ -3818,34 +3818,34 @@ var require_react_dom_server_node_production_min = __commonJS({
       this.sanitizeURL = e3;
       this.removeEmptyString = g3;
     }
-    var A2 = {};
+    var A3 = {};
     "children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(a3) {
-      A2[a3] = new z4(a3, 0, false, a3, null, false, false);
+      A3[a3] = new z4(a3, 0, false, a3, null, false, false);
     });
     [["acceptCharset", "accept-charset"], ["className", "class"], ["htmlFor", "for"], ["httpEquiv", "http-equiv"]].forEach(function(a3) {
       var b3 = a3[0];
-      A2[b3] = new z4(b3, 1, false, a3[1], null, false, false);
+      A3[b3] = new z4(b3, 1, false, a3[1], null, false, false);
     });
     ["contentEditable", "draggable", "spellCheck", "value"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 2, false, a3.toLowerCase(), null, false, false);
+      A3[a3] = new z4(a3, 2, false, a3.toLowerCase(), null, false, false);
     });
     ["autoReverse", "externalResourcesRequired", "focusable", "preserveAlpha"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 2, false, a3, null, false, false);
+      A3[a3] = new z4(a3, 2, false, a3, null, false, false);
     });
     "allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture disableRemotePlayback formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(a3) {
-      A2[a3] = new z4(a3, 3, false, a3.toLowerCase(), null, false, false);
+      A3[a3] = new z4(a3, 3, false, a3.toLowerCase(), null, false, false);
     });
     ["checked", "multiple", "muted", "selected"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 3, true, a3, null, false, false);
+      A3[a3] = new z4(a3, 3, true, a3, null, false, false);
     });
     ["capture", "download"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 4, false, a3, null, false, false);
+      A3[a3] = new z4(a3, 4, false, a3, null, false, false);
     });
     ["cols", "rows", "size", "span"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 6, false, a3, null, false, false);
+      A3[a3] = new z4(a3, 6, false, a3, null, false, false);
     });
     ["rowSpan", "start"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 5, false, a3.toLowerCase(), null, false, false);
+      A3[a3] = new z4(a3, 5, false, a3.toLowerCase(), null, false, false);
     });
     var ia = /[\-:]([a-z])/g;
     function ja(a3) {
@@ -3856,22 +3856,22 @@ var require_react_dom_server_node_production_min = __commonJS({
         ia,
         ja
       );
-      A2[b3] = new z4(b3, 1, false, a3, null, false, false);
+      A3[b3] = new z4(b3, 1, false, a3, null, false, false);
     });
     "xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(a3) {
       var b3 = a3.replace(ia, ja);
-      A2[b3] = new z4(b3, 1, false, a3, "http://www.w3.org/1999/xlink", false, false);
+      A3[b3] = new z4(b3, 1, false, a3, "http://www.w3.org/1999/xlink", false, false);
     });
     ["xml:base", "xml:lang", "xml:space"].forEach(function(a3) {
       var b3 = a3.replace(ia, ja);
-      A2[b3] = new z4(b3, 1, false, a3, "http://www.w3.org/XML/1998/namespace", false, false);
+      A3[b3] = new z4(b3, 1, false, a3, "http://www.w3.org/XML/1998/namespace", false, false);
     });
     ["tabIndex", "crossOrigin"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 1, false, a3.toLowerCase(), null, false, false);
+      A3[a3] = new z4(a3, 1, false, a3.toLowerCase(), null, false, false);
     });
-    A2.xlinkHref = new z4("xlinkHref", 1, false, "xlink:href", "http://www.w3.org/1999/xlink", true, false);
+    A3.xlinkHref = new z4("xlinkHref", 1, false, "xlink:href", "http://www.w3.org/1999/xlink", true, false);
     ["src", "href", "action", "formAction"].forEach(function(a3) {
-      A2[a3] = new z4(a3, 1, false, a3.toLowerCase(), null, true, true);
+      A3[a3] = new z4(a3, 1, false, a3.toLowerCase(), null, true, true);
     });
     var B3 = {
       animationIterationCount: true,
@@ -4049,7 +4049,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           return;
       }
       if (!(2 < c3.length) || "o" !== c3[0] && "O" !== c3[0] || "n" !== c3[1] && "N" !== c3[1]) {
-        if (b3 = A2.hasOwnProperty(c3) ? A2[c3] : null, null !== b3) {
+        if (b3 = A3.hasOwnProperty(c3) ? A3[c3] : null, null !== b3) {
           switch (typeof d3) {
             case "function":
             case "symbol":
@@ -4086,7 +4086,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         }
       }
     }
-    var L2 = x3(">");
+    var L3 = x3(">");
     var Ha = x3("/>");
     function M2(a3, b3, c3) {
       if (null != b3) {
@@ -4120,7 +4120,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             K3(a3, d3, e3, g3);
         }
       }
-      a3.push(L2);
+      a3.push(L3);
       M2(a3, f4, c3);
       return "string" === typeof c3 ? (a3.push(F2(c3)), null) : c3;
     }
@@ -4158,7 +4158,7 @@ var require_react_dom_server_node_production_min = __commonJS({
                 K3(a3, d3, p2, h2);
             }
           }
-          a3.push(L2);
+          a3.push(L3);
           M2(a3, g3, e3);
           return e3;
         case "option":
@@ -4192,7 +4192,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           }
           else "" + g3 === c3 && a3.push(Ja);
           else n2 && a3.push(Ja);
-          a3.push(L2);
+          a3.push(L3);
           M2(a3, p2, h2);
           return h2;
         case "textarea":
@@ -4214,7 +4214,7 @@ var require_react_dom_server_node_production_min = __commonJS({
               K3(a3, d3, h2, m3);
           }
           null === e3 && null !== g3 && (e3 = g3);
-          a3.push(L2);
+          a3.push(L3);
           if (null != p2) {
             if (null != e3) throw Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
             if (qa(p2) && 1 < p2.length) throw Error("<textarea> can only have at most one child.");
@@ -4258,7 +4258,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             default:
               K3(a3, d3, C2, e3);
           }
-          a3.push(L2);
+          a3.push(L3);
           return null;
         case "title":
           a3.push(N3("title"));
@@ -4272,7 +4272,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             default:
               K3(a3, d3, v2, g3);
           }
-          a3.push(L2);
+          a3.push(L3);
           return e3;
         case "listing":
         case "pre":
@@ -4288,7 +4288,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             default:
               K3(a3, d3, m3, h2);
           }
-          a3.push(L2);
+          a3.push(L3);
           if (null != g3) {
             if (null != e3) throw Error("Can only set one of `children` or `props.dangerouslySetInnerHTML`.");
             if ("object" !== typeof g3 || !("__html" in g3)) throw Error("`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://reactjs.org/link/dangerously-set-inner-html for more information.");
@@ -4357,7 +4357,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             default:
               ha(n2) && "function" !== typeof h2 && "symbol" !== typeof h2 && a3.push(I2, n2, J2, F2(h2), H2);
           }
-          a3.push(L2);
+          a3.push(L3);
           M2(a3, g3, e3);
           return e3;
       }
@@ -5440,10 +5440,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React14 = require_react();
         var stream = __require("stream");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn2(format) {
           {
             {
@@ -7349,7 +7349,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         }
         function flattenOptionChildren(children2) {
           var content = "";
-          React13.Children.forEach(children2, function(child) {
+          React14.Children.forEach(children2, function(child) {
             if (child == null) {
               return;
             }
@@ -9363,7 +9363,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         function basicStateReducer(state2, action) {
           return typeof action === "function" ? action(state2) : action;
         }
-        function useState9(initialState) {
+        function useState10(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -9428,7 +9428,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             return [workInProgressHook.memoizedState, _dispatch];
           }
         }
-        function useMemo4(nextCreate, deps) {
+        function useMemo5(nextCreate, deps) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
@@ -9502,7 +9502,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           }
         }
         function useCallback(callback, deps) {
-          return useMemo4(function() {
+          return useMemo5(function() {
             return callback;
           }, deps);
         }
@@ -9542,10 +9542,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         var Dispatcher = {
           readContext: readContext$1,
           useContext,
-          useMemo: useMemo4,
+          useMemo: useMemo5,
           useReducer,
           useRef: useRef4,
-          useState: useState9,
+          useState: useState10,
           useInsertionEffect: noop2,
           useLayoutEffect,
           useCallback,
@@ -10886,10 +10886,10 @@ var require_react_dom_server_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React14 = require_react();
         var util = __require("util");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn2(format) {
           {
             {
@@ -12892,7 +12892,7 @@ var require_react_dom_server_node_development = __commonJS({
         }
         function flattenOptionChildren(children2) {
           var content = "";
-          React13.Children.forEach(children2, function(child) {
+          React14.Children.forEach(children2, function(child) {
             if (child == null) {
               return;
             }
@@ -14842,7 +14842,7 @@ var require_react_dom_server_node_development = __commonJS({
         function basicStateReducer(state2, action) {
           return typeof action === "function" ? action(state2) : action;
         }
-        function useState9(initialState) {
+        function useState10(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -14907,7 +14907,7 @@ var require_react_dom_server_node_development = __commonJS({
             return [workInProgressHook.memoizedState, _dispatch];
           }
         }
-        function useMemo4(nextCreate, deps) {
+        function useMemo5(nextCreate, deps) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
@@ -14981,7 +14981,7 @@ var require_react_dom_server_node_development = __commonJS({
           }
         }
         function useCallback(callback, deps) {
-          return useMemo4(function() {
+          return useMemo5(function() {
             return callback;
           }, deps);
         }
@@ -15021,10 +15021,10 @@ var require_react_dom_server_node_development = __commonJS({
         var Dispatcher = {
           readContext: readContext$1,
           useContext,
-          useMemo: useMemo4,
+          useMemo: useMemo5,
           useReducer,
           useRef: useRef4,
-          useState: useState9,
+          useState: useState10,
           useInsertionEffect: noop2,
           useLayoutEffect,
           useCallback,
@@ -54252,8 +54252,8 @@ function pemToDer(pem2) {
   for (let i2 = 0; i2 < bin.length; i2++) out[i2] = bin.charCodeAt(i2);
   return out.buffer;
 }
-async function loadOrCreate(storage18, identity2, security) {
-  const owner = identity2.trim() || AUTHORITY_OWNER_FALLBACK;
+async function loadOrCreate(storage18, identity3, security) {
+  const owner = identity3.trim() || AUTHORITY_OWNER_FALLBACK;
   if (storage18) {
     try {
       const raw = storage18.get();
@@ -66389,7 +66389,7 @@ var require_react_jsx_runtime_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React14 = require_react();
         var REACT_ELEMENT_TYPE = Symbol.for("react.element");
         var REACT_PORTAL_TYPE = Symbol.for("react.portal");
         var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
@@ -66415,7 +66415,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return null;
         }
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function error64(format) {
           {
             {
@@ -67265,11 +67265,11 @@ var require_react_jsx_runtime_development = __commonJS({
             return jsxWithValidation(type, props, key, false);
           }
         }
-        var jsx12 = jsxWithValidationDynamic;
-        var jsxs11 = jsxWithValidationStatic;
+        var jsx13 = jsxWithValidationDynamic;
+        var jsxs12 = jsxWithValidationStatic;
         exports.Fragment = REACT_FRAGMENT_TYPE;
-        exports.jsx = jsx12;
-        exports.jsxs = jsxs11;
+        exports.jsx = jsx13;
+        exports.jsxs = jsxs12;
       })();
     }
   }
@@ -120517,10 +120517,10 @@ ${builder.flow.code}`;
           const Xi = hammersley(i2, GGX_SAMPLES3);
           const H_tangent = importanceSampleGGX_VNDF(Xi, vec3(0, 0, 1), roughness2);
           const H2 = normalize2(tangent.mul(H_tangent.x).add(bitangent.mul(H_tangent.y)).add(N3.mul(H_tangent.z)));
-          const L2 = normalize2(H2.mul(dot(N3, H2).mul(2)).sub(N3));
-          const NdotL = max$1(dot(N3, L2), 0);
+          const L3 = normalize2(H2.mul(dot(N3, H2).mul(2)).sub(N3));
+          const NdotL = max$1(dot(N3, L3), 0);
           If(NdotL.greaterThan(0), () => {
-            const sampleColor = bilinearCubeUV(envMap, L2, mipInt, CUBEUV_TEXEL_WIDTH, CUBEUV_TEXEL_HEIGHT, CUBEUV_MAX_MIP);
+            const sampleColor = bilinearCubeUV(envMap, L3, mipInt, CUBEUV_TEXEL_WIDTH, CUBEUV_TEXEL_HEIGHT, CUBEUV_MAX_MIP);
             prefilteredColor.addAssign(sampleColor.mul(NdotL));
             totalWeight.addAssign(NdotL);
           });
@@ -155359,7 +155359,7 @@ function V(n2) {
   };
 }
 function q(n2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
-  var s2, h2, p2, v2, y3, d3, _2, k2, x3, M2, I2, P3, A2, H2, T3, j2, F2 = u2.type;
+  var s2, h2, p2, v2, y3, d3, _2, k2, x3, M2, I2, P3, A3, H2, T3, j2, F2 = u2.type;
   if (void 0 !== u2.constructor) return null;
   128 & t2.__u && (c3 = !!(32 & t2.__u), o2 = [f4 = u2.__e = t2.__e]), (s2 = l.__b) && s2(u2);
   n: if ("function" == typeof F2) {
@@ -155377,9 +155377,9 @@ function q(n2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
           p2.componentDidUpdate(y3, d3, _2);
         });
       }
-      if (p2.context = P3, p2.props = x3, p2.__P = n2, p2.__e = false, A2 = l.__r, H2 = 0, M2) p2.state = p2.__s, p2.__d = false, A2 && A2(u2), s2 = p2.render(p2.props, p2.state, p2.context), w.push.apply(p2.__h, p2._sb), p2._sb = [];
+      if (p2.context = P3, p2.props = x3, p2.__P = n2, p2.__e = false, A3 = l.__r, H2 = 0, M2) p2.state = p2.__s, p2.__d = false, A3 && A3(u2), s2 = p2.render(p2.props, p2.state, p2.context), w.push.apply(p2.__h, p2._sb), p2._sb = [];
       else do {
-        p2.__d = false, A2 && A2(u2), s2 = p2.render(p2.props, p2.state, p2.context), p2.state = p2.__s;
+        p2.__d = false, A3 && A3(u2), s2 = p2.render(p2.props, p2.state, p2.context), p2.state = p2.__s;
       } while (p2.__d && ++H2 < 25);
       p2.state = p2.__s, null != p2.getChildContext && (i2 = m2(m2({}, i2), p2.getChildContext())), M2 && !v2 && null != p2.getSnapshotBeforeUpdate && (_2 = p2.getSnapshotBeforeUpdate(y3, d3)), T3 = null != s2 && s2.type === S && null == s2.key ? E(s2.props.children) : s2, f4 = L(n2, g(T3) ? T3 : [T3], u2, t2, i2, r3, o2, e3, f4, c3, a3), p2.base = u2.__e, u2.__u &= -161, p2.__h.length && e3.push(p2), k2 && (p2.__E = p2.__ = null);
     } catch (n3) {
@@ -155634,9 +155634,9 @@ var init_float_tooltip = __esm({
     isReactRenderable = function isReactRenderable2(o2) {
       return t(W(o2));
     };
-    render = function render2(jsx12, domEl) {
+    render = function render2(jsx13, domEl) {
       delete domEl.__k;
-      R(_reactElement2VNode(jsx12), domEl);
+      R(_reactElement2VNode(jsx13), domEl);
     };
     css_248z = ".float-tooltip-kap {\n  position: absolute;\n  width: max-content; /* prevent shrinking near right edge */\n  max-width: max(50%, 150px);\n  padding: 3px 5px;\n  border-radius: 3px;\n  font: 12px sans-serif;\n  color: #eee;\n  background: rgba(0,0,0,0.6);\n  pointer-events: none;\n}\n";
     styleInject(css_248z);
@@ -157204,6 +157204,2381 @@ var init_Work = __esm({
   }
 });
 
+// src/munshi/ruleset.ts
+var RULESET, RULESET_BASIS;
+var init_ruleset = __esm({
+  "src/munshi/ruleset.ts"() {
+    "use strict";
+    RULESET = "IN-2026.04";
+    RULESET_BASIS = Object.freeze({
+      gstRates: "22 September 2025 (56th GST Council) \u2014 12% and 28% slabs abolished for most goods and services",
+      gstr3bLock: "July 2025 tax period onwards \u2014 auto-populated liability fields are non-editable; corrections move to GSTR-1 / GSTR-1A",
+      einvoice30Day: "1 April 2025 \u2014 30-day IRP reporting limit for AATO \u20B910 crore and above (Rule 48(4)/48(5))",
+      einvoiceMandate: "1 August 2023 \u2014 e-invoicing mandatory at AATO \u20B95 crore and above",
+      tds: "Finance Act 2025, effective 1 April 2025 \u2014 206AB/206CCA omitted, 206C(1H) repealed, 194T introduced, 194J threshold \u20B950,000",
+      msme: "Section 43B(h) \u2014 payments to micro and small enterprises within 45 days (15 where no agreement)",
+      ims: "Invoice Management System \u2014 accept / reject / pending actioning drives the recipient's GSTR-2B"
+    });
+  }
+});
+
+// src/munshi/money.ts
+function paise(n2) {
+  if (!Number.isFinite(n2)) throw new Error(`munshi/money: not a finite amount: ${n2}`);
+  return Math.round(n2);
+}
+function rupeesToPaise(rupees) {
+  return paise(rupees * 100);
+}
+function rate(amount, percent) {
+  return paise(amount * percent / 100);
+}
+function roundToRupee(amount) {
+  return Math.round(amount / 100) * 100;
+}
+function formatINR(amount, opts = {}) {
+  const negative = amount < 0;
+  const abs2 = Math.abs(amount);
+  const whole = Math.floor(abs2 / 100);
+  const frac = abs2 % 100;
+  const s2 = String(whole);
+  let grouped;
+  if (s2.length <= 3) {
+    grouped = s2;
+  } else {
+    const head = s2.slice(0, s2.length - 3);
+    const tail = s2.slice(s2.length - 3);
+    grouped = head.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + tail;
+  }
+  const dec3 = opts.paisePart === false ? "" : `.${String(frac).padStart(2, "0")}`;
+  return `${negative ? "-" : ""}${opts.symbol === false ? "" : "\u20B9"}${grouped}${dec3}`;
+}
+function parseAmount(input2) {
+  if (input2 === null || input2 === void 0) return null;
+  let s2 = String(input2).trim();
+  if (s2 === "") return null;
+  let negative = false;
+  if (/^\(.*\)$/.test(s2)) {
+    negative = true;
+    s2 = s2.slice(1, -1);
+  }
+  if (s2.startsWith("-")) {
+    negative = true;
+    s2 = s2.slice(1);
+  }
+  s2 = s2.replace(/[₹,\s]/g, "");
+  const word = s2.match(/^([0-9]*\.?[0-9]+)(cr|crore|l|lakh|lac|lacs|k)$/i);
+  if (word) {
+    const n3 = Number(word[1]);
+    if (!Number.isFinite(n3)) return null;
+    const unit = word[2].toLowerCase();
+    const mult = unit.startsWith("cr") ? 1e7 : unit.startsWith("l") ? 1e5 : 1e3;
+    const value2 = rupeesToPaise(n3 * mult);
+    return negative ? -value2 : value2;
+  }
+  if (!/^[0-9]*\.?[0-9]+$/.test(s2)) return null;
+  const n2 = Number(s2);
+  if (!Number.isFinite(n2)) return null;
+  const value = rupeesToPaise(n2);
+  return negative ? -value : value;
+}
+var init_money = __esm({
+  "src/munshi/money.ts"() {
+    "use strict";
+  }
+});
+
+// src/munshi/gstin.ts
+function gstinCheckChar(first14) {
+  let sum = 0;
+  for (let i2 = 0; i2 < 14; i2++) {
+    const value = BASE36.indexOf(first14.charAt(i2).toUpperCase());
+    if (value < 0) return "?";
+    const factor = i2 % 2 === 0 ? 1 : 2;
+    const product = value * factor;
+    sum += Math.floor(product / 36) + product % 36;
+  }
+  return BASE36.charAt((36 - sum % 36) % 36);
+}
+function validatePan(pan) {
+  const p2 = String(pan ?? "").trim().toUpperCase();
+  if (p2.length !== 10) return { ok: false, code: "pan-length" };
+  if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(p2)) return { ok: false, code: "pan-format" };
+  const kind = PAN_HOLDER[p2.charAt(3)];
+  if (!kind) return { ok: false, code: "pan-holder-type" };
+  return { ok: true, holderType: kind };
+}
+function validateGstin(input2) {
+  const g3 = String(input2 ?? "").trim().toUpperCase().replace(/\s/g, "");
+  if (g3.length !== 15) return { ok: false, code: "length", detail: `${g3.length} characters, expected 15` };
+  if (!/^[0-9A-Z]+$/.test(g3)) return { ok: false, code: "characters", detail: "ASCII letters and digits only" };
+  const stateCode = g3.slice(0, 2);
+  const state2 = STATE_CODES[stateCode];
+  if (!state2) return { ok: false, code: "state-code", detail: `${stateCode} is not an issued state code` };
+  const pan = g3.slice(2, 12);
+  const panCheck = validatePan(pan);
+  if (!panCheck.ok) return { ok: false, code: "pan-format", detail: `embedded PAN ${pan} \u2014 ${panCheck.code}` };
+  const entityNumber = g3.charAt(12);
+  if (!/^[0-9A-Z]$/.test(entityNumber)) {
+    return { ok: false, code: "entity-number", detail: `entity number ${entityNumber} is not 1\u20139 or A\u2013Z` };
+  }
+  if (g3.charAt(13) !== "Z") {
+    return { ok: false, code: "reserved-char", detail: `character 14 is ${g3.charAt(13)}, expected Z` };
+  }
+  const expected = gstinCheckChar(g3.slice(0, 14));
+  if (g3.charAt(14) !== expected) {
+    return { ok: false, code: "checksum", detail: `check character is ${g3.charAt(14)}, expected ${expected}` };
+  }
+  return {
+    ok: true,
+    parts: {
+      gstin: g3,
+      stateCode,
+      state: state2,
+      pan,
+      holderType: panCheck.holderType ?? "Unknown",
+      entityNumber,
+      registrationKey: `${pan}/${stateCode}/${entityNumber}`
+    }
+  };
+}
+function explainGstin(input2) {
+  const v2 = validateGstin(input2);
+  if (v2.ok) {
+    const p2 = v2.parts;
+    return `valid \xB7 ${p2.state} (${p2.stateCode}) \xB7 ${p2.holderType} \xB7 entity ${p2.entityNumber}`;
+  }
+  return `INVALID (${v2.code}) \u2014 ${v2.detail}`;
+}
+function vendorKey(gstin) {
+  const v2 = validateGstin(gstin);
+  return v2.ok ? v2.parts.registrationKey : null;
+}
+var BASE36, STATE_CODES, PAN_HOLDER;
+var init_gstin = __esm({
+  "src/munshi/gstin.ts"() {
+    "use strict";
+    BASE36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    STATE_CODES = Object.freeze({
+      "01": "Jammu and Kashmir",
+      "02": "Himachal Pradesh",
+      "03": "Punjab",
+      "04": "Chandigarh",
+      "05": "Uttarakhand",
+      "06": "Haryana",
+      "07": "Delhi",
+      "08": "Rajasthan",
+      "09": "Uttar Pradesh",
+      "10": "Bihar",
+      "11": "Sikkim",
+      "12": "Arunachal Pradesh",
+      "13": "Nagaland",
+      "14": "Manipur",
+      "15": "Mizoram",
+      "16": "Tripura",
+      "17": "Meghalaya",
+      "18": "Assam",
+      "19": "West Bengal",
+      "20": "Jharkhand",
+      "21": "Odisha",
+      "22": "Chhattisgarh",
+      "23": "Madhya Pradesh",
+      "24": "Gujarat",
+      "25": "Daman and Diu (merged into 26)",
+      "26": "Dadra and Nagar Haveli and Daman and Diu",
+      "27": "Maharashtra",
+      "28": "Andhra Pradesh (pre-bifurcation)",
+      "29": "Karnataka",
+      "30": "Goa",
+      "31": "Lakshadweep",
+      "32": "Kerala",
+      "33": "Tamil Nadu",
+      "34": "Puducherry",
+      "35": "Andaman and Nicobar Islands",
+      "36": "Telangana",
+      "37": "Andhra Pradesh",
+      "38": "Ladakh",
+      "97": "Other Territory",
+      "99": "Centre Jurisdiction"
+    });
+    PAN_HOLDER = Object.freeze({
+      P: "Individual",
+      C: "Company",
+      H: "Hindu Undivided Family",
+      F: "Firm / LLP",
+      A: "Association of Persons",
+      T: "Trust",
+      B: "Body of Individuals",
+      L: "Local Authority",
+      J: "Artificial Juridical Person",
+      G: "Government"
+    });
+  }
+});
+
+// src/munshi/period.ts
+function dueDates(kind, period, scheme = "monthly", qrmpCategory = "X") {
+  const [y3, m3] = period.split("-").map(Number);
+  const nextMonth = m3 === 12 ? { y: y3 + 1, m: 1 } : { y: y3, m: m3 + 1 };
+  const day = (d3, inPeriod = period) => {
+    const [py2, pm] = inPeriod.split("-").map(Number);
+    const nm = pm === 12 ? { y: py2 + 1, m: 1 } : { y: py2, m: pm + 1 };
+    return `${nm.y}-${String(nm.m).padStart(2, "0")}-${String(d3).padStart(2, "0")}`;
+  };
+  switch (kind) {
+    case "GSTR-1":
+      return scheme === "monthly" ? [{ kind, period, due: day(11), basis: "Rule 59(1) \u2014 11th of the following month", ruleset: RULESET }] : [{ kind, period, due: day(13), basis: "Rule 59(1) proviso \u2014 13th after quarter end (QRMP)", ruleset: RULESET }];
+    case "IFF":
+      return [{ kind, period, due: day(13), basis: "Rule 59(2) \u2014 IFF by the 13th of the next month (QRMP)", ruleset: RULESET }];
+    case "GSTR-1A":
+      return [{ kind, period, due: day(11), basis: "GSTR-1A is filed before the period's GSTR-3B \u2014 corrections must reach the 3B", ruleset: RULESET }];
+    case "GSTR-3B":
+      if (scheme === "monthly") {
+        return [{ kind, period, due: day(20), basis: "Rule 61(1)(i) \u2014 20th of the following month", ruleset: RULESET }];
+      }
+      return [{
+        kind,
+        period,
+        due: day(qrmpCategory === "X" ? 22 : 24),
+        basis: `Rule 61(1)(ii) \u2014 QRMP Category ${qrmpCategory} (${qrmpCategory === "X" ? "22nd" : "24th"})`,
+        ruleset: RULESET
+      }];
+    case "GSTR-9":
+    case "GSTR-9C":
+      return [{
+        kind,
+        period,
+        due: `${Number(period.slice(0, 4)) + 1}-12-31`,
+        basis: "Annual return for the FY ending in this year \u2014 due 31 December",
+        ruleset: RULESET
+      }];
+    case "CMP-08":
+      return [{ kind, period, due: day(18), basis: "Rule 61A \u2014 composition quarterly statement by the 18th", ruleset: RULESET }];
+    case "GSTR-4":
+      return [{ kind, period, due: `${Number(period.slice(0, 4)) + 1}-06-30`, basis: "Rule 62 \u2014 annual composition return by 30 June", ruleset: RULESET }];
+    case "ITC-04":
+      return [{ kind, period, due: day(25), basis: "Rule 45 \u2014 job-work statement (half-yearly / annual by turnover)", ruleset: RULESET }];
+    case "GSTR-7":
+      return [{ kind, period, due: day(10), basis: "Rule 66 \u2014 TDS deductor return by the 10th", ruleset: RULESET }];
+    case "GSTR-8":
+      return [{ kind, period, due: day(10), basis: "Rule 67 \u2014 e-commerce operator return by the 10th", ruleset: RULESET }];
+    default:
+      void nextMonth;
+      return [];
+  }
+}
+function daysBetween(a3, b3) {
+  const ms = Date.parse(`${b3}T00:00:00Z`) - Date.parse(`${a3}T00:00:00Z`);
+  return Math.round(ms / 864e5);
+}
+function daysOverdue(due, asOn) {
+  return Math.max(0, daysBetween(due, asOn));
+}
+var init_period = __esm({
+  "src/munshi/period.ts"() {
+    "use strict";
+    init_ruleset();
+  }
+});
+
+// src/munshi/gst/itc.ts
+function normaliseInvoiceNumber(raw) {
+  return String(raw ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+function taxOf(inv) {
+  return (inv.igst ?? 0) + (inv.cgst ?? 0) + (inv.sgst ?? 0) + (inv.cess ?? 0);
+}
+function kindOf(inv) {
+  return inv.documentType ?? "invoice";
+}
+function identity2(inv) {
+  return `${kindOf(inv)}|${inv.gstin}|${normaliseInvoiceNumber(inv.invoiceNumber)}`;
+}
+function sameDocument(a3, b3, tol) {
+  if (a3.gstin !== b3.gstin) return false;
+  if (normaliseInvoiceNumber(a3.invoiceNumber) !== normaliseInvoiceNumber(b3.invoiceNumber)) return false;
+  if (kindOf(a3) !== kindOf(b3)) return false;
+  if (Math.abs(daysBetween(a3.invoiceDate, b3.invoiceDate)) > tol.periodToleranceDays) return false;
+  return true;
+}
+function reconcile(books, gstr2b, options = {}) {
+  const tol = { ...DEFAULTS, ...options };
+  const results = [];
+  const used2b = /* @__PURE__ */ new Set();
+  const usedBooks = /* @__PURE__ */ new Set();
+  books.forEach((b3, i2) => {
+    if (b3.reverseCharge === true) {
+      usedBooks.add(i2);
+      results.push({
+        outcome: "reverse-charge",
+        books: b3,
+        itcAtRisk: 0,
+        detail: `RCM \u2014 self-assessed by the recipient; correctly absent from 2B. ITC on it is claimed in the period the tax is paid (${RULESET})`
+      });
+    }
+  });
+  const seenBooks = /* @__PURE__ */ new Map();
+  books.forEach((b3, i2) => {
+    if (usedBooks.has(i2)) return;
+    const key = identity2(b3);
+    if (seenBooks.has(key)) {
+      usedBooks.add(i2);
+      results.push({
+        outcome: "duplicate-in-books",
+        books: b3,
+        itcAtRisk: taxOf(b3),
+        detail: `same document booked twice (first at row ${seenBooks.get(key)}) \u2014 ITC is claimable once`
+      });
+    } else {
+      seenBooks.set(key, i2);
+    }
+  });
+  const seen2b = /* @__PURE__ */ new Map();
+  gstr2b.forEach((g3, i2) => {
+    const key = identity2(g3);
+    if (seen2b.has(key)) {
+      used2b.add(i2);
+      results.push({
+        outcome: "duplicate-in-2b",
+        gstr2b: g3,
+        itcAtRisk: 0,
+        detail: "the portal carries this document twice \u2014 verify before claiming"
+      });
+    } else {
+      seen2b.set(key, i2);
+    }
+  });
+  books.forEach((b3, i2) => {
+    if (usedBooks.has(i2)) return;
+    const j2 = gstr2b.findIndex((g4, k2) => !used2b.has(k2) && sameDocument(b3, g4, tol));
+    if (j2 < 0) return;
+    const g3 = gstr2b[j2];
+    usedBooks.add(i2);
+    used2b.add(j2);
+    const taxDelta = taxOf(b3) - taxOf(g3);
+    const valueDelta = b3.taxableValue - g3.taxableValue;
+    if (Math.abs(taxDelta) <= tol.valueTolerance && Math.abs(valueDelta) <= tol.valueTolerance) {
+      results.push({
+        outcome: "exact",
+        books: b3,
+        gstr2b: g3,
+        itcAtRisk: 0,
+        detail: "books and 2B agree \u2014 ITC safe to claim"
+      });
+      return;
+    }
+    if (Math.abs(taxDelta) > tol.valueTolerance) {
+      results.push({
+        outcome: "tax-mismatch",
+        books: b3,
+        gstr2b: g3,
+        itcAtRisk: Math.abs(taxDelta),
+        detail: `tax differs by ${taxDelta} paise \u2014 claim only the 2B figure; the excess is not available until the supplier amends its GSTR-1`
+      });
+      return;
+    }
+    results.push({
+      outcome: "value-mismatch",
+      books: b3,
+      gstr2b: g3,
+      itcAtRisk: Math.abs(valueDelta),
+      detail: `taxable value differs by ${valueDelta} paise but tax agrees \u2014 usually a rounding or a discount booked late; the 2B figure governs`
+    });
+  });
+  books.forEach((b3, i2) => {
+    if (usedBooks.has(i2)) return;
+    const j2 = gstr2b.findIndex((g4, k2) => !used2b.has(k2) && g4.gstin === b3.gstin && kindOf(g4) === kindOf(b3) && Math.abs(taxOf(g4) - taxOf(b3)) <= tol.valueTolerance && Math.abs(g4.taxableValue - b3.taxableValue) <= tol.valueTolerance);
+    if (j2 < 0) return;
+    const g3 = gstr2b[j2];
+    usedBooks.add(i2);
+    used2b.add(j2);
+    results.push({
+      outcome: "period-mismatch",
+      books: b3,
+      gstr2b: g3,
+      itcAtRisk: 0,
+      detail: `same supplier, same amount, different number ("${b3.invoiceNumber}" vs "${g3.invoiceNumber}") \u2014 likely one document renumbered. Credit is claimable in the 2B period, but confirm the number before filing`
+    });
+  });
+  books.forEach((b3, i2) => {
+    if (usedBooks.has(i2)) return;
+    results.push({
+      outcome: "missing-in-2b",
+      books: b3,
+      itcAtRisk: taxOf(b3),
+      detail: `not in 2B \u2014 supplier has not filed it. Do not claim yet: follow up, and use IMS to keep it pending rather than rejecting it`
+    });
+  });
+  gstr2b.forEach((g3, j2) => {
+    if (used2b.has(j2)) return;
+    const taxable = g3.taxableValue;
+    results.push({
+      outcome: "missing-in-books",
+      gstr2b: g3,
+      itcAtRisk: 0,
+      detail: `in 2B but not in books (taxable ${taxable} paise) \u2014 either a genuine purchase never recorded, or an invoice addressed to someone else. Both are findings`
+    });
+  });
+  return { results, summary: summarise(results) };
+}
+function summarise(results) {
+  const byOutcome = {};
+  let atRisk = 0, unclaimed = 0, agreed = 0;
+  for (const r3 of results) {
+    byOutcome[r3.outcome] = (byOutcome[r3.outcome] ?? 0) + 1;
+    if (r3.outcome === "exact" || r3.outcome === "period-mismatch") agreed++;
+    if (r3.outcome === "missing-in-2b") unclaimed += r3.itcAtRisk;
+    else atRisk += r3.itcAtRisk;
+  }
+  return {
+    total: results.length,
+    byOutcome,
+    itcAtRisk: atRisk,
+    itcUnclaimed: unclaimed,
+    agreed,
+    ruleset: RULESET
+  };
+}
+var DEFAULTS;
+var init_itc = __esm({
+  "src/munshi/gst/itc.ts"() {
+    "use strict";
+    init_period();
+    init_period();
+    init_ruleset();
+    DEFAULTS = {
+      valueTolerance: 100,
+      periodToleranceDays: 32,
+      separateNotes: true
+    };
+  }
+});
+
+// src/munshi/gst/returns.ts
+var init_returns = __esm({
+  "src/munshi/gst/returns.ts"() {
+    "use strict";
+    init_money();
+    init_ruleset();
+    init_gstin();
+  }
+});
+
+// src/munshi/gst/statutory.ts
+function interestOnLateTax(netCashLiability, from, to, basis = "s.50(1)", dayBasis = 365) {
+  const ratePercent = basis === "s.50(1)" ? 18 : 24;
+  const days = Math.max(0, daysBetween(from, to));
+  const interest = roundToRupee(paise(netCashLiability * ratePercent * days / (100 * dayBasis)));
+  return {
+    interest,
+    days,
+    ratePercent,
+    basis: `${basis} \u2014 ${ratePercent}% p.a., simple, ${days} days on a ${dayBasis}-day year, net cash liability (Rule 88B), rounded to the nearest rupee`
+  };
+}
+function lateFee(kind, dueDate, filedOn, opts = {}) {
+  const days = daysOverdue(dueDate, filedOn);
+  const nil = opts.nil === true;
+  const turnoverClass = opts.turnoverClass ?? "up-to-1.5cr";
+  if (kind === "GSTR-9") {
+    const perDay2 = 2e4;
+    const cap2 = LATE_FEE_CAP[turnoverClass];
+    const gross2 = perDay2 * days;
+    return {
+      fee: Math.min(gross2, cap2),
+      days,
+      perDay: perDay2,
+      capped: gross2 > cap2,
+      basis: `s.47 read with the annual-return notification \u2014 \u20B9200 per day capped at the ${(cap2 / 100).toLocaleString("en-IN")} ceiling for a ${turnoverClass} taxpayer`
+    };
+  }
+  const perDay = nil ? 2e3 : 5e3;
+  const cap = LATE_FEE_CAP[turnoverClass];
+  const gross = perDay * days;
+  return {
+    fee: Math.min(gross, cap),
+    days,
+    perDay,
+    capped: gross > cap,
+    basis: `s.47 \u2014 \u20B9${perDay / 100}/day (${nil ? "nil return" : "CGST \u20B925 + SGST \u20B925"}), capped at \u20B9${(cap / 100).toLocaleString("en-IN")} for a ${turnoverClass} taxpayer`
+  };
+}
+function eInvoiceStatus(annualAggregateTurnover) {
+  const cr = annualAggregateTurnover / 1e9;
+  if (cr >= 10) {
+    return {
+      mandated: true,
+      thirtyDayLimit: true,
+      reason: `AATO \u20B9${cr.toFixed(2)} Cr \u2014 e-invoicing mandated (since 1 Aug 2023) and the 30-day IRP reporting limit applies (since 1 Apr 2025, Rule 48(4)/48(5))`
+    };
+  }
+  if (cr >= 5) {
+    return {
+      mandated: true,
+      thirtyDayLimit: false,
+      reason: `AATO \u20B9${cr.toFixed(2)} Cr \u2014 e-invoicing mandated, but the 30-day hard stop applies only at \u20B910 Cr and above. Report promptly anyway: a blocked IRN cascades into GSTR-1 and any refund built on the document`
+    };
+  }
+  return {
+    mandated: false,
+    thirtyDayLimit: false,
+    reason: `AATO \u20B9${cr.toFixed(2)} Cr \u2014 below the \u20B95 Cr e-invoicing mandate. Confirm against turnover in ANY year since 2017-18: crossing the line once keeps you in scope`
+  };
+}
+function irnReportingDeadline(invoiceDate, annualAggregateTurnover) {
+  const status = eInvoiceStatus(annualAggregateTurnover);
+  if (!status.thirtyDayLimit) return "no statutory cut-off";
+  const d3 = /* @__PURE__ */ new Date(`${invoiceDate}T00:00:00Z`);
+  d3.setUTCDate(d3.getUTCDate() + 30);
+  return d3.toISOString().slice(0, 10);
+}
+function checkIrnWindow(invoiceDate, annualAggregateTurnover, asOn) {
+  const status = eInvoiceStatus(annualAggregateTurnover);
+  if (!status.thirtyDayLimit) {
+    return {
+      status: "not-applicable",
+      deadline: "no statutory cut-off",
+      daysLeft: Infinity,
+      finding: "30-day limit does not apply at this turnover"
+    };
+  }
+  const deadline = irnReportingDeadline(invoiceDate, annualAggregateTurnover);
+  const daysLeft = daysBetween(asOn, deadline);
+  if (daysLeft < 0) {
+    return {
+      status: "blocked",
+      deadline,
+      daysLeft,
+      finding: `IRN can no longer be generated for a document dated ${invoiceDate}. Without an IRN this is not a valid tax invoice and the recipient's ITC is at risk`
+    };
+  }
+  return {
+    status: daysLeft <= 7 ? "closing-soon" : "within-window",
+    deadline,
+    daysLeft,
+    finding: daysLeft <= 7 ? `${daysLeft} day(s) left to report \u2014 the window closes irreversibly at 30 days` : `${daysLeft} days left to report`
+  };
+}
+function ewayBillValidity(distanceKm, cargo = "normal") {
+  const perDay = cargo === "normal" ? 200 : 20;
+  const days = Math.max(1, Math.ceil(distanceKm / perDay));
+  return { days, basis: `Rule 138(10) \u2014 ${perDay} km per day for ${cargo} cargo over ${distanceKm} km` };
+}
+var CURRENT_RATES, LEGACY_RATES, INDICATIVE, LATE_FEE_CAP;
+var init_statutory = __esm({
+  "src/munshi/gst/statutory.ts"() {
+    "use strict";
+    init_ruleset();
+    init_money();
+    init_period();
+    CURRENT_RATES = Object.freeze([0, 0.25, 3, 5, 18, 40]);
+    LEGACY_RATES = Object.freeze([12, 28]);
+    INDICATIVE = Object.freeze([
+      { prefix: "2523", rate: 18, what: "cement" },
+      { prefix: "2710", rate: 18, what: "petroleum products (rates vary by entry)" },
+      { prefix: "3004", rate: 5, what: "medicaments \u2014 many entries nil-rated; verify per entry" },
+      { prefix: "7108", rate: 3, what: "gold" },
+      { prefix: "7102", rate: 0.25, what: "rough diamonds" },
+      { prefix: "2402", rate: 40, what: "tobacco products" },
+      { prefix: "2202", rate: 40, what: "aerated / caffeinated beverages" },
+      { prefix: "8418", rate: 18, what: "refrigerators" },
+      { prefix: "8415", rate: 18, what: "air conditioners" },
+      { prefix: "8528", rate: 18, what: "televisions and monitors" },
+      { prefix: "8703", rate: 18, what: "motor cars \u2014 40% applies above the large-car threshold" },
+      { prefix: "8711", rate: 18, what: "motorcycles \u2014 40% above 350cc" },
+      { prefix: "8708", rate: 18, what: "motor vehicle parts" },
+      { prefix: "1006", rate: 5, what: "rice \u2014 many entries nil when unbranded" },
+      { prefix: "0406", rate: 5, what: "cheese" },
+      { prefix: "0405", rate: 5, what: "butter and ghee" },
+      { prefix: "6109", rate: 5, what: "t-shirts and vests" },
+      { prefix: "6103", rate: 5, what: "suits and trousers (18% above the \u20B92,500 price point)" },
+      { prefix: "9954", rate: 18, what: "construction services" },
+      { prefix: "9983", rate: 18, what: "professional and technical services (SAC 9983)" },
+      { prefix: "9965", rate: 5, what: "goods transport agency services" },
+      { prefix: "9992", rate: 5, what: "passenger transport" },
+      { prefix: "9972", rate: 18, what: "real estate services" },
+      { prefix: "9982", rate: 18, what: "legal and accounting services" }
+    ]);
+    LATE_FEE_CAP = Object.freeze({
+      "up-to-1.5cr": 2e5,
+      // ₹2,000
+      "1.5-to-5cr": 5e5,
+      // ₹5,000
+      "above-5cr": 1e6
+      // ₹10,000
+    });
+  }
+});
+
+// src/munshi/tds.ts
+function tdsSection(section2) {
+  return TDS_TABLE.find((s2) => s2.section.toUpperCase() === section2.toUpperCase());
+}
+function computeTds(input2) {
+  const s2 = tdsSection(input2.section);
+  if (!s2) {
+    return {
+      applicable: false,
+      rate: 0,
+      tds: 0,
+      section: input2.section,
+      form: null,
+      basis: `section ${input2.section} is not in the ${RULESET} table \u2014 do not deduct on a guess`,
+      warnings: ["unknown section"]
+    };
+  }
+  const warnings = [];
+  const previously = input2.previouslyPaid ?? 0;
+  const cumulative = previously + input2.amount;
+  const threshold = s2.section === "194A" && input2.isSeniorCitizen ? L2 : s2.threshold;
+  if (s2.section === "194A" && input2.isSeniorCitizen) {
+    warnings.push("senior citizen payee \u2014 the \u20B91,00,000 threshold applies to 194A");
+  }
+  let rate2 = s2.rate ?? 0;
+  if (s2.byPayee) {
+    const key = input2.payeeType ?? "other";
+    const payeeKey = key === "individual" || key === "huf" ? key : "other";
+    rate2 = s2.byPayee[payeeKey] ?? s2.byPayee["other"] ?? 0;
+  }
+  if (s2.rate === null && !s2.byPayee) {
+    return {
+      applicable: true,
+      rate: 0,
+      tds: 0,
+      section: s2.section,
+      form: s2.form,
+      basis: `${s2.section}: ${s2.basis} \u2014 the rate must be determined from the payee's status, not from a table`,
+      warnings: ["rate not auto-determinable"]
+    };
+  }
+  const crossed = s2.thresholdBasis === "annual" ? cumulative > threshold : input2.amount > threshold;
+  if (!crossed) {
+    return {
+      applicable: false,
+      rate: rate2,
+      tds: 0,
+      section: s2.section,
+      form: s2.form,
+      basis: `threshold not crossed (${s2.thresholdBasis}); ${s2.basis}`,
+      warnings
+    };
+  }
+  let amountToDeduct = input2.amount;
+  if (s2.thresholdBasis === "annual" && previously <= threshold) {
+    amountToDeduct = cumulative - threshold;
+    warnings.push(`deduction applies from the point the ${s2.thresholdBasis} threshold was crossed, so only the excess above the threshold is deducted on this payment`);
+  }
+  if (input2.panAvailable === false) {
+    const higher = Math.max(rate2, 20);
+    warnings.push(`s.206AA \u2014 no PAN: rate is the higher of the prescribed rate (${rate2}%) or 20%, so ${higher}% applies. Sections 206AB/206CCA were omitted from 1 April 2025 and are NOT the basis here`);
+    rate2 = higher;
+    amountToDeduct = input2.amount;
+  }
+  const tds = roundToRupee(rate(amountToDeduct, rate2));
+  return {
+    applicable: true,
+    rate: rate2,
+    tds,
+    section: s2.section,
+    form: s2.form,
+    basis: `s.${s2.section} at ${rate2}% on ${amountToDeduct} paise \u2014 ${s2.basis}`,
+    warnings
+  };
+}
+var L2, TDS_TABLE, TCS_TABLE;
+var init_tds = __esm({
+  "src/munshi/tds.ts"() {
+    "use strict";
+    init_ruleset();
+    init_money();
+    L2 = 1e7;
+    TDS_TABLE = Object.freeze([
+      {
+        section: "192",
+        what: "salary",
+        rate: null,
+        threshold: 0,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "24Q",
+        basis: "slab rates on estimated income; no single rate"
+      },
+      {
+        section: "192A",
+        what: "premature EPF withdrawal",
+        rate: 10,
+        threshold: 5e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "Finance Act 2025"
+      },
+      {
+        section: "193",
+        what: "interest on securities",
+        rate: 10,
+        threshold: 1e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "Finance Act 2025"
+      },
+      {
+        section: "194",
+        what: "dividend",
+        rate: 10,
+        threshold: 1e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "threshold raised to \u20B910,000"
+      },
+      {
+        section: "194A",
+        what: "interest other than securities",
+        rate: 10,
+        threshold: 5e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B950,000 general / \u20B91,00,000 senior citizen \u2014 raise threshold to 100000 for senior payees"
+      },
+      {
+        section: "194B",
+        what: "lottery or game-show winnings",
+        rate: 30,
+        threshold: 1e4 * 100,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "Finance Act 2025"
+      },
+      {
+        section: "194BA",
+        what: "online gaming winnings",
+        rate: 30,
+        threshold: 0,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "on net winnings, no threshold"
+      },
+      {
+        section: "194C",
+        what: "payment to contractors",
+        rate: null,
+        byPayee: { individual: 1, huf: 1, other: 2 },
+        threshold: 3e4 * 100,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B930,000 single / \u20B91,00,000 annual (\u20B92,00,000 where the payer is an individual or HUF)"
+      },
+      {
+        section: "194D",
+        what: "insurance commission",
+        rate: 2,
+        threshold: 2e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "rate reduced to 2% from 1 Apr 2025"
+      },
+      {
+        section: "194DA",
+        what: "life-insurance policy receipts",
+        rate: 2,
+        threshold: L2,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "on the income component"
+      },
+      {
+        section: "194G",
+        what: "lottery ticket commission",
+        rate: 2,
+        threshold: 2e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "Finance Act 2025"
+      },
+      {
+        section: "194H",
+        what: "commission or brokerage",
+        rate: 2,
+        threshold: 2e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "rate reduced from 5% to 2%"
+      },
+      {
+        section: "194-I(a)",
+        what: "rent \u2014 plant and machinery",
+        rate: 2,
+        threshold: 5e4 * 100,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B950,000 per month (Finance Act 2025)"
+      },
+      {
+        section: "194-I(b)",
+        what: "rent \u2014 land, building, furniture",
+        rate: 10,
+        threshold: 5e4 * 100,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B950,000 per month"
+      },
+      {
+        section: "194-IA",
+        what: "transfer of immovable property",
+        rate: 1,
+        threshold: 50 * L2,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26QB",
+        basis: "Form 26QB is filed per transaction"
+      },
+      {
+        section: "194-IB",
+        what: "rent by individual/HUF not liable to audit",
+        rate: 2,
+        threshold: 5e4 * 100,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26QB",
+        basis: "\u20B950,000 per month or part of it"
+      },
+      {
+        section: "194-IC",
+        what: "joint development agreement payments",
+        rate: 10,
+        threshold: 0,
+        thresholdBasis: "per-transaction",
+        resident: true,
+        form: "26Q",
+        basis: "no threshold"
+      },
+      {
+        section: "194J(a)",
+        what: "technical services, call centre, certain royalties",
+        rate: 2,
+        threshold: 5e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "threshold raised from \u20B930,000 to \u20B950,000 per category"
+      },
+      {
+        section: "194J(b)",
+        what: "professional fees, director's remuneration",
+        rate: 10,
+        threshold: 5e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "threshold applies per category, not in aggregate with 194J(a)"
+      },
+      {
+        section: "194K",
+        what: "income from mutual-fund units",
+        rate: 10,
+        threshold: 1e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "Finance Act 2025"
+      },
+      {
+        section: "194LA",
+        what: "compulsory acquisition of immovable property",
+        rate: 10,
+        threshold: 5 * L2,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "threshold raised to \u20B95,00,000"
+      },
+      {
+        section: "194M",
+        what: "payments by individual/HUF to contractors and professionals",
+        rate: 2,
+        threshold: 50 * L2,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B950,00,000 annual"
+      },
+      {
+        section: "194N",
+        what: "cash withdrawals above the limit",
+        rate: 2,
+        threshold: 1e7 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B91 crore (\u20B93 crore for co-operative societies)"
+      },
+      {
+        section: "194-O",
+        what: "e-commerce participant payments",
+        rate: 0.1,
+        threshold: 5 * L2,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "on gross amount of sales"
+      },
+      {
+        section: "194Q",
+        what: "purchase of goods",
+        rate: 0.1,
+        threshold: 50 * L2,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "0.1% on purchases above \u20B950 lakh from one seller; buyer's turnover must exceed \u20B910 crore"
+      },
+      {
+        section: "194R",
+        what: "benefit or perquisite in business",
+        rate: 10,
+        threshold: 2e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "value of the benefit"
+      },
+      {
+        section: "194S",
+        what: "transfer of virtual digital assets",
+        rate: 1,
+        threshold: 1e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "\u20B950,000 for specified persons (threshold must be raised for those payees)"
+      },
+      {
+        section: "194T",
+        what: "payments by a firm to its partners",
+        rate: 10,
+        threshold: 2e4 * 100,
+        thresholdBasis: "annual",
+        resident: true,
+        form: "26Q",
+        basis: "NEW from 1 April 2025 \u2014 salary, remuneration, commission, bonus or interest to a partner"
+      },
+      {
+        section: "195",
+        what: "payments to non-residents",
+        rate: null,
+        threshold: 0,
+        thresholdBasis: "per-transaction",
+        resident: false,
+        form: "27Q",
+        basis: "rate depends on the nature of income and the applicable DTAA \u2014 never infer this one; a wrong rate here creates a demand on the deductor"
+      }
+    ]);
+    TCS_TABLE = Object.freeze([
+      {
+        section: "206C(1)",
+        what: "alcohol, timber, scrap, minerals",
+        rate: 1,
+        threshold: 0,
+        basis: "at the point of sale"
+      },
+      {
+        section: "206C(1F)",
+        what: "sale of motor vehicle above \u20B910 lakh",
+        rate: 1,
+        threshold: 1e6 * 100,
+        basis: "on the sale value above the threshold"
+      },
+      {
+        section: "206C(1G)",
+        what: "LRS remittance / overseas tour programme",
+        rate: 5,
+        threshold: 7 * L2,
+        basis: "5% above \u20B97 lakh per year under LRS; 20% for non-PAN"
+      },
+      {
+        section: "206C(1H)",
+        what: "sale of goods",
+        rate: 0,
+        threshold: 0,
+        basis: "REPEALED from 1 April 2025 \u2014 any collector still running this is over-collecting and must refund with interest"
+      }
+    ]);
+  }
+});
+
+// src/munshi/msme.ts
+function classifyEnterprise(sector, investmentRupees, turnoverRupees) {
+  const Cr = 1e7;
+  if (sector === "manufacturing") {
+    if (investmentRupees <= Cr && turnoverRupees <= 5 * Cr) return "micro";
+    if (investmentRupees <= 10 * Cr && turnoverRupees <= 50 * Cr) return "small";
+    if (investmentRupees <= 50 * Cr && turnoverRupees <= 250 * Cr) return "medium";
+    return "not-msme";
+  }
+  if (investmentRupees <= 2 * Cr && turnoverRupees <= 5 * Cr) return "micro";
+  if (investmentRupees <= 10 * Cr && turnoverRupees <= 50 * Cr) return "small";
+  if (investmentRupees <= 20 * Cr && turnoverRupees <= 250 * Cr) return "medium";
+  return "not-msme";
+}
+function paymentDeadline(invoiceDate, enterprise, opts = {}) {
+  const acceptedOn = opts.acceptedOn ?? invoiceDate;
+  const daysAllowed = opts.writtenAgreement === false ? 15 : 45;
+  const d3 = /* @__PURE__ */ new Date(`${acceptedOn}T00:00:00Z`);
+  d3.setUTCDate(d3.getUTCDate() + daysAllowed);
+  const covered = enterprise === "micro" || enterprise === "small";
+  return {
+    dueBy: d3.toISOString().slice(0, 10),
+    daysAllowed,
+    covered,
+    basis: covered ? `s.15 MSMED Act \u2014 ${daysAllowed} days from acceptance (${acceptedOn}), disallowance risk under s.43B(h)` + (opts.acceptedOn ? "" : " \u2014 acceptance date defaulted to the invoice date; confirm it") : `s.43B(h) applies only to MICRO and SMALL enterprises \u2014 a ${enterprise} supplier is out of scope, so lateness here is commercial, not a disallowance`
+  };
+}
+function assessPayables(items, asOn) {
+  const rows = [];
+  let totalOutstanding = 0, totalExposure = 0, msme1Reportable = 0, covered = 0, notCovered = 0;
+  for (const it of items) {
+    const clock2 = paymentDeadline(it.invoiceDate, it.enterprise, {
+      acceptedOn: it.acceptedOn,
+      writtenAgreement: it.writtenAgreement
+    });
+    const settled = it.paidOn !== void 0;
+    const overdue = settled ? Math.max(0, daysBetween(clock2.dueBy, it.paidOn)) : Math.max(0, daysBetween(clock2.dueBy, asOn));
+    const outstanding = settled ? 0 : it.amount;
+    const exposure = clock2.covered && !settled && overdue > 0 ? it.amount : 0;
+    const msme1 = clock2.covered && !settled && overdue > 0;
+    if (clock2.covered) covered++;
+    else notCovered++;
+    totalOutstanding += outstanding;
+    totalExposure += exposure;
+    if (msme1) msme1Reportable += outstanding;
+    rows.push({
+      vendor: it.vendor,
+      invoiceNumber: it.invoiceNumber,
+      dueBy: clock2.dueBy,
+      daysOverdue: overdue,
+      amount: outstanding,
+      disallowanceExposure: exposure,
+      msme1Reportable: msme1,
+      finding: settled ? overdue > 0 ? `paid ${overdue} day(s) after the s.15 deadline \u2014 the disallowance was avoided by payment, but interest may still be owed to the supplier under s.16 MSMED` : "paid within the s.15 clock" : exposure > 0 ? `${overdue} day(s) past the s.15 deadline with the bill still open \u2014 s.43B(h) disallowance of the full amount if the year closes in this state, and MSME-1 reporting is triggered` : `open, ${clock2.daysAllowed - daysBetween(it.invoiceDate, asOn)} day(s) of the clock remaining`
+    });
+  }
+  return {
+    rows: rows.sort((a3, b3) => b3.daysOverdue - a3.daysOverdue),
+    totalOutstanding,
+    totalExposure,
+    msme1Reportable,
+    covered,
+    notCovered
+  };
+}
+var init_msme = __esm({
+  "src/munshi/msme.ts"() {
+    "use strict";
+    init_period();
+  }
+});
+
+// src/munshi/agents.ts
+function agentsByDomain(domain2) {
+  return AGENTS.filter((a3) => a3.domain === domain2);
+}
+function rosterStatus() {
+  return {
+    total: AGENTS.length,
+    engine: AGENTS.filter((a3) => a3.status === "engine").length,
+    workflow: AGENTS.filter((a3) => a3.status === "workflow").length,
+    requiringApproval: AGENTS.filter((a3) => a3.requiresApproval).length,
+    ruleset: RULESET
+  };
+}
+var A2, AGENTS;
+var init_agents = __esm({
+  "src/munshi/agents.ts"() {
+    "use strict";
+    init_ruleset();
+    A2 = (a3) => a3;
+    AGENTS = Object.freeze([
+      // ── GST · outward ───────────────────────────────────────────────────────────
+      A2({
+        id: "gst.gstr1-preparer",
+        name: "GSTR-1 Preparer",
+        domain: "gst-output",
+        status: "engine",
+        purpose: "Assemble a section-wise GSTR-1 draft from the sales register, including B2CL split and rate-wise summary.",
+        engine: "buildGstr1",
+        inputs: "sales register rows (GSTIN, invoice no, date, taxable, tax, POS, rate)",
+        output: "GSTR-1 sections 4A/5A/7/9B with a rate-wise summary and data-quality notes",
+        requiresApproval: true,
+        receipt: "GSTR-1 draft + input hash, approved before filing"
+      }),
+      A2({
+        id: "gst.gstr3b-preparer",
+        name: "GSTR-3B Preparer",
+        domain: "gst-output",
+        status: "engine",
+        purpose: "Build the 3B position from GSTR-1 totals and the ITC reconciliation, with reversals kept separate from availment.",
+        engine: "buildGstr3b",
+        inputs: "GSTR-1 draft, ITC available, ITC reversed",
+        output: "3B position: outward tax, ITC availed, ITC reversed, net cash payable",
+        requiresApproval: true,
+        receipt: "3B position + the ITC evidence it was built from"
+      }),
+      A2({
+        id: "gst.hardlock-crosswalk",
+        name: "Hard-lock Crosswalk",
+        domain: "gst-output",
+        status: "engine",
+        purpose: "Compare what GSTR-1 reports with what GSTR-3B says and name the only legal correction path for each gap.",
+        engine: "hardLockCrosswalk",
+        inputs: "GSTR-1 draft, GSTR-3B draft",
+        output: "table-by-table findings with the correction route (GSTR-1 or GSTR-1A \u2014 never an edit in 3B)",
+        requiresApproval: false,
+        receipt: "crosswalk result against a named ruleset"
+      }),
+      A2({
+        id: "gst.pos-analyser",
+        name: "Place of Supply Analyser",
+        domain: "gst-output",
+        status: "engine",
+        purpose: "Decide IGST versus CGST+SGST from the supplier state and place of supply, and flag exports.",
+        engine: "placeOfSupply",
+        inputs: "supplier state code, place of supply, taxable value, rate",
+        output: "tax head with the section basis, and the zero-rated route for exports",
+        requiresApproval: false,
+        receipt: "tax-head determination, per invoice"
+      }),
+      A2({
+        id: "gst.rate-migration-audit",
+        name: "Rate Migration Audit",
+        domain: "gst-output",
+        status: "engine",
+        purpose: "Find invoices still charging the abolished 12% or 28% rates after 22 September 2025.",
+        engine: "isLegacyRate + rateForHsn",
+        inputs: "invoice lines with HSN/SAC and rate",
+        output: "legacy-rate findings with the indicative current rate and a classification caveat",
+        requiresApproval: false,
+        receipt: "audit of rates against the live ruleset"
+      }),
+      A2({
+        id: "gst.credit-note-agent",
+        name: "Credit / Debit Note Agent",
+        domain: "gst-output",
+        status: "workflow",
+        purpose: "Track notes as their own population, including the 24-hour IRN cancellation window and the effect on the recipient's credit.",
+        engine: "checkIrnCancellationWindow",
+        inputs: "note register, IRN timestamps",
+        output: "note-by-note status and the filing treatment, with cancellations flagged as no longer possible",
+        requiresApproval: true,
+        receipt: "note population with cancellation windows evaluated"
+      }),
+      A2({
+        id: "gst.export-refund-watch",
+        name: "Export Refund Watch",
+        domain: "gst-output",
+        status: "workflow",
+        purpose: "Track zero-rated supplies, LUT validity and RFD-01 refund claims built on shipping bills and IRNs.",
+        engine: "placeOfSupply (export branch)",
+        inputs: "shipping bills, LUT, e-BRC, RFD-01 acknowledgements",
+        output: "refund pipeline with the documents each claim is still missing",
+        requiresApproval: true,
+        receipt: "refund status against the underlying document set"
+      }),
+      // ── GST · input tax credit ──────────────────────────────────────────────────
+      A2({
+        id: "gst.itc-2b-recon",
+        name: "GSTR-2B Reconciliation",
+        domain: "gst-itc",
+        status: "engine",
+        purpose: "Match the purchase register against GSTR-2B in passes, classify every difference and quantify the ITC at risk.",
+        engine: "reconcile",
+        inputs: "purchase register, GSTR-2B extract (or IMS feed)",
+        output: "match results by outcome, ITC at risk, ITC unclaimed, prioritised findings",
+        requiresApproval: false,
+        receipt: "reconciliation over both populations, hashed"
+      }),
+      A2({
+        id: "gst.itc-2a-legacy",
+        name: "GSTR-2A Legacy Reconciliation",
+        domain: "gst-itc",
+        status: "engine",
+        purpose: "Reconcile older periods where the counterparty return was GSTR-2A, with its different matching behaviour.",
+        engine: "reconcile",
+        inputs: "purchase register, GSTR-2A extract",
+        output: "the same classification, annotated for the pre-2B regime",
+        requiresApproval: false,
+        receipt: "legacy-period reconciliation"
+      }),
+      A2({
+        id: "gst.ims-actioning",
+        name: "IMS Actioning",
+        domain: "gst-itc",
+        status: "workflow",
+        purpose: "Decide accept / reject / pending for every record in the Invoice Management System, because the decision drives the recipient's own 2B.",
+        engine: "reconcile (to find the records needing a decision)",
+        inputs: "IMS feed, purchase register",
+        output: "an actioning list with the reason for each decision, and the ones a human must judge",
+        requiresApproval: true,
+        receipt: "IMS decisions taken, with the basis for each"
+      }),
+      A2({
+        id: "gst.blocked-credit-audit",
+        name: "Blocked Credit Audit",
+        domain: "gst-itc",
+        status: "workflow",
+        purpose: "Screen the credit register against the s.17(5) blocked list \u2014 motor vehicles, food, memberships, personal use.",
+        engine: "rule table + reconcile (to size the population)",
+        inputs: "credit register with expense heads",
+        output: "blocked-credit findings with the section cited, and the reversal amount",
+        requiresApproval: true,
+        receipt: "blocked-credit screen over a named population"
+      }),
+      A2({
+        id: "gst.itc-timebar-watch",
+        name: "ITC Time-bar Watch",
+        domain: "gst-itc",
+        status: "engine",
+        purpose: "Count down to the s.16(4) deadline \u2014 credit unclaimed after 30 November of the following year is a write-off.",
+        engine: "itcTimeBarred",
+        inputs: "open credit items with invoice dates",
+        output: "a countdown with the lapse date and the exposure, per financial year",
+        requiresApproval: false,
+        receipt: "time-bar assessment at a named date"
+      }),
+      A2({
+        id: "gst.rcm-controller",
+        name: "Reverse Charge Controller",
+        domain: "gst-itc",
+        status: "engine",
+        purpose: "Pair the self-assessed RCM liability with the credit on it, in the same period, and keep RCM rows out of 2B matching.",
+        engine: "reconcile (RCM branch) + buildGstr3b",
+        inputs: "inward supplies flagged RCM, tax paid",
+        output: "RCM liability and matching credit, with any unpaired amount called out",
+        requiresApproval: true,
+        receipt: "RCM liability paired with its credit in one period"
+      }),
+      A2({
+        id: "gst.isd-allocator",
+        name: "ISD Credit Allocator",
+        domain: "gst-itc",
+        status: "workflow",
+        purpose: "Distribute common input services credit across GSTINs on a defensible turnover-based formula.",
+        engine: "money (exact allocation) + returns (per-GSTIN totals)",
+        inputs: "common invoices, turnover by GSTIN",
+        output: "ISD-1 allocation with the formula, the rounding and the residual treatment",
+        requiresApproval: true,
+        receipt: "allocation schedule that sums exactly to the credit"
+      }),
+      A2({
+        id: "gst.drc03-drafter",
+        name: "DRC-03 Drafter",
+        domain: "gst-itc",
+        status: "engine",
+        purpose: "Compute tax, interest and penalty for a voluntary payment before a notice arrives.",
+        engine: "interestOnLateTax + lateFee",
+        inputs: "period, unpaid tax, payment date",
+        output: "the three components with their bases, ready for a human to pay",
+        requiresApproval: true,
+        receipt: "voluntary payment computation, per component"
+      }),
+      // ── GST · compliance clocks and returns ─────────────────────────────────────
+      A2({
+        id: "gst.einvoice-30day",
+        name: "E-invoice 30-day Window",
+        domain: "gst-compliance",
+        status: "engine",
+        purpose: "Watch the 30-day IRP reporting limit above a \u20B910 crore AATO and warn before the IRN becomes impossible.",
+        engine: "checkIrnWindow",
+        inputs: "invoice dates, aggregate turnover, as-on date",
+        output: "per-document window status, with a 7-day early warning band",
+        requiresApproval: false,
+        receipt: "window assessment per document"
+      }),
+      A2({
+        id: "gst.irn-validator",
+        name: "IRN Pre-flight Validator",
+        domain: "gst-compliance",
+        status: "workflow",
+        purpose: "Validate a document against the IRP's mandatory-field rules before the call, so a rejection does not cost a day.",
+        engine: "eInvoiceStatus + validateGstin",
+        inputs: "invoice payload",
+        output: "field-level failures, with the ones that block an IRN separated from the ones that warn",
+        requiresApproval: false,
+        receipt: "pre-flight result before submission"
+      }),
+      A2({
+        id: "gst.eway-validity",
+        name: "E-way Bill Validity",
+        domain: "gst-compliance",
+        status: "engine",
+        purpose: "Compute validity from distance and cargo type, and flag consignments travelling on expired documents.",
+        engine: "ewayBillValidity",
+        inputs: "distance, cargo type, generation timestamp, movement status",
+        output: "validity in days with the rule cited, and expired-consignment findings",
+        requiresApproval: false,
+        receipt: "validity computation with the rule basis"
+      }),
+      A2({
+        id: "gst.latefee-interest",
+        name: "Late Fee & Interest",
+        domain: "gst-compliance",
+        status: "engine",
+        purpose: "Compute s.47 late fees with the turnover cap applied, and s.50 interest on net cash liability as Rule 88B requires.",
+        engine: "lateFee + interestOnLateTax",
+        inputs: "return kind, due date, filing date, turnover class, unpaid tax",
+        output: "fee and interest with days, rate, cap and the basis string",
+        requiresApproval: false,
+        receipt: "statutory computation of fee and interest"
+      }),
+      A2({
+        id: "gst.deadline-radar",
+        name: "Deadline Radar",
+        domain: "gst-compliance",
+        status: "engine",
+        purpose: "One calendar across monthly, QRMP, IFF, annual and composition obligations for every GSTIN in the group.",
+        engine: "dueDates + periodsOf",
+        inputs: "GSTINs, scheme, category, as-on date",
+        output: "a dated obligation list with days remaining",
+        requiresApproval: false,
+        receipt: "obligation calendar at a named date"
+      }),
+      A2({
+        id: "gst.gstr9-annual",
+        name: "Annual Return Reconciler",
+        domain: "gst-compliance",
+        status: "workflow",
+        purpose: "Reconcile a full year: books versus GSTR-1 versus GSTR-3B versus 2B, and prepare GSTR-9 / 9C positions.",
+        engine: "reconcile + buildGstr1 + hardLockCrosswalk (annualised)",
+        inputs: "twelve periods of books, returns and 2B data",
+        output: "annual reconciliation with the differences classified and the 9C impact",
+        requiresApproval: true,
+        receipt: "annual reconciliation across four populations"
+      }),
+      A2({
+        id: "gst.asmt10-responder",
+        name: "ASMT-10 Responder",
+        domain: "gst-compliance",
+        status: "workflow",
+        purpose: "Read a scrutiny notice, locate each disputed figure in the records, and draft a point-by-point reply with annexures.",
+        engine: "reconcile (to reproduce the disputed figures)",
+        inputs: "ASMT-10, the periods it refers to, source records",
+        output: "a reply draft with each paragraph tied to a recomputation and its evidence",
+        requiresApproval: true,
+        receipt: "notice response with an evidence link per allegation"
+      }),
+      A2({
+        id: "gst.notice-tracker",
+        name: "Notice Tracker",
+        domain: "gst-compliance",
+        status: "workflow",
+        purpose: "Track notices, show-cause notices and orders with their reply deadlines and escalation state.",
+        engine: "period (deadline arithmetic)",
+        inputs: "notice register",
+        output: "an ageing list with days to reply and the owner named",
+        requiresApproval: false,
+        receipt: "notice register state at a named date"
+      }),
+      // ── TDS / TCS ───────────────────────────────────────────────────────────────
+      A2({
+        id: "tds.deductor",
+        name: "TDS Determination",
+        domain: "tds",
+        status: "engine",
+        purpose: "Determine section, rate, threshold crossing and the deduction on the cumulative position \u2014 not on the invoice alone.",
+        engine: "computeTds",
+        inputs: "payment amount, section, prior payments, payee type, PAN status",
+        output: "applicable / not, rate, tax, the form, and the basis with warnings",
+        requiresApproval: true,
+        receipt: "determination with its statutory basis"
+      }),
+      A2({
+        id: "tds.206aa-check",
+        name: "No-PAN Higher Rate Screen",
+        domain: "tds",
+        status: "engine",
+        purpose: "Apply the higher of the prescribed rate or 20% where PAN is missing \u2014 and confirm 206AB is not the reason.",
+        engine: "computeTds (panAvailable false)",
+        inputs: "deductee PAN status, section, amount",
+        output: "the rate that actually applies, with 206AB explicitly ruled out for FY 2025-26 onward",
+        requiresApproval: false,
+        receipt: "rate determination under s.206AA"
+      }),
+      A2({
+        id: "tds.194q-tracker",
+        name: "194Q Threshold Tracker",
+        domain: "tds",
+        status: "engine",
+        purpose: "Track annual purchases per seller and deduct 0.1% from the point \u20B950 lakh is crossed.",
+        engine: "computeTds (section 194Q)",
+        inputs: "purchase ledger by seller, buyer turnover",
+        output: "sellers near or past the threshold with the deduction due, and the 206C(1H) repeal noted",
+        requiresApproval: true,
+        receipt: "threshold position per seller"
+      }),
+      A2({
+        id: "tds.26as-recon",
+        name: "26AS / AIS Reconciliation",
+        domain: "tds",
+        status: "engine",
+        purpose: "Tie books to 26AS: deducted versus deposited versus reported, and surface the breaks that create a demand.",
+        engine: "reconcileTds",
+        inputs: "books TDS entries, challans, 26AS/AIS extract",
+        output: "three-way findings with s.201(1A) interest exposure",
+        requiresApproval: false,
+        receipt: "three-way TDS reconciliation"
+      }),
+      A2({
+        id: "tds.26q-preparer",
+        name: "26Q / 27Q Preparer",
+        domain: "tds",
+        status: "workflow",
+        purpose: "Assemble quarterly statements with correct section classification, lower-deduction certificates applied, and challan mapping.",
+        engine: "computeTds + reconcileTds",
+        inputs: "deduction register, challans, certificates",
+        output: "statement-ready rows with exception lists",
+        requiresApproval: true,
+        receipt: "statement prepared with challan mapping"
+      }),
+      A2({
+        id: "tds.challan-matcher",
+        name: "Challan Matcher",
+        domain: "tds",
+        status: "engine",
+        purpose: "Match paid challans to reported liability by section, period and amount, before the OLTAS mismatch is raised.",
+        engine: "reconcileTds (challan branch)",
+        inputs: "challan extract, liability by section and period",
+        output: "matched, part-matched and unmatched challans with the correction each needs",
+        requiresApproval: false,
+        receipt: "challan reconciliation by section and period"
+      }),
+      A2({
+        id: "tds.form16-issuer",
+        name: "Form 16 / 16A Issuer",
+        domain: "tds",
+        status: "workflow",
+        purpose: "Issue certificates from filed returns, with the PAN errors that stop a deductee's credit separated out.",
+        engine: "reconcileTds",
+        inputs: "filed statements, deductee master",
+        output: "certificate set with pre-issue validation findings",
+        requiresApproval: true,
+        receipt: "certificate issue run with validation results"
+      }),
+      A2({
+        id: "tcs.collector",
+        name: "TCS Collector",
+        domain: "tds",
+        status: "engine",
+        purpose: "Apply the surviving TCS sections \u2014 and refuse to collect under 206C(1H), which was repealed on 1 April 2025.",
+        engine: "tcsSection",
+        inputs: "sale type, value, buyer PAN status",
+        output: "collection due, or a finding that the collection is no longer lawful",
+        requiresApproval: true,
+        receipt: "collection determination against the live ruleset"
+      }),
+      A2({
+        id: "tds.lower-deduction",
+        name: "Lower / Nil Deduction Monitor",
+        domain: "tds",
+        status: "workflow",
+        purpose: "Track certificates, their validity windows and their stated limits, and stop deduction once the limit is exhausted.",
+        engine: "computeTds",
+        inputs: "certificates, deduction register",
+        output: "certificate utilisation with expiry and limit breaches flagged",
+        requiresApproval: false,
+        receipt: "certificate position at a named date"
+      }),
+      // ── MSME ────────────────────────────────────────────────────────────────────
+      A2({
+        id: "msme.43bh-clock",
+        name: "43B(h) Payment Clock",
+        domain: "msme",
+        status: "engine",
+        purpose: "Run the 45/15-day clock from acceptance on every micro and small supplier bill and quantify the disallowance exposure.",
+        engine: "assessPayables + paymentDeadline",
+        inputs: "open payables with Udyam class and acceptance dates",
+        output: "per-bill due date, days overdue, exposure, and the medium-supplier rows explicitly out of scope",
+        requiresApproval: false,
+        receipt: "s.43B(h) exposure at a named date"
+      }),
+      A2({
+        id: "msme.msme1-return",
+        name: "MSME-1 Filer",
+        domain: "msme",
+        status: "engine",
+        purpose: "Identify half-yearly reportable dues over 45 days and prepare the MSME-1 population.",
+        engine: "assessPayables + msme1DueDates",
+        inputs: "payables aged at the half-year end",
+        output: "the reportable population with the due date (30 April / 31 October)",
+        requiresApproval: true,
+        receipt: "reportable population for the half-year"
+      }),
+      A2({
+        id: "msme.udyam-verifier",
+        name: "Udyam Class Verifier",
+        domain: "msme",
+        status: "engine",
+        purpose: "Classify suppliers as micro, small, medium or out of scope so the 43B(h) clock is applied to the right ones.",
+        engine: "classifyEnterprise",
+        inputs: "investment and turnover figures per supplier",
+        output: "classification with the threshold reasoning, and medium flagged as uncovered",
+        requiresApproval: false,
+        receipt: "classification per supplier"
+      }),
+      // ── Banking and operations ──────────────────────────────────────────────────
+      A2({
+        id: "bank.reconciler",
+        name: "Bank Reconciliation",
+        domain: "banking-ops",
+        status: "workflow",
+        purpose: "Match bank statement lines to ledger entries, isolating timing differences from genuine misses.",
+        engine: "reconcile (amount and reference passes)",
+        inputs: "bank statement, cash/bank ledger",
+        output: "matched, timing-difference and unreconciled populations, with stale items aged",
+        requiresApproval: false,
+        receipt: "reconciliation across both populations"
+      }),
+      A2({
+        id: "ops.vendor-master-hygiene",
+        name: "Vendor Master Hygiene",
+        domain: "banking-ops",
+        status: "engine",
+        purpose: "Validate every GSTIN and PAN, deduplicate vendors sharing one registration, and catch transposed characters before they reach a return.",
+        engine: "validateGstin + vendorKey + validatePan",
+        inputs: "vendor master",
+        output: "invalid registrations with the specific failure, plus duplicate groups by registration key",
+        requiresApproval: false,
+        receipt: "master-data validation with per-row reasons"
+      }),
+      A2({
+        id: "ops.duplicate-payment",
+        name: "Duplicate Payment Detector",
+        domain: "banking-ops",
+        status: "workflow",
+        purpose: "Find the same bill paid twice \u2014 across vendors, months and spelling variants.",
+        engine: "reconcile (identity and amount passes)",
+        inputs: "payment register, purchase register",
+        output: "candidate duplicates with the evidence for each pair",
+        requiresApproval: false,
+        receipt: "duplicate screen over the payment population"
+      }),
+      A2({
+        id: "ops.three-way-match",
+        name: "PO / GRN / Invoice Match",
+        domain: "banking-ops",
+        status: "workflow",
+        purpose: "Match purchase order, goods receipt and invoice, and quantify the leakage at each break.",
+        engine: "reconcile (three populations)",
+        inputs: "PO, GRN and invoice registers",
+        output: "price, quantity and timing variances with the value at risk",
+        requiresApproval: false,
+        receipt: "three-way match with variances quantified"
+      }),
+      A2({
+        id: "ops.ageing-analyser",
+        name: "Receivables & Payables Ageing",
+        domain: "banking-ops",
+        status: "engine",
+        purpose: "Age open items into the buckets a board asks for, with the MSME and time-bar overlays applied.",
+        engine: "assessPayables + period",
+        inputs: "open item registers, as-on date",
+        output: "ageing bands with exposure overlays rather than bare totals",
+        requiresApproval: false,
+        receipt: "ageing at a named date"
+      }),
+      A2({
+        id: "ops.advance-tax",
+        name: "Advance Tax Planner",
+        domain: "banking-ops",
+        status: "workflow",
+        purpose: "Project the year's liability and the 15/45/75/100% instalments, with s.234B and 234C interest on shortfall.",
+        engine: "interestOnLateTax (for the interest legs)",
+        inputs: "year-to-date income, TDS, prior instalments",
+        output: "instalment schedule with the interest cost of each shortfall scenario",
+        requiresApproval: true,
+        receipt: "instalment plan with interest modelled"
+      }),
+      A2({
+        id: "ops.working-capital",
+        name: "Working Capital Signal",
+        domain: "banking-ops",
+        status: "workflow",
+        purpose: "Combine the MSME clock, the ITC cycle and the GST due dates into one cash-call calendar.",
+        engine: "assessPayables + dueDates",
+        inputs: "payables, receivables, return calendar",
+        output: "the weeks where cash goes out faster than it comes in, with the drivers named",
+        requiresApproval: false,
+        receipt: "cash calendar derived from dated obligations"
+      }),
+      // ── Assurance and reporting ─────────────────────────────────────────────────
+      A2({
+        id: "assure.gstin-network",
+        name: "Counterparty Network Analysis",
+        domain: "assurance",
+        status: "workflow",
+        purpose: "Follow the counterparty graph for circular trading, shared-address clusters and suppliers whose filing record is failing.",
+        engine: "vendorKey + validateGstin (graph construction)",
+        inputs: "purchase and sales registers with registrations",
+        output: "clusters with the signals that put them there, and the ITC at risk",
+        requiresApproval: false,
+        receipt: "network findings over a named population"
+      }),
+      A2({
+        id: "assure.turnover-tie",
+        name: "Turnover Tie-out",
+        domain: "assurance",
+        status: "workflow",
+        purpose: "Tie reported turnover across GSTR-1, GSTR-3B, the books and the income-tax return, and explain each difference.",
+        engine: "buildGstr1 + hardLockCrosswalk",
+        inputs: "returns, books, ITR schedules",
+        output: "a four-way tie-out with the differences classified and explained",
+        requiresApproval: false,
+        receipt: "four-way tie-out with explanations"
+      }),
+      A2({
+        id: "assure.lapsed-filer-watch",
+        name: "Lapsed Filer Watch",
+        domain: "assurance",
+        status: "workflow",
+        purpose: "Flag counterparties whose return filing has stopped, because their silence becomes your credit problem.",
+        engine: "reconcile (missing-in-2b population)",
+        inputs: "2B and 2A history, supplier list",
+        output: "suppliers with filing gaps and the credit exposed through them",
+        requiresApproval: false,
+        receipt: "filing-gap findings per supplier"
+      }),
+      A2({
+        id: "report.board-mis",
+        name: "Monthly MIS Pack",
+        domain: "reporting",
+        status: "workflow",
+        purpose: "Assemble the month-end pack: tax position, credit realised, exposures, open notices and cash obligations.",
+        engine: "all engines, aggregated",
+        inputs: "the outputs of every agent above",
+        output: "a board-ready pack where every number traces to a computation",
+        requiresApproval: false,
+        receipt: "MIS pack with per-line provenance"
+      }),
+      A2({
+        id: "report.auditor-pack",
+        name: "Auditor Evidence Pack",
+        domain: "reporting",
+        status: "workflow",
+        purpose: "Assemble the reconciliation evidence an auditor asks for, with each figure traceable to its source records.",
+        engine: "all engines, receipted",
+        inputs: "the period's reconciliations and their inputs",
+        output: "an evidence pack where every figure carries its hash, its ruleset and its approver",
+        requiresApproval: false,
+        receipt: "evidence pack, receipts included"
+      })
+    ]);
+  }
+});
+
+// src/munshi/index.ts
+var init_munshi = __esm({
+  "src/munshi/index.ts"() {
+    "use strict";
+    init_ruleset();
+    init_money();
+    init_gstin();
+    init_period();
+    init_itc();
+    init_returns();
+    init_statutory();
+    init_tds();
+    init_msme();
+    init_agents();
+  }
+});
+
+// src/ui/screens/Munshi.tsx
+var Munshi_exports = {};
+__export(Munshi_exports, {
+  Munshi: () => Munshi
+});
+function Basis({ text }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Basis \u2014 " }),
+    text
+  ] });
+}
+function Field({ label: label2, hint, children: children2 }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "field", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("label", { className: "lbl", children: label2 }),
+    children2,
+    hint ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hint", children: hint }) : null
+  ] });
+}
+function Result({ ok: ok2, headline, children: children2 }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-h", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: headline }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: `pill ${ok2 ? "ok" : "warn"}`, children: ok2 ? "engine" : "check" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card-b", children: children2 })
+  ] });
+}
+function GstinTool() {
+  const [value, setValue] = (0, import_react8.useState)("27AAPFU0939F1ZV");
+  const v2 = validateGstin(value);
+  const key = vendorKey(value);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "GSTIN", hint: "15 characters. The 15th is a mod-36 checksum over the first 14 \u2014 a transposed character usually dies here.", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value, onChange: (e3) => setValue(e3.target.value), placeholder: "27AAPFU0939F1ZV" }) }),
+      v2.ok ? /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginTop: 14, marginBottom: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: v2.parts.stateCode }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: v2.parts.state })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 18 }, children: v2.parts.pan }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: v2.parts.holderType })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: v2.parts.entityNumber }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "entity number" })
+        ] })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "note warn", style: { marginTop: 14 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: v2.code }),
+        " \u2014 ",
+        v2.detail
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: v2.ok, headline: v2.ok ? "Valid registration" : "Refused", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: explainGstin(value) }),
+      v2.ok && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Vendor key \u2014 " }),
+        key,
+        " \xB7 two invoices from this taxpayer resolve to one vendor, whatever the invoice numbering does."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: "state codes and the mod-36 check character are computed here; the PAN's 4th character gives the holder type. No portal call, no model." })
+    ] })
+  ] });
+}
+function TdsTool() {
+  const [section2, setSection] = (0, import_react8.useState)("194J(b)");
+  const [amount, setAmount] = (0, import_react8.useState)("60,000");
+  const [prev, setPrev] = (0, import_react8.useState)("0");
+  const [payeeType, setPayeeType] = (0, import_react8.useState)("company");
+  const [panOk, setPanOk] = (0, import_react8.useState)(true);
+  const [senior, setSenior] = (0, import_react8.useState)(false);
+  const meta3 = tdsSection(section2);
+  const verdict = (0, import_react8.useMemo)(() => computeTds({
+    section: section2,
+    amount: parseAmount(amount) ?? 0,
+    previouslyPaid: parseAmount(prev) ?? 0,
+    payeeType,
+    panAvailable: panOk,
+    isSeniorCitizen: senior
+  }), [section2, amount, prev, payeeType, panOk, senior]);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Section", hint: meta3 ? `threshold ${formatINR(meta3.threshold)} ${meta3.thresholdBasis} \xB7 form ${meta3.form}` : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("select", { className: "input", value: section2, onChange: (e3) => setSection(e3.target.value), children: TDS_TABLE.map((s2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("option", { value: s2.section, children: [
+        s2.section,
+        " \u2014 ",
+        s2.what
+      ] }, s2.section)) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "12px 0", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "This payment (\u20B9)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: amount, onChange: (e3) => setAmount(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Already paid this year (\u20B9)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: prev, onChange: (e3) => setPrev(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Payee", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("select", { className: "input", value: payeeType, onChange: (e3) => setPayeeType(e3.target.value), children: ["individual", "huf", "company", "firm", "other"].map((p2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: p2, children: p2 }, p2)) }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { className: "check", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { type: "checkbox", checked: panOk, onChange: (e3) => setPanOk(e3.target.checked) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+          "PAN available",
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "No PAN is not a rate of zero \u2014 s.206AA forces the higher of the prescribed rate or 20%." })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { className: "check", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { type: "checkbox", checked: senior, onChange: (e3) => setSenior(e3.target.checked) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+          "Payee is a senior citizen",
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "Only 194A moves \u2014 the interest threshold becomes \u20B91,00,000." })
+        ] })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: verdict.applicable, headline: verdict.applicable ? "Deduct" : "No deduction", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 10 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 22 }, children: formatINR(verdict.tds) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "to deduct" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("b", { children: [
+            verdict.rate,
+            "%"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "rate applied" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: verdict.form ?? "\u2014" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "return form" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: verdict.basis }),
+      verdict.warnings.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "note warn", style: { marginTop: 10 }, children: verdict.warnings.map((w4, i2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        "\xB7 ",
+        w4
+      ] }, i2)) })
+    ] })
+  ] });
+}
+function parseInvoiceLines(text) {
+  const invoices = [];
+  const bad = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const c3 = line.split(/\s*[,\t]\s*/);
+    if (c3.length < 4) {
+      bad.push(line);
+      continue;
+    }
+    const taxable = parseAmount(c3[3] ?? "");
+    if (!c3[0] || !c3[1] || !c3[2] || taxable === null) {
+      bad.push(line);
+      continue;
+    }
+    const doc = {
+      gstin: c3[0].toUpperCase(),
+      invoiceNumber: c3[1],
+      invoiceDate: c3[2],
+      taxableValue: taxable
+    };
+    const at = (i2) => {
+      const cell = c3[i2];
+      if (cell === void 0 || cell === "") return void 0;
+      const p2 = parseAmount(cell);
+      return p2 === null ? void 0 : p2;
+    };
+    const igst = at(4), cgst = at(5), sgst = at(6);
+    if (igst !== void 0) doc.igst = igst;
+    if (cgst !== void 0) doc.cgst = cgst;
+    if (sgst !== void 0) doc.sgst = sgst;
+    const rate2 = c3[7] ? Number(c3[7]) : NaN;
+    if (Number.isFinite(rate2)) doc.rate = rate2;
+    if (c3[8] && /^rcm$/i.test(c3[8])) doc.reverseCharge = true;
+    invoices.push(doc);
+  }
+  return { invoices, bad };
+}
+function ReconTool() {
+  const [booksText, setBooksText] = (0, import_react8.useState)(SAMPLE_BOOKS);
+  const [b2Text, setB2Text] = (0, import_react8.useState)(SAMPLE_2B);
+  const { invoices: books, bad: badBooks } = (0, import_react8.useMemo)(() => parseInvoiceLines(booksText), [booksText]);
+  const { invoices: portal, bad: badPortal } = (0, import_react8.useMemo)(() => parseInvoiceLines(b2Text), [b2Text]);
+  const run = (0, import_react8.useMemo)(() => reconcile(books, portal), [books, portal]);
+  const { summary } = run;
+  const findings = run.results.filter((r3) => r3.outcome !== "exact");
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 12px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { style: { flex: 1, minWidth: 0 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("label", { className: "lbl", children: "Purchase register \u2014 your books" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("textarea", { className: "input mono", rows: 7, value: booksText, onChange: (e3) => setBooksText(e3.target.value) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { style: { flex: 1, minWidth: 0 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("label", { className: "lbl", children: "GSTR-2B \u2014 what the portal has" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("textarea", { className: "input mono", rows: 7, value: b2Text, onChange: (e3) => setB2Text(e3.target.value) })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hint", children: [
+        "One row per document: ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: "gstin, number, date, taxable, igst, cgst, sgst[, rate][, RCM]" }),
+        ". Amounts may be written 1,00,000 \xB7 \u20B945000 \xB7 12L \u2014 the parser is the engine's, not a model's.",
+        (badBooks.length > 0 || badPortal.length > 0) && ` ${badBooks.length + badPortal.length} line(s) could not be read and are skipped, never guessed.`
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: summary.itcAtRisk === 0, headline: `${summary.total} documents reconciled`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: summary.agreed }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "agreed both sides" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 20 }, children: formatINR(summary.itcAtRisk) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "ITC at risk" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 20 }, children: formatINR(summary.itcUnclaimed) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "credit not yet in 2B" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 15 }, children: summary.ruleset }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "ruleset" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "ITC at risk" }),
+        " is credit already taken that the portal does not support \u2014 a duplicate claimed twice, a short-paid tax where the books figure and the portal figure disagree. ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Credit not yet in 2B" }),
+        " is the opposite problem: your money, waiting on a supplier who has not filed. They are never added together."
+      ] }),
+      findings.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "note ok", style: { marginTop: 10 }, children: "Every document matched. Nothing to act on this period." }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "ledger", style: { marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "lh", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u20B9 at risk" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Finding" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Document" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Where" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Basis" })
+        ] }),
+        findings.map((r3, i2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "lr", style: { height: "auto", padding: "12px 16px", alignItems: "flex-start" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: r3.itcAtRisk ? formatINR(r3.itcAtRisk) : "\u2014" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "t", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: OUTCOME_LABEL[r3.outcome] ?? r3.outcome }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: r3.detail })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: r3.books?.invoiceNumber ?? r3.gstr2b?.invoiceNumber ?? "\u2014" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "mono", style: { whiteSpace: "nowrap" }, children: [
+            r3.books ? "books" : "",
+            r3.books && r3.gstr2b ? " + " : "",
+            r3.gstr2b ? "2B" : ""
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: RULESET })
+        ] }, i2))
+      ] })
+    ] })
+  ] });
+}
+function DatesTool() {
+  const [kind, setKind] = (0, import_react8.useState)("GSTR-3B");
+  const [period, setPeriod] = (0, import_react8.useState)("2026-08");
+  const [scheme, setScheme] = (0, import_react8.useState)("monthly");
+  const [category, setCategory] = (0, import_react8.useState)("X");
+  const [asOn, setAsOn] = (0, import_react8.useState)("2026-09-24");
+  const rows = (0, import_react8.useMemo)(() => dueDates(kind, period, scheme, category), [kind, period, scheme, category]);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card-b", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 12px", borderTop: 0 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Return", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("select", { className: "input", value: kind, onChange: (e3) => setKind(e3.target.value), children: KINDS.map((k2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: k2, children: k2 }, k2)) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Period (yyyy-mm)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: period, onChange: (e3) => setPeriod(e3.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Scheme", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: scheme, onChange: (e3) => setScheme(e3.target.value), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "monthly", children: "monthly" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "qrmp", children: "QRMP" })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "QRMP group", hint: "Category X files 3B on the 22nd, Y on the 24th.", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: category, onChange: (e3) => setCategory(e3.target.value), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "X", children: "X" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "Y", children: "Y" })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "As on", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: asOn, onChange: (e3) => setAsOn(e3.target.value) }) })
+    ] }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Result, { ok: true, headline: `${kind} \xB7 ${period}`, children: rows.map((d3, i2) => {
+      const late = daysOverdue(d3.due, asOn);
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 22 }, children: d3.due }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "due date" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: late > 0 ? `${late} day${late === 1 ? "" : "s"} overdue` : "in time" }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+              "as on ",
+              asOn
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 14 }, children: d3.ruleset }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "ruleset" })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: d3.basis })
+      ] }, i2);
+    }) })
+  ] });
+}
+function EInvoiceTool() {
+  const [aatoCr, setAatoCr] = (0, import_react8.useState)("12");
+  const [docDate, setDocDate] = (0, import_react8.useState)("2026-08-01");
+  const [asOn, setAsOn] = (0, import_react8.useState)("2026-08-26");
+  const [km, setKm] = (0, import_react8.useState)("450");
+  const [cargo, setCargo] = (0, import_react8.useState)("normal");
+  const aato = rupeesToPaise((Number(aatoCr) || 0) * 1e7);
+  const status = eInvoiceStatus(aato);
+  const window2 = (0, import_react8.useMemo)(() => checkIrnWindow(docDate, aato, asOn), [docDate, aato, asOn]);
+  const eway = ewayBillValidity(Number(km) || 0, cargo);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card-b", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 12px", borderTop: 0 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Turnover (\u20B9 crore)", hint: "AATO in any year since 2017-18 keeps you in scope.", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: aatoCr, onChange: (e3) => setAatoCr(e3.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Document date", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: docDate, onChange: (e3) => setDocDate(e3.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "As on", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: asOn, onChange: (e3) => setAsOn(e3.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Distance (km)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: km, onChange: (e3) => setKm(e3.target.value) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Cargo", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: cargo, onChange: (e3) => setCargo(e3.target.value), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "normal", children: "normal" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "over-dimensional", children: "over-dimensional" })
+      ] }) })
+    ] }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: window2.status !== "blocked", headline: `IRN window \u2014 ${window2.status.replace("-", " ")}`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 10 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: status.mandated ? "mandatory" : "not mandated" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "e-invoicing at this turnover" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 22 }, children: window2.deadline }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "report by" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: status.thirtyDayLimit ? `${window2.daysLeft} days left` : "no 30-day limit" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "from the document date" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: window2.finding }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: status.reason }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", style: { marginTop: 8 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "E-way bill \u2014 " }),
+        eway.days,
+        " day",
+        eway.days === 1 ? "" : "s",
+        " of validity for ",
+        km,
+        " km",
+        cargo === "over-dimensional" ? " over-dimensional" : "",
+        ". ",
+        eway.basis
+      ] })
+    ] })
+  ] });
+}
+function MsmeTool() {
+  const [vendor, setVendor] = (0, import_react8.useState)("SmallCo Industries");
+  const [amount, setAmount] = (0, import_react8.useState)("1,00,000");
+  const [invoiceDate, setInvoiceDate] = (0, import_react8.useState)("2026-06-01");
+  const [acceptedOn, setAcceptedOn] = (0, import_react8.useState)("");
+  const [paidOn, setPaidOn] = (0, import_react8.useState)("");
+  const [enterprise, setEnterprise] = (0, import_react8.useState)("small");
+  const [agreement, setAgreement] = (0, import_react8.useState)(true);
+  const [asOn, setAsOn] = (0, import_react8.useState)("2026-09-30");
+  const [sector, setSector] = (0, import_react8.useState)("services");
+  const [investmentCr, setInvestmentCr] = (0, import_react8.useState)("1");
+  const [turnoverCr, setTurnoverCr] = (0, import_react8.useState)("3");
+  const clock2 = paymentDeadline(invoiceDate, enterprise, {
+    writtenAgreement: agreement,
+    ...acceptedOn ? { acceptedOn } : {}
+  });
+  const aged = (0, import_react8.useMemo)(() => assessPayables([{
+    vendor,
+    invoiceNumber: "\u2014",
+    invoiceDate,
+    amount: parseAmount(amount) ?? 0,
+    enterprise,
+    writtenAgreement: agreement,
+    ...acceptedOn ? { acceptedOn } : {},
+    ...paidOn ? { paidOn } : {}
+  }], asOn), [vendor, amount, invoiceDate, acceptedOn, paidOn, enterprise, agreement, asOn]);
+  const row = aged.rows[0];
+  const classified = classifyEnterprise(sector, (Number(investmentCr) || 0) * 1e7, (Number(turnoverCr) || 0) * 1e7);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 12px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Vendor", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: vendor, onChange: (e3) => setVendor(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Amount (\u20B9)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: amount, onChange: (e3) => setAmount(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Invoice date", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: invoiceDate, onChange: (e3) => setInvoiceDate(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Accepted on", hint: "The clock runs from acceptance, not the invoice date.", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: acceptedOn, onChange: (e3) => setAcceptedOn(e3.target.value), placeholder: "defaults to invoice date" }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Paid on", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: paidOn, onChange: (e3) => setPaidOn(e3.target.value), placeholder: "still unpaid" }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 8px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Supplier class", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("select", { className: "input", value: enterprise, onChange: (e3) => setEnterprise(e3.target.value), children: ["micro", "small", "medium", "not-msme", "unknown"].map((x3) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: x3, children: x3 }, x3)) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "As on", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: asOn, onChange: (e3) => setAsOn(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { className: "check", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { type: "checkbox", checked: agreement, onChange: (e3) => setAgreement(e3.target.checked) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+            "Written agreement exists",
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "45 days with one, 15 without." })
+          ] })
+        ] })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: !row || row.disallowanceExposure === 0, headline: clock2.covered ? `Due ${clock2.dueBy} \u2014 covered by 43B(h)` : "Outside 43B(h)", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 10 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: clock2.daysAllowed }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "days allowed" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 20 }, children: row ? formatINR(row.disallowanceExposure) : "\u2014" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "disallowance exposure" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: row && row.daysOverdue > 0 ? `${row.daysOverdue} days late` : "not late" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+            "as on ",
+            asOn
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: row?.finding ?? clock2.basis }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: clock2.basis }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", style: { marginTop: 8 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Udyam check \u2014 " }),
+        investmentCr,
+        " cr investment, ",
+        turnoverCr,
+        " cr turnover, ",
+        sector,
+        " \u2192 ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: classified }),
+        classified === "medium" ? ". A medium enterprise is not covered by 43B(h): paying late is a commercial problem, not a disallowance." : "."
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 4px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Sector", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: sector, onChange: (e3) => setSector(e3.target.value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "manufacturing", children: "manufacturing" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "services", children: "services" })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Investment (\u20B9 crore)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: investmentCr, onChange: (e3) => setInvestmentCr(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Turnover (\u20B9 crore)", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: turnoverCr, onChange: (e3) => setTurnoverCr(e3.target.value) }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: "Udyam classification limits as notified \u2014 the thresholds differ between manufacturing and services, so the sector is part of the answer, not decoration." })
+    ] }) })
+  ] });
+}
+function FeeTool() {
+  const [tax, setTax] = (0, import_react8.useState)("1,00,000");
+  const [from, setFrom] = (0, import_react8.useState)("2026-09-20");
+  const [to, setTo] = (0, import_react8.useState)("2026-10-20");
+  const [basis, setBasis] = (0, import_react8.useState)("s.50(1)");
+  const [kind, setKind] = (0, import_react8.useState)("GSTR-3B");
+  const [nil, setNil] = (0, import_react8.useState)(false);
+  const [turnoverClass, setTurnoverClass] = (0, import_react8.useState)("up-to-1.5cr");
+  const interest = (0, import_react8.useMemo)(() => interestOnLateTax(parseAmount(tax) ?? 0, from, to, basis), [tax, from, to, basis]);
+  const fee = lateFee(kind, from, to, { nil, turnoverClass });
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card-b", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 12px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Tax short-paid (\u20B9)", hint: "Interest runs on the net CASH liability \u2014 credit wrongly used is the 24% case.", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input", value: tax, onChange: (e3) => setTax(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Due date", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: from, onChange: (e3) => setFrom(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Paid / filing on", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input mono", value: to, onChange: (e3) => setTo(e3.target.value) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Interest basis", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: basis, onChange: (e3) => setBasis(e3.target.value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "s.50(1)", children: "s.50(1) \u2014 18%" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "s.50(3)", children: "s.50(3) \u2014 24%" })
+        ] }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { padding: "0 0 4px", borderTop: 0 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Return", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: kind, onChange: (e3) => setKind(e3.target.value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "GSTR-1", children: "GSTR-1" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "GSTR-3B", children: "GSTR-3B" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "GSTR-9", children: "GSTR-9" })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Field, { label: "Turnover class", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { className: "input", value: turnoverClass, onChange: (e3) => setTurnoverClass(e3.target.value), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "up-to-1.5cr", children: "up to \u20B91.5 cr" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "1.5-to-5cr", children: "\u20B91.5\u20135 cr" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "above-5cr", children: "above \u20B95 cr" })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { className: "check", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { type: "checkbox", checked: nil, onChange: (e3) => setNil(e3.target.checked) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+            "Nil return",
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "\u20B920 a day instead of \u20B950 \u2014 and the cap is different." })
+          ] })
+        ] })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Result, { ok: interest.interest === 0 && fee.fee === 0, headline: "Interest and late fee", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", style: { marginBottom: 10 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 22 }, children: formatINR(interest.interest) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+            "interest \xB7 ",
+            interest.ratePercent,
+            "%"
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 22 }, children: formatINR(fee.fee) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+            "late fee \xB7 ",
+            fee.days,
+            " days"
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 20 }, children: formatINR(interest.interest + fee.fee) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "total on this period" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: interest.basis }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Basis, { text: fee.basis }),
+      fee.capped && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "note warn", style: { marginTop: 10 }, children: "The late-fee cap has bitten \u2014 a return two years late is not a two-year fee. The cap is set by turnover class, not by how long you waited." })
+    ] })
+  ] });
+}
+function Munshi() {
+  const [tab, setTab] = (0, import_react8.useState)("gstin");
+  const [domain2, setDomain] = (0, import_react8.useState)("all");
+  const [open2, setOpen] = (0, import_react8.useState)(null);
+  const roster = rosterStatus();
+  const listed = domain2 === "all" ? AGENTS : agentsByDomain(domain2);
+  const domains = Object.keys(DOMAIN_LABEL);
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h2", { children: "Munshi" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "sub", children: [
+        "Indian finance desk \xB7 ",
+        roster.total,
+        " specialists \xB7 ruleset ",
+        RULESET
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "right", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "pill mono", children: "computed on this machine" }) })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "page narrow", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: roster.total }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "specialists" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "sep" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: roster.engine }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "deterministic engines" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "sep" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: roster.requiringApproval }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "stop at a human gate" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "sep" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { className: "mono", style: { fontSize: 17 }, children: RULESET }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "ruleset stamped on every result" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "seg", children: TOOLS2.map((t2) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { "aria-pressed": tab === t2.id, onClick: () => setTab(t2.id), children: t2.label }, t2.id)) }),
+      tab === "gstin" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GstinTool, {}),
+      tab === "tds" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(TdsTool, {}),
+      tab === "recon" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ReconTool, {}),
+      tab === "dates" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(DatesTool, {}),
+      tab === "einvoice" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(EInvoiceTool, {}),
+      tab === "msme" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(MsmeTool, {}),
+      tab === "fee" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FeeTool, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "note", style: { marginTop: 14 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "These engines compute; they do not file." }),
+        " Nothing here touches GSTN, a bank or a portal, and nothing leaves this machine. Filing needs credentials and a GSP/ASP channel \u2014 an operator-granted capability. The agents that end in a filing or a payment are marked ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "gated" }),
+        " below and stay behind the human decision."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { style: { margin: "22px 2px 10px" }, children: "The specialists" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "seg", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { "aria-pressed": domain2 === "all", onClick: () => setDomain("all"), children: [
+          "all ",
+          AGENTS.length
+        ] }),
+        domains.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { "aria-pressed": domain2 === d3, onClick: () => setDomain(d3), children: [
+          DOMAIN_LABEL[d3],
+          " ",
+          agentsByDomain(d3).length
+        ] }, d3))
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "ledger", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "lh", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\xB7" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Specialist" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Domain" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Runs on" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Gate" })
+        ] }),
+        listed.map((a3) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react8.default.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { className: `lr ${open2 === a3.id ? "open" : ""}`, onClick: () => setOpen(open2 === a3.id ? null : a3.id), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: `dot ${a3.requiresApproval ? "pending" : "ok"}` }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "t", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: a3.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { className: "mono", children: a3.id })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: DOMAIN_LABEL[a3.domain] ?? a3.domain }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: a3.status === "engine" ? "engine" : "workflow" }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: `pill ${a3.requiresApproval ? "warn" : "ok"}`, children: a3.requiresApproval ? "gated" : "open" })
+          ] }),
+          open2 === a3.id && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "ld", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: a3.purpose }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Engine \u2014 " }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: a3.engine })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "In \u2014 " }),
+              a3.inputs
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Out \u2014 " }),
+              a3.output
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "The receipt attests \u2014 " }),
+              a3.receipt
+            ] }),
+            a3.requiresApproval && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Gate \u2014 " }),
+              "this agent ends at a filing, a payment or a filed document. It prepares; a human decides; the decision is recorded."
+            ] })
+          ] })
+        ] }, a3.id))
+      ] })
+    ] }) })
+  ] });
+}
+var import_react8, import_jsx_runtime7, TOOLS2, DOMAIN_LABEL, OUTCOME_LABEL, SAMPLE_BOOKS, SAMPLE_2B, KINDS;
+var init_Munshi = __esm({
+  "src/ui/screens/Munshi.tsx"() {
+    "use strict";
+    import_react8 = __toESM(require_react(), 1);
+    init_munshi();
+    import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+    TOOLS2 = [
+      { id: "gstin", label: "GSTIN" },
+      { id: "tds", label: "TDS" },
+      { id: "recon", label: "2B reconcile" },
+      { id: "dates", label: "Due dates" },
+      { id: "einvoice", label: "E-invoice \xB7 e-way" },
+      { id: "msme", label: "43B(h)" },
+      { id: "fee", label: "Interest \xB7 fee" }
+    ];
+    DOMAIN_LABEL = {
+      "gst-output": "GST \xB7 output",
+      "gst-itc": "GST \xB7 credit",
+      "gst-compliance": "GST \xB7 compliance",
+      "tds": "TDS \xB7 TCS",
+      "msme": "MSME",
+      "banking-ops": "Banking \xB7 ops",
+      "assurance": "Assurance",
+      "reporting": "Reporting"
+    };
+    OUTCOME_LABEL = {
+      exact: "Matched",
+      "value-mismatch": "Taxable value differs",
+      "tax-mismatch": "Tax differs \u2014 money case",
+      "rate-mismatch": "Rate differs",
+      "period-mismatch": "Same value, different number",
+      "duplicate-in-books": "Duplicate in books",
+      "duplicate-in-2b": "Duplicate in 2B",
+      "missing-in-2b": "Missing in 2B",
+      "missing-in-books": "In 2B, not in your books",
+      "gstin-mismatch": "GSTIN differs",
+      "reverse-charge": "Reverse charge \u2014 not in 2B",
+      "cancelled-in-2b": "Cancelled in 2B"
+    };
+    SAMPLE_BOOKS = `27AAPFU0939F1ZV, INV/2026-27/001, 2026-08-04, 1,00,000, 0, 9,000, 9,000, 18
+29AABCT1332L1ZP, SB-4471, 2026-08-11, 50,000, 9,000, 0, 0, 18
+29AABCT1332L1ZP, SB-4472, 2026-08-18, 25,000, 4,500, 0, 0, 18, RCM
+27AAPFU0939F1ZV, INV/2026-27/001, 2026-08-04, 1,00,000, 0, 9,000, 9,000, 18`;
+    SAMPLE_2B = `27AAPFU0939F1ZV, INV202627001, 2026-08-04, 1,00,000, 0, 9,000, 9,000, 18
+29AABCT1332L1ZP, SB-4471, 2026-08-11, 50,000, 7,200, 0, 0, 18
+27AAACR5055K1Z1, R-77, 2026-08-27, 60,000, 0, 5,400, 5,400, 18`;
+    KINDS = ["GSTR-1", "GSTR-1A", "IFF", "GSTR-3B", "GSTR-9", "GSTR-9C", "GSTR-4", "GSTR-7", "GSTR-8", "CMP-08", "ITC-04"];
+  }
+});
+
 // src/ui/screens/Receipts.tsx
 var Receipts_exports = {};
 __export(Receipts_exports, {
@@ -157211,9 +159586,9 @@ __export(Receipts_exports, {
 });
 function Receipts() {
   const st = useVh();
-  const all2 = (0, import_react8.useMemo)(() => st.receipts(), [st.msgs, st.handoffs, st.gate]);
-  const [q2, setQ] = (0, import_react8.useState)("");
-  const [open2, setOpen] = (0, import_react8.useState)(null);
+  const all2 = (0, import_react9.useMemo)(() => st.receipts(), [st.msgs, st.handoffs, st.gate]);
+  const [q2, setQ] = (0, import_react9.useState)("");
+  const [open2, setOpen] = (0, import_react9.useState)(null);
   const rows = all2.filter((r3) => !q2 || (r3.title + r3.signer + r3.digest + r3.kind).toLowerCase().includes(q2.toLowerCase()));
   const ok2 = all2.filter((r3) => r3.state === "ok").length, refused = all2.filter((r3) => r3.state === "refused").length, pending = all2.filter((r3) => r3.state === "pending").length;
   const runs = st.msgs.filter((m3) => m3.resp).length;
@@ -157226,68 +159601,68 @@ function Receipts() {
       return "\u2014";
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("header", { className: "top", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h2", { children: "Receipts" }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "sub", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "Receipts" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "sub", children: [
         all2.length,
         " in this session"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "right", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { className: "input sm", placeholder: "Search receipts", value: q2, onChange: (e3) => setQ(e3.target.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { className: "btn sm", onClick: () => download(all2), disabled: !all2.length, children: "Export JSON" })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "right", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("input", { className: "input sm", placeholder: "Search receipts", value: q2, onChange: (e3) => setQ(e3.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm", onClick: () => download(all2), disabled: !all2.length, children: "Export JSON" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "page narrow", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "kpis", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: ok2 }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Verified" })
+    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "page narrow", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "kpis", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: ok2 }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Verified" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: pending }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Waiting on you" })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: pending }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Waiting on you" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: refused }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Refused" })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: refused }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Refused" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: runs }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Runs" })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: runs }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Runs" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: st.savedTokens }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Tokens saved" })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: st.savedTokens }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Tokens saved" })
         ] })
       ] }),
-      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "empty", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: all2.length ? "No matches" : "No receipts yet" }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: all2.length ? "Try another search." : "Every run, tool call and approval leaves one here \u2014 the honest record of what happened." })
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "ledger", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "lh", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "When" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "What" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Signer" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Digest" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {})
+      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: all2.length ? "No matches" : "No receipts yet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: all2.length ? "Try another search." : "Every run, tool call and approval leaves one here \u2014 the honest record of what happened." })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "ledger", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "lh", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "When" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "What" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Signer" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Digest" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {})
         ] }),
-        rows.map((r3) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_react8.default.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { className: `lr ${open2 === r3.id ? "open" : ""}`, onClick: () => setOpen(open2 === r3.id ? null : r3.id), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: fmt(r3.at) }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "t", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: r3.title }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: r3.kind })
+        rows.map((r3) => /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react9.default.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("button", { className: `lr ${open2 === r3.id ? "open" : ""}`, onClick: () => setOpen(open2 === r3.id ? null : r3.id), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "mono", children: fmt(r3.at) }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "t", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", { children: r3.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("small", { children: r3.kind })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono", children: r3.signer }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "mono dig", children: r3.digest === "\u2014" ? "\u2014" : r3.digest.slice(0, 12) + "\u2026" }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: `dot ${r3.state}` })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "mono", children: r3.signer }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "mono dig", children: r3.digest === "\u2014" ? "\u2014" : r3.digest.slice(0, 12) + "\u2026" }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: `dot ${r3.state}` })
           ] }),
-          open2 === r3.id && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "ld", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("code", { children: r3.digest }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "acts", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { className: "btn sm", onClick: () => void navigator.clipboard?.writeText(r3.digest), children: "Copy digest" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hint", children: r3.state === "ok" ? "This digest is the receipt \u2014 the run canonical hashes to it." : r3.state === "pending" ? "Waiting for your decision in Work." : "Refused \u2014 recorded exactly as it happened." })
+          open2 === r3.id && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "ld", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("code", { children: r3.digest }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "acts", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm", onClick: () => void navigator.clipboard?.writeText(r3.digest), children: "Copy digest" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "hint", children: r3.state === "ok" ? "This digest is the receipt \u2014 the run canonical hashes to it." : r3.state === "pending" ? "Waiting for your decision in Work." : "Refused \u2014 recorded exactly as it happened." })
             ] })
           ] })
         ] }, r3.id))
@@ -157303,13 +159678,13 @@ function download(rows) {
   a3.click();
   URL.revokeObjectURL(a3.href);
 }
-var import_react8, import_jsx_runtime7;
+var import_react9, import_jsx_runtime8;
 var init_Receipts = __esm({
   "src/ui/screens/Receipts.tsx"() {
     "use strict";
-    import_react8 = __toESM(require_react(), 1);
+    import_react9 = __toESM(require_react(), 1);
     init_store();
-    import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
@@ -157320,11 +159695,11 @@ __export(Memory_exports, {
 });
 function Memory() {
   const { sessions, memOn, setMemory, clearMemory, openConversation, forgetSession, vault } = useVh();
-  const [spin2, setSpin] = (0, import_react9.useState)(true);
-  const [fit, setFit] = (0, import_react9.useState)(0);
-  const [sel, setSel] = (0, import_react9.useState)(null);
-  const [confirm, setConfirm] = (0, import_react9.useState)(false);
-  const { nodes, links, stats, sec } = (0, import_react9.useMemo)(() => {
+  const [spin2, setSpin] = (0, import_react10.useState)(true);
+  const [fit, setFit] = (0, import_react10.useState)(0);
+  const [sel, setSel] = (0, import_react10.useState)(null);
+  const [confirm, setConfirm] = (0, import_react10.useState)(false);
+  const { nodes, links, stats, sec } = (0, import_react10.useMemo)(() => {
     const g3 = memoryGraphData();
     const stats2 = memoryStats();
     const sec2 = memorySecurity();
@@ -157342,10 +159717,10 @@ function Memory() {
   const open2 = (n2) => {
     if (n2.id.startsWith("s:")) openConversation(n2.id.slice(2));
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("header", { className: "top", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "Memory" }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "sub", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h2", { children: "Memory" }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "sub", children: [
         sessions.length,
         " conversation",
         sessions.length === 1 ? "" : "s",
@@ -157353,94 +159728,94 @@ function Memory() {
         stats.nodes,
         " topics"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "right", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: `pill ${sec.mode === "sealed" ? "ok" : "warn"}`, children: sec.mode === "sealed" ? "encrypted at rest" : sec.mode === "locked" ? "vault locked" : vault.status === "no-passphrase" ? "on device \xB7 no vault" : "plaintext on device" }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("label", { className: "switch", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("input", { type: "checkbox", checked: memOn, onChange: (e3) => setMemory(e3.target.checked) }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("i", {}),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Remember" })
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "right", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `pill ${sec.mode === "sealed" ? "ok" : "warn"}`, children: sec.mode === "sealed" ? "encrypted at rest" : sec.mode === "locked" ? "vault locked" : vault.status === "no-passphrase" ? "on device \xB7 no vault" : "plaintext on device" }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { className: "switch", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { type: "checkbox", checked: memOn, onChange: (e3) => setMemory(e3.target.checked) }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("i", {}),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Remember" })
         ] })
       ] })
     ] }),
-    nodes.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "empty", style: { height: "100%" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Nothing remembered yet" }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: memOn ? "Conversations you have with the Steward will cluster here by topic \u2014 nothing leaves this device." : "Memory is off. Turn it on to keep conversations on this device." })
-    ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "graph-wrap memory", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(ForceGraph2, { mode: "memory", nodes, links, autoRotate: spin2, fitSignal: fit, onNodeClick: setSel, onNodeDoubleClick: open2 }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "hud", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "card-b", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "mode-tag memory", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("i", {}),
+    nodes.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "empty", style: { height: "100%" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Nothing remembered yet" }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { children: memOn ? "Conversations you have with the Steward will cluster here by topic \u2014 nothing leaves this device." : "Memory is off. Turn it on to keep conversations on this device." })
+    ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "graph-wrap memory", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(ForceGraph2, { mode: "memory", nodes, links, autoRotate: spin2, fitSignal: fit, onNodeClick: setSel, onNodeDoubleClick: open2 }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "hud", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "card-b", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "mode-tag memory", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("i", {}),
           "Memory graph \xB7 organic cluster"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "klist", style: { marginTop: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Conversations" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: sessions.length })
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "klist", style: { marginTop: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Conversations" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: sessions.length })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Topics" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: stats.nodes })
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Topics" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: stats.nodes })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Links" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: stats.edges })
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Links" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: stats.edges })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "At rest" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: sec.mode })
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "At rest" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: sec.mode })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "legend memory", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("i", { style: { background: "#7FC79A" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "legend memory", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("i", { style: { background: "#7FC79A" } }),
             "conversations"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("i", { style: { background: "#AEB8B5" } }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("i", { style: { background: "#AEB8B5" } }),
             "topics"
           ] })
         ] })
       ] }) }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "hud-r", children: sel ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "card-b", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "lbl", children: sel.kind === "session" ? "Conversation" : "Topic" }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { style: { margin: "4px 0 2px" }, children: sel.name }),
-        sel.sub && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "faint", style: { margin: 0 }, children: sel.sub }),
-        selSession && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "tags", children: selSession.keywords.slice(0, 8).map((k2) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: k2 }, k2)) }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "acts", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn primary sm", onClick: () => open2(sel), children: "Open the conversation" }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm ghost", onClick: () => {
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "hud-r", children: sel ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "card", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "card-b", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "lbl", children: sel.kind === "session" ? "Conversation" : "Topic" }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { style: { margin: "4px 0 2px" }, children: sel.name }),
+        sel.sub && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "faint", style: { margin: 0 }, children: sel.sub }),
+        selSession && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "tags", children: selSession.keywords.slice(0, 8).map((k2) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: k2 }, k2)) }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "acts", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn primary sm", onClick: () => open2(sel), children: "Open the conversation" }),
+            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm ghost", onClick: () => {
               forgetSession(selSession.id);
               setSel(null);
             }, children: "Forget" })
           ] })
         ] }),
-        !selSession && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "hint", children: "Double-click a conversation node to open it." })
-      ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "card soft", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "card-b", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "hint", style: { margin: 0 }, children: "Click a node for detail \xB7 double-click a conversation to open it" }) }) }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "graph-foot", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm", onClick: () => setFit((n2) => n2 + 1), children: "Fit" }),
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: `btn sm ${spin2 ? "" : "ghost"}`, onClick: () => setSpin((s2) => !s2), children: "Auto-rotate" }),
-        !confirm ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm ghost danger", onClick: () => setConfirm(true), children: "Forget everything" }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "hint", children: "This cannot be undone." }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm danger", onClick: () => {
+        !selSession && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "hint", children: "Double-click a conversation node to open it." })
+      ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "card soft", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "card-b", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { className: "hint", style: { margin: 0 }, children: "Click a node for detail \xB7 double-click a conversation to open it" }) }) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "graph-foot", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => setFit((n2) => n2 + 1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: `btn sm ${spin2 ? "" : "ghost"}`, onClick: () => setSpin((s2) => !s2), children: "Auto-rotate" }),
+        !confirm ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm ghost danger", onClick: () => setConfirm(true), children: "Forget everything" }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: "This cannot be undone." }),
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm danger", onClick: () => {
             clearMemory();
             setConfirm(false);
             setSel(null);
           }, children: "Yes, forget" }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", { className: "btn sm ghost", onClick: () => setConfirm(false), children: "Keep" })
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm ghost", onClick: () => setConfirm(false), children: "Keep" })
         ] })
       ] })
     ] })
   ] });
 }
-var import_react9, import_jsx_runtime8;
+var import_react10, import_jsx_runtime9;
 var init_Memory = __esm({
   "src/ui/screens/Memory.tsx"() {
     "use strict";
-    import_react9 = __toESM(require_react(), 1);
+    import_react10 = __toESM(require_react(), 1);
     init_store();
     init_ForceGraph();
-    import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
@@ -157451,12 +159826,12 @@ __export(Docs_exports, {
 });
 function Docs() {
   const st = useVh();
-  const [text, setText] = (0, import_react10.useState)("");
-  const [name, setName2] = (0, import_react10.useState)("");
-  const [note, setNote] = (0, import_react10.useState)(null);
-  const [busy, setBusy] = (0, import_react10.useState)(false);
-  const [open2, setOpen] = (0, import_react10.useState)(null);
-  const file2 = (0, import_react10.useRef)(null);
+  const [text, setText] = (0, import_react11.useState)("");
+  const [name, setName2] = (0, import_react11.useState)("");
+  const [note, setNote] = (0, import_react11.useState)(null);
+  const [busy, setBusy] = (0, import_react11.useState)(false);
+  const [open2, setOpen] = (0, import_react11.useState)(null);
+  const file2 = (0, import_react11.useRef)(null);
   const rows = st.knowledge.slice().sort((a3, b3) => a3.provenance.distilledAt < b3.provenance.distilledAt ? 1 : -1);
   const proposed = rows.filter((r3) => r3.status === "proposed");
   const approved = rows.filter((r3) => r3.status === "approved");
@@ -157505,38 +159880,38 @@ function Docs() {
       return "\u2014";
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("header", { className: "top", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h2", { children: "Docs" }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "sub", children: rows.length ? `${rows.length} proposal${rows.length === 1 ? "" : "s"}` : "teach it from your own documents" })
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h2", { children: "Docs" }),
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sub", children: rows.length ? `${rows.length} proposal${rows.length === 1 ? "" : "s"}` : "teach it from your own documents" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "page narrow", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "kpis", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: proposed.length }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Waiting on you" })
+    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "page narrow", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "kpis", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: proposed.length }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Waiting on you" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: approved.length }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Approved" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: approved.length }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Approved" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: rows.filter((r3) => r3.dataHandling === "local").length }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Stayed on this machine" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: rows.filter((r3) => r3.dataHandling === "local").length }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Stayed on this machine" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: rows.filter((r3) => r3.status === "discarded").length }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Dismissed" })
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: rows.filter((r3) => r3.status === "discarded").length }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Dismissed" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "field", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("label", { className: "lbl", htmlFor: "doc-name", children: "Source name" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("input", { id: "doc-name", className: "input", placeholder: "e.g. Incident review handbook \u2014 chapter 3", value: name, onChange: (e3) => setName2(e3.target.value) })
+      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("label", { className: "lbl", htmlFor: "doc-name", children: "Source name" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { id: "doc-name", className: "input", placeholder: "e.g. Incident review handbook \u2014 chapter 3", value: name, onChange: (e3) => setName2(e3.target.value) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "field", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("label", { className: "lbl", htmlFor: "doc-body", children: "Document" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("label", { className: "lbl", htmlFor: "doc-body", children: "Document" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
             "textarea",
             {
               id: "doc-body",
@@ -157548,10 +159923,10 @@ function Docs() {
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn", onClick: () => void propose(), disabled: busy || text.trim().length < 60, children: busy ? "Distilling\u2026" : "Propose knowledge" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => file2.current?.click(), children: "Load a file" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", onClick: () => void propose(), disabled: busy || text.trim().length < 60, children: busy ? "Distilling\u2026" : "Propose knowledge" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm", onClick: () => file2.current?.click(), children: "Load a file" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
             "input",
             {
               ref: file2,
@@ -157564,77 +159939,77 @@ function Docs() {
               }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: text.trim().length < 60 ? `${text.trim().length}/60 characters minimum` : `${text.trim().length.toLocaleString()} characters ready` })
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: text.trim().length < 60 ? `${text.trim().length}/60 characters minimum` : `${text.trim().length.toLocaleString()} characters ready` })
         ] }),
-        note && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: `note ${note.kind === "warn" ? "warn" : ""}`, children: note.text })
+        note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: `note ${note.kind === "warn" ? "warn" : ""}`, children: note.text })
       ] }),
-      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "empty", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "No documents yet" }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { children: [
+      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "No documents yet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { children: [
           "Add one above. The Steward distills its ",
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "structure" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "structure" }),
           " \u2014 procedure, decision rules, failure modes \u2014 into a knowledge proposal, then asks you before anything is installed."
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "hint", children: [
           "Extraction is ",
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "mechanical" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "mechanical" }),
           ": the structure is read out of the text on this machine and no model is called. Nothing is summarized and nothing is sent anywhere."
         ] })
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "ledger", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "lh", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "When" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Document" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Handling" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { children: "Status" }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {})
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "ledger", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "lh", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "When" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Document" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Handling" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Status" }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", {})
         ] }),
-        rows.map((r3) => /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_react10.default.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { className: `lr ${open2 === r3.id ? "open" : ""}`, onClick: () => setOpen(open2 === r3.id ? null : r3.id), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "mono", children: fmt(r3.provenance.distilledAt) }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("span", { className: "t", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: r3.title }),
-              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("small", { children: r3.provenance.sourceName || "pasted document" })
+        rows.map((r3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_react11.default.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("button", { className: `lr ${open2 === r3.id ? "open" : ""}`, onClick: () => setOpen(open2 === r3.id ? null : r3.id), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "mono", children: fmt(r3.provenance.distilledAt) }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "t", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: r3.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: r3.provenance.sourceName || "pasted document" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "mono", children: r3.dataHandling === "local" ? "on this machine" : "provider" }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `pill ${r3.status}`, children: r3.status === "proposed" ? "waiting" : r3.status }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: `dot ${r3.status === "approved" ? "ok" : r3.status === "proposed" ? "pending" : "refused"}` })
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "mono", children: r3.dataHandling === "local" ? "on this machine" : "provider" }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: `pill ${r3.status}`, children: r3.status === "proposed" ? "waiting" : r3.status }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: `dot ${r3.status === "approved" ? "ok" : r3.status === "proposed" ? "pending" : "refused"}` })
           ] }),
-          open2 === r3.id && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", { className: "ld", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("p", { children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: r3.summary }) }),
-            r3.procedure && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+          open2 === r3.id && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "ld", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: r3.summary }) }),
+            r3.procedure && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "hint", children: [
               "Procedure \u2014 ",
               r3.procedure
             ] }),
-            r3.knownFailureModes && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+            r3.knownFailureModes && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "hint", children: [
               "Known failure modes \u2014 ",
               r3.knownFailureModes
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("b", { children: "Distiller \u2014 " }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "hint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Distiller \u2014 " }),
               r3.distiller.kind === "llm" ? `an LLM harness (${r3.distiller.harness}) distilled this document.` : "mechanical extraction: the structure was read out of the text itself and no model was called."
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("p", { className: "hint", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "hint", children: [
               r3.dataHandling === "local" ? "Handling: the content never left this machine." : `Handling: the content was sent to ${r3.providerInfo?.vendor ?? "a model provider"} (${r3.providerInfo?.endpointClass ?? "endpoint unknown"}).`,
               " ",
               "Claims: knowledge is approved human knowledge \u2014 it is never counted as a measured effect."
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "acts", children: r3.status === "proposed" ? /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, true), children: "Approve" }),
-              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, false), children: "Dismiss" })
-            ] }) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "hint", children: r3.status === "approved" ? `Approved by ${r3.decidedBy ?? "owner"} \u2014 installed as a knowledge skill.` : `Dismissed by ${r3.decidedBy ?? "owner"}${r3.decidedAt ? ` \xB7 ${fmt(r3.decidedAt)}` : ""}.` }) })
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "acts", children: r3.status === "proposed" ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, true), children: "Approve" }),
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm", onClick: () => decide(r3.id, false), children: "Dismiss" })
+            ] }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: r3.status === "approved" ? `Approved by ${r3.decidedBy ?? "owner"} \u2014 installed as a knowledge skill.` : `Dismissed by ${r3.decidedBy ?? "owner"}${r3.decidedAt ? ` \xB7 ${fmt(r3.decidedAt)}` : ""}.` }) })
           ] })
         ] }, r3.id))
       ] })
     ] }) })
   ] });
 }
-var import_react10, import_jsx_runtime9, MAX_FILE;
+var import_react11, import_jsx_runtime10, MAX_FILE;
 var init_Docs = __esm({
   "src/ui/screens/Docs.tsx"() {
     "use strict";
-    import_react10 = __toESM(require_react(), 1);
+    import_react11 = __toESM(require_react(), 1);
     init_store();
-    import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
     MAX_FILE = 2e6;
   }
 });
@@ -157645,30 +160020,30 @@ __export(Settings_exports, {
   Settings: () => Settings
 });
 function Settings() {
-  const [sect, setSect] = (0, import_react11.useState)("provider");
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("header", { className: "top", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h2", { children: "Settings" }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "settings", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("nav", { className: "snav", children: SECTS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { "aria-current": sect === k2 ? "page" : void 0, onClick: () => setSect(k2), children: l2 }, k2)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "sbody", children: [
-        sect === "provider" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Provider, {}),
-        sect === "vault" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Vault, {}),
-        sect === "autonomy" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Autonomy, {}),
-        sect === "federation" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Federation, {}),
-        sect === "appearance" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Appearance, {}),
-        sect === "about" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(About, {})
+  const [sect, setSect] = (0, import_react12.useState)("provider");
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("header", { className: "top", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h2", { children: "Settings" }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "settings", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("nav", { className: "snav", children: SECTS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { "aria-current": sect === k2 ? "page" : void 0, onClick: () => setSect(k2), children: l2 }, k2)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "sbody", children: [
+        sect === "provider" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Provider, {}),
+        sect === "vault" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Vault, {}),
+        sect === "autonomy" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Autonomy, {}),
+        sect === "federation" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Federation, {}),
+        sect === "appearance" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Appearance, {}),
+        sect === "about" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(About, {})
       ] })
     ] }) })
   ] });
 }
 function Provider() {
   const { provider, setProvider, forgetProvider, securityNote, vault } = useVh();
-  const [kind, setKind] = (0, import_react11.useState)(provider?.kind ?? "openai-compatible");
-  const [baseUrl, setBase] = (0, import_react11.useState)(provider?.baseUrl ?? PROVIDER_DEFAULTS["openai-compatible"]);
-  const [model, setModel] = (0, import_react11.useState)(provider?.model ?? "");
-  const [key, setKey] = (0, import_react11.useState)("");
-  const [persist2, setPersist] = (0, import_react11.useState)(vault.status === "unlocked");
-  const [note, setNote] = (0, import_react11.useState)(securityNote);
+  const [kind, setKind] = (0, import_react12.useState)(provider?.kind ?? "openai-compatible");
+  const [baseUrl, setBase] = (0, import_react12.useState)(provider?.baseUrl ?? PROVIDER_DEFAULTS["openai-compatible"]);
+  const [model, setModel] = (0, import_react12.useState)(provider?.model ?? "");
+  const [key, setKey] = (0, import_react12.useState)("");
+  const [persist2, setPersist] = (0, import_react12.useState)(vault.status === "unlocked");
+  const [note, setNote] = (0, import_react12.useState)(securityNote);
   const pick2 = (k2) => {
     setKind(k2);
     setBase(PROVIDER_DEFAULTS[k2]);
@@ -157678,131 +160053,131 @@ function Provider() {
     setNote(r3.note);
     setKey("");
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Provider" }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Without a provider the Steward plans but never executes. With one, every step is gated and receipted. Keys never leave this device." }),
-    provider && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "led ok" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: KINDS.find((k2) => k2[0] === provider.kind)?.[1] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint mono", children: provider.model }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost danger", style: { marginLeft: "auto" }, onClick: forgetProvider, children: "Remove key" })
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Provider" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "Without a provider the Steward plans but never executes. With one, every step is gated and receipted. Keys never leave this device." }),
+    provider && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "led ok" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: KINDS2.find((k2) => k2[0] === provider.kind)?.[1] }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "faint mono", children: provider.model }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost danger", style: { marginLeft: "auto" }, onClick: forgetProvider, children: "Remove key" })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "seg", children: KINDS.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { "aria-pressed": kind === k2, onClick: () => pick2(k2), children: l2 }, k2)) }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Base URL" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", value: baseUrl, onChange: (e3) => setBase(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "seg", children: KINDS2.map(([k2, l2]) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { "aria-pressed": kind === k2, onClick: () => pick2(k2), children: l2 }, k2)) }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Base URL" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", value: baseUrl, onChange: (e3) => setBase(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Model" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", placeholder: MODEL_HINT[kind], value: model, onChange: (e3) => setModel(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Model" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", placeholder: MODEL_HINT[kind], value: model, onChange: (e3) => setModel(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "API key" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", type: "password", autoComplete: "off", placeholder: provider ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (leave blank to keep)" : "paste your key", value: key, onChange: (e3) => setKey(e3.target.value) })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "field", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "API key" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", type: "password", autoComplete: "off", placeholder: provider ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (leave blank to keep)" : "paste your key", value: key, onChange: (e3) => setKey(e3.target.value) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "check", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { type: "checkbox", checked: persist2, onChange: (e3) => setPersist(e3.target.checked) }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "check", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { type: "checkbox", checked: persist2, onChange: (e3) => setPersist(e3.target.checked) }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { children: [
         "Remember on this device ",
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: vault.status === "unlocked" ? "sealed in the vault, AES-256-GCM" : "requires an unlocked vault \u2014 otherwise the key lives in memory for this session only" })
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: vault.status === "unlocked" ? "sealed in the vault, AES-256-GCM" : "requires an unlocked vault \u2014 otherwise the key lives in memory for this session only" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn primary", disabled: !key.trim() && !provider, onClick: () => void save3(), children: provider ? "Update" : "Connect" }),
-      note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn primary", disabled: !key.trim() && !provider, onClick: () => void save3(), children: provider ? "Update" : "Connect" }),
+      note && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "hint", children: note })
     ] })
   ] });
 }
 function Vault() {
   const { vault, createVault, unlockVault, lock } = useVh();
-  const [pass, setPass] = (0, import_react11.useState)("");
-  const [note, setNote] = (0, import_react11.useState)(null);
+  const [pass, setPass] = (0, import_react12.useState)("");
+  const [note, setNote] = (0, import_react12.useState)(null);
   const act = async () => {
     const r3 = vault.status === "no-passphrase" ? await createVault(pass) : await unlockVault(pass);
     setNote(r3.note);
     if (r3.ok) setPass("");
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Vault" }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "One passphrase seals your provider key and memory at rest. There is no recovery \u2014 length is the only strength no one can take from you." }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: `led ${vault.status === "unlocked" ? "ok" : vault.status === "sealed-locked" ? "warn" : ""}` }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: vault.status === "unlocked" ? "Unlocked" : vault.status === "sealed-locked" ? "Locked" : "Not created" }),
-      vault.kdf && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { className: "faint mono", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Vault" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "One passphrase seals your provider key and memory at rest. There is no recovery \u2014 length is the only strength no one can take from you." }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: `led ${vault.status === "unlocked" ? "ok" : vault.status === "sealed-locked" ? "warn" : ""}` }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: vault.status === "unlocked" ? "Unlocked" : vault.status === "sealed-locked" ? "Locked" : "Not created" }),
+      vault.kdf && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "faint mono", children: [
         vault.kdf,
         " \xB7 ",
         vault.iterations?.toLocaleString(),
         " rounds"
       ] }),
-      vault.status === "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost", style: { marginLeft: "auto" }, onClick: lock, children: "Lock now" })
+      vault.status === "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost", style: { marginLeft: "auto" }, onClick: lock, children: "Lock now" })
     ] }),
-    vault.status !== "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "field", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Passphrase" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", type: "password", autoComplete: "off", value: pass, onChange: (e3) => setPass(e3.target.value), onKeyDown: (e3) => {
+    vault.status !== "unlocked" && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "field", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Passphrase" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", type: "password", autoComplete: "off", value: pass, onChange: (e3) => setPass(e3.target.value), onKeyDown: (e3) => {
           if (e3.key === "Enter") void act();
         } })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn primary", disabled: pass.length < 8, onClick: () => void act(), children: vault.status === "no-passphrase" ? "Create vault" : "Unlock" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note ?? "at least 8 characters" })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn primary", disabled: pass.length < 8, onClick: () => void act(), children: vault.status === "no-passphrase" ? "Create vault" : "Unlock" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "hint", children: note ?? "at least 8 characters" })
       ] })
     ] }),
-    vault.status === "unlocked" && note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: note })
+    vault.status === "unlocked" && note && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "hint", children: note })
   ] });
 }
 function Autonomy() {
   const { initiative, setAutonomy, wakeNow, stewardName, renameSteward } = useVh();
-  const [name, setName2] = (0, import_react11.useState)(stewardName);
+  const [name, setName2] = (0, import_react12.useState)(stewardName);
   const mcp = mcpRuntimeServers();
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Autonomy" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Autonomy" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "lead", children: [
         "How much your Steward may do without being asked. Above Off, a heartbeat every ",
         Math.round(HEARTBEAT_DEFAULT_MS / 6e4),
         " minutes decides, then executes safe acts through the real engine \u2014 every act receipted, every risky one stopped at the gate."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "radios", children: [0, 1, 2, 3].map((l2) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("label", { className: "check", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { type: "radio", name: "auto", checked: initiative.level === l2, onChange: () => setAutonomy(l2) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "radios", children: [0, 1, 2, 3].map((l2) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("label", { className: "check", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { type: "radio", name: "auto", checked: initiative.level === l2, onChange: () => setAutonomy(l2) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { children: [
           AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[0],
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[1] })
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: AUTONOMY_LEVEL_NAMES[l2].split(" \u2014 ")[1] })
         ] })
       ] }, l2)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "row", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint", children: "Scheduled follow-ups" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: initiative.followUps.length }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "faint", style: { marginLeft: 16 }, children: "Breaker" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: initiative.breakerUntil && initiative.breakerUntil > Date.now() ? "tripped" : "closed" }),
-        initiative.level > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn ghost", style: { marginLeft: "auto" }, onClick: () => void wakeNow(), children: "Run a heartbeat now" })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "row", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "faint", children: "Scheduled follow-ups" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: initiative.followUps.length }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "faint", style: { marginLeft: 16 }, children: "Breaker" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: initiative.breakerUntil && initiative.breakerUntil > Date.now() ? "tripped" : "closed" }),
+        initiative.level > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn ghost", style: { marginLeft: "auto" }, onClick: () => void wakeNow(), children: "Run a heartbeat now" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Steward" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "The name your Steward answers to." }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: name, onChange: (e3) => setName2(e3.target.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: !name.trim() || name === stewardName, onClick: () => renameSteward(name.trim()), children: "Rename" })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Steward" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "The name your Steward answers to." }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: name, onChange: (e3) => setName2(e3.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn", disabled: !name.trim() || name === stewardName, onClick: () => renameSteward(name.trim()), children: "Rename" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Tools" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: mcp.length ? `${mcp.length} governed MCP tool${mcp.length === 1 ? "" : "s"} available to the crew.` : "No external MCP tools enabled \u2014 the crew uses its built-in, receipted tools." })
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Tools" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: mcp.length ? `${mcp.length} governed MCP tool${mcp.length === 1 ? "" : "s"} available to the crew.` : "No external MCP tools enabled \u2014 the crew uses its built-in, receipted tools." })
     ] })
   ] });
 }
 function Federation() {
-  const [ownerA, setOwnerA] = (0, import_react11.useState)("you");
-  const [ownerB, setOwnerB] = (0, import_react11.useState)("peer");
-  const [cap, setCap] = (0, import_react11.useState)(DELEGATION_CAPABILITIES[0]);
-  const [task, setTask] = (0, import_react11.useState)("Ship the release notes draft");
-  const [days, setDays] = (0, import_react11.useState)(30);
-  const [regDomain, setRegDomain] = (0, import_react11.useState)(REGULATED_DOMAIN_SLUGS[0] ?? "");
-  const [regBy, setRegBy] = (0, import_react11.useState)("");
-  const [tick2, setTick] = (0, import_react11.useState)(0);
-  const [busy, setBusy] = (0, import_react11.useState)(false);
-  const [note, setNote] = (0, import_react11.useState)(null);
+  const [ownerA, setOwnerA] = (0, import_react12.useState)("you");
+  const [ownerB, setOwnerB] = (0, import_react12.useState)("peer");
+  const [cap, setCap] = (0, import_react12.useState)(DELEGATION_CAPABILITIES[0]);
+  const [task, setTask] = (0, import_react12.useState)("Ship the release notes draft");
+  const [days, setDays] = (0, import_react12.useState)(30);
+  const [regDomain, setRegDomain] = (0, import_react12.useState)(REGULATED_DOMAIN_SLUGS[0] ?? "");
+  const [regBy, setRegBy] = (0, import_react12.useState)("");
+  const [tick2, setTick] = (0, import_react12.useState)(0);
+  const [busy, setBusy] = (0, import_react12.useState)(false);
+  const [note, setNote] = (0, import_react12.useState)(null);
   const pair = pairKey(ownerA.trim(), ownerB.trim());
   const grant = liveGrant();
   const usage = liveUsage(grant);
@@ -157820,60 +160195,60 @@ function Federation() {
       setTick((n2) => n2 + 1);
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Standing grant" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Two named humans, an enumerated capability list, a crossing budget and an expiry. Nothing crosses without one." }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerA, onChange: (e3) => setOwnerA(e3.target.value), placeholder: "you" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerB, onChange: (e3) => setOwnerB(e3.target.value), placeholder: "peer" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 90 }, type: "number", min: 1, value: days, onChange: (e3) => setDays(Number(e3.target.value) || 1), title: "days" }),
-        !grant ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !ownerA.trim() || !ownerB.trim(), onClick: () => void run(async () => {
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Standing grant" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "Two named humans, an enumerated capability list, a crossing budget and an expiry. Nothing crosses without one." }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerA, onChange: (e3) => setOwnerA(e3.target.value), placeholder: "you" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 140 }, value: ownerB, onChange: (e3) => setOwnerB(e3.target.value), placeholder: "peer" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 90 }, type: "number", min: 1, value: days, onChange: (e3) => setDays(Number(e3.target.value) || 1), title: "days" }),
+        !grant ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn", disabled: busy || !ownerA.trim() || !ownerB.trim(), onClick: () => void run(async () => {
           const r3 = await issueLiveGrant({ capabilities: [cap], maxCrossings: 5, windowMs: 24 * 3600 * 1e3, windowMax: 2, expiresInMs: days * 24 * 3600 * 1e3, initiatorHuman: ownerA.trim(), responderHuman: ownerB.trim() });
           return r3.ok ? "grant issued \u2014 both sides signed" : r3.refusal ?? "grant refused";
-        }), children: "Issue grant" }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn ghost", disabled: busy, onClick: () => void run(async () => {
+        }), children: "Issue grant" }) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn ghost", disabled: busy, onClick: () => void run(async () => {
           revokeLiveGrant("initiator", ownerA.trim(), "owner revoked in Settings");
           return "grant revoked";
         }), children: "Revoke" })
       ] }),
-      grant && usage && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", style: { marginTop: 10 }, children: standingNotice(grant, usage.initiator) })
+      grant && usage && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", style: { marginTop: 10 }, children: standingNotice(grant, usage.initiator) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Crossing" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "One task rides one capability across the pair. Refusals are written in words and receipted like successes." }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("select", { className: "input", value: cap, onChange: (e3) => setCap(e3.target.value), children: DELEGATION_CAPABILITIES.map((c3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("option", { value: c3, children: c3 }, c3)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { flex: 1, minWidth: 200 }, value: task, onChange: (e3) => setTask(e3.target.value) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !task.trim(), onClick: () => void run(async () => {
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Crossing" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "One task rides one capability across the pair. Refusals are written in words and receipted like successes." }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("select", { className: "input", value: cap, onChange: (e3) => setCap(e3.target.value), children: DELEGATION_CAPABILITIES.map((c3) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("option", { value: c3, children: c3 }, c3)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { flex: 1, minWidth: 200 }, value: task, onChange: (e3) => setTask(e3.target.value) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn", disabled: busy || !task.trim(), onClick: () => void run(async () => {
           const r3 = await runLiveCrossing({ capability: cap, task: task.trim(), ownerA: ownerA.trim(), ownerB: ownerB.trim() });
           return `${r3.outcome.status}: ${r3.outcome.detail}`;
         }), children: "Run crossing" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Common ledger" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Both stores, compared \u2014 derived from the two sets, never stored, so it is byte-identical on either side." }),
-      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead faint", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Common ledger" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "Both stores, compared \u2014 derived from the two sets, never stored, so it is byte-identical on either side." }),
+      rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "lead faint", children: [
         "No crossings for ",
         pair,
         " yet."
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ul", { className: "rails", children: rows.slice(-8).reverse().map((r3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: ledgerRowSentence(r3) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: r3.disagrees ? "disagrees" : r3.seenBy })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("ul", { className: "rails", children: rows.slice(-8).reverse().map((r3) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("li", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: ledgerRowSentence(r3) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: r3.disagrees ? "disagrees" : r3.seenBy })
       ] }, r3.crossingId)) })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Regulated bench" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Regulated specialists route only under a signed activation \u2014 a named person, a jurisdiction, a context, a renew-by date." }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("select", { className: "input", value: regDomain, onChange: (e3) => setRegDomain(e3.target.value), children: REGULATED_DOMAIN_SLUGS.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("option", { value: d3, children: d3 }, d3)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 180 }, value: regBy, onChange: (e3) => setRegBy(e3.target.value), placeholder: "enabled by (your name)" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: busy || !regBy.trim(), onClick: () => void run(async () => {
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Regulated bench" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "Regulated specialists route only under a signed activation \u2014 a named person, a jurisdiction, a context, a renew-by date." }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("select", { className: "input", value: regDomain, onChange: (e3) => setRegDomain(e3.target.value), children: REGULATED_DOMAIN_SLUGS.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("option", { value: d3, children: d3 }, d3)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 180 }, value: regBy, onChange: (e3) => setRegBy(e3.target.value), placeholder: "enabled by (your name)" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn", disabled: busy || !regBy.trim(), onClick: () => void run(async () => {
           const r3 = await enableRegulatedBench({ domains: [regDomain], enabledBy: regBy.trim(), jurisdiction: "IN", context: "preparer", renewBy: Date.now() + 90 * 24 * 3600 * 1e3 });
           return r3.ok ? "regulated bench enabled \u2014 signed" : r3.refusal ?? "activation refused";
         }), children: "Enable" })
       ] }),
-      activation && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", style: { marginTop: 10 }, children: [
+      activation && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "lead", style: { marginTop: 10 }, children: [
         "Active: ",
         activation.domains.join(", "),
         " \xB7 by ",
@@ -157884,31 +160259,31 @@ function Federation() {
         activation.context
       ] })
     ] }),
-    note && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", style: { color: "var(--accent)" }, children: note })
+    note && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", style: { color: "var(--accent)" }, children: note })
   ] });
 }
 function Appearance() {
   const { theme, setTheme, ownerHandle } = useVh();
-  const [h2, setH] = (0, import_react11.useState)(ownerHandle);
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Appearance" }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "lead", children: "Two finishes. Both keep the same contrast and the same accent." }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "themes", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("button", { "aria-pressed": theme === "dark", onClick: () => setTheme("dark"), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sw dark" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Charcoal" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: "dark" })
+  const [h2, setH] = (0, import_react12.useState)(ownerHandle);
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Appearance" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "lead", children: "Two finishes. Both keep the same contrast and the same accent." }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "themes", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { "aria-pressed": theme === "dark", onClick: () => setTheme("dark"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "sw dark" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: "Charcoal" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: "dark" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("button", { "aria-pressed": theme === "light", onClick: () => setTheme("light"), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "sw light" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("b", { children: "Bone" }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: "light" })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("button", { "aria-pressed": theme === "light", onClick: () => setTheme("light"), children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "sw light" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: "Bone" }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: "light" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { style: { marginTop: 28 }, children: "You" }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "acts", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: h2, onChange: (e3) => setH(e3.target.value), placeholder: "your handle" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn", disabled: !h2.trim() || h2 === ownerHandle, onClick: () => {
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { style: { marginTop: 28 }, children: "You" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "acts", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { className: "input", style: { maxWidth: 260 }, value: h2, onChange: (e3) => setH(e3.target.value), placeholder: "your handle" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn", disabled: !h2.trim() || h2 === ownerHandle, onClick: () => {
         try {
           localStorage.setItem("vh.owner.handle", h2.trim());
         } catch {
@@ -157919,51 +160294,51 @@ function Appearance() {
   ] });
 }
 function About() {
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "About" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "klist about", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Product" }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: PRODUCT_NAME })
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "About" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "klist about", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Product" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: PRODUCT_NAME })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Engine" }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: ENGINE_CREDIT })
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Engine" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: ENGINE_CREDIT })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Where it runs" }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "On this device \xB7 no telemetry" })
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Where it runs" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "On this device \xB7 no telemetry" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Honesty contract" }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Executes only with a provider \xB7 pauses at the gate \xB7 refuses in words \xB7 receipts everything" })
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Honesty contract" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Executes only with a provider \xB7 pauses at the gate \xB7 refuses in words \xB7 receipts everything" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Egress" }),
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: "Nothing leaves without a signed authority (requestEgress) and a receipt" })
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Egress" }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: "Nothing leaves without a signed authority (requestEgress) and a receipt" })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("section", { className: "sgroup", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("h3", { children: "Guardrail manifest" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("p", { className: "lead", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("section", { className: "sgroup", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Guardrail manifest" }),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("p", { className: "lead", children: [
         "What ",
         PRODUCT_NAME,
         " physically cannot do. Enforced in code, not in prompts \u2014 each line is a check that runs and is pinned by a test."
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("ul", { className: "rails", children: GUARDRAILS.map(([t2, tag]) => /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("li", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { children: t2 }),
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("small", { children: tag })
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("ul", { className: "rails", children: GUARDRAILS.map(([t2, tag]) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("li", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { children: t2 }),
+        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("small", { children: tag })
       ] }, t2)) })
     ] })
   ] });
 }
-var import_react11, import_jsx_runtime10, SECTS, KINDS, MODEL_HINT, GUARDRAILS;
+var import_react12, import_jsx_runtime11, SECTS, KINDS2, MODEL_HINT, GUARDRAILS;
 var init_Settings = __esm({
   "src/ui/screens/Settings.tsx"() {
     "use strict";
-    import_react11 = __toESM(require_react(), 1);
+    import_react12 = __toESM(require_react(), 1);
     init_store();
     init_providers();
     init_initiative();
@@ -157973,9 +160348,9 @@ var init_Settings = __esm({
     init_standing();
     init_ledger();
     init_vouchMesh();
-    import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
     SECTS = [["provider", "Provider"], ["vault", "Vault"], ["autonomy", "Autonomy"], ["federation", "Federation"], ["appearance", "Appearance"], ["about", "About"]];
-    KINDS = [["openai-compatible", "OpenAI-compatible"], ["anthropic", "Anthropic"], ["gemini", "Gemini"]];
+    KINDS2 = [["openai-compatible", "OpenAI-compatible"], ["anthropic", "Anthropic"], ["gemini", "Gemini"]];
     MODEL_HINT = { "openai-compatible": "gpt-4o-mini", anthropic: "claude-3-5-haiku-latest", gemini: "gemini-2.0-flash" };
     GUARDRAILS = [
       ["No root authority without a HUMAN principal", "custody"],
@@ -158002,9 +160377,9 @@ __export(Chat_exports, {
 });
 function Chat({ title }) {
   const { msgs, busy, send, go, openSession, gate } = useVh();
-  const [draft, setDraft] = (0, import_react12.useState)("");
-  const end = (0, import_react12.useRef)(null);
-  (0, import_react12.useEffect)(() => {
+  const [draft, setDraft] = (0, import_react13.useState)("");
+  const end = (0, import_react13.useRef)(null);
+  (0, import_react13.useEffect)(() => {
     end.current?.scrollIntoView({ block: "end" });
   }, [msgs.length, gate]);
   const fmt = (iso) => {
@@ -158014,84 +160389,84 @@ function Chat({ title }) {
       return "";
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("header", { className: "top", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h2", { children: openSession?.title ?? "Conversation" }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "sub", children: openSession ? "from memory" : "this session" }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "right", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost", onClick: () => go("memory"), children: "\u2190 Back to memory" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { className: "btn sm ghost", onClick: () => go("work"), children: "Watch the work" })
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_jsx_runtime12.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("header", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("h2", { children: openSession?.title ?? "Conversation" }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "sub", children: openSession ? "from memory" : "this session" }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "right", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("button", { className: "btn sm ghost", onClick: () => go("memory"), children: "\u2190 Back to memory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("button", { className: "btn sm ghost", onClick: () => go("work"), children: "Watch the work" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "thread", children: [
-      msgs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "empty", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h3", { children: "Nothing here yet" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { children: "Start with the Steward and the conversation will appear here." })
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "scroll", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "thread", children: [
+      msgs.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("h3", { children: "Nothing here yet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("p", { children: "Start with the Steward and the conversation will appear here." })
       ] }),
-      msgs.map((m3) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: `msg ${m3.role === "user" ? "user" : ""}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "who", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: m3.role === "user" ? "You" : title }),
+      msgs.map((m3) => /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: `msg ${m3.role === "user" ? "user" : ""}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "who", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: m3.role === "user" ? "You" : title }),
             " \xB7 ",
             fmt(m3.at),
-            m3.rehydratedFrom ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+            m3.rehydratedFrom ? /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_jsx_runtime12.Fragment, { children: [
               " \xB7 ",
-              /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "faint", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { className: "faint", children: [
                 "continuing \u201C",
                 m3.rehydratedFrom,
                 "\u201D"
               ] })
             ] }) : null
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { children: m3.text }),
-          m3.resp && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "meta", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: `pill ${m3.resp.outcome === "refused" ? "bad" : m3.resp.executed ? "ok" : "warn"}`, children: m3.resp.outcome }),
-            m3.resp.specialistIds.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("p", { children: m3.text }),
+          m3.resp && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "meta", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: `pill ${m3.resp.outcome === "refused" ? "bad" : m3.resp.executed ? "ok" : "warn"}`, children: m3.resp.outcome }),
+            m3.resp.specialistIds.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { className: "pill", children: [
               m3.resp.specialistIds.length,
               " agent",
               m3.resp.specialistIds.length === 1 ? "" : "s"
             ] }),
-            m3.tok && m3.tok.savedTokens > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill", children: [
+            m3.tok && m3.tok.savedTokens > 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { className: "pill", children: [
               "\u2212",
               m3.tok.savedTokens,
               " tokens"
             ] }),
-            m3.resp.provenanceDigest && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { className: "pill mono", title: "provenance digest", children: [
+            m3.resp.provenanceDigest && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("span", { className: "pill mono", title: "provenance digest", children: [
               m3.resp.provenanceDigest.slice(0, 8),
               "\u2026"
             ] })
           ] })
         ] })
       ] }, m3.id)),
-      gate && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "msg", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(GateCard, {}) })
+      gate && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "msg", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(GateCard, {}) })
       ] }),
-      busy && !gate && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "msg", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { className: "av" }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "who", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("b", { children: title }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("p", { className: "faint", children: "Working \u2014 watch the graph in Work." })
+      busy && !gate && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "msg", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "av" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "who", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: title }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("p", { className: "faint", children: "Working \u2014 watch the graph in Work." })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { ref: end })
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { ref: end })
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "dock", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(Composer, { small: true, value: draft, onChange: setDraft, onSend: () => {
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "dock", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Composer, { small: true, value: draft, onChange: setDraft, onSend: () => {
       void send(draft);
       setDraft("");
     }, busy, placeholder: "Continue this conversation\u2026" }) })
   ] });
 }
-var import_react12, import_jsx_runtime11;
+var import_react13, import_jsx_runtime12;
 var init_Chat = __esm({
   "src/ui/screens/Chat.tsx"() {
     "use strict";
-    import_react12 = __toESM(require_react(), 1);
+    import_react13 = __toESM(require_react(), 1);
     init_store();
     init_Composer();
     init_GateCard();
-    import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
@@ -158102,82 +160477,85 @@ __export(Shell_exports, {
 });
 function Shell() {
   const { screen, go, provider, busy, ownerHandle, vault, boot, newMission, gate, stewardName } = useVh();
-  (0, import_react13.useEffect)(() => {
+  (0, import_react14.useEffect)(() => {
     void boot();
   }, [boot]);
   const counts = {
     work: busy || gate ? 1 : 0,
     receipts: useVh.getState().receipts().filter((r3) => r3.state !== "pending").length
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "app", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("aside", { className: "side", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "brand", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "mark", "aria-hidden": true }),
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: PRODUCT_NAME }),
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("small", { children: "ON-DEVICE \xB7 RECEIPTED" })
+  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "app", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("aside", { className: "side", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "brand", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "mark", "aria-hidden": true }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: PRODUCT_NAME }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("small", { children: "ON-DEVICE \xB7 RECEIPTED" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "new", onClick: newMission, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { children: "New mission" }),
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: "ic ic-steward" })
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { className: "new", onClick: newMission, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "New mission" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("i", { className: "ic ic-steward" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("nav", { className: "nav", children: NAV.map((n2) => /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { onClick: () => go(n2.key), "aria-current": screen === n2.key || screen === "chat" && n2.key === "memory" ? "page" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: `ic ic-${n2.icon}` }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("nav", { className: "nav", children: NAV.map((n2) => /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { onClick: () => go(n2.key), "aria-current": screen === n2.key || screen === "chat" && n2.key === "memory" ? "page" : void 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("i", { className: `ic ic-${n2.icon}` }),
         n2.label,
-        counts[n2.key] ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "n", children: counts[n2.key] }) : null
+        counts[n2.key] ? /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "n", children: counts[n2.key] }) : null
       ] }, n2.key)) }),
-      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "side-foot", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "status", onClick: () => go("settings"), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: `led ${provider ? "ok" : "warn"}` }),
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { children: provider ? "Connected" : "Plan-only" }),
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("small", { children: provider ? provider.model || provider.kind : "no provider" })
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "side-foot", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { className: "status", onClick: () => go("settings"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: `led ${provider ? "ok" : "warn"}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: provider ? "Connected" : "Plan-only" }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("small", { children: provider ? provider.model || provider.kind : "no provider" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("button", { className: "me", onClick: () => go("settings"), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { className: "av", children: initials(ownerHandle) }),
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("b", { children: ownerHandle }),
-            /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("small", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { className: "me", onClick: () => go("settings"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "av", children: initials(ownerHandle) }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("b", { children: ownerHandle }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("small", { children: [
               "OWNER \xB7 ",
               vault.status === "unlocked" ? "KEY SEALED" : vault.status === "sealed-locked" ? "VAULT LOCKED" : "NO VAULT"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { className: "ic ic-chev" })
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("i", { className: "ic ic-chev" })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("main", { className: "main", children: [
-      screen === "steward" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Steward, {}),
-      screen === "work" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Work, {}),
-      screen === "receipts" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Receipts, {}),
-      screen === "docs" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Docs, {}),
-      screen === "memory" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Memory, {}),
-      screen === "settings" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Settings, {}),
-      screen === "chat" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Chat, { title: stewardName })
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("main", { className: "main", children: [
+      screen === "steward" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Steward, {}),
+      screen === "work" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Work, {}),
+      screen === "munshi" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Munshi, {}),
+      screen === "receipts" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Receipts, {}),
+      screen === "docs" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Docs, {}),
+      screen === "memory" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Memory, {}),
+      screen === "settings" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Settings, {}),
+      screen === "chat" && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Chat, { title: stewardName })
     ] })
   ] });
 }
 function initials(s2) {
   return s2.replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase() || "VH";
 }
-var import_react13, import_jsx_runtime12, NAV;
+var import_react14, import_jsx_runtime13, NAV;
 var init_Shell = __esm({
   "src/ui/Shell.tsx"() {
     "use strict";
-    import_react13 = __toESM(require_react(), 1);
+    import_react14 = __toESM(require_react(), 1);
     init_brand();
     init_store();
     init_Steward();
     init_Work();
+    init_Munshi();
     init_Receipts();
     init_Memory();
     init_Docs();
     init_Settings();
     init_Chat();
-    import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
     NAV = [
       { key: "steward", label: "Steward", icon: "steward" },
       { key: "work", label: "Work", icon: "crew" },
+      { key: "munshi", label: "Munshi", icon: "munshi" },
       { key: "receipts", label: "Receipts", icon: "receipts" },
       { key: "docs", label: "Docs", icon: "docs" },
       { key: "memory", label: "Memory", icon: "memory" },
@@ -158188,7 +160566,7 @@ var init_Shell = __esm({
 
 // probe/shellRender.test.tsx
 var import_server = __toESM(require_server_node(), 1);
-var import_react14 = __toESM(require_react(), 1);
+var import_react15 = __toESM(require_react(), 1);
 import fs from "node:fs";
 import path from "node:path";
 var ROOT = ".";
@@ -158229,21 +160607,23 @@ async function main() {
   const { Receipts: Receipts2 } = await Promise.resolve().then(() => (init_Receipts(), Receipts_exports));
   const { Memory: Memory2 } = await Promise.resolve().then(() => (init_Memory(), Memory_exports));
   const { Docs: Docs2 } = await Promise.resolve().then(() => (init_Docs(), Docs_exports));
+  const { Munshi: Munshi2 } = await Promise.resolve().then(() => (init_Munshi(), Munshi_exports));
   const { Settings: Settings2 } = await Promise.resolve().then(() => (init_Settings(), Settings_exports));
   const { Chat: Chat2 } = await Promise.resolve().then(() => (init_Chat(), Chat_exports));
   section("0. the shell renders cold (no storage, no provider, no WebGL)");
   let html = "";
   try {
-    html = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Shell2));
+    html = (0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Shell2));
   } catch (err) {
     ok("Shell renders without throwing", false, err instanceof Error ? err.message : String(err));
   }
   ok("Shell renders without throwing", html.length > 1e3, `${html.length} bytes`);
   const text = strip(html);
   const doors = shellDoors();
-  ok("the shell declares six doors", doors.length === 6, `declared ${doors.length}: ${doors.map((d3) => d3.label).join(" \xB7 ")}`);
+  ok("the shell declares seven doors", doors.length === 7, `declared ${doors.length}: ${doors.map((d3) => d3.label).join(" \xB7 ")}`);
   ok("every declared door is on screen", doors.every((d3) => text.includes(d3.label)), `missing: ${doors.filter((d3) => !text.includes(d3.label)).map((d3) => d3.label).join(", ") || "none"}`);
   ok("the Docs door is among them", doors.some((d3) => d3.key === "docs" && d3.label === "Docs"));
+  ok("the Munshi door is among them", doors.some((d3) => d3.key === "munshi" && d3.label === "Munshi"));
   ok("the hero asks the one question", /How can I help you today\s*\?/.test(text), "hero missing");
   ok("it is honest about plan-only without a provider", /plan only|Plan-only/i.test(text) && /Nothing executes yet/.test(text), "no plan-only statement");
   ok("no version number on the primary surface", !/\b19\.\d+\.\d+/.test(text), (text.match(/\b19\.\d+\.\d+/) ?? [""])[0]);
@@ -158255,6 +160635,7 @@ async function main() {
     work: Work2,
     receipts: Receipts2,
     docs: Docs2,
+    munshi: Munshi2,
     memory: Memory2,
     settings: Settings2
   };
@@ -158267,13 +160648,13 @@ async function main() {
     let h2 = "";
     let err = "";
     try {
-      h2 = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(C2));
+      h2 = (0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(C2));
     } catch (e3) {
       err = e3 instanceof Error ? e3.message : String(e3);
     }
     ok(`${d3.label} renders without throwing`, h2.length > 200 && !err, err || `${h2.length} bytes`);
   }
-  const docs = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Docs2)));
+  const docs = strip((0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Docs2)));
   ok(
     "Docs: offers the document path, installs nothing on its own, and states it",
     /Propose knowledge/.test(docs) && /Load a file/.test(docs) && /No documents yet/.test(docs) && /asks you before anything is installed/.test(docs) && /structure/.test(docs),
@@ -158281,17 +160662,17 @@ async function main() {
   );
   let chatHtml = "";
   try {
-    chatHtml = (0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Chat2, { title: "Steward" }));
+    chatHtml = (0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Chat2, { title: "Steward" }));
   } catch (e3) {
     chatHtml = "";
   }
   ok("Chat renders empty without throwing", chatHtml.length > 200 && /Nothing here yet/.test(strip(chatHtml)));
   section("2. the empty states say the truth, not a loading spinner");
-  const work = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Work2)));
+  const work = strip((0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Work2)));
   ok("Work: 'No work yet' \u2014 not a spinner, not fake nodes", /No work yet/.test(work) && !/spinner|loading/i.test(work));
-  const receipts = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Receipts2)));
+  const receipts = strip((0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Receipts2)));
   ok("Receipts: KPI strip renders zeros, not blanks", /0 Verified/.test(receipts) && /No receipts yet/.test(receipts));
-  const memory = strip((0, import_server.renderToStaticMarkup)((0, import_react14.createElement)(Memory2)));
+  const memory = strip((0, import_server.renderToStaticMarkup)((0, import_react15.createElement)(Memory2)));
   ok("Memory: names where memory lives (on device)", /Nothing remembered yet|Memory is off/.test(memory) && /this device/.test(memory));
   section("3. state moves the surface \u2014 a gate renders as a decision, never a silent skip");
   let resolved = null;

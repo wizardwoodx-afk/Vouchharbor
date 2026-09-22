@@ -3,6 +3,7 @@ import { PRODUCT_NAME } from "../brand";
 import { useVh, type Screen } from "./store";
 import { Steward } from "./screens/Steward";
 import { Work } from "./screens/Work";
+import { Munshi } from "./screens/Munshi";
 import { Receipts } from "./screens/Receipts";
 import { Memory } from "./screens/Memory";
 import { Docs } from "./screens/Docs";
@@ -12,6 +13,7 @@ import { Chat } from "./screens/Chat";
 const NAV: Array<{ key: Screen; label: string; icon: string }> = [
   { key: "steward", label: "Steward", icon: "steward" },
   { key: "work", label: "Work", icon: "crew" },
+  { key: "munshi", label: "Munshi", icon: "munshi" },
   { key: "receipts", label: "Receipts", icon: "receipts" },
   { key: "docs", label: "Docs", icon: "docs" },
   { key: "memory", label: "Memory", icon: "memory" },
@@ -54,6 +56,7 @@ export function Shell(): React.ReactElement {
       <main className="main">
         {screen === "steward" && <Steward />}
         {screen === "work" && <Work />}
+        {screen === "munshi" && <Munshi />}
         {screen === "receipts" && <Receipts />}
         {screen === "docs" && <Docs />}
         {screen === "memory" && <Memory />}

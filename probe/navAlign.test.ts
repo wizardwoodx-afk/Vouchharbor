@@ -2,11 +2,12 @@
  * probe/navAlign.test.ts — shell alignment probe (the one shell, src/ui/Shell.tsx).
  *
  * The 19.7.12 redesign replaced the 19.6.6 console with one quiet shell; 19.7.13
- * added the sixth door. The live door set is six — Steward · Work · Receipts ·
- * Docs · Memory · Settings — with one store and one composer.
+ * added the sixth door, and the Munshi door (Indian finance) the seventh. The live
+ * door set is seven — Steward · Work · Munshi · Receipts · Docs · Memory ·
+ * Settings — with one store and one composer.
  * This suite pins the structure mechanically:
  *  - App renders the shell and nothing else
- *  - the sidebar carries exactly the six doors + status + owner — every one wired
+ *  - the sidebar carries exactly the seven doors + status + owner — every one wired
  *  - the composer is the single command surface (Enter sends through the store)
  *  - the human gate is a card with approve/refuse, never a silent skip
  *  - the crew is internal: Work shows AGENT nn, never a specialist name
@@ -43,11 +44,12 @@ ok("the multi-dock shell and the console are gone from the app entry", !/Sidebar
    so a SIXTH door (src/ui/screens/Docs.tsx) would have been added while the check
    stayed green — a gate that had stopped describing the shell. The door list is
    now the full set, the count matches the labels actually rendered, and the
-   render wiring for every door is pinned alongside it. */
-const NAV_KEYS = ["steward", "work", "receipts", "docs", "memory", "settings"];
+   render wiring for every door is pinned alongside it. The Munshi door joined the
+   list, the count AND the wiring pin in the same change that shipped it. */
+const NAV_KEYS = ["steward", "work", "munshi", "receipts", "docs", "memory", "settings"];
 const navEntries = shellSrc.match(/\{ key: "([a-z]+)", label: "[A-Za-z ]+", icon: "[a-z]+" \}/g) ?? [];
-ok("the sidebar lists exactly six doors", navEntries.length === 6, `door count drifted: ${navEntries.length}`);
-ok("the six doors are Steward · Work · Receipts · Docs · Memory · Settings",
+ok("the sidebar lists exactly seven doors", navEntries.length === 7, `door count drifted: ${navEntries.length}`);
+ok("the seven doors are Steward · Work · Munshi · Receipts · Docs · Memory · Settings",
   NAV_KEYS.every((k) => new RegExp(`key: "${k}", label:`).test(shellSrc)) &&
   NAV_KEYS.every((k) => new RegExp(`screen === "${k}"`).test(shellSrc)),
   "a door is listed but not rendered, or vice versa");
@@ -55,6 +57,16 @@ ok("the Docs door renders the document-distillation surface",
   /screen === "docs" && <Docs \/>/.test(shellSrc) && /Propose knowledge/.test(read("src/ui/screens/Docs.tsx")) &&
   /Nothing is installed until you decide/.test(read("src/ui/screens/Docs.tsx")),
   "the Docs door must reach the knowledge proposal seam and install nothing itself");
+const munshiSrc = read("src/ui/screens/Munshi.tsx");
+ok("the Munshi door reaches the Indian-finance engines",
+  /screen === "munshi" && <Munshi \/>/.test(shellSrc) &&
+  /validateGstin/.test(munshiSrc) && /computeTds/.test(munshiSrc) && /reconcile\(/.test(munshiSrc) &&
+  /from "\.\.\/\.\.\/munshi"/.test(munshiSrc),
+  "the door must call the pack's deterministic engines, not restate their answers");
+ok("and states plainly that computing is not filing",
+  /do not file/i.test(munshiSrc) && /Nothing here touches GSTN/.test(munshiSrc) &&
+  /RULESET/.test(munshiSrc),
+  "the door must say it computes on this machine, names the ruleset, and files nothing");
 ok("no Crew door — the crew is internal", !/label:\s*"Crew"/.test(shellSrc) && !/label:\s*"Agents"/.test(shellSrc), "the crew must not face the user");
 ok("the status pill and the owner card sit below the doors and open Settings", /className="status" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc) && /className="me" onClick=\{\(\) => go\("settings"\)\}/.test(shellSrc), "sidebar foot not wired");
 ok("no keyboard-shortcut hints on the surface", !/⌘K|⌘N|Cmd\+K|Ctrl\+K/.test(shellSrc + read("src/ui/screens/Steward.tsx")), "shortcut hints leaked");

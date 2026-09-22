@@ -51,7 +51,7 @@ function ok(label: string, cond: boolean, detail = ""): void {
 }
 function section(name: string): void { console.log(`\n== ${name}`); }
 
-section("1. the shell opens on the Steward — one shell, six doors");
+section("1. the shell opens on the Steward — one shell, seven doors");
 const appSrc = read("src/App.tsx");
 const storeSrc = read("src/ui/store.ts");
 const shellSrc = read("src/ui/Shell.tsx");

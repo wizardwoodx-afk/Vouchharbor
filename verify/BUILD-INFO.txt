@@ -22,7 +22,12 @@ Munshi — the Indian-finance specialist pack (new capability on the SAME engine
   result returns the rule it applied. Agents that file, pay or answer the
   department carry requiresApproval: true, so the human gate holds wherever money
   or statutory exposure is involved. probe/munshi.test.ts pins the arithmetic
-  (165 checks), which is what moved the counts below to 156 / 155.
+  (165 checks), which is what moved the counts below to 156 / 155. The shell
+  gains a seventh door, src/ui/screens/Munshi.tsx: the same engines reachable from the
+  surface — GSTIN, TDS, the 2B reconcile, due dates, the IRN window and e-way validity,
+  the 43B(h) clock, interest and late fee, plus the full roster with each agent's gate —
+  every figure computed on this machine with the same basis line it would carry in a
+  receipt, and nothing filed, paid or transmitted by the door.
 
 155 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero

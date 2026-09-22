@@ -49,6 +49,7 @@ async function main(): Promise<void> {
   const { Receipts } = await import("../src/ui/screens/Receipts");
   const { Memory } = await import("../src/ui/screens/Memory");
   const { Docs } = await import("../src/ui/screens/Docs");
+  const { Munshi } = await import("../src/ui/screens/Munshi");
   const { Settings } = await import("../src/ui/screens/Settings");
   const { Chat } = await import("../src/ui/screens/Chat");
 
@@ -63,11 +64,13 @@ async function main(): Promise<void> {
      passing while the shell had six: Docs could have been deleted from the shell
      and this gate would not have noticed. The expected set now comes from the
      shell source itself, the count is pinned exactly, and every door is rendered
-     on its own in section 1 — add a seventh door and this fails until it renders. */
+     on its own in section 1 — the Munshi door (Indian finance) joined as the
+     seventh on exactly those terms; an eighth would fail here until it renders. */
   const doors = shellDoors();
-  ok("the shell declares six doors", doors.length === 6, `declared ${doors.length}: ${doors.map((d) => d.label).join(" · ")}`);
+  ok("the shell declares seven doors", doors.length === 7, `declared ${doors.length}: ${doors.map((d) => d.label).join(" · ")}`);
   ok("every declared door is on screen", doors.every((d) => text.includes(d.label)), `missing: ${doors.filter((d) => !text.includes(d.label)).map((d) => d.label).join(", ") || "none"}`);
   ok("the Docs door is among them", doors.some((d) => d.key === "docs" && d.label === "Docs"));
+  ok("the Munshi door is among them", doors.some((d) => d.key === "munshi" && d.label === "Munshi"));
   ok("the hero asks the one question", /How can I help you today\s*\?/.test(text), "hero missing");
   ok("it is honest about plan-only without a provider", /plan only|Plan-only/i.test(text) && /Nothing executes yet/.test(text), "no plan-only statement");
   ok("no version number on the primary surface", !/\b19\.\d+\.\d+/.test(text), (text.match(/\b19\.\d+\.\d+/) ?? [""])[0]);
@@ -83,6 +86,7 @@ async function main(): Promise<void> {
     work: Work as unknown as () => JSX.Element,
     receipts: Receipts as unknown as () => JSX.Element,
     docs: Docs as unknown as () => JSX.Element,
+    munshi: Munshi as unknown as () => JSX.Element,
     memory: Memory as unknown as () => JSX.Element,
     settings: Settings as unknown as () => JSX.Element,
   };

@@ -37,7 +37,7 @@ export const USER = "vh-owner";
 const PROVIDER_STORAGE_KEY = "vh.provider.remembered.v1";
 const THEME_KEY = "vh.theme.v2";
 
-export type Screen = "steward" | "work" | "receipts" | "docs" | "memory" | "settings" | "chat";
+export type Screen = "steward" | "work" | "munshi" | "receipts" | "docs" | "memory" | "settings" | "chat";
 export type Theme = "dark" | "light";
 
 export interface Msg { id: number; role: "user" | "vh"; text: string; at: string; resp?: GeneralistResponse; tok?: OptimDelta; rehydratedFrom?: string }

@@ -31,7 +31,7 @@ Requires Node 22.12 or newer. The gate is green when the summary line reads
 
 - **The product** — `shellRender` server-renders the Shell and every door;
   `navAlign`, `patinaShell`, `consolePolicy`, `theme`, `buttonActions` pin
-  the six doors, the sidebar, the design tokens, and that every button
+  the seven doors, the sidebar, the design tokens, and that every button
   reaches a real engine seam.
 - **The engine path** — `vh19Door`, `initiative`, `fedWired`, `meshRuntime`,
   `teammates` pin that the store is the single caller of the engine with the
