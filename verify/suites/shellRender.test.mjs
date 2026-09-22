@@ -43,7 +43,7 @@ var require_react_production_min = __commonJS({
   "node_modules/react/cjs/react.production.min.js"(exports) {
     "use strict";
     var l2 = Symbol.for("react.element");
-    var n2 = Symbol.for("react.portal");
+    var n3 = Symbol.for("react.portal");
     var p2 = Symbol.for("react.fragment");
     var q2 = Symbol.for("react.strict_mode");
     var r3 = Symbol.for("react.profiler");
@@ -139,7 +139,7 @@ var require_react_production_min = __commonJS({
         case "object":
           switch (a3.$$typeof) {
             case l2:
-            case n2:
+            case n3:
               h2 = true;
           }
       }
@@ -1048,11 +1048,11 @@ var require_react_development = __commonJS({
           return result;
         }
         function countChildren(children2) {
-          var n2 = 0;
+          var n3 = 0;
           mapChildren(children2, function() {
-            n2++;
+            n3++;
           });
-          return n2;
+          return n3;
         }
         function forEachChildren(children2, forEachFunc, forEachContext) {
           mapChildren(children2, function() {
@@ -2203,13 +2203,13 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     "use strict";
     var ea = require_react();
     var fa = __require("stream");
-    var n2 = Object.prototype.hasOwnProperty;
+    var n3 = Object.prototype.hasOwnProperty;
     var ha = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/;
     var ia = {};
     var ja = {};
     function ka(a3) {
-      if (n2.call(ja, a3)) return true;
-      if (n2.call(ia, a3)) return false;
+      if (n3.call(ja, a3)) return true;
+      if (n3.call(ia, a3)) return false;
       if (ha.test(a3)) return ja[a3] = true;
       ia[a3] = true;
       return false;
@@ -2399,7 +2399,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     function ua(a3, b3, c3) {
       if ("object" !== typeof c3) throw Error("The `style` prop expects a mapping from style properties to values, not a string. For example, style={{marginRight: spacing + 'em'}} when using JSX.");
       b3 = true;
-      for (var d3 in c3) if (n2.call(c3, d3)) {
+      for (var d3 in c3) if (n3.call(c3, d3)) {
         var f4 = c3[d3];
         if (null != f4 && "boolean" !== typeof f4 && "" !== f4) {
           if (0 === d3.indexOf("--")) {
@@ -2409,7 +2409,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
             e3 = d3;
             var g3 = ta.get(e3);
             void 0 !== g3 ? e3 = g3 : (g3 = u2(e3.replace(pa, "-$1").toLowerCase().replace(qa, "-ms-")), ta.set(e3, g3), e3 = g3);
-            f4 = "number" === typeof f4 ? 0 === f4 || n2.call(
+            f4 = "number" === typeof f4 ? 0 === f4 || n3.call(
               t2,
               d3
             ) ? "" + f4 : f4 + "px" : u2(("" + f4).trim());
@@ -2487,7 +2487,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
     function wa(a3, b3, c3, d3) {
       a3.push(z4(c3));
       var f4 = c3 = null, e3;
-      for (e3 in b3) if (n2.call(b3, e3)) {
+      for (e3 in b3) if (n3.call(b3, e3)) {
         var g3 = b3[e3];
         if (null != g3) switch (e3) {
           case "children":
@@ -2520,7 +2520,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "select":
           a3.push(z4("select"));
           var e3 = null, g3 = null;
-          for (l2 in c3) if (n2.call(c3, l2)) {
+          for (l2 in c3) if (n3.call(c3, l2)) {
             var h2 = c3[l2];
             if (null != h2) switch (l2) {
               case "children":
@@ -2544,7 +2544,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           a3.push(z4("option"));
           var k2 = h2 = null, m3 = null;
           var l2 = null;
-          for (e3 in c3) if (n2.call(c3, e3)) {
+          for (e3 in c3) if (n3.call(c3, e3)) {
             var p2 = c3[e3];
             if (null != p2) switch (e3) {
               case "children":
@@ -2576,7 +2576,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "textarea":
           a3.push(z4("textarea"));
           l2 = g3 = e3 = null;
-          for (h2 in c3) if (n2.call(c3, h2) && (k2 = c3[h2], null != k2)) switch (h2) {
+          for (h2 in c3) if (n3.call(c3, h2) && (k2 = c3[h2], null != k2)) switch (h2) {
             case "children":
               l2 = k2;
               break;
@@ -2604,7 +2604,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "input":
           a3.push(z4("input"));
           k2 = l2 = h2 = e3 = null;
-          for (g3 in c3) if (n2.call(c3, g3) && (m3 = c3[g3], null != m3)) switch (g3) {
+          for (g3 in c3) if (n3.call(c3, g3) && (m3 = c3[g3], null != m3)) switch (g3) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("input is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
@@ -2629,7 +2629,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           return null;
         case "menuitem":
           a3.push(z4("menuitem"));
-          for (var B3 in c3) if (n2.call(c3, B3) && (e3 = c3[B3], null != e3)) switch (B3) {
+          for (var B3 in c3) if (n3.call(c3, B3) && (e3 = c3[B3], null != e3)) switch (B3) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("menuitems cannot have `children` nor `dangerouslySetInnerHTML`.");
@@ -2646,7 +2646,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "title":
           a3.push(z4("title"));
           e3 = null;
-          for (p2 in c3) if (n2.call(c3, p2) && (g3 = c3[p2], null != g3)) switch (p2) {
+          for (p2 in c3) if (n3.call(c3, p2) && (g3 = c3[p2], null != g3)) switch (p2) {
             case "children":
               e3 = g3;
               break;
@@ -2661,7 +2661,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "pre":
           a3.push(z4(b3));
           g3 = e3 = null;
-          for (k2 in c3) if (n2.call(c3, k2) && (h2 = c3[k2], null != h2)) switch (k2) {
+          for (k2 in c3) if (n3.call(c3, k2) && (h2 = c3[k2], null != h2)) switch (k2) {
             case "children":
               e3 = h2;
               break;
@@ -2695,7 +2695,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
         case "track":
         case "wbr":
           a3.push(z4(b3));
-          for (var C2 in c3) if (n2.call(c3, C2) && (e3 = c3[C2], null != e3)) switch (C2) {
+          for (var C2 in c3) if (n3.call(c3, C2) && (e3 = c3[C2], null != e3)) switch (C2) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error(b3 + " is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
@@ -2719,7 +2719,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           if (-1 === b3.indexOf("-") && "string" !== typeof c3.is) return wa(a3, c3, b3, d3);
           a3.push(z4(b3));
           g3 = e3 = null;
-          for (m3 in c3) if (n2.call(c3, m3) && (h2 = c3[m3], null != h2)) switch (m3) {
+          for (m3 in c3) if (n3.call(c3, m3) && (h2 = c3[m3], null != h2)) switch (m3) {
             case "children":
               e3 = h2;
               break;
@@ -3500,7 +3500,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           c3 = c3.children;
           for (var g3 = 0; g3 < c3.length; g3++) {
             for (f4 = c3[g3]; e3 < f4.index; e3++) b3.push(d3[e3]);
-            f4 = Z(a3, b3, f4);
+            f4 = Z2(a3, b3, f4);
           }
           for (; e3 < d3.length - 1; e3++) b3.push(d3[e3]);
           e3 < d3.length && (f4 = b3.push(d3[e3]));
@@ -3509,7 +3509,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
           throw Error("Aborted, errored or already flushed boundaries should not be flushed again. This is a bug in React.");
       }
     }
-    function Z(a3, b3, c3) {
+    function Z2(a3, b3, c3) {
       var d3 = c3.boundary;
       if (null === d3) return Y(a3, b3, c3);
       d3.parentFlushed = true;
@@ -3529,13 +3529,13 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       a3.responseState.generateStaticMarkup || b3.push("<!--$-->");
       c3 = d3.completedSegments;
       if (1 !== c3.length) throw Error("A previously unvisited boundary must have exactly one root segment. This is a bug in React.");
-      Z(a3, b3, c3[0]);
+      Z2(a3, b3, c3[0]);
       a3 = a3.responseState.generateStaticMarkup ? true : b3.push("<!--/$-->");
       return a3;
     }
     function Pb(a3, b3, c3) {
       Ba(b3, a3.responseState, c3.formatContext, c3.id);
-      Z(a3, b3, c3);
+      Z2(a3, b3, c3);
       return Ca(b3, c3.formatContext);
     }
     function Qb(a3, b3, c3) {
@@ -3577,7 +3577,7 @@ var require_react_dom_server_legacy_node_production_min = __commonJS({
       try {
         var c3 = a3.completedRootSegment;
         if (null !== c3 && 0 === a3.pendingRootTasks) {
-          Z(a3, b3, c3);
+          Z2(a3, b3, c3);
           a3.completedRootSegment = null;
           var d3 = a3.responseState.bootstrapChunks;
           for (c3 = 0; c3 < d3.length - 1; c3++) b3.push(d3[c3]);
@@ -4164,7 +4164,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         case "option":
           g3 = f4.selectedValue;
           a3.push(N3("option"));
-          var m3 = h2 = null, n2 = null;
+          var m3 = h2 = null, n3 = null;
           var p2 = null;
           for (e3 in c3) if (y3.call(c3, e3)) {
             var v2 = c3[e3];
@@ -4173,7 +4173,7 @@ var require_react_dom_server_node_production_min = __commonJS({
                 h2 = v2;
                 break;
               case "selected":
-                n2 = v2;
+                n3 = v2;
                 break;
               case "dangerouslySetInnerHTML":
                 p2 = v2;
@@ -4191,7 +4191,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             }
           }
           else "" + g3 === c3 && a3.push(Ja);
-          else n2 && a3.push(Ja);
+          else n3 && a3.push(Ja);
           a3.push(L3);
           M2(a3, p2, h2);
           return h2;
@@ -4226,24 +4226,24 @@ var require_react_dom_server_node_production_min = __commonJS({
         case "input":
           a3.push(N3("input"));
           m3 = p2 = h2 = e3 = null;
-          for (g3 in c3) if (y3.call(c3, g3) && (n2 = c3[g3], null != n2)) switch (g3) {
+          for (g3 in c3) if (y3.call(c3, g3) && (n3 = c3[g3], null != n3)) switch (g3) {
             case "children":
             case "dangerouslySetInnerHTML":
               throw Error("input is a self-closing tag and must neither have `children` nor use `dangerouslySetInnerHTML`.");
             case "defaultChecked":
-              m3 = n2;
+              m3 = n3;
               break;
             case "defaultValue":
-              h2 = n2;
+              h2 = n3;
               break;
             case "checked":
-              p2 = n2;
+              p2 = n3;
               break;
             case "value":
-              e3 = n2;
+              e3 = n3;
               break;
             default:
-              K3(a3, d3, g3, n2);
+              K3(a3, d3, g3, n3);
           }
           null !== p2 ? K3(a3, d3, "checked", p2) : null !== m3 && K3(a3, d3, "checked", m3);
           null !== e3 ? K3(a3, d3, "value", e3) : null !== h2 && K3(a3, d3, "value", h2);
@@ -4341,7 +4341,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           if (-1 === b3.indexOf("-") && "string" !== typeof c3.is) return Ka(a3, c3, b3, d3);
           a3.push(N3(b3));
           g3 = e3 = null;
-          for (n2 in c3) if (y3.call(c3, n2) && (h2 = c3[n2], null != h2)) switch (n2) {
+          for (n3 in c3) if (y3.call(c3, n3) && (h2 = c3[n3], null != h2)) switch (n3) {
             case "children":
               e3 = h2;
               break;
@@ -4355,7 +4355,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             case "suppressHydrationWarning":
               break;
             default:
-              ha(n2) && "function" !== typeof h2 && "symbol" !== typeof h2 && a3.push(I2, n2, J2, F2(h2), H2);
+              ha(n3) && "function" !== typeof h2 && "symbol" !== typeof h2 && a3.push(I2, n3, J2, F2(h2), H2);
           }
           a3.push(L3);
           M2(a3, g3, e3);
@@ -4836,9 +4836,9 @@ var require_react_dom_server_node_production_min = __commonJS({
           d3 = O2({}, g3, c3);
         }
         b3.legacyContext = d3;
-        Z(a3, b3, f4);
+        Z2(a3, b3, f4);
         b3.legacyContext = g3;
-      } else Z(a3, b3, f4);
+      } else Z2(a3, b3, f4);
     }
     function Wc(a3, b3) {
       if (a3 && a3.defaultProps) {
@@ -4865,11 +4865,11 @@ var require_react_dom_server_node_production_min = __commonJS({
           d3 = b3.treeContext;
           b3.treeContext = rc(d3, 1, 0);
           try {
-            Z(a3, b3, f4);
+            Z2(a3, b3, f4);
           } finally {
             b3.treeContext = d3;
           }
-        } else Z(a3, b3, f4);
+        } else Z2(a3, b3, f4);
       }
       else if ("string" === typeof c3) {
         f4 = b3.blockedSegment;
@@ -4907,10 +4907,10 @@ var require_react_dom_server_node_production_min = __commonJS({
           case Tb:
           case Ub:
           case Sb:
-            Z(a3, b3, d3.children);
+            Z2(a3, b3, d3.children);
             return;
           case Zb:
-            Z(
+            Z2(
               a3,
               b3,
               d3.children
@@ -4928,14 +4928,14 @@ var require_react_dom_server_node_production_min = __commonJS({
               var h2 = { id: null, rootSegmentID: -1, parentFlushed: false, pendingTasks: 0, forceClientRender: false, completedSegments: [], byteSize: 0, fallbackAbortableTasks: g3, errorDigest: null }, m3 = Sc(a3, f4.chunks.length, h2, f4.formatContext, false, false);
               f4.children.push(m3);
               f4.lastPushedText = false;
-              var n2 = Sc(a3, 0, null, f4.formatContext, false, false);
-              n2.parentFlushed = true;
+              var n3 = Sc(a3, 0, null, f4.formatContext, false, false);
+              n3.parentFlushed = true;
               b3.blockedBoundary = h2;
-              b3.blockedSegment = n2;
+              b3.blockedSegment = n3;
               try {
-                if (Yc(a3, b3, d3), n2.lastPushedText && n2.textEmbedded && n2.chunks.push(za), n2.status = 1, Zc(h2, n2), 0 === h2.pendingTasks) break a;
+                if (Yc(a3, b3, d3), n3.lastPushedText && n3.textEmbedded && n3.chunks.push(za), n3.status = 1, Zc(h2, n3), 0 === h2.pendingTasks) break a;
               } catch (p2) {
-                n2.status = 4, h2.forceClientRender = true, h2.errorDigest = Y(a3, p2);
+                n3.status = 4, h2.forceClientRender = true, h2.errorDigest = Y(a3, p2);
               } finally {
                 b3.blockedBoundary = c3, b3.blockedSegment = f4;
               }
@@ -4951,11 +4951,11 @@ var require_react_dom_server_node_production_min = __commonJS({
               c3 = b3.treeContext;
               b3.treeContext = rc(c3, 1, 0);
               try {
-                Z(a3, b3, d3);
+                Z2(a3, b3, d3);
               } finally {
                 b3.treeContext = c3;
               }
-            } else Z(
+            } else Z2(
               a3,
               b3,
               d3
@@ -4975,7 +4975,7 @@ var require_react_dom_server_node_production_min = __commonJS({
             g3 = P3;
             P3 = d3 = { parent: g3, depth: null === g3 ? 0 : g3.depth + 1, context: c3, parentValue: e3, value: d3 };
             b3.context = d3;
-            Z(a3, b3, f4);
+            Z2(a3, b3, f4);
             a3 = P3;
             if (null === a3) throw Error("Tried to pop a Context at the root of the app. This is a bug in React.");
             d3 = a3.parentValue;
@@ -4986,7 +4986,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           case Wb:
             d3 = d3.children;
             d3 = d3(c3._currentValue);
-            Z(a3, b3, d3);
+            Z2(a3, b3, d3);
             return;
           case ac:
             f4 = c3._init;
@@ -4998,7 +4998,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         throw Error("Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: " + ((null == c3 ? c3 : typeof c3) + "."));
       }
     }
-    function Z(a3, b3, c3) {
+    function Z2(a3, b3, c3) {
       b3.node = c3;
       if ("object" === typeof c3 && null !== c3) {
         switch (c3.$$typeof) {
@@ -5010,7 +5010,7 @@ var require_react_dom_server_node_production_min = __commonJS({
           case ac:
             var d3 = c3._init;
             c3 = d3(c3._payload);
-            Z(a3, b3, c3);
+            Z2(a3, b3, c3);
             return;
         }
         if (qa(c3)) {
@@ -5053,7 +5053,7 @@ var require_react_dom_server_node_production_min = __commonJS({
     function Yc(a3, b3, c3) {
       var d3 = b3.blockedSegment.formatContext, f4 = b3.legacyContext, e3 = b3.context;
       try {
-        return Z(a3, b3, c3);
+        return Z2(a3, b3, c3);
       } catch (m3) {
         if (Ec(), "object" === typeof m3 && null !== m3 && "function" === typeof m3.then) {
           c3 = m3;
@@ -5116,11 +5116,11 @@ var require_react_dom_server_node_production_min = __commonJS({
             if (0 === m3.status) {
               nc(g3.context);
               try {
-                Z(h2, g3, g3.node), m3.lastPushedText && m3.textEmbedded && m3.chunks.push(za), g3.abortSet.delete(g3), m3.status = 1, bd(h2, g3.blockedBoundary, m3);
+                Z2(h2, g3, g3.node), m3.lastPushedText && m3.textEmbedded && m3.chunks.push(za), g3.abortSet.delete(g3), m3.status = 1, bd(h2, g3.blockedBoundary, m3);
               } catch (E2) {
                 if (Ec(), "object" === typeof E2 && null !== E2 && "function" === typeof E2.then) {
-                  var n2 = g3.ping;
-                  E2.then(n2, n2);
+                  var n3 = g3.ping;
+                  E2.then(n3, n3);
                 } else {
                   g3.abortSet.delete(g3);
                   m3.status = 4;
@@ -5255,13 +5255,13 @@ var require_react_dom_server_node_production_min = __commonJS({
         for (e3 = 0; e3 < f4.length; e3++) {
           var g3 = f4[e3];
           d3 = b3;
-          var h2 = a3.responseState, m3 = g3.id, n2 = g3.errorDigest, p2 = g3.errorMessage, v2 = g3.errorComponentStack;
+          var h2 = a3.responseState, m3 = g3.id, n3 = g3.errorDigest, p2 = g3.errorMessage, v2 = g3.errorComponentStack;
           r3(d3, h2.startInlineScript);
           h2.sentClientRenderFunction ? r3(d3, Kb) : (h2.sentClientRenderFunction = true, r3(d3, Jb));
           if (null === m3) throw Error("An ID must have been assigned before we can complete the boundary.");
           r3(d3, m3);
           r3(d3, Lb);
-          if (n2 || p2 || v2) r3(d3, Nb), r3(d3, Pb(n2 || ""));
+          if (n3 || p2 || v2) r3(d3, Nb), r3(d3, Pb(n3 || ""));
           if (p2 || v2) r3(d3, Nb), r3(d3, Pb(p2 || ""));
           v2 && (r3(d3, Nb), r3(d3, Pb(v2)));
           if (!w4(d3, Mb)) {
@@ -5384,7 +5384,7 @@ var require_react_dom_server_node_production_min = __commonJS({
       f4 = b3 ? b3.progressiveChunkSize : void 0;
       d3 = b3 ? b3.onError : void 0;
       h2 = b3 ? b3.onAllReady : void 0;
-      var m3 = b3 ? b3.onShellReady : void 0, n2 = b3 ? b3.onShellError : void 0;
+      var m3 = b3 ? b3.onShellReady : void 0, n3 = b3 ? b3.onShellError : void 0;
       b3 = [];
       c3 = /* @__PURE__ */ new Set();
       g3 = {
@@ -5405,7 +5405,7 @@ var require_react_dom_server_node_production_min = __commonJS({
         onError: void 0 === d3 ? Oc : d3,
         onAllReady: void 0 === h2 ? X : h2,
         onShellReady: void 0 === m3 ? X : m3,
-        onShellError: void 0 === n2 ? X : n2,
+        onShellError: void 0 === n3 ? X : n3,
         onFatalError: X
       };
       e3 = Sc(g3, 0, null, e3, false, false);
@@ -31669,7 +31669,7 @@ var init_bew = __esm({
       { kind: "review / audit", ladder: "checklist against stated criteria; every item pass or fail WITH the evidence that decides it" },
       { kind: "operate / risky", ladder: "pre-flight list, dry-run, one change at a time, rollback named BEFORE the first change" }
     ];
-    phase = (n2, name, body) => `${n2}. ${name.toUpperCase()} \u2014 ${body}`;
+    phase = (n3, name, body) => `${n3}. ${name.toUpperCase()} \u2014 ${body}`;
     BEW_BLOCK = [
       "### Skill: Behaviour Enforcement Workflow [BEW]",
       "Checklist: intake \xB7 plan \xB7 act \xB7 verify \xB7 recover \xB7 report",
@@ -32316,11 +32316,11 @@ function collapseRepeatedLines(text2, tolerance = 2) {
       kept.push(line);
       continue;
     }
-    const n2 = counts.get(t2) ?? 0;
-    counts.set(t2, n2 + 1);
-    if (n2 < tolerance) {
+    const n3 = counts.get(t2) ?? 0;
+    counts.set(t2, n3 + 1);
+    if (n3 < tolerance) {
       kept.push(line);
-    } else if (n2 === tolerance) {
+    } else if (n3 === tolerance) {
       collapsed += 1;
       const rest = Math.max(0, (totals.get(t2) ?? 0) - tolerance);
       kept.push(`${line}  [\u2026 this exact line repeats ${rest} more time${rest === 1 ? "" : "s"} below \u2014 repeats elided by the token optimizer \u2026]`);
@@ -32550,7 +32550,7 @@ async function verifyLiveEvidence(reply, claims, opts) {
   return { retrieval, supported };
 }
 function liveDataBanner(v2) {
-  const retrievalNote = v2.retrieval && v2.retrieval.length > 0 ? ` Retrieval was attempted: ${v2.retrieval.filter((r3) => r3.status === "retrieved").length}/${v2.retrieval.length} cited source(s) fetched, ${v2.retrieval.reduce((n2, r3) => n2 + r3.claimHits, 0)} claim hit(s) found \u2014 the flag stands.` : ` No retrieval capability is wired in this runtime, so disclosure is enforced instead.`;
+  const retrievalNote = v2.retrieval && v2.retrieval.length > 0 ? ` Retrieval was attempted: ${v2.retrieval.filter((r3) => r3.status === "retrieved").length}/${v2.retrieval.length} cited source(s) fetched, ${v2.retrieval.reduce((n3, r3) => n3 + r3.claimHits, 0)} claim hit(s) found \u2014 the flag stands.` : ` No retrieval capability is wired in this runtime, so disclosure is enforced instead.`;
   return `
 
 \u26A0 LIVE-DATA CHECK (runtime GuardRail): this answer makes time-sensitive claims (${v2.claims.slice(0, 4).join(", ")}) without sufficient dated live sources (${v2.sources} URL(s), ${v2.datedClaims} dated claim(s)).${retrievalNote} Treat it as knowledge-cutoff data until verified \u2014 flagged honestly instead of dressed as fresh.`;
@@ -32590,9 +32590,9 @@ function captainForRoute(specialistIds) {
   if (firstCat === null) return null;
   let best = firstCat;
   let bestN = -1;
-  for (const [cat, n2] of counts) if (n2 > bestN) {
+  for (const [cat, n3] of counts) if (n3 > bestN) {
     best = cat;
-    bestN = n2;
+    bestN = n3;
   }
   return captainForDomain(best);
 }
@@ -33426,7 +33426,7 @@ function optionalKeys(shape) {
     return shape[k2]._zod.optin !== void 0 && shape[k2]._zod.optout === "optional";
   });
 }
-function pick(schema, mask) {
+function pick(schema, mask2) {
   const currDef = schema._zod.def;
   const checks = currDef.checks;
   const hasChecks = checks && checks.length > 0;
@@ -33434,29 +33434,29 @@ function pick(schema, mask) {
     throw new Error(".pick() cannot be used on object schemas containing refinements");
   }
   const newShape = {};
-  mirrorShape(newShape, schema, maskedKeys(schema, mask));
+  mirrorShape(newShape, schema, maskedKeys(schema, mask2));
   return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
-function maskedKeys(schema, mask) {
+function maskedKeys(schema, mask2) {
   const raw = sourceShape(schema);
   const keys = [];
-  for (const key of Reflect.ownKeys(mask)) {
+  for (const key of Reflect.ownKeys(mask2)) {
     if (!Object.getOwnPropertyDescriptor(raw, key)?.enumerable) {
       throw new Error(`Unrecognized key: "${String(key)}"`);
     }
-    if (mask[key])
+    if (mask2[key])
       keys.push(key);
   }
   return keys;
 }
-function omit(schema, mask) {
+function omit(schema, mask2) {
   const currDef = schema._zod.def;
   const checks = currDef.checks;
   const hasChecks = checks && checks.length > 0;
   if (hasChecks) {
     throw new Error(".omit() cannot be used on object schemas containing refinements");
   }
-  const omitted = new Set(maskedKeys(schema, mask));
+  const omitted = new Set(maskedKeys(schema, mask2));
   const newShape = {};
   mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)).filter((key) => !omitted.has(key)));
   return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
@@ -33508,20 +33508,20 @@ function merge(a3, b3) {
   });
   return clone(a3, def);
 }
-function partial(Class2, schema, mask, name = "partial") {
+function partial(Class2, schema, mask2, name = "partial") {
   const currDef = schema._zod.def;
   const checks = currDef.checks;
   const hasChecks = checks && checks.length > 0;
   if (hasChecks) {
     throw new Error(`.${name}() cannot be used on object schemas containing refinements`);
   }
-  const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
+  const selected = mask2 ? new Set(maskedKeys(schema, mask2)) : void 0;
   const newShape = {};
   mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class2 && ((value, key) => selected && !selected.has(key) ? value : new Class2({ type: "optional", innerType: value })));
   return clone(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
 }
-function required(Class2, schema, mask) {
-  const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
+function required(Class2, schema, mask2) {
+  const selected = mask2 ? new Set(maskedKeys(schema, mask2)) : void 0;
   const newShape = {};
   mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), (value, key) => (
     // overwrite with non-optional
@@ -51717,17 +51717,17 @@ var init_schemas2 = __esm({
       inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
       inst.element = def.element;
     }, {
-      min(n2, params) {
-        return this.check(_minLength(n2, params));
+      min(n3, params) {
+        return this.check(_minLength(n3, params));
       },
       nonempty(params) {
         return this.check(_minLength(1, params));
       },
-      max(n2, params) {
-        return this.check(_maxLength(n2, params));
+      max(n3, params) {
+        return this.check(_maxLength(n3, params));
       },
-      length(n2, params) {
-        return this.check(_length(n2, params));
+      length(n3, params) {
+        return this.check(_length(n3, params));
       },
       unwrap() {
         return this.element;
@@ -51767,11 +51767,11 @@ var init_schemas2 = __esm({
       merge(other) {
         return util_exports.merge(this, other);
       },
-      pick(mask) {
-        return util_exports.pick(this, mask);
+      pick(mask2) {
+        return util_exports.pick(this, mask2);
       },
-      omit(mask) {
-        return util_exports.omit(this, mask);
+      omit(mask2) {
+        return util_exports.omit(this, mask2);
       },
       partial(...args) {
         return util_exports.partial(ZodOptional, this, args[0]);
@@ -52276,8 +52276,8 @@ function containsRef(value) {
     return Object.values(sub2).some(containsRef);
   });
 }
-function plural(n2) {
-  return n2 === 1 ? "element" : "elements";
+function plural(n3) {
+  return n3 === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
   const guard = z.transform((value) => value).check((payload) => {
@@ -54423,20 +54423,20 @@ var init_missionAuthority = __esm({
 
 // src/vh19/failures.ts
 function classifyFailure(outcome, note) {
-  const n2 = (note ?? "").toLowerCase();
+  const n3 = (note ?? "").toLowerCase();
   if (outcome === "planned") return info("no-provider");
   if (outcome === "gated-out") return info("gate-denied");
   if (outcome === "refused") {
-    if (n2.includes("injection") || n2.includes("guardrail")) return info("injection-blocked");
-    if (n2.includes("peer") || n2.includes("delegat") || n2.includes("bridge")) return info("peer-refused");
+    if (n3.includes("injection") || n3.includes("guardrail")) return info("injection-blocked");
+    if (n3.includes("peer") || n3.includes("delegat") || n3.includes("bridge")) return info("peer-refused");
     return info("policy-refused");
   }
-  if (/401|403|invalid api key|unauthorized|forbidden/.test(n2)) return error62("provider-auth");
-  if (/429|rate.?limit|too many requests|quota/.test(n2)) return error62("provider-rate-limit");
-  if (/timeout|timed out|deadline/.test(n2)) return error62("provider-timeout");
-  if (/econnrefused|enotfound|fetch failed|network|dns|unreachable|socket/.test(n2)) return error62("provider-unreachable");
-  if (/json|parse|malformed|empty response|unexpected token/.test(n2)) return error62("bad-response");
-  if (/empty request|too short|unreadable/.test(n2)) return error62("bad-input");
+  if (/401|403|invalid api key|unauthorized|forbidden/.test(n3)) return error62("provider-auth");
+  if (/429|rate.?limit|too many requests|quota/.test(n3)) return error62("provider-rate-limit");
+  if (/timeout|timed out|deadline/.test(n3)) return error62("provider-timeout");
+  if (/econnrefused|enotfound|fetch failed|network|dns|unreachable|socket/.test(n3)) return error62("provider-unreachable");
+  if (/json|parse|malformed|empty response|unexpected token/.test(n3)) return error62("bad-response");
+  if (/empty request|too short|unreadable/.test(n3)) return error62("bad-input");
   return error62("unknown");
 }
 function info(klass) {
@@ -55072,7 +55072,7 @@ var init_pureHash = __esm({
       3204031479,
       3329325298
     ];
-    rotr = (x3, n2) => (x3 >>> n2 | x3 << 32 - n2) >>> 0;
+    rotr = (x3, n3) => (x3 >>> n3 | x3 << 32 - n3) >>> 0;
     utf8 = (text2) => new TextEncoder().encode(text2);
     toHex = (bytes) => Array.from(bytes, (b3) => b3.toString(16).padStart(2, "0")).join("");
   }
@@ -55638,7 +55638,7 @@ function judgeGrantBody(b3) {
     return { ok: false, reason: "malformed", detail: "the same capability is listed twice; a grant is a set, not a tally" };
   }
   const ints2 = [b3.maxCrossings, b3.windowMax];
-  if (!ints2.every((n2) => Number.isInteger(n2) && n2 >= 1)) {
+  if (!ints2.every((n3) => Number.isInteger(n3) && n3 >= 1)) {
     return { ok: false, reason: "unbounded", detail: "maxCrossings and windowMax must be whole numbers of at least 1 \u2014 an unbounded grant never comes back to a human" };
   }
   if (!Number.isFinite(b3.windowMs) || b3.windowMs <= 0) {
@@ -65028,7 +65028,7 @@ async function askVH19(args, deps = {}) {
         if (deps.evidenceFetch) {
           const { retrieval, supported } = await verifyLiveEvidence(reply, verdict.claims, { fetchImpl: deps.evidenceFetch });
           const retrievedCount = retrieval.filter((x3) => x3.status === "retrieved").length;
-          const hits = retrieval.reduce((n2, x3) => n2 + x3.claimHits, 0);
+          const hits = retrieval.reduce((n3, x3) => n3 + x3.claimHits, 0);
           verdict.retrieval = retrieval;
           if (supported) {
             verdict.verified = true;
@@ -65458,8 +65458,8 @@ function subtle() {
   const c3 = globalThis.crypto;
   return c3 && typeof c3.subtle?.deriveKey === "function" ? c3.subtle : null;
 }
-function randomBytes(n2) {
-  const u8 = new Uint8Array(n2);
+function randomBytes(n3) {
+  const u8 = new Uint8Array(n3);
   globalThis.crypto.getRandomValues(u8);
   return u8;
 }
@@ -65867,11 +65867,11 @@ function ingestSession(messages, opts) {
   if (g3.sessions.length > SESSION_CAP) g3.sessions.splice(0, g3.sessions.length - SESSION_CAP);
   const kw = session4.keywords;
   for (const k2 of kw) {
-    const n2 = g3.nodes.find((x3) => x3.id === k2);
-    if (n2) {
-      n2.weight += prev && n2.sessionIds.includes(session4.id) ? 0 : 1;
-      n2.lastSeen = session4.endedAt;
-      if (!n2.sessionIds.includes(session4.id)) n2.sessionIds.push(session4.id);
+    const n3 = g3.nodes.find((x3) => x3.id === k2);
+    if (n3) {
+      n3.weight += prev && n3.sessionIds.includes(session4.id) ? 0 : 1;
+      n3.lastSeen = session4.endedAt;
+      if (!n3.sessionIds.includes(session4.id)) n3.sessionIds.push(session4.id);
     } else {
       g3.nodes.push({ id: k2, label: k2, weight: 1, firstSeen: session4.endedAt, lastSeen: session4.endedAt, sessionIds: [session4.id] });
     }
@@ -65920,7 +65920,7 @@ function deleteSession(id) {
   if (!memoryEnabled()) return;
   const g3 = loadGraph();
   g3.sessions = g3.sessions.filter((s2) => s2.id !== id);
-  for (const n2 of g3.nodes) n2.sessionIds = n2.sessionIds.filter((x3) => x3 !== id);
+  for (const n3 of g3.nodes) n3.sessionIds = n3.sessionIds.filter((x3) => x3 !== id);
   for (const e3 of g3.edges) e3.sessionIds = e3.sessionIds.filter((x3) => x3 !== id);
   saveGraph(g3);
 }
@@ -65949,25 +65949,25 @@ function wordHit(lowerText, term) {
 }
 function parseDateWindow(query, now4 = () => /* @__PURE__ */ new Date()) {
   const q2 = query.toLowerCase();
-  const day = 24 * 3600 * 1e3;
+  const day2 = 24 * 3600 * 1e3;
   const startOfDay = (d3) => Date.UTC(d3.getUTCFullYear(), d3.getUTCMonth(), d3.getUTCDate());
-  const n2 = now4();
-  const todayStart = startOfDay(n2);
+  const n3 = now4();
+  const todayStart = startOfDay(n3);
   const rel = /(\d+)\s*(day|days|week|weeks|month|months)\s+ago/.exec(q2);
   if (rel) {
     const span = Number(rel[1]);
-    const unit = rel[2].startsWith("week") ? 7 * day : rel[2].startsWith("month") ? 30 * day : day;
-    const end = todayStart + day;
+    const unit = rel[2].startsWith("week") ? 7 * day2 : rel[2].startsWith("month") ? 30 * day2 : day2;
+    const end = todayStart + day2;
     return [todayStart - span * unit, end];
   }
-  if (/\byesterday\b/.test(q2)) return [todayStart - day, todayStart];
-  if (/\btoday\b/.test(q2)) return [todayStart, todayStart + day];
-  if (/\blast\s+week\b/.test(q2)) return [todayStart - 7 * day, todayStart + day];
-  if (/\blast\s+month\b/.test(q2)) return [todayStart - 30 * day, todayStart + day];
-  const iso = /(\d{4})-(\d{2})-(\d{2})/.exec(q2);
-  if (iso) {
-    const t2 = Date.UTC(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
-    return [t2, t2 + day];
+  if (/\byesterday\b/.test(q2)) return [todayStart - day2, todayStart];
+  if (/\btoday\b/.test(q2)) return [todayStart, todayStart + day2];
+  if (/\blast\s+week\b/.test(q2)) return [todayStart - 7 * day2, todayStart + day2];
+  if (/\blast\s+month\b/.test(q2)) return [todayStart - 30 * day2, todayStart + day2];
+  const iso2 = /(\d{4})-(\d{2})-(\d{2})/.exec(q2);
+  if (iso2) {
+    const t2 = Date.UTC(Number(iso2[1]), Number(iso2[2]) - 1, Number(iso2[3]));
+    return [t2, t2 + day2];
   }
   const dmy = /(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3})[a-z]*(?:\s+(\d{4}))?/.exec(q2);
   const myd = /([a-z]{3})[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?/.exec(q2);
@@ -65977,9 +65977,9 @@ function parseDateWindow(query, now4 = () => /* @__PURE__ */ new Date()) {
     const monStr = dmy ? m3[2] : m3[1];
     const mon = MONTHS.indexOf(monStr.slice(0, 3));
     if (mon >= 0 && dayN >= 1 && dayN <= 31) {
-      const year = Number(m3[3] ?? n2.getUTCFullYear());
+      const year = Number(m3[3] ?? n3.getUTCFullYear());
       const t2 = Date.UTC(year, mon, dayN);
-      return [t2, t2 + day];
+      return [t2, t2 + day2];
     }
   }
   return null;
@@ -65989,7 +65989,7 @@ function recall(query, limit = 5, now4 = () => /* @__PURE__ */ new Date()) {
   if (g3.sessions.length === 0) return [];
   const qk = extractKeywords(query, 10);
   const win = parseDateWindow(query, now4);
-  const weightOf = new Map(g3.nodes.map((n2) => [n2.id, n2.weight]));
+  const weightOf = new Map(g3.nodes.map((n3) => [n3.id, n3.weight]));
   const probes = /* @__PURE__ */ new Map();
   const addProbe = (term, original) => {
     if (!probes.has(term)) probes.set(term, original);
@@ -66047,7 +66047,7 @@ function rehydrate(sessionId, maxTurns = 8, perMessageCap = 240) {
 function graphView(maxNodes = 24) {
   const g3 = loadGraph();
   const nodes = g3.nodes.slice().sort((a3, b3) => b3.weight - a3.weight || a3.id.localeCompare(b3.id)).slice(0, maxNodes);
-  const ids = new Set(nodes.map((n2) => n2.id));
+  const ids = new Set(nodes.map((n3) => n3.id));
   const edges = g3.edges.filter((e3) => ids.has(e3.a) && ids.has(e3.b)).slice(0, 80);
   return { nodes, edges };
 }
@@ -66365,7 +66365,7 @@ var require_react_jsx_runtime_production_min = __commonJS({
     var k2 = Symbol.for("react.element");
     var l2 = Symbol.for("react.fragment");
     var m3 = Object.prototype.hasOwnProperty;
-    var n2 = f4.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+    var n3 = f4.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
     var p2 = { key: true, ref: true, __self: true, __source: true };
     function q2(c3, a3, g3) {
       var b3, d3 = {}, e3 = null, h2 = null;
@@ -66374,7 +66374,7 @@ var require_react_jsx_runtime_production_min = __commonJS({
       void 0 !== a3.ref && (h2 = a3.ref);
       for (b3 in a3) m3.call(a3, b3) && !p2.hasOwnProperty(b3) && (d3[b3] = a3[b3]);
       if (c3 && c3.defaultProps) for (b3 in a3 = c3.defaultProps, a3) void 0 === d3[b3] && (d3[b3] = a3[b3]);
-      return { $$typeof: k2, type: c3, key: e3, ref: h2, props: d3, _owner: n2.current };
+      return { $$typeof: k2, type: c3, key: e3, ref: h2, props: d3, _owner: n3.current };
     }
     exports.Fragment = l2;
     exports.jsx = q2;
@@ -68155,7 +68155,7 @@ ${text2}`;
 ${lines.join("\n")}`, at: nowIso2() }], initiative: loadInitiative(), gate: null }));
         }
       },
-      renameSteward: (n2) => set3({ stewardName: setGeneralistName(n2) }),
+      renameSteward: (n3) => set3({ stewardName: setGeneralistName(n3) }),
       boot: async () => {
         document.documentElement.dataset.theme = get2().theme;
         let legacy = null;
@@ -68421,8 +68421,8 @@ function generateUUID() {
 function clamp(value, min2, max2) {
   return Math.max(min2, Math.min(max2, value));
 }
-function euclideanModulo(n2, m3) {
-  return (n2 % m3 + m3) % m3;
+function euclideanModulo(n3, m3) {
+  return (n3 % m3 + m3) % m3;
 }
 function mapLinear(x3, a1, a22, b1, b22) {
   return b1 + (x3 - a1) * (b22 - b1) / (a22 - a1);
@@ -69031,7 +69031,7 @@ function solveBezierParameter(x3, x0, x1, x22, x32) {
   return s2;
 }
 function scaleTangentTimes(tangents, timeScale) {
-  for (let i2 = 0, n2 = tangents.length; i2 !== n2; i2 += 2) {
+  for (let i2 = 0, n3 = tangents.length; i2 !== n3; i2 += 2) {
     tangents[i2] *= timeScale;
   }
 }
@@ -71850,7 +71850,7 @@ var init_three_core = __esm({
        * @param {number} [n32] - 3-2 matrix element.
        * @param {number} [n33] - 3-3 matrix element.
        */
-      constructor(n11, n12, n13, n21, n22, n23, n31, n32, n33) {
+      constructor(n11, n12, n13, n21, n222, n232, n31, n32, n33) {
         this.elements = [
           1,
           0,
@@ -71863,7 +71863,7 @@ var init_three_core = __esm({
           1
         ];
         if (n11 !== void 0) {
-          this.set(n11, n12, n13, n21, n22, n23, n31, n32, n33);
+          this.set(n11, n12, n13, n21, n222, n232, n31, n32, n33);
         }
       }
       /**
@@ -71881,16 +71881,16 @@ var init_three_core = __esm({
        * @param {number} [n33] - 3-3 matrix element.
        * @return {Matrix3} A reference to this matrix.
        */
-      set(n11, n12, n13, n21, n22, n23, n31, n32, n33) {
+      set(n11, n12, n13, n21, n222, n232, n31, n32, n33) {
         const te = this.elements;
         te[0] = n11;
         te[1] = n21;
         te[2] = n31;
         te[3] = n12;
-        te[4] = n22;
+        te[4] = n222;
         te[5] = n32;
         te[6] = n13;
-        te[7] = n23;
+        te[7] = n232;
         te[8] = n33;
         return this;
       }
@@ -72052,18 +72052,18 @@ var init_three_core = __esm({
        * @return {Matrix3} A reference to this matrix.
        */
       invert() {
-        const te = this.elements, n11 = te[0], n21 = te[1], n31 = te[2], n12 = te[3], n22 = te[4], n32 = te[5], n13 = te[6], n23 = te[7], n33 = te[8], t11 = n33 * n22 - n32 * n23, t12 = n32 * n13 - n33 * n12, t13 = n23 * n12 - n22 * n13, det2 = n11 * t11 + n21 * t12 + n31 * t13;
+        const te = this.elements, n11 = te[0], n21 = te[1], n31 = te[2], n12 = te[3], n222 = te[4], n32 = te[5], n13 = te[6], n232 = te[7], n33 = te[8], t11 = n33 * n222 - n32 * n232, t12 = n32 * n13 - n33 * n12, t13 = n232 * n12 - n222 * n13, det2 = n11 * t11 + n21 * t12 + n31 * t13;
         if (det2 === 0) return this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
         const detInv = 1 / det2;
         te[0] = t11 * detInv;
-        te[1] = (n31 * n23 - n33 * n21) * detInv;
-        te[2] = (n32 * n21 - n31 * n22) * detInv;
+        te[1] = (n31 * n232 - n33 * n21) * detInv;
+        te[2] = (n32 * n21 - n31 * n222) * detInv;
         te[3] = t12 * detInv;
         te[4] = (n33 * n11 - n31 * n13) * detInv;
         te[5] = (n31 * n12 - n32 * n11) * detInv;
         te[6] = t13 * detInv;
-        te[7] = (n21 * n13 - n23 * n11) * detInv;
-        te[8] = (n22 * n11 - n21 * n12) * detInv;
+        te[7] = (n21 * n13 - n232 * n11) * detInv;
+        te[8] = (n222 * n11 - n21 * n12) * detInv;
         return this;
       }
       /**
@@ -73897,7 +73897,7 @@ var init_three_core = __esm({
        * @param {number} [n43] - 4-3 matrix element.
        * @param {number} [n44] - 4-4 matrix element.
        */
-      constructor(n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+      constructor(n11, n12, n13, n14, n21, n222, n232, n242, n31, n32, n33, n34, n41, n42, n43, n44) {
         this.elements = [
           1,
           0,
@@ -73917,7 +73917,7 @@ var init_three_core = __esm({
           1
         ];
         if (n11 !== void 0) {
-          this.set(n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44);
+          this.set(n11, n12, n13, n14, n21, n222, n232, n242, n31, n32, n33, n34, n41, n42, n43, n44);
         }
       }
       /**
@@ -73942,16 +73942,16 @@ var init_three_core = __esm({
        * @param {number} [n44] - 4-4 matrix element.
        * @return {Matrix4} A reference to this matrix.
        */
-      set(n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+      set(n11, n12, n13, n14, n21, n222, n232, n242, n31, n32, n33, n34, n41, n42, n43, n44) {
         const te = this.elements;
         te[0] = n11;
         te[4] = n12;
         te[8] = n13;
         te[12] = n14;
         te[1] = n21;
-        te[5] = n22;
-        te[9] = n23;
-        te[13] = n24;
+        te[5] = n222;
+        te[9] = n232;
+        te[13] = n242;
         te[2] = n31;
         te[6] = n32;
         te[10] = n33;
@@ -74382,15 +74382,15 @@ var init_three_core = __esm({
       determinant() {
         const te = this.elements;
         const n11 = te[0], n12 = te[4], n13 = te[8], n14 = te[12];
-        const n21 = te[1], n22 = te[5], n23 = te[9], n24 = te[13];
+        const n21 = te[1], n222 = te[5], n232 = te[9], n242 = te[13];
         const n31 = te[2], n32 = te[6], n33 = te[10], n34 = te[14];
         const n41 = te[3], n42 = te[7], n43 = te[11], n44 = te[15];
-        const t11 = n23 * n34 - n24 * n33;
-        const t12 = n22 * n34 - n24 * n32;
-        const t13 = n22 * n33 - n23 * n32;
-        const t21 = n21 * n34 - n24 * n31;
-        const t22 = n21 * n33 - n23 * n31;
-        const t23 = n21 * n32 - n22 * n31;
+        const t11 = n232 * n34 - n242 * n33;
+        const t12 = n222 * n34 - n242 * n32;
+        const t13 = n222 * n33 - n232 * n32;
+        const t21 = n21 * n34 - n242 * n31;
+        const t22 = n21 * n33 - n232 * n31;
+        const t23 = n21 * n32 - n222 * n31;
         return n11 * (n42 * t11 - n43 * t12 + n44 * t13) - n12 * (n41 * t11 - n43 * t21 + n44 * t22) + n13 * (n41 * t12 - n42 * t21 + n44 * t23) - n14 * (n41 * t13 - n42 * t22 + n43 * t23);
       }
       /**
@@ -74407,9 +74407,9 @@ var init_three_core = __esm({
       determinantAffine() {
         const te = this.elements;
         const n11 = te[0], n12 = te[4], n13 = te[8];
-        const n21 = te[1], n22 = te[5], n23 = te[9];
+        const n21 = te[1], n222 = te[5], n232 = te[9];
         const n31 = te[2], n32 = te[6], n33 = te[10];
-        return n11 * (n22 * n33 - n23 * n32) - n12 * (n21 * n33 - n23 * n31) + n13 * (n21 * n32 - n22 * n31);
+        return n11 * (n222 * n33 - n232 * n32) - n12 * (n21 * n33 - n232 * n31) + n13 * (n21 * n32 - n222 * n31);
       }
       /**
        * Transposes this matrix in place.
@@ -74469,26 +74469,26 @@ var init_three_core = __esm({
        * @return {Matrix4} A reference to this matrix.
        */
       invert() {
-        const te = this.elements, n11 = te[0], n21 = te[1], n31 = te[2], n41 = te[3], n12 = te[4], n22 = te[5], n32 = te[6], n42 = te[7], n13 = te[8], n23 = te[9], n33 = te[10], n43 = te[11], n14 = te[12], n24 = te[13], n34 = te[14], n44 = te[15], t1 = n11 * n22 - n21 * n12, t2 = n11 * n32 - n31 * n12, t3 = n11 * n42 - n41 * n12, t4 = n21 * n32 - n31 * n22, t5 = n21 * n42 - n41 * n22, t6 = n31 * n42 - n41 * n32, t7 = n13 * n24 - n23 * n14, t8 = n13 * n34 - n33 * n14, t9 = n13 * n44 - n43 * n14, t10 = n23 * n34 - n33 * n24, t11 = n23 * n44 - n43 * n24, t12 = n33 * n44 - n43 * n34;
+        const te = this.elements, n11 = te[0], n21 = te[1], n31 = te[2], n41 = te[3], n12 = te[4], n222 = te[5], n32 = te[6], n42 = te[7], n13 = te[8], n232 = te[9], n33 = te[10], n43 = te[11], n14 = te[12], n242 = te[13], n34 = te[14], n44 = te[15], t1 = n11 * n222 - n21 * n12, t2 = n11 * n32 - n31 * n12, t3 = n11 * n42 - n41 * n12, t4 = n21 * n32 - n31 * n222, t5 = n21 * n42 - n41 * n222, t6 = n31 * n42 - n41 * n32, t7 = n13 * n242 - n232 * n14, t8 = n13 * n34 - n33 * n14, t9 = n13 * n44 - n43 * n14, t10 = n232 * n34 - n33 * n242, t11 = n232 * n44 - n43 * n242, t12 = n33 * n44 - n43 * n34;
         const det2 = t1 * t12 - t2 * t11 + t3 * t10 + t4 * t9 - t5 * t8 + t6 * t7;
         if (det2 === 0) return this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         const detInv = 1 / det2;
-        te[0] = (n22 * t12 - n32 * t11 + n42 * t10) * detInv;
+        te[0] = (n222 * t12 - n32 * t11 + n42 * t10) * detInv;
         te[1] = (n31 * t11 - n21 * t12 - n41 * t10) * detInv;
-        te[2] = (n24 * t6 - n34 * t5 + n44 * t4) * detInv;
-        te[3] = (n33 * t5 - n23 * t6 - n43 * t4) * detInv;
+        te[2] = (n242 * t6 - n34 * t5 + n44 * t4) * detInv;
+        te[3] = (n33 * t5 - n232 * t6 - n43 * t4) * detInv;
         te[4] = (n32 * t9 - n12 * t12 - n42 * t8) * detInv;
         te[5] = (n11 * t12 - n31 * t9 + n41 * t8) * detInv;
         te[6] = (n34 * t3 - n14 * t6 - n44 * t2) * detInv;
         te[7] = (n13 * t6 - n33 * t3 + n43 * t2) * detInv;
-        te[8] = (n12 * t11 - n22 * t9 + n42 * t7) * detInv;
+        te[8] = (n12 * t11 - n222 * t9 + n42 * t7) * detInv;
         te[9] = (n21 * t9 - n11 * t11 - n41 * t7) * detInv;
-        te[10] = (n14 * t5 - n24 * t3 + n44 * t1) * detInv;
-        te[11] = (n23 * t3 - n13 * t5 - n43 * t1) * detInv;
-        te[12] = (n22 * t8 - n12 * t10 - n32 * t7) * detInv;
+        te[10] = (n14 * t5 - n242 * t3 + n44 * t1) * detInv;
+        te[11] = (n232 * t3 - n13 * t5 - n43 * t1) * detInv;
+        te[12] = (n222 * t8 - n12 * t10 - n32 * t7) * detInv;
         te[13] = (n11 * t10 - n21 * t8 + n31 * t7) * detInv;
-        te[14] = (n24 * t2 - n14 * t4 - n34 * t1) * detInv;
-        te[15] = (n13 * t4 - n23 * t2 + n33 * t1) * detInv;
+        te[14] = (n242 * t2 - n14 * t4 - n34 * t1) * detInv;
+        te[15] = (n13 * t4 - n232 * t2 + n33 * t1) * detInv;
         return this;
       }
       /**
@@ -79585,14 +79585,14 @@ var init_three_core = __esm({
           }
         }
         const tmp3 = new Vector3(), tmp22 = new Vector3();
-        const n2 = new Vector3(), n22 = new Vector3();
+        const n3 = new Vector3(), n25 = new Vector3();
         function handleVertex(v2) {
-          n2.fromBufferAttribute(normalAttribute, v2);
-          n22.copy(n2);
+          n3.fromBufferAttribute(normalAttribute, v2);
+          n25.copy(n3);
           const t2 = tan1[v2];
           tmp3.copy(t2);
-          tmp3.sub(n2.multiplyScalar(n2.dot(t2))).normalize();
-          tmp22.crossVectors(n22, t2);
+          tmp3.sub(n3.multiplyScalar(n3.dot(t2))).normalize();
+          tmp22.crossVectors(n25, t2);
           const test = tmp22.dot(tan2[v2]);
           const w4 = test < 0 ? -1 : 1;
           tangentAttribute.setXYZW(v2, tmp3.x, tmp3.y, tmp3.z, w4);
@@ -81166,9 +81166,9 @@ var init_three_core = __esm({
         const srcPlanes = source.clippingPlanes;
         let dstPlanes = null;
         if (srcPlanes !== null) {
-          const n2 = srcPlanes.length;
-          dstPlanes = new Array(n2);
-          for (let i2 = 0; i2 !== n2; ++i2) {
+          const n3 = srcPlanes.length;
+          dstPlanes = new Array(n3);
+          for (let i2 = 0; i2 !== n3; ++i2) {
             dstPlanes[i2] = srcPlanes[i2].clone();
           }
         }
@@ -85624,7 +85624,7 @@ var init_three_core = __esm({
       shift(timeOffset) {
         if (timeOffset !== 0) {
           const times = this.times;
-          for (let i2 = 0, n2 = times.length; i2 !== n2; ++i2) {
+          for (let i2 = 0, n3 = times.length; i2 !== n3; ++i2) {
             times[i2] += timeOffset;
           }
         }
@@ -85639,7 +85639,7 @@ var init_three_core = __esm({
       scale(timeScale) {
         if (timeScale !== 1) {
           const times = this.times;
-          for (let i2 = 0, n2 = times.length; i2 !== n2; ++i2) {
+          for (let i2 = 0, n3 = times.length; i2 !== n3; ++i2) {
             times[i2] *= timeScale;
           }
           if (hasTangents(this.settings)) {
@@ -85715,7 +85715,7 @@ var init_three_core = __esm({
         }
         if (values !== void 0) {
           if (isTypedArray(values)) {
-            for (let i2 = 0, n2 = values.length; i2 !== n2; ++i2) {
+            for (let i2 = 0, n3 = values.length; i2 !== n3; ++i2) {
               const value = values[i2];
               if (isNaN(value)) {
                 error63("KeyframeTrack: Value is not a valid number.", this, i2, value);
@@ -87768,19 +87768,19 @@ var init_three_core = __esm({
       }
       setValue(array4, offset) {
         const bindings = this._bindings;
-        for (let i2 = this._targetGroup.nCachedObjects_, n2 = bindings.length; i2 !== n2; ++i2) {
+        for (let i2 = this._targetGroup.nCachedObjects_, n3 = bindings.length; i2 !== n3; ++i2) {
           bindings[i2].setValue(array4, offset);
         }
       }
       bind() {
         const bindings = this._bindings;
-        for (let i2 = this._targetGroup.nCachedObjects_, n2 = bindings.length; i2 !== n2; ++i2) {
+        for (let i2 = this._targetGroup.nCachedObjects_, n3 = bindings.length; i2 !== n3; ++i2) {
           bindings[i2].bind();
         }
       }
       unbind() {
         const bindings = this._bindings;
-        for (let i2 = this._targetGroup.nCachedObjects_, n2 = bindings.length; i2 !== n2; ++i2) {
+        for (let i2 = this._targetGroup.nCachedObjects_, n3 = bindings.length; i2 !== n3; ++i2) {
           bindings[i2].unbind();
         }
       }
@@ -87921,7 +87921,7 @@ var init_three_core = __esm({
       }
       _getValue_array(buffer2, offset) {
         const source = this.resolvedProperty;
-        for (let i2 = 0, n2 = source.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = source.length; i2 !== n3; ++i2) {
           buffer2[offset++] = source[i2];
         }
       }
@@ -87946,20 +87946,20 @@ var init_three_core = __esm({
       // EntireArray
       _setValue_array(buffer2, offset) {
         const dest = this.resolvedProperty;
-        for (let i2 = 0, n2 = dest.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = dest.length; i2 !== n3; ++i2) {
           dest[i2] = buffer2[offset++];
         }
       }
       _setValue_array_setNeedsUpdate(buffer2, offset) {
         const dest = this.resolvedProperty;
-        for (let i2 = 0, n2 = dest.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = dest.length; i2 !== n3; ++i2) {
           dest[i2] = buffer2[offset++];
         }
         this.targetObject.needsUpdate = true;
       }
       _setValue_array_setMatrixWorldNeedsUpdate(buffer2, offset) {
         const dest = this.resolvedProperty;
-        for (let i2 = 0, n2 = dest.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = dest.length; i2 !== n3; ++i2) {
           dest[i2] = buffer2[offset++];
         }
         this.targetObject.matrixWorldNeedsUpdate = true;
@@ -88428,7 +88428,7 @@ var init_three_core = __esm({
        * @param {number} [n21] - 2-1 matrix element.
        * @param {number} [n22] - 2-2 matrix element.
        */
-      constructor(n11, n12, n21, n22) {
+      constructor(n11, n12, n21, n222) {
         this.elements = [
           1,
           0,
@@ -88436,7 +88436,7 @@ var init_three_core = __esm({
           1
         ];
         if (n11 !== void 0) {
-          this.set(n11, n12, n21, n22);
+          this.set(n11, n12, n21, n222);
         }
       }
       /**
@@ -88476,12 +88476,12 @@ var init_three_core = __esm({
        * @param {number} n22 - 2-2 matrix element.
        * @return {Matrix2} A reference to this matrix.
        */
-      set(n11, n12, n21, n22) {
+      set(n11, n12, n21, n222) {
         const te = this.elements;
         te[0] = n11;
         te[2] = n12;
         te[1] = n21;
-        te[3] = n22;
+        te[3] = n222;
         return this;
       }
     };
@@ -90435,11 +90435,11 @@ function WebGLOutput(type, width, height, antialias, depth2, stencil) {
 function flatten(array4, nBlocks, blockSize) {
   const firstElem = array4[0];
   if (firstElem <= 0 || firstElem > 0) return array4;
-  const n2 = nBlocks * blockSize;
-  let r3 = arrayCacheF32[n2];
+  const n3 = nBlocks * blockSize;
+  let r3 = arrayCacheF32[n3];
   if (r3 === void 0) {
-    r3 = new Float32Array(n2);
-    arrayCacheF32[n2] = r3;
+    r3 = new Float32Array(n3);
+    arrayCacheF32[n3] = r3;
   }
   if (nBlocks !== 0) {
     firstElem.toArray(r3, 0);
@@ -90462,13 +90462,13 @@ function copyArray(a3, b3) {
     a3[i2] = b3[i2];
   }
 }
-function allocTexUnits(textures, n2) {
-  let r3 = arrayCacheI32[n2];
+function allocTexUnits(textures, n3) {
+  let r3 = arrayCacheI32[n3];
   if (r3 === void 0) {
-    r3 = new Int32Array(n2);
-    arrayCacheI32[n2] = r3;
+    r3 = new Int32Array(n3);
+    arrayCacheI32[n3] = r3;
   }
-  for (let i2 = 0; i2 !== n2; ++i2) {
+  for (let i2 = 0; i2 !== n3; ++i2) {
     r3[i2] = textures.allocateTextureUnit();
   }
   return r3;
@@ -90856,8 +90856,8 @@ function setValueV4uiArray(gl, v2) {
 }
 function setValueT1Array(gl, v2, textures) {
   const cache2 = this.cache;
-  const n2 = v2.length;
-  const units = allocTexUnits(textures, n2);
+  const n3 = v2.length;
+  const units = allocTexUnits(textures, n3);
   if (!arraysEqual(cache2, units)) {
     gl.uniform1iv(this.addr, units);
     copyArray(cache2, units);
@@ -90868,43 +90868,43 @@ function setValueT1Array(gl, v2, textures) {
   } else {
     emptyTexture2D = emptyTexture;
   }
-  for (let i2 = 0; i2 !== n2; ++i2) {
+  for (let i2 = 0; i2 !== n3; ++i2) {
     textures.setTexture2D(v2[i2] || emptyTexture2D, units[i2]);
   }
 }
 function setValueT3DArray(gl, v2, textures) {
   const cache2 = this.cache;
-  const n2 = v2.length;
-  const units = allocTexUnits(textures, n2);
+  const n3 = v2.length;
+  const units = allocTexUnits(textures, n3);
   if (!arraysEqual(cache2, units)) {
     gl.uniform1iv(this.addr, units);
     copyArray(cache2, units);
   }
-  for (let i2 = 0; i2 !== n2; ++i2) {
+  for (let i2 = 0; i2 !== n3; ++i2) {
     textures.setTexture3D(v2[i2] || empty3dTexture, units[i2]);
   }
 }
 function setValueT6Array(gl, v2, textures) {
   const cache2 = this.cache;
-  const n2 = v2.length;
-  const units = allocTexUnits(textures, n2);
+  const n3 = v2.length;
+  const units = allocTexUnits(textures, n3);
   if (!arraysEqual(cache2, units)) {
     gl.uniform1iv(this.addr, units);
     copyArray(cache2, units);
   }
-  for (let i2 = 0; i2 !== n2; ++i2) {
+  for (let i2 = 0; i2 !== n3; ++i2) {
     textures.setTextureCube(v2[i2] || emptyCubeTexture, units[i2]);
   }
 }
 function setValueT2DArrayArray(gl, v2, textures) {
   const cache2 = this.cache;
-  const n2 = v2.length;
-  const units = allocTexUnits(textures, n2);
+  const n3 = v2.length;
+  const units = allocTexUnits(textures, n3);
   if (!arraysEqual(cache2, units)) {
     gl.uniform1iv(this.addr, units);
     copyArray(cache2, units);
   }
-  for (let i2 = 0; i2 !== n2; ++i2) {
+  for (let i2 = 0; i2 !== n3; ++i2) {
     textures.setTexture2DArray(v2[i2] || emptyArrayTexture, units[i2]);
   }
 }
@@ -91108,8 +91108,8 @@ function generateDefines(defines) {
 }
 function fetchAttributeLocations(gl, program) {
   const attributes = {};
-  const n2 = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-  for (let i2 = 0; i2 < n2; i2++) {
+  const n3 = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+  for (let i2 = 0; i2 < n3; i2++) {
     const info2 = gl.getActiveAttrib(program, i2);
     const name = info2.name;
     let locationSize = 1;
@@ -95015,7 +95015,7 @@ function WebGLTextures(_gl, extensions, state2, properties2, capabilities, utils
         const textures = renderTarget.textures;
         const width = renderTarget.width;
         const height = renderTarget.height;
-        let mask = _gl.COLOR_BUFFER_BIT;
+        let mask2 = _gl.COLOR_BUFFER_BIT;
         const depthStyle = renderTarget.stencilBuffer ? _gl.DEPTH_STENCIL_ATTACHMENT : _gl.DEPTH_ATTACHMENT;
         const renderTargetProperties = properties2.get(renderTarget);
         const isMultipleRenderTargets = textures.length > 1;
@@ -95036,15 +95036,15 @@ function WebGLTextures(_gl, extensions, state2, properties2, capabilities, utils
         }
         for (let i2 = 0; i2 < textures.length; i2++) {
           if (renderTarget.resolveDepthBuffer) {
-            if (renderTarget.depthBuffer) mask |= _gl.DEPTH_BUFFER_BIT;
-            if (renderTarget.stencilBuffer && renderTarget.resolveStencilBuffer) mask |= _gl.STENCIL_BUFFER_BIT;
+            if (renderTarget.depthBuffer) mask2 |= _gl.DEPTH_BUFFER_BIT;
+            if (renderTarget.stencilBuffer && renderTarget.resolveStencilBuffer) mask2 |= _gl.STENCIL_BUFFER_BIT;
           }
           if (isMultipleRenderTargets) {
             _gl.framebufferRenderbuffer(_gl.READ_FRAMEBUFFER, _gl.COLOR_ATTACHMENT0, _gl.RENDERBUFFER, renderTargetProperties.__webglColorRenderbuffer[i2]);
             const webglTexture = properties2.get(textures[i2]).__webglTexture;
             _gl.framebufferTexture2D(_gl.DRAW_FRAMEBUFFER, _gl.COLOR_ATTACHMENT0, _gl.TEXTURE_2D, webglTexture, 0);
           }
-          _gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, mask, _gl.NEAREST);
+          _gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, mask2, _gl.NEAREST);
           if (supportsInvalidateFramebuffer === true) {
             invalidationArrayRead.length = 0;
             invalidationArrayDraw.length = 0;
@@ -96851,8 +96851,8 @@ var init_three_module = __esm({
         const renderer3 = this._renderer;
         const autoClear = renderer3.autoClear;
         renderer3.autoClear = false;
-        const n2 = this._lodMeshes.length;
-        for (let i2 = 1; i2 < n2; i2++) {
+        const n3 = this._lodMeshes.length;
+        for (let i2 = 1; i2 < n3; i2++) {
           this._applyGGXFilter(cubeUVRenderTarget, i2 - 1, i2);
         }
         renderer3.autoClear = autoClear;
@@ -97093,7 +97093,7 @@ var init_three_module = __esm({
       }
       setValue(gl, value, textures) {
         const seq2 = this.seq;
-        for (let i2 = 0, n2 = seq2.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = seq2.length; i2 !== n3; ++i2) {
           const u2 = seq2[i2];
           u2.setValue(gl, value[u2.id], textures);
         }
@@ -97104,8 +97104,8 @@ var init_three_module = __esm({
       constructor(gl, program) {
         this.seq = [];
         this.map = {};
-        const n2 = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-        for (let i2 = 0; i2 < n2; ++i2) {
+        const n3 = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+        for (let i2 = 0; i2 < n3; ++i2) {
           const info2 = gl.getActiveUniform(program, i2), addr = gl.getUniformLocation(program, info2.name);
           parseUniform(info2, addr, this);
         }
@@ -97131,7 +97131,7 @@ var init_three_module = __esm({
         if (v2 !== void 0) this.setValue(gl, name, v2);
       }
       static upload(gl, seq2, values, textures) {
-        for (let i2 = 0, n2 = seq2.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = seq2.length; i2 !== n3; ++i2) {
           const u2 = seq2[i2], v2 = values[u2.id];
           if (v2.needsUpdate !== false) {
             u2.setValue(gl, v2.value, textures);
@@ -97140,7 +97140,7 @@ var init_three_module = __esm({
       }
       static seqWithValue(seq2, values) {
         const r3 = [];
-        for (let i2 = 0, n2 = seq2.length; i2 !== n2; ++i2) {
+        for (let i2 = 0, n3 = seq2.length; i2 !== n3; ++i2) {
           const u2 = seq2[i2];
           if (u2.id in values) r3.push(u2);
         }
@@ -100269,11 +100269,11 @@ function center_default(x3, y3, z4) {
   if (y3 == null) y3 = 0;
   if (z4 == null) z4 = 0;
   function force() {
-    var i2, n2 = nodes.length, node2, sx = 0, sy = 0, sz = 0;
-    for (i2 = 0; i2 < n2; ++i2) {
+    var i2, n3 = nodes.length, node2, sx = 0, sy = 0, sz = 0;
+    for (i2 = 0; i2 < n3; ++i2) {
       node2 = nodes[i2], sx += node2.x || 0, sy += node2.y || 0, sz += node2.z || 0;
     }
-    for (sx = (sx / n2 - x3) * strength, sy = (sy / n2 - y3) * strength, sz = (sz / n2 - z4) * strength, i2 = 0; i2 < n2; ++i2) {
+    for (sx = (sx / n3 - x3) * strength, sy = (sy / n3 - y3) * strength, sz = (sz / n3 - z4) * strength, i2 = 0; i2 < n3; ++i2) {
       node2 = nodes[i2];
       if (sx) {
         node2.x -= sx;
@@ -100333,10 +100333,10 @@ function add(tree, x3, d3) {
 }
 function addAll(data) {
   if (!Array.isArray(data)) data = Array.from(data);
-  const n2 = data.length;
-  const xz = new Float64Array(n2);
+  const n3 = data.length;
+  const xz = new Float64Array(n3);
   let x0 = Infinity, x1 = -Infinity;
-  for (let i2 = 0, x3; i2 < n2; ++i2) {
+  for (let i2 = 0, x3; i2 < n3; ++i2) {
     if (isNaN(x3 = +this._x.call(null, data[i2]))) continue;
     xz[i2] = x3;
     if (x3 < x0) x0 = x3;
@@ -100344,7 +100344,7 @@ function addAll(data) {
   }
   if (x0 > x1) return this;
   this.cover(x0).cover(x1);
-  for (let i2 = 0; i2 < n2; ++i2) {
+  for (let i2 = 0; i2 < n3; ++i2) {
     add(this, xz[i2], data[i2]);
   }
   return this;
@@ -100484,7 +100484,7 @@ function remove_default(d3) {
   return this;
 }
 function removeAll(data) {
-  for (var i2 = 0, n2 = data.length; i2 < n2; ++i2) this.remove(data[i2]);
+  for (var i2 = 0, n3 = data.length; i2 < n3; ++i2) this.remove(data[i2]);
   return this;
 }
 var init_remove = __esm({
@@ -100669,8 +100669,8 @@ function add2(tree, x3, y3, d3) {
   return parent[j2] = node2, parent[i2] = leaf, tree;
 }
 function addAll2(data) {
-  var d3, i2, n2 = data.length, x3, y3, xz = new Array(n2), yz = new Array(n2), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  for (i2 = 0; i2 < n2; ++i2) {
+  var d3, i2, n3 = data.length, x3, y3, xz = new Array(n3), yz = new Array(n3), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (i2 = 0; i2 < n3; ++i2) {
     if (isNaN(x3 = +this._x.call(null, d3 = data[i2])) || isNaN(y3 = +this._y.call(null, d3))) continue;
     xz[i2] = x3;
     yz[i2] = y3;
@@ -100681,7 +100681,7 @@ function addAll2(data) {
   }
   if (x0 > x1 || y0 > y1) return this;
   this.cover(x0, y0).cover(x1, y1);
-  for (i2 = 0; i2 < n2; ++i2) {
+  for (i2 = 0; i2 < n3; ++i2) {
     add2(this, xz[i2], yz[i2], data[i2]);
   }
   return this;
@@ -100837,7 +100837,7 @@ function remove_default2(d3) {
   return this;
 }
 function removeAll2(data) {
-  for (var i2 = 0, n2 = data.length; i2 < n2; ++i2) this.remove(data[i2]);
+  for (var i2 = 0, n3 = data.length; i2 < n3; ++i2) this.remove(data[i2]);
   return this;
 }
 var init_remove2 = __esm({
@@ -101049,12 +101049,12 @@ function add3(tree, x3, y3, z4, d3) {
 }
 function addAll3(data) {
   if (!Array.isArray(data)) data = Array.from(data);
-  const n2 = data.length;
-  const xz = new Float64Array(n2);
-  const yz = new Float64Array(n2);
-  const zz = new Float64Array(n2);
+  const n3 = data.length;
+  const xz = new Float64Array(n3);
+  const yz = new Float64Array(n3);
+  const zz = new Float64Array(n3);
   let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
-  for (let i2 = 0, d3, x3, y3, z4; i2 < n2; ++i2) {
+  for (let i2 = 0, d3, x3, y3, z4; i2 < n3; ++i2) {
     if (isNaN(x3 = +this._x.call(null, d3 = data[i2])) || isNaN(y3 = +this._y.call(null, d3)) || isNaN(z4 = +this._z.call(null, d3))) continue;
     xz[i2] = x3;
     yz[i2] = y3;
@@ -101068,7 +101068,7 @@ function addAll3(data) {
   }
   if (x0 > x1 || y0 > y1 || z0 > z1) return this;
   this.cover(x0, y0, z0).cover(x1, y1, z1);
-  for (let i2 = 0; i2 < n2; ++i2) {
+  for (let i2 = 0; i2 < n3; ++i2) {
     add3(this, xz[i2], yz[i2], zz[i2], data[i2]);
   }
   return this;
@@ -101276,7 +101276,7 @@ function remove_default3(d3) {
   return this;
 }
 function removeAll3(data) {
-  for (var i2 = 0, n2 = data.length; i2 < n2; ++i2) this.remove(data[i2]);
+  for (var i2 = 0, n3 = data.length; i2 < n3; ++i2) this.remove(data[i2]);
   return this;
 }
 var init_remove3 = __esm({
@@ -101516,8 +101516,8 @@ function link_default(links) {
     return 1 / Math.min(count[link.source.index], count[link.target.index]);
   }
   function force(alpha) {
-    for (var k2 = 0, n2 = links.length; k2 < iterations; ++k2) {
-      for (var i2 = 0, link, source, target, x3 = 0, y3 = 0, z4 = 0, l2, b3; i2 < n2; ++i2) {
+    for (var k2 = 0, n3 = links.length; k2 < iterations; ++k2) {
+      for (var i2 = 0, link, source, target, x3 = 0, y3 = 0, z4 = 0, l2, b3; i2 < n3; ++i2) {
         link = links[i2], source = link.source, target = link.target;
         x3 = target.x + target.vx - source.x - source.vx || jiggle_default(random);
         if (nDim > 1) {
@@ -101548,8 +101548,8 @@ function link_default(links) {
   }
   function initialize() {
     if (!nodes) return;
-    var i2, n2 = nodes.length, m3 = links.length, nodeById = new Map(nodes.map((d3, i3) => [id(d3, i3, nodes), d3])), link;
-    for (i2 = 0, count = new Array(n2); i2 < m3; ++i2) {
+    var i2, n3 = nodes.length, m3 = links.length, nodeById = new Map(nodes.map((d3, i3) => [id(d3, i3, nodes), d3])), link;
+    for (i2 = 0, count = new Array(n3); i2 < m3; ++i2) {
       link = links[i2], link.index = i2;
       if (typeof link.source !== "object") link.source = find(nodeById, link.source);
       if (typeof link.target !== "object") link.target = find(nodeById, link.target);
@@ -101564,13 +101564,13 @@ function link_default(links) {
   }
   function initializeStrength() {
     if (!nodes) return;
-    for (var i2 = 0, n2 = links.length; i2 < n2; ++i2) {
+    for (var i2 = 0, n3 = links.length; i2 < n3; ++i2) {
       strengths[i2] = +strength(links[i2], i2, links);
     }
   }
   function initializeDistance() {
     if (!nodes) return;
-    for (var i2 = 0, n2 = links.length; i2 < n2; ++i2) {
+    for (var i2 = 0, n3 = links.length; i2 < n3; ++i2) {
       distances[i2] = +distance3(links[i2], i2, links);
     }
   }
@@ -101606,7 +101606,7 @@ var init_link = __esm({
 
 // node_modules/d3-dispatch/src/dispatch.js
 function dispatch() {
-  for (var i2 = 0, n2 = arguments.length, _2 = {}, t2; i2 < n2; ++i2) {
+  for (var i2 = 0, n3 = arguments.length, _2 = {}, t2; i2 < n3; ++i2) {
     if (!(t2 = arguments[i2] + "") || t2 in _2 || /[\s.]/.test(t2)) throw new Error("illegal type: " + t2);
     _2[t2] = [];
   }
@@ -101624,14 +101624,14 @@ function parseTypenames(typenames, types) {
   });
 }
 function get(type, name) {
-  for (var i2 = 0, n2 = type.length, c3; i2 < n2; ++i2) {
+  for (var i2 = 0, n3 = type.length, c3; i2 < n3; ++i2) {
     if ((c3 = type[i2]).name === name) {
       return c3.value;
     }
   }
 }
 function set2(type, name, callback) {
-  for (var i2 = 0, n2 = type.length; i2 < n2; ++i2) {
+  for (var i2 = 0, n3 = type.length; i2 < n3; ++i2) {
     if (type[i2].name === name) {
       type[i2] = noop, type = type.slice(0, i2).concat(type.slice(i2 + 1));
       break;
@@ -101648,13 +101648,13 @@ var init_dispatch = __esm({
     Dispatch.prototype = dispatch.prototype = {
       constructor: Dispatch,
       on: function(typename, callback) {
-        var _2 = this._, T3 = parseTypenames(typename + "", _2), t2, i2 = -1, n2 = T3.length;
+        var _2 = this._, T3 = parseTypenames(typename + "", _2), t2, i2 = -1, n3 = T3.length;
         if (arguments.length < 2) {
-          while (++i2 < n2) if ((t2 = (typename = T3[i2]).type) && (t2 = get(_2[t2], typename.name))) return t2;
+          while (++i2 < n3) if ((t2 = (typename = T3[i2]).type) && (t2 = get(_2[t2], typename.name))) return t2;
           return;
         }
         if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
-        while (++i2 < n2) {
+        while (++i2 < n3) {
           if (t2 = (typename = T3[i2]).type) _2[t2] = set2(_2[t2], typename.name, callback);
           else if (callback == null) for (t2 in _2) _2[t2] = set2(_2[t2], typename.name, null);
         }
@@ -101666,13 +101666,13 @@ var init_dispatch = __esm({
         return new Dispatch(copy);
       },
       call: function(type, that) {
-        if ((n2 = arguments.length - 2) > 0) for (var args = new Array(n2), i2 = 0, n2, t2; i2 < n2; ++i2) args[i2] = arguments[i2 + 2];
+        if ((n3 = arguments.length - 2) > 0) for (var args = new Array(n3), i2 = 0, n3, t2; i2 < n3; ++i2) args[i2] = arguments[i2 + 2];
         if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-        for (t2 = this._[type], i2 = 0, n2 = t2.length; i2 < n2; ++i2) t2[i2].value.apply(that, args);
+        for (t2 = this._[type], i2 = 0, n3 = t2.length; i2 < n3; ++i2) t2[i2].value.apply(that, args);
       },
       apply: function(type, that, args) {
         if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-        for (var t2 = this._[type], i2 = 0, n2 = t2.length; i2 < n2; ++i2) t2[i2].value.apply(that, args);
+        for (var t2 = this._[type], i2 = 0, n3 = t2.length; i2 < n3; ++i2) t2[i2].value.apply(that, args);
       }
     };
     dispatch_default = dispatch;
@@ -101835,14 +101835,14 @@ function simulation_default(nodes, numDimensions) {
     }
   }
   function tick2(iterations) {
-    var i2, n2 = nodes.length, node2;
+    var i2, n3 = nodes.length, node2;
     if (iterations === void 0) iterations = 1;
     for (var k2 = 0; k2 < iterations; ++k2) {
       alpha += (alphaTarget - alpha) * alphaDecay;
       forces.forEach(function(force) {
         force(alpha);
       });
-      for (i2 = 0; i2 < n2; ++i2) {
+      for (i2 = 0; i2 < n3; ++i2) {
         node2 = nodes[i2];
         if (node2.fx == null) node2.x += node2.vx *= velocityDecay;
         else node2.x = node2.fx, node2.vx = 0;
@@ -101859,7 +101859,7 @@ function simulation_default(nodes, numDimensions) {
     return simulation;
   }
   function initializeNodes() {
-    for (var i2 = 0, n2 = nodes.length, node2; i2 < n2; ++i2) {
+    for (var i2 = 0, n3 = nodes.length, node2; i2 < n3; ++i2) {
       node2 = nodes[i2], node2.index = i2;
       if (node2.fx != null) node2.x = node2.fx;
       if (node2.fy != null) node2.y = node2.fy;
@@ -101931,9 +101931,9 @@ function simulation_default(nodes, numDimensions) {
     find: function() {
       var args = Array.prototype.slice.call(arguments);
       var x3 = args.shift() || 0, y3 = (nDim > 1 ? args.shift() : null) || 0, z4 = (nDim > 2 ? args.shift() : null) || 0, radius = args.shift() || Infinity;
-      var i2 = 0, n2 = nodes.length, dx, dy, dz, d22, node2, closest;
+      var i2 = 0, n3 = nodes.length, dx, dy, dz, d22, node2, closest;
       radius *= radius;
-      for (i2 = 0; i2 < n2; ++i2) {
+      for (i2 = 0; i2 < n3; ++i2) {
         node2 = nodes[i2];
         dx = x3 - node2.x;
         dy = y3 - (node2.y || 0);
@@ -101965,14 +101965,14 @@ var init_simulation = __esm({
 function manyBody_default() {
   var nodes, nDim, node2, random, alpha, strength = constant_default(-30), strengths, distanceMin2 = 1, distanceMax2 = Infinity, theta2 = 0.81;
   function force(_2) {
-    var i2, n2 = nodes.length, tree = (nDim === 1 ? binarytree(nodes, x) : nDim === 2 ? quadtree(nodes, x, y) : nDim === 3 ? octree(nodes, x, y, z2) : null).visitAfter(accumulate);
-    for (alpha = _2, i2 = 0; i2 < n2; ++i2) node2 = nodes[i2], tree.visit(apply);
+    var i2, n3 = nodes.length, tree = (nDim === 1 ? binarytree(nodes, x) : nDim === 2 ? quadtree(nodes, x, y) : nDim === 3 ? octree(nodes, x, y, z2) : null).visitAfter(accumulate);
+    for (alpha = _2, i2 = 0; i2 < n3; ++i2) node2 = nodes[i2], tree.visit(apply);
   }
   function initialize() {
     if (!nodes) return;
-    var i2, n2 = nodes.length, node3;
-    strengths = new Array(n2);
-    for (i2 = 0; i2 < n2; ++i2) node3 = nodes[i2], strengths[node3.index] = +strength(node3, i2, nodes);
+    var i2, n3 = nodes.length, node3;
+    strengths = new Array(n3);
+    for (i2 = 0; i2 < n3; ++i2) node3 = nodes[i2], strengths[node3.index] = +strength(node3, i2, nodes);
   }
   function accumulate(treeNode) {
     var strength2 = 0, q2, c3, weight = 0, x3, y3, z4, i2;
@@ -102084,7 +102084,7 @@ function radial_default(radius, x3, y3, z4) {
   if (y3 == null) y3 = 0;
   if (z4 == null) z4 = 0;
   function force(alpha) {
-    for (var i2 = 0, n2 = nodes.length; i2 < n2; ++i2) {
+    for (var i2 = 0, n3 = nodes.length; i2 < n3; ++i2) {
       var node2 = nodes[i2], dx = node2.x - x3 || 1e-6, dy = (node2.y || 0) - y3 || 1e-6, dz = (node2.z || 0) - z4 || 1e-6, r3 = Math.sqrt(dx * dx + dy * dy + dz * dz), k2 = (radiuses[i2] - r3) * strengths[i2] * alpha / r3;
       node2.vx += dx * k2;
       if (nDim > 1) {
@@ -102097,10 +102097,10 @@ function radial_default(radius, x3, y3, z4) {
   }
   function initialize() {
     if (!nodes) return;
-    var i2, n2 = nodes.length;
-    strengths = new Array(n2);
-    radiuses = new Array(n2);
-    for (i2 = 0; i2 < n2; ++i2) {
+    var i2, n3 = nodes.length;
+    strengths = new Array(n3);
+    radiuses = new Array(n3);
+    for (i2 = 0; i2 < n3; ++i2) {
       radiuses[i2] = +radius(nodes[i2], i2, nodes);
       strengths[i2] = isNaN(radiuses[i2]) ? 0 : +strength(nodes[i2], i2, nodes);
     }
@@ -103433,20 +103433,20 @@ var require_ngraph_events = __commonJS({
     }
     function a3(e3) {
       let t2 = /* @__PURE__ */ Object.create(null);
-      return { on: function(n2, r3, f4) {
+      return { on: function(n3, r3, f4) {
         if (typeof r3 != "function") throw new Error("callback is expected to be a function");
-        let o2 = t2[n2];
-        return o2 || (o2 = t2[n2] = []), o2.push({ callback: r3, ctx: f4 }), e3;
-      }, off: function(n2, r3) {
-        if (typeof n2 > "u") return t2 = /* @__PURE__ */ Object.create(null), e3;
-        if (t2[n2]) if (typeof r3 != "function") delete t2[n2];
+        let o2 = t2[n3];
+        return o2 || (o2 = t2[n3] = []), o2.push({ callback: r3, ctx: f4 }), e3;
+      }, off: function(n3, r3) {
+        if (typeof n3 > "u") return t2 = /* @__PURE__ */ Object.create(null), e3;
+        if (t2[n3]) if (typeof r3 != "function") delete t2[n3];
         else {
-          const l2 = t2[n2];
+          const l2 = t2[n3];
           for (let i2 = 0; i2 < l2.length; ++i2) l2[i2].callback === r3 && l2.splice(i2, 1);
         }
         return e3;
-      }, fire: function(n2) {
-        const r3 = t2[n2];
+      }, fire: function(n3) {
+        const r3 = t2[n3];
         if (!r3) return e3;
         let f4;
         arguments.length > 1 && (f4 = Array.prototype.slice.call(arguments, 1));
@@ -103460,7 +103460,7 @@ var require_ngraph_events = __commonJS({
     function s2(e3) {
       if (!e3) throw new Error("Eventify cannot use falsy object as events subject");
       const t2 = ["on", "fire", "off"];
-      for (let n2 = 0; n2 < t2.length; ++n2) if (e3.hasOwnProperty(t2[n2])) throw new Error("Subject cannot be eventified, since it already has property '" + t2[n2] + "'");
+      for (let n3 = 0; n3 < t2.length; ++n3) if (e3.hasOwnProperty(t2[n3])) throw new Error("Subject cannot be eventified, since it already has property '" + t2[n3] + "'");
     }
     module.exports = c3;
   }
@@ -104514,14 +104514,14 @@ var init_debounce = __esm({
 // node_modules/kapsule/dist/kapsule.mjs
 function _arrayLikeToArray(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithHoles(r3) {
   if (Array.isArray(r3)) return r3;
 }
-function _classCallCheck(a3, n2) {
-  if (!(a3 instanceof n2)) throw new TypeError("Cannot call a class as a function");
+function _classCallCheck(a3, n3) {
+  if (!(a3 instanceof n3)) throw new TypeError("Cannot call a class as a function");
 }
 function _createClass(e3, r3, t2) {
   return Object.defineProperty(e3, "prototype", {
@@ -104531,17 +104531,17 @@ function _createClass(e3, r3, t2) {
 function _iterableToArrayLimit(r3, l2) {
   var t2 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
   if (null != t2) {
-    var e3, n2, i2, u2, a3 = [], f4 = true, o2 = false;
+    var e3, n3, i2, u2, a3 = [], f4 = true, o2 = false;
     try {
       if (i2 = (t2 = t2.call(r3)).next, 0 === l2) ;
       else for (; !(f4 = (e3 = i2.call(t2)).done) && (a3.push(e3.value), a3.length !== l2); f4 = true) ;
     } catch (r4) {
-      o2 = true, n2 = r4;
+      o2 = true, n3 = r4;
     } finally {
       try {
         if (!f4 && null != t2.return && (u2 = t2.return(), Object(u2) !== u2)) return;
       } finally {
-        if (o2) throw n2;
+        if (o2) throw n3;
       }
     }
     return a3;
@@ -104784,8 +104784,8 @@ var init_src8 = __esm({
 // node_modules/data-bind-mapper/dist/data-bind-mapper.mjs
 function _arrayLikeToArray2(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithHoles2(r3) {
   if (Array.isArray(r3)) return r3;
@@ -104793,15 +104793,15 @@ function _arrayWithHoles2(r3) {
 function _arrayWithoutHoles(r3) {
   if (Array.isArray(r3)) return _arrayLikeToArray2(r3);
 }
-function _assertClassBrand(e3, t2, n2) {
-  if ("function" == typeof e3 ? e3 === t2 : e3.has(t2)) return arguments.length < 3 ? t2 : n2;
+function _assertClassBrand(e3, t2, n3) {
+  if ("function" == typeof e3 ? e3 === t2 : e3.has(t2)) return arguments.length < 3 ? t2 : n3;
   throw new TypeError("Private element is not present on this object");
 }
 function _checkPrivateRedeclaration(e3, t2) {
   if (t2.has(e3)) throw new TypeError("Cannot initialize the same private elements twice on an object");
 }
-function _classCallCheck2(a3, n2) {
-  if (!(a3 instanceof n2)) throw new TypeError("Cannot call a class as a function");
+function _classCallCheck2(a3, n3) {
+  if (!(a3 instanceof n3)) throw new TypeError("Cannot call a class as a function");
 }
 function _classPrivateFieldGet2(s2, a3) {
   return s2.get(_assertClassBrand(s2, a3));
@@ -104829,17 +104829,17 @@ function _iterableToArray(r3) {
 function _iterableToArrayLimit2(r3, l2) {
   var t2 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
   if (null != t2) {
-    var e3, n2, i2, u2, a3 = [], f4 = true, o2 = false;
+    var e3, n3, i2, u2, a3 = [], f4 = true, o2 = false;
     try {
       if (i2 = (t2 = t2.call(r3)).next, 0 === l2) ;
       else for (; !(f4 = (e3 = i2.call(t2)).done) && (a3.push(e3.value), a3.length !== l2); f4 = true) ;
     } catch (r4) {
-      o2 = true, n2 = r4;
+      o2 = true, n3 = r4;
     } finally {
       try {
         if (!f4 && null != t2.return && (u2 = t2.return(), Object(u2) !== u2)) return;
       } finally {
-        if (o2) throw n2;
+        if (o2) throw n3;
       }
     }
     return a3;
@@ -105051,8 +105051,8 @@ var init_src9 = __esm({
 
 // node_modules/d3-scale-chromatic/src/colors.js
 function colors_default(specifier) {
-  var n2 = specifier.length / 6 | 0, colors = new Array(n2), i2 = 0;
-  while (i2 < n2) colors[i2] = "#" + specifier.slice(i2 * 6, ++i2 * 6);
+  var n3 = specifier.length / 6 | 0, colors = new Array(n3), i2 = 0;
+  while (i2 < n3) colors[i2] = "#" + specifier.slice(i2 * 6, ++i2 * 6);
   return colors;
 }
 var init_colors = __esm({
@@ -105396,17 +105396,17 @@ function boundAlpha(a3) {
   }
   return a3;
 }
-function bound01(n2, max2) {
-  if (isOnePointZero(n2)) n2 = "100%";
-  var processPercent = isPercentage(n2);
-  n2 = Math.min(max2, Math.max(0, parseFloat(n2)));
+function bound01(n3, max2) {
+  if (isOnePointZero(n3)) n3 = "100%";
+  var processPercent = isPercentage(n3);
+  n3 = Math.min(max2, Math.max(0, parseFloat(n3)));
   if (processPercent) {
-    n2 = parseInt(n2 * max2, 10) / 100;
+    n3 = parseInt(n3 * max2, 10) / 100;
   }
-  if (Math.abs(n2 - max2) < 1e-6) {
+  if (Math.abs(n3 - max2) < 1e-6) {
     return 1;
   }
-  return n2 % max2 / parseFloat(max2);
+  return n3 % max2 / parseFloat(max2);
 }
 function clamp01(val) {
   return Math.min(1, Math.max(0, val));
@@ -105414,20 +105414,20 @@ function clamp01(val) {
 function parseIntFromHex(val) {
   return parseInt(val, 16);
 }
-function isOnePointZero(n2) {
-  return typeof n2 == "string" && n2.indexOf(".") != -1 && parseFloat(n2) === 1;
+function isOnePointZero(n3) {
+  return typeof n3 == "string" && n3.indexOf(".") != -1 && parseFloat(n3) === 1;
 }
-function isPercentage(n2) {
-  return typeof n2 === "string" && n2.indexOf("%") != -1;
+function isPercentage(n3) {
+  return typeof n3 === "string" && n3.indexOf("%") != -1;
 }
 function pad2(c3) {
   return c3.length == 1 ? "0" + c3 : "" + c3;
 }
-function convertToPercentage(n2) {
-  if (n2 <= 1) {
-    n2 = n2 * 100 + "%";
+function convertToPercentage(n3) {
+  if (n3 <= 1) {
+    n3 = n3 * 100 + "%";
   }
-  return n2;
+  return n3;
 }
 function convertDecimalToHex(d3) {
   return Math.round(parseFloat(d3) * 255).toString(16);
@@ -106049,8 +106049,8 @@ var init_tinycolor = __esm({
 // node_modules/three-forcegraph/dist/three-forcegraph.mjs
 function _arrayLikeToArray3(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithHoles3(r3) {
   if (Array.isArray(r3)) return r3;
@@ -106058,8 +106058,8 @@ function _arrayWithHoles3(r3) {
 function _arrayWithoutHoles2(r3) {
   if (Array.isArray(r3)) return _arrayLikeToArray3(r3);
 }
-function _assertClassBrand2(e3, t2, n2) {
-  if ("function" == typeof e3 ? e3 === t2 : e3.has(t2)) return arguments.length < 3 ? t2 : n2;
+function _assertClassBrand2(e3, t2, n3) {
+  if ("function" == typeof e3 ? e3 === t2 : e3.has(t2)) return arguments.length < 3 ? t2 : n3;
   throw new TypeError("Private element is not present on this object");
 }
 function _assertThisInitialized(e3) {
@@ -106072,8 +106072,8 @@ function _callSuper(t2, o2, e3) {
 function _checkPrivateRedeclaration2(e3, t2) {
   if (t2.has(e3)) throw new TypeError("Cannot initialize the same private elements twice on an object");
 }
-function _classCallCheck3(a3, n2) {
-  if (!(a3 instanceof n2)) throw new TypeError("Cannot call a class as a function");
+function _classCallCheck3(a3, n3) {
+  if (!(a3 instanceof n3)) throw new TypeError("Cannot call a class as a function");
 }
 function _classPrivateFieldGet22(s2, a3) {
   return s2.get(_assertClassBrand2(s2, a3));
@@ -106114,8 +106114,8 @@ function _get() {
   return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function(e3, t2, r3) {
     var p2 = _superPropBase(e3, t2);
     if (p2) {
-      var n2 = Object.getOwnPropertyDescriptor(p2, t2);
-      return n2.get ? n2.get.call(arguments.length < 3 ? e3 : r3) : n2.value;
+      var n3 = Object.getOwnPropertyDescriptor(p2, t2);
+      return n3.get ? n3.get.call(arguments.length < 3 ? e3 : r3) : n3.value;
     }
   }, _get.apply(null, arguments);
 }
@@ -106152,17 +106152,17 @@ function _iterableToArray2(r3) {
 function _iterableToArrayLimit3(r3, l2) {
   var t2 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
   if (null != t2) {
-    var e3, n2, i2, u2, a3 = [], f4 = true, o2 = false;
+    var e3, n3, i2, u2, a3 = [], f4 = true, o2 = false;
     try {
       if (i2 = (t2 = t2.call(r3)).next, 0 === l2) ;
       else for (; !(f4 = (e3 = i2.call(t2)).done) && (a3.push(e3.value), a3.length !== l2); f4 = true) ;
     } catch (r4) {
-      o2 = true, n2 = r4;
+      o2 = true, n3 = r4;
     } finally {
       try {
         if (!f4 && null != t2.return && (u2 = t2.return(), Object(u2) !== u2)) return;
       } finally {
-        if (o2) throw n2;
+        if (o2) throw n3;
       }
     }
     return a3;
@@ -106528,8 +106528,8 @@ var init_three_forcegraph = __esm({
         },
         dagMode: {
           onChange: function onChange4(dagMode, state2) {
-            !dagMode && state2.forceEngine === "d3" && (state2.graphData.nodes || []).forEach(function(n2) {
-              return n2.fx = n2.fy = n2.fz = void 0;
+            !dagMode && state2.forceEngine === "d3" && (state2.graphData.nodes || []).forEach(function(n3) {
+              return n3.fx = n3.fy = n3.fz = void 0;
             });
           }
         },
@@ -111242,7 +111242,7 @@ ${stackString}`;
     ints = [-1, -2];
     floats = [0.5, 1.5, 1 / 3, 1e-6, 1e6, Math.PI, Math.PI * 2, 1 / Math.PI, 2 / Math.PI, 1 / (Math.PI * 2), Math.PI / 2];
     boolsCacheMap = /* @__PURE__ */ new Map();
-    for (const bool2 of bools) boolsCacheMap.set(bool2, new ConstNode(bool2));
+    for (const bool3 of bools) boolsCacheMap.set(bool3, new ConstNode(bool3));
     uintsCacheMap = /* @__PURE__ */ new Map();
     for (const uint2 of uints) uintsCacheMap.set(uint2, new ConstNode(uint2, "uint"));
     intsCacheMap = new Map([...uintsCacheMap].map((el) => new ConstNode(el.value, "int")));
@@ -111678,9 +111678,9 @@ ${stackString}`;
       }
       if (value && value.isNode === true) {
         let v2 = value.value;
-        value.traverse((n2) => {
-          if (n2.isConstNode === true) {
-            v2 = n2.value;
+        value.traverse((n3) => {
+          if (n3.isConstNode === true) {
+            v2 = n3.value;
           }
         });
         value = v2;
@@ -119838,8 +119838,8 @@ ${builder.flow.code}`;
       const cSample = bicubic(textureNode, vec4(cLodSizeInv, cLodSize), ceil(lodNode));
       return fract(lodNode).mix(fSample, cSample);
     });
-    getVolumeTransmissionRay = /* @__PURE__ */ Fn(([n2, v2, thickness2, ior2, modelMatrix]) => {
-      const refractionVector = vec3(refract(v2.negate(), normalize2(n2), div(1, ior2)));
+    getVolumeTransmissionRay = /* @__PURE__ */ Fn(([n3, v2, thickness2, ior2, modelMatrix]) => {
+      const refractionVector = vec3(refract(v2.negate(), normalize2(n3), div(1, ior2)));
       const modelScale2 = vec3(
         length(modelMatrix[0].xyz),
         length(modelMatrix[1].xyz),
@@ -119891,7 +119891,7 @@ ${builder.flow.code}`;
         { name: "attenuationDistance", type: "float" }
       ]
     });
-    getIBLVolumeRefraction = /* @__PURE__ */ Fn(([n2, v2, roughness2, diffuseColor2, specularColor2, specularF902, position, modelMatrix, viewMatrix, projMatrix, ior2, thickness2, attenuationColor2, attenuationDistance2, dispersion2]) => {
+    getIBLVolumeRefraction = /* @__PURE__ */ Fn(([n3, v2, roughness2, diffuseColor2, specularColor2, specularF902, position, modelMatrix, viewMatrix, projMatrix, ior2, thickness2, attenuationColor2, attenuationDistance2, dispersion2]) => {
       let transmittedLight, transmittance;
       if (dispersion2) {
         transmittedLight = vec4().toVar();
@@ -119900,7 +119900,7 @@ ${builder.flow.code}`;
         const iors = vec3(ior2.sub(halfSpread), ior2, ior2.add(halfSpread));
         Loop({ start: 0, end: 3 }, ({ i: i2 }) => {
           const ior3 = iors.element(i2);
-          const transmissionRay = getVolumeTransmissionRay(n2, v2, thickness2, ior3, modelMatrix);
+          const transmissionRay = getVolumeTransmissionRay(n3, v2, thickness2, ior3, modelMatrix);
           const refractedRayExit = position.add(transmissionRay);
           const ndcPos = projMatrix.mul(viewMatrix.mul(vec4(refractedRayExit, 1)));
           const refractionCoords = vec2(ndcPos.xy.div(ndcPos.w)).toVar();
@@ -119914,7 +119914,7 @@ ${builder.flow.code}`;
         });
         transmittedLight.a.divAssign(3);
       } else {
-        const transmissionRay = getVolumeTransmissionRay(n2, v2, thickness2, ior2, modelMatrix);
+        const transmissionRay = getVolumeTransmissionRay(n3, v2, thickness2, ior2, modelMatrix);
         const refractedRayExit = position.add(transmissionRay);
         const ndcPos = projMatrix.mul(viewMatrix.mul(vec4(refractedRayExit, 1)));
         const refractionCoords = vec2(ndcPos.xy.div(ndcPos.w)).toVar();
@@ -119925,7 +119925,7 @@ ${builder.flow.code}`;
         transmittance = diffuseColor2.mul(volumeAttenuation(length(transmissionRay), attenuationColor2, attenuationDistance2));
       }
       const attenuatedColor = transmittance.rgb.mul(transmittedLight.rgb);
-      const dotNV = n2.dot(v2).clamp();
+      const dotNV = n3.dot(v2).clamp();
       const F2 = vec3(EnvironmentBRDF({
         // n, v, specularColor, specularF90, roughness
         dotNV,
@@ -120093,10 +120093,10 @@ ${builder.flow.code}`;
         if (this.transmission === true) {
           const position = positionWorld;
           const v2 = cameraPosition.sub(positionWorld).normalize();
-          const n2 = normalWorld;
+          const n3 = normalWorld;
           const context2 = builder.context;
           context2.backdrop = getIBLVolumeRefraction(
-            n2,
+            n3,
             v2,
             roughness,
             diffuseContribution,
@@ -120889,8 +120889,8 @@ ${builder.flow.code}`;
         const renderer3 = this._renderer;
         const autoClear = renderer3.autoClear;
         renderer3.autoClear = false;
-        const n2 = this._lodMeshes.length;
-        for (let i2 = 1; i2 < n2; i2++) {
+        const n3 = this._lodMeshes.length;
+        for (let i2 = 1; i2 < n3; i2++) {
           this._applyGGXFilter(cubeUVRenderTarget, i2 - 1, i2);
         }
         renderer3.autoClear = autoClear;
@@ -128301,8 +128301,8 @@ ${builder.flow.code}`;
           return this.isDeterministic(node2.aNode) && (node2.bNode ? this.isDeterministic(node2.bNode) : true);
         } else if (node2.isArrayNode) {
           if (node2.values !== null) {
-            for (const n2 of node2.values) {
-              if (!this.isDeterministic(n2)) {
+            for (const n3 of node2.values) {
+              if (!this.isDeterministic(n3)) {
                 return false;
               }
             }
@@ -138652,16 +138652,16 @@ void main() {
         const srcHeight = renderContext.renderTarget ? renderContext.renderTarget.height : this.backend.getDrawingBufferSize().y;
         if (requireDrawFrameBuffer) {
           const partial2 = x3 !== 0 || y3 !== 0;
-          let mask;
+          let mask2;
           let attachment;
           if (texture2.isDepthTexture === true) {
-            mask = gl.DEPTH_BUFFER_BIT;
+            mask2 = gl.DEPTH_BUFFER_BIT;
             attachment = gl.DEPTH_ATTACHMENT;
             if (renderContext.stencil) {
-              mask |= gl.STENCIL_BUFFER_BIT;
+              mask2 |= gl.STENCIL_BUFFER_BIT;
             }
           } else {
-            mask = gl.COLOR_BUFFER_BIT;
+            mask2 = gl.COLOR_BUFFER_BIT;
             attachment = gl.COLOR_ATTACHMENT0;
           }
           if (partial2) {
@@ -138671,7 +138671,7 @@ void main() {
             state2.bindFramebuffer(gl.DRAW_FRAMEBUFFER, fb);
             state2.bindFramebuffer(gl.READ_FRAMEBUFFER, msaaFrameBuffer);
             const flippedY = srcHeight - y3 - height;
-            gl.blitFramebuffer(x3, flippedY, x3 + width, flippedY + height, x3, flippedY, x3 + width, flippedY + height, mask, gl.NEAREST);
+            gl.blitFramebuffer(x3, flippedY, x3 + width, flippedY + height, x3, flippedY, x3 + width, flippedY + height, mask2, gl.NEAREST);
             state2.bindFramebuffer(gl.READ_FRAMEBUFFER, fb);
             state2.bindTexture(gl.TEXTURE_2D, textureGPU);
             gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, x3, flippedY, width, height);
@@ -138680,7 +138680,7 @@ void main() {
             const fb = gl.createFramebuffer();
             state2.bindFramebuffer(gl.DRAW_FRAMEBUFFER, fb);
             gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, textureGPU, 0);
-            gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, mask, gl.NEAREST);
+            gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, mask2, gl.NEAREST);
             gl.deleteFramebuffer(fb);
           }
         } else {
@@ -140885,10 +140885,10 @@ void main() {
           const renderTargetContextData = this.get(renderTarget);
           if (renderTarget.samples > 0 && renderTargetContextData.msaaFrameBuffer !== void 0 && this._useMultisampledExtension(renderTarget) === false) {
             const fb = renderTargetContextData.framebuffers[renderContext.getCacheKey()];
-            let mask = renderTarget.resolveColorBuffer === false ? 0 : gl.COLOR_BUFFER_BIT;
+            let mask2 = renderTarget.resolveColorBuffer === false ? 0 : gl.COLOR_BUFFER_BIT;
             if (renderTarget.resolveDepthBuffer) {
-              if (renderTarget.depthBuffer) mask |= gl.DEPTH_BUFFER_BIT;
-              if (renderTarget.stencilBuffer && renderTarget.resolveStencilBuffer) mask |= gl.STENCIL_BUFFER_BIT;
+              if (renderTarget.depthBuffer) mask2 |= gl.DEPTH_BUFFER_BIT;
+              if (renderTarget.stencilBuffer && renderTarget.resolveStencilBuffer) mask2 |= gl.STENCIL_BUFFER_BIT;
             }
             const msaaFrameBuffer = renderTargetContextData.msaaFrameBuffer;
             const msaaRenderbuffers = renderTargetContextData.msaaRenderbuffers;
@@ -140911,9 +140911,9 @@ void main() {
               if (renderContext.scissor) {
                 const { x: x3, y: y3, width, height } = renderContext.scissorValue;
                 const viewY = renderContext.height - height - y3;
-                gl.blitFramebuffer(x3, viewY, x3 + width, viewY + height, x3, viewY, x3 + width, viewY + height, mask, gl.NEAREST);
+                gl.blitFramebuffer(x3, viewY, x3 + width, viewY + height, x3, viewY, x3 + width, viewY + height, mask2, gl.NEAREST);
               } else {
-                gl.blitFramebuffer(0, 0, renderContext.width, renderContext.height, 0, 0, renderContext.width, renderContext.height, mask, gl.NEAREST);
+                gl.blitFramebuffer(0, 0, renderContext.width, renderContext.height, 0, 0, renderContext.width, renderContext.height, mask2, gl.NEAREST);
               }
             }
             if (isMRT) {
@@ -151167,12 +151167,12 @@ var init_RenderPass = __esm({
 var require_extends = __commonJS({
   "node_modules/@babel/runtime/helpers/extends.js"(exports, module) {
     function _extends() {
-      return module.exports = _extends = Object.assign ? Object.assign.bind() : function(n2) {
+      return module.exports = _extends = Object.assign ? Object.assign.bind() : function(n3) {
         for (var e3 = 1; e3 < arguments.length; e3++) {
           var t2 = arguments[e3];
-          for (var r3 in t2) ({}).hasOwnProperty.call(t2, r3) && (n2[r3] = t2[r3]);
+          for (var r3 in t2) ({}).hasOwnProperty.call(t2, r3) && (n3[r3] = t2[r3]);
         }
-        return n2;
+        return n3;
       }, module.exports.__esModule = true, module.exports["default"] = module.exports, _extends.apply(null, arguments);
     }
     module.exports = _extends, module.exports.__esModule = true, module.exports["default"] = module.exports;
@@ -151231,7 +151231,7 @@ var require_isNativeFunction = __commonJS({
     function _isNativeFunction(t2) {
       try {
         return -1 !== Function.toString.call(t2).indexOf("[native code]");
-      } catch (n2) {
+      } catch (n3) {
         return "function" == typeof t2;
       }
     }
@@ -151991,10 +151991,10 @@ var require_polished_cjs = __commonJS({
     function _unsupportedIterableToArray7(o2, minLen) {
       if (!o2) return;
       if (typeof o2 === "string") return _arrayLikeToArray7(o2, minLen);
-      var n2 = Object.prototype.toString.call(o2).slice(8, -1);
-      if (n2 === "Object" && o2.constructor) n2 = o2.constructor.name;
-      if (n2 === "Map" || n2 === "Set") return Array.from(o2);
-      if (n2 === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n2)) return _arrayLikeToArray7(o2, minLen);
+      var n3 = Object.prototype.toString.call(o2).slice(8, -1);
+      if (n3 === "Object" && o2.constructor) n3 = o2.constructor.name;
+      if (n3 === "Map" || n3 === "Set") return Array.from(o2);
+      if (n3 === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n3)) return _arrayLikeToArray7(o2, minLen);
     }
     function _arrayLikeToArray7(arr, len) {
       if (len == null || len > arr.length) len = arr.length;
@@ -153641,11 +153641,11 @@ var init_tween_esm = __esm({
       },
       Bezier: function(v2, k2) {
         var b3 = 0;
-        var n2 = v2.length - 1;
+        var n3 = v2.length - 1;
         var pw = Math.pow;
         var bn = Interpolation.Utils.Bernstein;
-        for (var i2 = 0; i2 <= n2; i2++) {
-          b3 += pw(1 - k2, n2 - i2) * pw(k2, i2) * v2[i2] * bn(n2, i2);
+        for (var i2 = 0; i2 <= n3; i2++) {
+          b3 += pw(1 - k2, n3 - i2) * pw(k2, i2) * v2[i2] * bn(n3, i2);
         }
         return b3;
       },
@@ -153673,21 +153673,21 @@ var init_tween_esm = __esm({
         Linear: function(p0, p1, t2) {
           return (p1 - p0) * t2 + p0;
         },
-        Bernstein: function(n2, i2) {
+        Bernstein: function(n3, i2) {
           var fc = Interpolation.Utils.Factorial;
-          return fc(n2) / fc(i2) / fc(n2 - i2);
+          return fc(n3) / fc(i2) / fc(n3 - i2);
         },
         Factorial: /* @__PURE__ */ (function() {
           var a3 = [1];
-          return function(n2) {
+          return function(n3) {
             var s2 = 1;
-            if (a3[n2]) {
-              return a3[n2];
+            if (a3[n3]) {
+              return a3[n3];
             }
-            for (var i2 = n2; i2 > 1; i2--) {
+            for (var i2 = n3; i2 > 1; i2--) {
               s2 *= i2;
             }
-            a3[n2] = s2;
+            a3[n3] = s2;
             return s2;
           };
         })(),
@@ -154232,7 +154232,7 @@ var init_selector = __esm({
 function select_default(select2) {
   if (typeof select2 !== "function") select2 = selector_default(select2);
   for (var groups = this._groups, m3 = groups.length, subgroups = new Array(m3), j2 = 0; j2 < m3; ++j2) {
-    for (var group = groups[j2], n2 = group.length, subgroup = subgroups[j2] = new Array(n2), node2, subnode, i2 = 0; i2 < n2; ++i2) {
+    for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = new Array(n3), node2, subnode, i2 = 0; i2 < n3; ++i2) {
       if ((node2 = group[i2]) && (subnode = select2.call(node2, node2.__data__, i2, group))) {
         if ("__data__" in node2) subnode.__data__ = node2.__data__;
         subgroup[i2] = subnode;
@@ -154281,7 +154281,7 @@ function selectAll_default(select2) {
   if (typeof select2 === "function") select2 = arrayAll(select2);
   else select2 = selectorAll_default(select2);
   for (var groups = this._groups, m3 = groups.length, subgroups = [], parents = [], j2 = 0; j2 < m3; ++j2) {
-    for (var group = groups[j2], n2 = group.length, node2, i2 = 0; i2 < n2; ++i2) {
+    for (var group = groups[j2], n3 = group.length, node2, i2 = 0; i2 < n3; ++i2) {
       if (node2 = group[i2]) {
         subgroups.push(select2.call(node2, node2.__data__, i2, group));
         parents.push(node2);
@@ -154358,7 +154358,7 @@ var init_selectChildren = __esm({
 function filter_default(match) {
   if (typeof match !== "function") match = matcher_default(match);
   for (var groups = this._groups, m3 = groups.length, subgroups = new Array(m3), j2 = 0; j2 < m3; ++j2) {
-    for (var group = groups[j2], n2 = group.length, subgroup = subgroups[j2] = [], node2, i2 = 0; i2 < n2; ++i2) {
+    for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = [], node2, i2 = 0; i2 < n3; ++i2) {
       if ((node2 = group[i2]) && match.call(node2, node2.__data__, i2, group)) {
         subgroup.push(node2);
       }
@@ -154542,7 +154542,7 @@ var init_join = __esm({
 function merge_default(context2) {
   var selection2 = context2.selection ? context2.selection() : context2;
   for (var groups0 = this._groups, groups1 = selection2._groups, m0 = groups0.length, m1 = groups1.length, m3 = Math.min(m0, m1), merges = new Array(m0), j2 = 0; j2 < m3; ++j2) {
-    for (var group0 = groups0[j2], group1 = groups1[j2], n2 = group0.length, merge2 = merges[j2] = new Array(n2), node2, i2 = 0; i2 < n2; ++i2) {
+    for (var group0 = groups0[j2], group1 = groups1[j2], n3 = group0.length, merge2 = merges[j2] = new Array(n3), node2, i2 = 0; i2 < n3; ++i2) {
       if (node2 = group0[i2] || group1[i2]) {
         merge2[i2] = node2;
       }
@@ -154583,7 +154583,7 @@ function sort_default(compare) {
     return a3 && b3 ? compare(a3.__data__, b3.__data__) : !a3 - !b3;
   }
   for (var groups = this._groups, m3 = groups.length, sortgroups = new Array(m3), j2 = 0; j2 < m3; ++j2) {
-    for (var group = groups[j2], n2 = group.length, sortgroup = sortgroups[j2] = new Array(n2), node2, i2 = 0; i2 < n2; ++i2) {
+    for (var group = groups[j2], n3 = group.length, sortgroup = sortgroups[j2] = new Array(n3), node2, i2 = 0; i2 < n3; ++i2) {
       if (node2 = group[i2]) {
         sortgroup[i2] = node2;
       }
@@ -154625,7 +154625,7 @@ var init_nodes = __esm({
 // node_modules/d3-selection/src/selection/node.js
 function node_default() {
   for (var groups = this._groups, j2 = 0, m3 = groups.length; j2 < m3; ++j2) {
-    for (var group = groups[j2], i2 = 0, n2 = group.length; i2 < n2; ++i2) {
+    for (var group = groups[j2], i2 = 0, n3 = group.length; i2 < n3; ++i2) {
       var node2 = group[i2];
       if (node2) return node2;
     }
@@ -154660,7 +154660,7 @@ var init_empty = __esm({
 // node_modules/d3-selection/src/selection/each.js
 function each_default(callback) {
   for (var groups = this._groups, j2 = 0, m3 = groups.length; j2 < m3; ++j2) {
-    for (var group = groups[j2], i2 = 0, n2 = group.length, node2; i2 < n2; ++i2) {
+    for (var group = groups[j2], i2 = 0, n3 = group.length, node2; i2 < n3; ++i2) {
       if (node2 = group[i2]) callback.call(node2, node2.__data__, i2, group);
     }
   }
@@ -154797,12 +154797,12 @@ function ClassList(node2) {
   this._names = classArray(node2.getAttribute("class") || "");
 }
 function classedAdd(node2, names2) {
-  var list = classList(node2), i2 = -1, n2 = names2.length;
-  while (++i2 < n2) list.add(names2[i2]);
+  var list = classList(node2), i2 = -1, n3 = names2.length;
+  while (++i2 < n3) list.add(names2[i2]);
 }
 function classedRemove(node2, names2) {
-  var list = classList(node2), i2 = -1, n2 = names2.length;
-  while (++i2 < n2) list.remove(names2[i2]);
+  var list = classList(node2), i2 = -1, n3 = names2.length;
+  while (++i2 < n3) list.remove(names2[i2]);
 }
 function classedTrue(names2) {
   return function() {
@@ -154822,8 +154822,8 @@ function classedFunction(names2, value) {
 function classed_default(name, value) {
   var names2 = classArray(name + "");
   if (arguments.length < 2) {
-    var list = classList(this.node()), i2 = -1, n2 = names2.length;
-    while (++i2 < n2) if (!list.contains(names2[i2])) return false;
+    var list = classList(this.node()), i2 = -1, n3 = names2.length;
+    while (++i2 < n3) if (!list.contains(names2[i2])) return false;
     return true;
   }
   return this.each((typeof value === "function" ? classedFunction : value ? classedTrue : classedFalse)(names2, value));
@@ -155037,11 +155037,11 @@ function onAdd(typename, value, options) {
   };
 }
 function on_default(typename, value, options) {
-  var typenames = parseTypenames2(typename + ""), i2, n2 = typenames.length, t2;
+  var typenames = parseTypenames2(typename + ""), i2, n3 = typenames.length, t2;
   if (arguments.length < 2) {
     var on = this.node().__on;
     if (on) for (var j2 = 0, m3 = on.length, o2; j2 < m3; ++j2) {
-      for (i2 = 0, o2 = on[j2]; i2 < n2; ++i2) {
+      for (i2 = 0, o2 = on[j2]; i2 < n3; ++i2) {
         if ((t2 = typenames[i2]).type === o2.type && t2.name === o2.name) {
           return o2.value;
         }
@@ -155050,7 +155050,7 @@ function on_default(typename, value, options) {
     return;
   }
   on = value ? onAdd : onRemove;
-  for (i2 = 0; i2 < n2; ++i2) this.each(on(typenames[i2], value, options));
+  for (i2 = 0; i2 < n3; ++i2) this.each(on(typenames[i2], value, options));
   return this;
 }
 var init_on = __esm({
@@ -155092,7 +155092,7 @@ var init_dispatch2 = __esm({
 // node_modules/d3-selection/src/selection/iterator.js
 function* iterator_default() {
   for (var groups = this._groups, j2 = 0, m3 = groups.length; j2 < m3; ++j2) {
-    for (var group = groups[j2], i2 = 0, n2 = group.length, node2; i2 < n2; ++i2) {
+    for (var group = groups[j2], i2 = 0, n3 = group.length, node2; i2 < n3; ++i2) {
       if (node2 = group[i2]) yield node2;
     }
   }
@@ -155247,12 +155247,12 @@ var init_src11 = __esm({
 });
 
 // node_modules/preact/dist/preact.mjs
-function m2(n2, l2) {
-  for (var u2 in l2) n2[u2] = l2[u2];
-  return n2;
+function m2(n3, l2) {
+  for (var u2 in l2) n3[u2] = l2[u2];
+  return n3;
 }
-function b2(n2) {
-  n2 && n2.parentNode && n2.parentNode.removeChild(n2);
+function b2(n3) {
+  n3 && n3.parentNode && n3.parentNode.removeChild(n3);
 }
 function k(l2, u2, t2) {
   var i2, r3, o2, e3 = {};
@@ -155260,105 +155260,105 @@ function k(l2, u2, t2) {
   if (arguments.length > 2 && (e3.children = arguments.length > 3 ? n.call(arguments, 2) : t2), "function" == typeof l2 && null != l2.defaultProps) for (o2 in l2.defaultProps) void 0 === e3[o2] && (e3[o2] = l2.defaultProps[o2]);
   return x2(l2, e3, i2, r3, null);
 }
-function x2(n2, t2, i2, r3, o2) {
-  var e3 = { type: n2, props: t2, key: i2, ref: r3, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == o2 ? ++u : o2, __i: -1, __u: 0 };
+function x2(n3, t2, i2, r3, o2) {
+  var e3 = { type: n3, props: t2, key: i2, ref: r3, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == o2 ? ++u : o2, __i: -1, __u: 0 };
   return null == o2 && null != l.vnode && l.vnode(e3), e3;
 }
-function S(n2) {
-  return n2.children;
+function S(n3) {
+  return n3.children;
 }
-function C(n2, l2) {
-  this.props = n2, this.context = l2;
+function C(n3, l2) {
+  this.props = n3, this.context = l2;
 }
-function $(n2, l2) {
-  if (null == l2) return n2.__ ? $(n2.__, n2.__i + 1) : null;
-  for (var u2; l2 < n2.__k.length; l2++) if (null != (u2 = n2.__k[l2]) && null != u2.__e) return u2.__e;
-  return "function" == typeof n2.type ? $(n2) : null;
+function $(n3, l2) {
+  if (null == l2) return n3.__ ? $(n3.__, n3.__i + 1) : null;
+  for (var u2; l2 < n3.__k.length; l2++) if (null != (u2 = n3.__k[l2]) && null != u2.__e) return u2.__e;
+  return "function" == typeof n3.type ? $(n3) : null;
 }
-function I(n2) {
-  if (n2.__P && n2.__d) {
-    var u2 = n2.__v, t2 = u2.__e, i2 = [], r3 = [], o2 = m2({}, u2);
-    o2.__v = u2.__v + 1, l.vnode && l.vnode(o2), q(n2.__P, o2, u2, n2.__n, n2.__P.namespaceURI, 32 & u2.__u ? [t2] : null, i2, null == t2 ? $(u2) : t2, !!(32 & u2.__u), r3), o2.__v = u2.__v, o2.__.__k[o2.__i] = o2, D(i2, o2, r3), u2.__e = u2.__ = null, o2.__e != t2 && P2(o2);
+function I(n3) {
+  if (n3.__P && n3.__d) {
+    var u2 = n3.__v, t2 = u2.__e, i2 = [], r3 = [], o2 = m2({}, u2);
+    o2.__v = u2.__v + 1, l.vnode && l.vnode(o2), q(n3.__P, o2, u2, n3.__n, n3.__P.namespaceURI, 32 & u2.__u ? [t2] : null, i2, null == t2 ? $(u2) : t2, !!(32 & u2.__u), r3), o2.__v = u2.__v, o2.__.__k[o2.__i] = o2, D(i2, o2, r3), u2.__e = u2.__ = null, o2.__e != t2 && P2(o2);
   }
 }
-function P2(n2) {
-  if (null != (n2 = n2.__) && null != n2.__c) return n2.__e = n2.__c.base = null, n2.__k.some(function(l2) {
-    if (null != l2 && null != l2.__e) return n2.__e = n2.__c.base = l2.__e;
-  }), P2(n2);
+function P2(n3) {
+  if (null != (n3 = n3.__) && null != n3.__c) return n3.__e = n3.__c.base = null, n3.__k.some(function(l2) {
+    if (null != l2 && null != l2.__e) return n3.__e = n3.__c.base = l2.__e;
+  }), P2(n3);
 }
-function A(n2) {
-  (!n2.__d && (n2.__d = true) && i.push(n2) && !H.__r++ || r2 != l.debounceRendering) && ((r2 = l.debounceRendering) || o)(H);
+function A(n3) {
+  (!n3.__d && (n3.__d = true) && i.push(n3) && !H.__r++ || r2 != l.debounceRendering) && ((r2 = l.debounceRendering) || o)(H);
 }
 function H() {
   try {
-    for (var n2, l2 = 1; i.length; ) i.length > l2 && i.sort(e2), n2 = i.shift(), l2 = i.length, I(n2);
+    for (var n3, l2 = 1; i.length; ) i.length > l2 && i.sort(e2), n3 = i.shift(), l2 = i.length, I(n3);
   } finally {
     i.length = H.__r = 0;
   }
 }
-function L(n2, l2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
+function L(n3, l2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
   var s2, h2, p2, v2, y3, _2, g3 = t2 && t2.__k || w, m3 = l2.length;
-  for (f4 = T2(u2, l2, g3, f4, m3), s2 = 0; s2 < m3; s2++) null != (p2 = u2.__k[s2]) && (h2 = -1 != p2.__i && g3[p2.__i] || d2, p2.__i = s2, _2 = q(n2, p2, h2, i2, r3, o2, e3, f4, c3, a3), v2 = p2.__e, p2.ref && h2.ref != p2.ref && (h2.ref && J(h2.ref, null, p2), a3.push(p2.ref, p2.__c || v2, p2)), null == y3 && null != v2 && (y3 = v2), 4 & p2.__u ? (f4 = j(p2, f4, n2), h2.__e && (h2.__e = null)) : "function" == typeof p2.type && void 0 !== _2 ? f4 = _2 : v2 && (f4 = v2.nextSibling), p2.__u &= -7);
+  for (f4 = T2(u2, l2, g3, f4, m3), s2 = 0; s2 < m3; s2++) null != (p2 = u2.__k[s2]) && (h2 = -1 != p2.__i && g3[p2.__i] || d2, p2.__i = s2, _2 = q(n3, p2, h2, i2, r3, o2, e3, f4, c3, a3), v2 = p2.__e, p2.ref && h2.ref != p2.ref && (h2.ref && J(h2.ref, null, p2), a3.push(p2.ref, p2.__c || v2, p2)), null == y3 && null != v2 && (y3 = v2), 4 & p2.__u ? (f4 = j(p2, f4, n3), h2.__e && (h2.__e = null)) : "function" == typeof p2.type && void 0 !== _2 ? f4 = _2 : v2 && (f4 = v2.nextSibling), p2.__u &= -7);
   return u2.__e = y3, f4;
 }
-function T2(n2, l2, u2, t2, i2) {
+function T2(n3, l2, u2, t2, i2) {
   var r3, o2, e3, f4, c3, a3 = u2.length, s2 = a3, h2 = 0;
-  for (n2.__k = new Array(i2), r3 = 0; r3 < i2; r3++) null != (o2 = l2[r3]) && "boolean" != typeof o2 && "function" != typeof o2 ? ("string" == typeof o2 || "number" == typeof o2 || "bigint" == typeof o2 || o2.constructor == String ? o2 = n2.__k[r3] = x2(null, o2, null, null, null) : g(o2) ? o2 = n2.__k[r3] = x2(S, { children: o2 }, null, null, null) : void 0 === o2.constructor && o2.__b > 0 ? o2 = n2.__k[r3] = x2(o2.type, o2.props, o2.key, o2.ref ? o2.ref : null, o2.__v) : n2.__k[r3] = o2, f4 = r3 + h2, o2.__ = n2, o2.__b = n2.__b + 1, e3 = null, -1 != (c3 = o2.__i = O(o2, u2, f4, s2)) && (s2--, (e3 = u2[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i2 > a3 ? h2-- : i2 < a3 && h2++), "function" != typeof o2.type && (o2.__u |= 4)) : c3 != f4 && (c3 == f4 - 1 ? h2-- : c3 == f4 + 1 ? h2++ : (c3 > f4 ? h2-- : h2++, o2.__u |= 4))) : n2.__k[r3] = null;
+  for (n3.__k = new Array(i2), r3 = 0; r3 < i2; r3++) null != (o2 = l2[r3]) && "boolean" != typeof o2 && "function" != typeof o2 ? ("string" == typeof o2 || "number" == typeof o2 || "bigint" == typeof o2 || o2.constructor == String ? o2 = n3.__k[r3] = x2(null, o2, null, null, null) : g(o2) ? o2 = n3.__k[r3] = x2(S, { children: o2 }, null, null, null) : void 0 === o2.constructor && o2.__b > 0 ? o2 = n3.__k[r3] = x2(o2.type, o2.props, o2.key, o2.ref ? o2.ref : null, o2.__v) : n3.__k[r3] = o2, f4 = r3 + h2, o2.__ = n3, o2.__b = n3.__b + 1, e3 = null, -1 != (c3 = o2.__i = O(o2, u2, f4, s2)) && (s2--, (e3 = u2[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i2 > a3 ? h2-- : i2 < a3 && h2++), "function" != typeof o2.type && (o2.__u |= 4)) : c3 != f4 && (c3 == f4 - 1 ? h2-- : c3 == f4 + 1 ? h2++ : (c3 > f4 ? h2-- : h2++, o2.__u |= 4))) : n3.__k[r3] = null;
   if (s2) for (r3 = 0; r3 < a3; r3++) null != (e3 = u2[r3]) && 0 == (2 & e3.__u) && (e3.__e == t2 && (t2 = $(e3)), K2(e3, e3));
   return t2;
 }
-function j(n2, l2, u2) {
+function j(n3, l2, u2) {
   var t2, i2;
-  if ("function" == typeof n2.type) {
-    for (t2 = n2.__k, i2 = 0; t2 && i2 < t2.length; i2++) t2[i2] && (t2[i2].__ = n2, l2 = j(t2[i2], l2, u2));
+  if ("function" == typeof n3.type) {
+    for (t2 = n3.__k, i2 = 0; t2 && i2 < t2.length; i2++) t2[i2] && (t2[i2].__ = n3, l2 = j(t2[i2], l2, u2));
     return l2;
   }
-  n2.__e != l2 && (l2 && n2.type && !l2.parentNode && (l2 = $(n2)), l2 = u2.insertBefore(n2.__e, l2 || null));
+  n3.__e != l2 && (l2 && n3.type && !l2.parentNode && (l2 = $(n3)), l2 = u2.insertBefore(n3.__e, l2 || null));
   do {
     l2 = l2 && l2.nextSibling;
   } while (null != l2 && 8 == l2.nodeType);
   return l2;
 }
-function O(n2, l2, u2, t2) {
-  var i2, r3, o2, e3 = n2.key, f4 = n2.type, c3 = l2[u2], a3 = null != c3 && 0 == (2 & c3.__u);
+function O(n3, l2, u2, t2) {
+  var i2, r3, o2, e3 = n3.key, f4 = n3.type, c3 = l2[u2], a3 = null != c3 && 0 == (2 & c3.__u);
   if (null === c3 && null == e3 || a3 && e3 == c3.key && f4 == c3.type) return u2;
   if (t2 > (a3 ? 1 : 0)) {
     for (i2 = u2 - 1, r3 = u2 + 1; i2 >= 0 || r3 < l2.length; ) if (null != (c3 = l2[o2 = i2 >= 0 ? i2-- : r3++]) && 0 == (2 & c3.__u) && e3 == c3.key && f4 == c3.type) return o2;
   }
   return -1;
 }
-function z3(n2, l2, u2) {
-  "-" == l2[0] ? n2.setProperty(l2, null == u2 ? "" : u2) : n2[l2] = null == u2 ? "" : "number" != typeof u2 || _.test(l2) ? u2 : u2 + "px";
+function z3(n3, l2, u2) {
+  "-" == l2[0] ? n3.setProperty(l2, null == u2 ? "" : u2) : n3[l2] = null == u2 ? "" : "number" != typeof u2 || _.test(l2) ? u2 : u2 + "px";
 }
-function N2(n2, l2, u2, t2, i2) {
+function N2(n3, l2, u2, t2, i2) {
   var r3, o2;
-  n: if ("style" == l2) if ("string" == typeof u2) n2.style.cssText = u2;
+  n: if ("style" == l2) if ("string" == typeof u2) n3.style.cssText = u2;
   else {
-    if ("string" == typeof t2 && (n2.style.cssText = t2 = ""), t2) for (l2 in t2) u2 && l2 in u2 || z3(n2.style, l2, "");
-    if (u2) for (l2 in u2) t2 && u2[l2] == t2[l2] || z3(n2.style, l2, u2[l2]);
+    if ("string" == typeof t2 && (n3.style.cssText = t2 = ""), t2) for (l2 in t2) u2 && l2 in u2 || z3(n3.style, l2, "");
+    if (u2) for (l2 in u2) t2 && u2[l2] == t2[l2] || z3(n3.style, l2, u2[l2]);
   }
-  else if ("o" == l2[0] && "n" == l2[1]) r3 = l2 != (l2 = l2.replace(s, "$1")), o2 = l2.toLowerCase(), l2 = o2 in n2 || "onFocusOut" == l2 || "onFocusIn" == l2 ? o2.slice(2) : l2.slice(2), n2.l || (n2.l = {}), n2.l[l2 + r3] = u2, u2 ? t2 ? u2[a2] = t2[a2] : (u2[a2] = h, n2.addEventListener(l2, r3 ? v : p, r3)) : n2.removeEventListener(l2, r3 ? v : p, r3);
+  else if ("o" == l2[0] && "n" == l2[1]) r3 = l2 != (l2 = l2.replace(s, "$1")), o2 = l2.toLowerCase(), l2 = o2 in n3 || "onFocusOut" == l2 || "onFocusIn" == l2 ? o2.slice(2) : l2.slice(2), n3.l || (n3.l = {}), n3.l[l2 + r3] = u2, u2 ? t2 ? u2[a2] = t2[a2] : (u2[a2] = h, n3.addEventListener(l2, r3 ? v : p, r3)) : n3.removeEventListener(l2, r3 ? v : p, r3);
   else {
     if ("http://www.w3.org/2000/svg" == i2) l2 = l2.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
-    else if ("width" != l2 && "height" != l2 && "href" != l2 && "list" != l2 && "form" != l2 && "tabIndex" != l2 && "download" != l2 && "rowSpan" != l2 && "colSpan" != l2 && "role" != l2 && "popover" != l2 && l2 in n2) try {
-      n2[l2] = null == u2 ? "" : u2;
+    else if ("width" != l2 && "height" != l2 && "href" != l2 && "list" != l2 && "form" != l2 && "tabIndex" != l2 && "download" != l2 && "rowSpan" != l2 && "colSpan" != l2 && "role" != l2 && "popover" != l2 && l2 in n3) try {
+      n3[l2] = null == u2 ? "" : u2;
       break n;
-    } catch (n3) {
+    } catch (n4) {
     }
-    "function" == typeof u2 || (null == u2 || false === u2 && "-" != l2[4] ? n2.removeAttribute(l2) : n2.setAttribute(l2, "popover" == l2 && 1 == u2 ? "" : u2));
+    "function" == typeof u2 || (null == u2 || false === u2 && "-" != l2[4] ? n3.removeAttribute(l2) : n3.setAttribute(l2, "popover" == l2 && 1 == u2 ? "" : u2));
   }
 }
-function V(n2) {
+function V(n3) {
   return function(u2) {
     if (this.l) {
-      var t2 = this.l[u2.type + n2];
+      var t2 = this.l[u2.type + n3];
       if (null == u2[c2]) u2[c2] = h++;
       else if (u2[c2] < t2[a2]) return;
       return t2(l.event ? l.event(u2) : u2);
     }
   };
 }
-function q(n2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
+function q(n3, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
   var s2, h2, p2, v2, y3, d3, _2, k2, x3, M2, I2, P3, A4, H2, T3, j2, F2 = u2.type;
   if (void 0 !== u2.constructor) return null;
   128 & t2.__u && (c3 = !!(32 & t2.__u), o2 = [f4 = u2.__e = t2.__e]), (s2 = l.__b) && s2(u2);
@@ -155368,8 +155368,8 @@ function q(n2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
       if (x3 = u2.props, M2 = F2.prototype && F2.prototype.render, I2 = (s2 = F2.contextType) && i2[s2.__c], P3 = s2 ? I2 ? I2.props.value : s2.__ : i2, t2.__c ? k2 = (p2 = u2.__c = t2.__c).__ = p2.__E : (M2 ? u2.__c = p2 = new F2(x3, P3) : (u2.__c = p2 = new C(x3, P3), p2.constructor = F2, p2.render = Q), I2 && I2.sub(p2), p2.state || (p2.state = {}), p2.__n = i2, v2 = p2.__d = true, p2.__h = [], p2._sb = []), M2 && null == p2.__s && (p2.__s = p2.state), M2 && null != F2.getDerivedStateFromProps && (p2.__s == p2.state && (p2.__s = m2({}, p2.__s)), m2(p2.__s, F2.getDerivedStateFromProps(x3, p2.__s))), y3 = p2.props, d3 = p2.state, p2.__v = u2, v2) M2 && null == F2.getDerivedStateFromProps && null != p2.componentWillMount && p2.componentWillMount(), M2 && null != p2.componentDidMount && p2.__h.push(p2.componentDidMount);
       else {
         if (M2 && null == F2.getDerivedStateFromProps && x3 !== y3 && null != p2.componentWillReceiveProps && p2.componentWillReceiveProps(x3, P3), u2.__v == t2.__v || !p2.__e && null != p2.shouldComponentUpdate && false === p2.shouldComponentUpdate(x3, p2.__s, P3)) {
-          u2.__v != t2.__v && (p2.props = x3, p2.state = p2.__s, p2.__d = false), u2.__e = t2.__e, u2.__k = t2.__k, u2.__k.some(function(n3) {
-            n3 && (n3.__ = u2);
+          u2.__v != t2.__v && (p2.props = x3, p2.state = p2.__s, p2.__d = false), u2.__e = t2.__e, u2.__k = t2.__k, u2.__k.some(function(n4) {
+            n4 && (n4.__ = u2);
           }), w.push.apply(p2.__h, p2._sb), p2._sb = [], p2.__h.length && e3.push(p2), f4 = $(t2);
           break n;
         }
@@ -155377,40 +155377,40 @@ function q(n2, u2, t2, i2, r3, o2, e3, f4, c3, a3) {
           p2.componentDidUpdate(y3, d3, _2);
         });
       }
-      if (p2.context = P3, p2.props = x3, p2.__P = n2, p2.__e = false, A4 = l.__r, H2 = 0, M2) p2.state = p2.__s, p2.__d = false, A4 && A4(u2), s2 = p2.render(p2.props, p2.state, p2.context), w.push.apply(p2.__h, p2._sb), p2._sb = [];
+      if (p2.context = P3, p2.props = x3, p2.__P = n3, p2.__e = false, A4 = l.__r, H2 = 0, M2) p2.state = p2.__s, p2.__d = false, A4 && A4(u2), s2 = p2.render(p2.props, p2.state, p2.context), w.push.apply(p2.__h, p2._sb), p2._sb = [];
       else do {
         p2.__d = false, A4 && A4(u2), s2 = p2.render(p2.props, p2.state, p2.context), p2.state = p2.__s;
       } while (p2.__d && ++H2 < 25);
-      p2.state = p2.__s, null != p2.getChildContext && (i2 = m2(m2({}, i2), p2.getChildContext())), M2 && !v2 && null != p2.getSnapshotBeforeUpdate && (_2 = p2.getSnapshotBeforeUpdate(y3, d3)), T3 = null != s2 && s2.type === S && null == s2.key ? E(s2.props.children) : s2, f4 = L(n2, g(T3) ? T3 : [T3], u2, t2, i2, r3, o2, e3, f4, c3, a3), p2.base = u2.__e, u2.__u &= -161, p2.__h.length && e3.push(p2), k2 && (p2.__E = p2.__ = null);
-    } catch (n3) {
+      p2.state = p2.__s, null != p2.getChildContext && (i2 = m2(m2({}, i2), p2.getChildContext())), M2 && !v2 && null != p2.getSnapshotBeforeUpdate && (_2 = p2.getSnapshotBeforeUpdate(y3, d3)), T3 = null != s2 && s2.type === S && null == s2.key ? E(s2.props.children) : s2, f4 = L(n3, g(T3) ? T3 : [T3], u2, t2, i2, r3, o2, e3, f4, c3, a3), p2.base = u2.__e, u2.__u &= -161, p2.__h.length && e3.push(p2), k2 && (p2.__E = p2.__ = null);
+    } catch (n4) {
       if (e3.length = h2, u2.__v = null, c3 || null != o2) {
-        if (n3.then) {
+        if (n4.then) {
           for (u2.__u |= c3 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
           null != o2 && (o2[o2.indexOf(f4)] = null), u2.__e = f4;
         } else if (null != o2) for (j2 = o2.length; j2--; ) b2(o2[j2]);
       } else u2.__e = t2.__e;
-      null == u2.__k && (u2.__k = t2.__k || []), n3.then || B2(u2), l.__e(n3, u2, t2);
+      null == u2.__k && (u2.__k = t2.__k || []), n4.then || B2(u2), l.__e(n4, u2, t2);
     }
   } else null == o2 && u2.__v == t2.__v ? (u2.__k = t2.__k, u2.__e = t2.__e) : f4 = u2.__e = G(t2.__e, u2, t2, i2, r3, o2, e3, c3, a3);
   return (s2 = l.diffed) && s2(u2), 128 & u2.__u ? void 0 : f4;
 }
-function B2(n2) {
-  n2 && (n2.__c && (n2.__c.__e = true), n2.__k && n2.__k.some(B2));
+function B2(n3) {
+  n3 && (n3.__c && (n3.__c.__e = true), n3.__k && n3.__k.some(B2));
 }
-function D(n2, u2, t2) {
+function D(n3, u2, t2) {
   for (var i2 = 0; i2 < t2.length; i2++) J(t2[i2], t2[++i2], t2[++i2]);
-  l.__c && l.__c(u2, n2), n2.some(function(u3) {
+  l.__c && l.__c(u2, n3), n3.some(function(u3) {
     try {
-      n2 = u3.__h, u3.__h = [], n2.some(function(n3) {
-        n3.call(u3);
+      n3 = u3.__h, u3.__h = [], n3.some(function(n4) {
+        n4.call(u3);
       });
-    } catch (n3) {
-      l.__e(n3, u3.__v);
+    } catch (n4) {
+      l.__e(n4, u3.__v);
     }
   });
 }
-function E(n2) {
-  return "object" != typeof n2 || null == n2 || n2.__b > 0 ? n2 : g(n2) ? n2.map(E) : void 0 !== n2.constructor ? null : m2({}, n2);
+function E(n3) {
+  return "object" != typeof n3 || null == n3 || n3.__b > 0 ? n3 : g(n3) ? n3.map(E) : void 0 !== n3.constructor ? null : m2({}, n3);
 }
 function G(u2, t2, i2, r3, o2, e3, f4, c3, a3) {
   var s2, h2, p2, v2, y3, w4, _2, m3 = i2.props || d2, k2 = t2.props, x3 = t2.type;
@@ -155435,31 +155435,31 @@ function G(u2, t2, i2, r3, o2, e3, f4, c3, a3) {
   }
   return u2;
 }
-function J(n2, u2, t2) {
+function J(n3, u2, t2) {
   try {
-    if ("function" == typeof n2) {
-      var i2 = "function" == typeof n2.__u;
-      i2 && n2.__u(), i2 && null == u2 || (n2.__u = n2(u2));
-    } else n2.current = u2;
-  } catch (n3) {
-    l.__e(n3, t2);
+    if ("function" == typeof n3) {
+      var i2 = "function" == typeof n3.__u;
+      i2 && n3.__u(), i2 && null == u2 || (n3.__u = n3(u2));
+    } else n3.current = u2;
+  } catch (n4) {
+    l.__e(n4, t2);
   }
 }
-function K2(n2, u2, t2) {
+function K2(n3, u2, t2) {
   var i2, r3;
-  if (l.unmount && l.unmount(n2), (i2 = n2.ref) && (i2.current && i2.current != n2.__e || J(i2, null, u2)), null != (i2 = n2.__c)) {
+  if (l.unmount && l.unmount(n3), (i2 = n3.ref) && (i2.current && i2.current != n3.__e || J(i2, null, u2)), null != (i2 = n3.__c)) {
     if (i2.componentWillUnmount) try {
       i2.componentWillUnmount();
-    } catch (n3) {
-      l.__e(n3, u2);
+    } catch (n4) {
+      l.__e(n4, u2);
     }
     i2.base = i2.__P = i2.__n = null;
   }
-  if (i2 = n2.__k) for (r3 = 0; r3 < i2.length; r3++) i2[r3] && K2(i2[r3], u2, t2 || "function" != typeof n2.type);
-  t2 || b2(n2.__e), n2.__c = n2.__ = n2.__e = void 0;
+  if (i2 = n3.__k) for (r3 = 0; r3 < i2.length; r3++) i2[r3] && K2(i2[r3], u2, t2 || "function" != typeof n3.type);
+  t2 || b2(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
 }
-function Q(n2, l2, u2) {
-  return this.constructor(n2, u2);
+function Q(n3, l2, u2) {
+  return this.constructor(n3, u2);
 }
 function R(u2, t2, i2) {
   var r3, o2, e3, f4;
@@ -155477,22 +155477,22 @@ var init_preact = __esm({
     w = [];
     _ = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
     g = Array.isArray;
-    n = w.slice, l = { __e: function(n2, l2, u2, t2) {
+    n = w.slice, l = { __e: function(n3, l2, u2, t2) {
       for (var i2, r3, o2; l2 = l2.__; ) if ((i2 = l2.__c) && !i2.__) try {
-        if ((r3 = i2.constructor) && null != r3.getDerivedStateFromError && (i2.setState(r3.getDerivedStateFromError(n2)), o2 = i2.__d), null != i2.componentDidCatch && (i2.componentDidCatch(n2, t2 || {}), o2 = i2.__d), o2) return i2.__E = i2;
+        if ((r3 = i2.constructor) && null != r3.getDerivedStateFromError && (i2.setState(r3.getDerivedStateFromError(n3)), o2 = i2.__d), null != i2.componentDidCatch && (i2.componentDidCatch(n3, t2 || {}), o2 = i2.__d), o2) return i2.__E = i2;
       } catch (l3) {
-        n2 = l3;
+        n3 = l3;
       }
-      throw n2;
-    } }, u = 0, t = function(n2) {
-      return null != n2 && void 0 === n2.constructor;
-    }, C.prototype.setState = function(n2, l2) {
+      throw n3;
+    } }, u = 0, t = function(n3) {
+      return null != n3 && void 0 === n3.constructor;
+    }, C.prototype.setState = function(n3, l2) {
       var u2;
-      u2 = null != this.__s && this.__s != this.state ? this.__s : this.__s = m2({}, this.state), "function" == typeof n2 && (n2 = n2(m2({}, u2), this.props)), n2 && m2(u2, n2), null != n2 && this.__v && (l2 && this._sb.push(l2), A(this));
-    }, C.prototype.forceUpdate = function(n2) {
-      this.__v && (this.__e = true, n2 && this.__h.push(n2), A(this));
-    }, C.prototype.render = S, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e2 = function(n2, l2) {
-      return n2.__v.__b - l2.__v.__b;
+      u2 = null != this.__s && this.__s != this.state ? this.__s : this.__s = m2({}, this.state), "function" == typeof n3 && (n3 = n3(m2({}, u2), this.props)), n3 && m2(u2, n3), null != n3 && this.__v && (l2 && this._sb.push(l2), A(this));
+    }, C.prototype.forceUpdate = function(n3) {
+      this.__v && (this.__e = true, n3 && this.__h.push(n3), A(this));
+    }, C.prototype.render = S, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e2 = function(n3, l2) {
+      return n3.__v.__b - l2.__v.__b;
     }, H.__r = 0, f3 = Math.random().toString(8), c2 = "__d" + f3, a2 = "__a" + f3, s = /(PointerCapture)$|Capture$/i, h = 0, p = V(false), v = V(true), y2 = 0;
   }
 });
@@ -155500,8 +155500,8 @@ var init_preact = __esm({
 // node_modules/float-tooltip/dist/float-tooltip.mjs
 function _arrayLikeToArray4(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithHoles4(r3) {
   if (Array.isArray(r3)) return r3;
@@ -155517,17 +155517,17 @@ function _defineProperty2(e3, r3, t2) {
 function _iterableToArrayLimit4(r3, l2) {
   var t2 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
   if (null != t2) {
-    var e3, n2, i2, u2, a3 = [], f4 = true, o2 = false;
+    var e3, n3, i2, u2, a3 = [], f4 = true, o2 = false;
     try {
       if (i2 = (t2 = t2.call(r3)).next, 0 === l2) ;
       else for (; !(f4 = (e3 = i2.call(t2)).done) && (a3.push(e3.value), a3.length !== l2); f4 = true) ;
     } catch (r4) {
-      o2 = true, n2 = r4;
+      o2 = true, n3 = r4;
     } finally {
       try {
         if (!f4 && null != t2.return && (u2 = t2.return(), Object(u2) !== u2)) return;
       } finally {
-        if (o2) throw n2;
+        if (o2) throw n3;
       }
     }
     return a3;
@@ -155736,8 +155736,8 @@ function styleInject2(css, ref) {
 }
 function _arrayLikeToArray5(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithHoles5(r3) {
   if (Array.isArray(r3)) return r3;
@@ -155759,17 +155759,17 @@ function _iterableToArray3(r3) {
 function _iterableToArrayLimit5(r3, l2) {
   var t2 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
   if (null != t2) {
-    var e3, n2, i2, u2, a3 = [], f4 = true, o2 = false;
+    var e3, n3, i2, u2, a3 = [], f4 = true, o2 = false;
     try {
       if (i2 = (t2 = t2.call(r3)).next, 0 === l2) ;
       else for (; !(f4 = (e3 = i2.call(t2)).done) && (a3.push(e3.value), a3.length !== l2); f4 = true) ;
     } catch (r4) {
-      o2 = true, n2 = r4;
+      o2 = true, n3 = r4;
     } finally {
       try {
         if (!f4 && null != t2.return && (u2 = t2.return(), Object(u2) !== u2)) return;
       } finally {
-        if (o2) throw n2;
+        if (o2) throw n3;
       }
     }
     return a3;
@@ -156284,8 +156284,8 @@ var init_three_render_objects = __esm({
           });
           state2.camera.aspect = w4 / h2;
           var o2 = state2.viewOffset.slice(0, 2);
-          o2.some(function(n2) {
-            return n2;
+          o2.some(function(n3) {
+            return n3;
           }) && (_state$camera = state2.camera).setViewOffset.apply(_state$camera, [w4, h2].concat(_toConsumableArray3(o2), [w4, h2]));
           state2.camera.updateProjectionMatrix();
         }
@@ -156294,8 +156294,8 @@ var init_three_render_objects = __esm({
           var _w = state2.width;
           var _h = state2.height;
           var _o = state2.viewOffset.slice(0, 2);
-          _o.some(function(n2) {
-            return n2;
+          _o.some(function(n3) {
+            return n3;
           }) ? (_state$camera2 = state2.camera).setViewOffset.apply(_state$camera2, [_w, _h].concat(_toConsumableArray3(_o), [_w, _h])) : state2.camera.clearViewOffset();
         }
         if (changedProps.hasOwnProperty("skyRadius") && state2.skyRadius) {
@@ -156383,8 +156383,8 @@ function styleInject3(css, ref) {
 }
 function _arrayLikeToArray6(r3, a3) {
   (null == a3 || a3 > r3.length) && (a3 = r3.length);
-  for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
-  return n2;
+  for (var e3 = 0, n3 = Array(a3); e3 < a3; e3++) n3[e3] = r3[e3];
+  return n3;
 }
 function _arrayWithoutHoles4(r3) {
   if (Array.isArray(r3)) return _arrayLikeToArray6(r3);
@@ -156870,11 +156870,11 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
       if (cancelled || !host.isConnected) return;
       const c3 = PALETTE[currentTheme()];
       const work = mode === "work";
-      inst = new Ctor(host).width(host.clientWidth).height(host.clientHeight).backgroundColor("rgba(0,0,0,0)").showNavInfo(false).nodeColor((n2) => c3[n2.kind] ?? c3.keyword).nodeOpacity(0.92).nodeResolution(32).nodeRelSize(work ? 3.4 : 2.6).nodeVal((n2) => n2.val ?? 2).nodeLabel((n2) => {
-        const x3 = n2;
+      inst = new Ctor(host).width(host.clientWidth).height(host.clientHeight).backgroundColor("rgba(0,0,0,0)").showNavInfo(false).nodeColor((n3) => c3[n3.kind] ?? c3.keyword).nodeOpacity(0.92).nodeResolution(32).nodeRelSize(work ? 3.4 : 2.6).nodeVal((n3) => n3.val ?? 2).nodeLabel((n3) => {
+        const x3 = n3;
         return `<div style="font:12px Geist,system-ui;background:${c3.bg};color:${c3.fg};padding:6px 9px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:280px">${esc2(x3.name)}${x3.sub ? `<br><span style="opacity:.7">${esc2(x3.sub)}</span>` : ""}<br><span style="opacity:.55;font-family:'Geist Pixel',monospace;font-size:10px;letter-spacing:.08em">${x3.kind.toUpperCase()}${x3.live ? " \xB7 RUNNING" : ""}</span></div>`;
-      }).linkColor(() => work ? c3.wlink : c3.link).linkWidth((l2) => l2.live ? 1.6 : work ? 0.9 : 0.5).linkOpacity(0.95).linkDirectionalArrowLength(work ? 3.5 : 0).linkDirectionalArrowRelPos(1).linkDirectionalArrowColor(() => c3.you).linkDirectionalParticles((l2) => work ? l2.live ? 4 : 1 : 0).linkDirectionalParticleWidth(1.6).linkDirectionalParticleColor(() => c3.steward).linkDirectionalParticleSpeed((l2) => l2.live ? 0.012 : 4e-3).dagMode(work ? "td" : null).dagLevelDistance(work ? 42 : 0).warmupTicks(work ? 40 : 70).cooldownTicks(work ? 140 : 200).cooldownTime(9e3).onNodeClick((n2) => {
-        const x3 = n2;
+      }).linkColor(() => work ? c3.wlink : c3.link).linkWidth((l2) => l2.live ? 1.6 : work ? 0.9 : 0.5).linkOpacity(0.95).linkDirectionalArrowLength(work ? 3.5 : 0).linkDirectionalArrowRelPos(1).linkDirectionalArrowColor(() => c3.you).linkDirectionalParticles((l2) => work ? l2.live ? 4 : 1 : 0).linkDirectionalParticleWidth(1.6).linkDirectionalParticleColor(() => c3.steward).linkDirectionalParticleSpeed((l2) => l2.live ? 0.012 : 4e-3).dagMode(work ? "td" : null).dagLevelDistance(work ? 42 : 0).warmupTicks(work ? 40 : 70).cooldownTicks(work ? 140 : 200).cooldownTime(9e3).onNodeClick((n3) => {
+        const x3 = n3;
         const now4 = Date.now();
         if (now4 - last.current.at < 350 && last.current.id === x3.id) {
           cbs.current.onNodeDoubleClick?.(x3);
@@ -156896,7 +156896,7 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
       ctrl.enableDamping = true;
       if (work) live.onEngineStop(() => live.zoomToFit(700, 140));
       g3.current = live;
-      live.graphData({ nodes: data.current.nodes.map((n2) => ({ ...n2 })), links: data.current.links.map((l2) => ({ ...l2 })) });
+      live.graphData({ nodes: data.current.nodes.map((n3) => ({ ...n3 })), links: data.current.links.map((l2) => ({ ...l2 })) });
       ro = new ResizeObserver(() => {
         if (host.isConnected) live.width(host.clientWidth).height(host.clientHeight);
       });
@@ -156913,8 +156913,8 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
     const inst = g3.current;
     if (!inst) return;
     const cur = inst.graphData();
-    const keep = new Map(cur.nodes.map((n2) => [n2.id, n2]));
-    const merged = nodes.map((n2) => Object.assign(keep.get(n2.id) ?? {}, n2));
+    const keep = new Map(cur.nodes.map((n3) => [n3.id, n3]));
+    const merged = nodes.map((n3) => Object.assign(keep.get(n3.id) ?? {}, n3));
     inst.graphData({ nodes: merged, links: links.map((l2) => ({ ...l2 })) });
     inst.d3ReheatSimulation();
   }, [nodes, links]);
@@ -156931,7 +156931,7 @@ function ForceGraph2({ mode, nodes, links, onNodeDoubleClick, onNodeClick, autoR
       if (!inst) return;
       const c3 = PALETTE[currentTheme()];
       const work = mode === "work";
-      inst.nodeColor((n2) => c3[n2.kind] ?? c3.keyword).linkColor(() => work ? c3.wlink : c3.link);
+      inst.nodeColor((n3) => c3[n3.kind] ?? c3.keyword).linkColor(() => work ? c3.wlink : c3.link);
     });
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     return () => obs.disconnect();
@@ -157137,15 +157137,15 @@ function Work() {
       ] }),
       gate && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "gate-float", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(GateCard, {}) }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "graph-foot", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { className: "btn sm", onClick: () => setFit((n2) => n2 + 1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { className: "btn sm", onClick: () => setFit((n3) => n3 + 1), children: "Fit" }),
         /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("button", { className: `btn sm ${spin2 ? "" : "ghost"}`, onClick: () => setSpin((s2) => !s2), children: "Auto-rotate" }),
         /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "hint", children: "drag to orbit \xB7 scroll to zoom \xB7 hover a node for detail" })
       ] })
     ] })
   ] });
 }
-function trunc2(s2, n2) {
-  return s2.length > n2 ? s2.slice(0, n2 - 1) + "\u2026" : s2;
+function trunc2(s2, n3) {
+  return s2.length > n3 ? s2.slice(0, n3 - 1) + "\u2026" : s2;
 }
 function build(resp, busy, gateAction, stewardName) {
   const nodes = [{ id: "you", name: "You", kind: "you", val: 10 }, { id: "st", name: stewardName, kind: "steward", val: 7 }];
@@ -157205,7 +157205,7 @@ var init_Work = __esm({
 });
 
 // src/specialists/types.ts
-var text, num, area, sel, flag, str, number4, rows, series;
+var text, num, area, sel, flag, str, bool2, number4, rows, series;
 var init_types = __esm({
   "src/specialists/types.ts"() {
     "use strict";
@@ -157218,10 +157218,14 @@ var init_types = __esm({
       const x3 = v2[key];
       return typeof x3 === "string" ? x3 : typeof x3 === "boolean" ? String(x3) : fallback;
     };
+    bool2 = (v2, key, fallback = false) => {
+      const x3 = v2[key];
+      return typeof x3 === "boolean" ? x3 : typeof x3 === "string" ? x3 === "true" : fallback;
+    };
     number4 = (v2, key, fallback = 0) => {
       const raw = str(v2, key).replace(/[,\s_₹%]/g, "");
-      const n2 = Number(raw);
-      return Number.isFinite(n2) ? n2 : fallback;
+      const n3 = Number(raw);
+      return Number.isFinite(n3) ? n3 : fallback;
     };
     rows = (v2, key) => str(v2, key).split(/\r?\n/).map((l2) => l2.trim()).filter((l2) => l2.length > 0 && !l2.startsWith("#"));
     series = (v2, key) => rows(v2, key).flatMap((l2) => l2.split(/[,\s;]+/)).map((c3) => Number(c3)).filter((x3) => Number.isFinite(x3));
@@ -157336,7 +157340,7 @@ var init_frontend = __esm({
   "src/specialists/frontend.ts"() {
     "use strict";
     init_types();
-    clamp255 = (n2) => Math.max(0, Math.min(255, Math.round(n2)));
+    clamp255 = (n3) => Math.max(0, Math.min(255, Math.round(n3)));
     toHex3 = (c3) => `#${[c3.r, c3.g, c3.b].map((x3) => x3.toString(16).padStart(2, "0")).join("")}` + (c3.a < 1 ? Math.round(c3.a * 255).toString(16).padStart(2, "0") : "");
     FRONTEND_TOOLS = [
       {
@@ -157556,10 +157560,10 @@ function nextVersion2(v2, kind) {
       return `${v2.major}.${v2.minor}.${v2.patch + 1}`;
     case "prerelease": {
       const last = v2.pre[v2.pre.length - 1];
-      const n2 = last && /^\d+$/.test(last) ? Number(last) + 1 : 0;
+      const n3 = last && /^\d+$/.test(last) ? Number(last) + 1 : 0;
       const head = last && /^\d+$/.test(last) ? v2.pre.slice(0, -1) : v2.pre;
       const pre = head.length ? head : ["rc"];
-      return `${v2.major}.${v2.minor}.${v2.patch}-${[...pre, n2].join(".")}`;
+      return `${v2.major}.${v2.minor}.${v2.patch}-${[...pre, n3].join(".")}`;
     }
     case "release":
       return `${v2.major}.${v2.minor}.${v2.patch}`;
@@ -157866,7 +157870,7 @@ var init_dev = __esm({
               { value: r3.fields[1] ?? "", label: "hour" },
               { value: `${r3.fields[2]} ${r3.fields[3]} ${r3.fields[4]}`, label: "dom \xB7 month \xB7 dow" }
             ],
-            lines: r3.next.map((n2) => `\xB7 ${n2} UTC`),
+            lines: r3.next.map((n3) => `\xB7 ${n3} UTC`),
             code: r3.next.join("\n"),
             basis: "standard 5-field cron interpreted in UTC; when BOTH day-of-month and day-of-week are restricted the job runs when EITHER matches \u2014 the rule that silently breaks weekly jobs"
           };
@@ -157935,8 +157939,8 @@ function stringEntropyBits(s2) {
   const counts = /* @__PURE__ */ new Map();
   for (const ch of s2) counts.set(ch, (counts.get(ch) ?? 0) + 1);
   let bitsPerChar = 0;
-  for (const n2 of counts.values()) {
-    const p2 = n2 / s2.length;
+  for (const n3 of counts.values()) {
+    const p2 = n3 / s2.length;
     bitsPerChar -= p2 * Math.log2(p2);
   }
   return bitsPerChar * s2.length;
@@ -158310,23 +158314,23 @@ var init_data5 = __esm({
           sel("alpha", "Alpha", ["0.05", "0.01", "0.1"], "0.05")
         ],
         run: (v2) => {
-          const n2 = sampleSize(number4(v2, "baseline", 8), number4(v2, "mde", 10), Number(str2(v2, "power")) || 0.8, Number(str2(v2, "alpha")) || 0.05);
-          if (!Number.isFinite(n2)) return {
+          const n3 = sampleSize(number4(v2, "baseline", 8), number4(v2, "mde", 10), Number(str2(v2, "power")) || 0.8, Number(str2(v2, "alpha")) || 0.05);
+          if (!Number.isFinite(n3)) return {
             headline: "That combination has no finite sample size",
             ok: false,
             basis: "a zero effect or a rate at 0/100% cannot be sized \u2014 check the inputs"
           };
           const perDay = number4(v2, "baseline", 8) > 0 ? null : null;
           return {
-            headline: `${n2.toLocaleString()} trials per arm`,
+            headline: `${n3.toLocaleString()} trials per arm`,
             ok: true,
             kpis: [
-              { value: n2.toLocaleString(), label: "per arm" },
-              { value: (n2 * 2).toLocaleString(), label: "total" },
+              { value: n3.toLocaleString(), label: "per arm" },
+              { value: (n3 * 2).toLocaleString(), label: "total" },
               { value: `${number4(v2, "baseline", 8)}% \u2192 ${(number4(v2, "baseline", 8) * (1 + number4(v2, "mde", 10) / 100)).toFixed(2)}%`, label: "detecting" }
             ],
             lines: [
-              `Detecting a ${number4(v2, "mde", 10)}% relative change on an ${number4(v2, "baseline", 8)}% baseline needs ${n2.toLocaleString()} per arm at ${(Number(str2(v2, "power")) || 0.8) * 100}% power.`,
+              `Detecting a ${number4(v2, "mde", 10)}% relative change on an ${number4(v2, "baseline", 8)}% baseline needs ${n3.toLocaleString()} per arm at ${(Number(str2(v2, "power")) || 0.8) * 100}% power.`,
               "Sample size is a function of the effect you are trying to detect, not of the traffic you happen to have \u2014 if the traffic cannot reach this number in a sensible time, the honest move is to test a bigger change, not a smaller sample.",
               perDay ? "" : "Halving the effect roughly QUADRUPLES the sample: the relationship is inverse-square."
             ].filter(Boolean),
@@ -158869,7 +158873,7 @@ function terminologyDrift(text2) {
     m3.set(w4, (m3.get(w4) ?? 0) + 1);
   }
   for (const [key, forms] of byLower) {
-    if (forms.size > 1 && [...forms.values()].some((n2) => n2 > 1)) {
+    if (forms.size > 1 && [...forms.values()].some((n3) => n3 > 1)) {
       out.push({
         term: key,
         variants: [...forms.entries()].map(([form, count]) => ({ form, count })).sort((a3, b3) => b3.count - a3.count),
@@ -158978,7 +158982,7 @@ const y = 2;
             ok: h2.issues.length === 0,
             kpis: [
               { value: `${h2.h1}`, label: "h1 headings" },
-              { value: counts.map(([lvl, n2]) => `h${lvl}:${n2}`).join(" "), label: "by level" }
+              { value: counts.map(([lvl, n3]) => `h${lvl}:${n3}`).join(" "), label: "by level" }
             ],
             table: h2.issues.length ? { head: ["Line", "Heading", "Issue"], rows: h2.issues.map((i2) => [i2.line ? `${i2.line}` : "\u2014", i2.heading, i2.issue]) } : void 0,
             basis: "heading levels must not skip, anchors must not collide, and a document needs exactly one h1 \u2014 the rules a table of contents and a screen reader both depend on"
@@ -159194,6 +159198,1651 @@ var init_growth = __esm({
         }
       }
     ];
+  }
+});
+
+// src/specialists/systems.ts
+function touchTargets(v2) {
+  const platform = str(v2, "platform", "Apple iOS (44pt)");
+  const min2 = TARGET_MIN[platform] ?? TARGET_MIN["Apple iOS (44pt)"];
+  const spacing = number4(v2, "spacing", 8);
+  const listed = rows(v2, "targets").map((line) => {
+    const [name, size] = line.split(/[,=]/);
+    const m3 = (size ?? "").match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/);
+    return { name: (name ?? "").trim() || "unnamed", w: m3 ? Number(m3[1]) : 0, h: m3 ? Number(m3[2]) : 0 };
+  });
+  if (listed.length === 0) {
+    return {
+      headline: "No targets to measure \u2014 they are read as `name, WxH` in px",
+      ok: false,
+      basis: `${min2.src}. Each line is one control: its name, then its width \xD7 height in pixels.`
+    };
+  }
+  const table = listed.map((t2) => {
+    const shortW = Math.max(0, min2.px - t2.w), shortH = Math.max(0, min2.px - t2.h);
+    const fitsBySpacing = t2.w + spacing >= min2.px || t2.h + spacing >= min2.px;
+    const pass = shortW === 0 && shortH === 0;
+    const verdict = pass ? "meets the floor" : fitsBySpacing ? "undersized \u2014 passes only under the spacing exception" : "undersized";
+    return [t2.name, `${t2.w}\xD7${t2.h}`, `${n2(t2.w * t2.h, 0)}`, pass ? "\u2014" : `${shortW || shortH}px short`, verdict];
+  });
+  const failing = table.filter((r3) => r3[4] !== "meets the floor").length;
+  const smallest = listed.reduce((a3, b3) => a3.w * a3.h <= b3.w * b3.h ? a3 : b3);
+  return {
+    headline: failing === 0 ? `All ${listed.length} targets meet the ${platform} floor` : `${failing} of ${listed.length} targets fall under ${min2.px}px (${platform})`,
+    ok: failing === 0,
+    kpis: [
+      { value: String(listed.length), label: "targets" },
+      { value: String(failing), label: "under the floor" },
+      { value: `${smallest.w}\xD7${smallest.h}`, label: "smallest" }
+    ],
+    table: { head: ["Target", "Size", "Area px\xB2", "Shortfall", "Verdict"], rows: table },
+    lines: [
+      `Minimum applied: ${min2.px}px in both axes. An undersized target is reported against the spacing exception separately, because that exception is conditional and a pass there is not the same claim as a pass without it.`
+    ],
+    basis: `${min2.src}; spacing exception measured at the ${spacing}px you declared. This measures the declared sizes, not the rendered ones.`
+  };
+}
+function appSizeBudget(v2) {
+  const now4 = number4(v2, "current", 42);
+  const target = number4(v2, "target", 60);
+  const growth = number4(v2, "growth", 6);
+  const releases = number4(v2, "releases", 12);
+  if (now4 <= 0 || target <= now4) {
+    return {
+      headline: "The budget must be larger than today's size \u2014 check the two figures",
+      ok: false,
+      basis: "A budget below the current size is already breached at release zero."
+    };
+  }
+  const perRelease = now4 * (growth / 100);
+  const table = [];
+  let size = now4, breached = null;
+  for (let r3 = 1; r3 <= Math.max(1, Math.min(120, releases)); r3 += 1) {
+    size = breached === null ? size + perRelease : size * (1 + growth / 100);
+    if (breached === null && size > target) breached = r3;
+    if (r3 <= 6 || size > target) table.push([`${r3}`, n2(size, 1), size > target ? "over" : "within"]);
+  }
+  const compound = Math.log(target / now4) / Math.log(1 + growth / 100);
+  return {
+    headline: breached === null ? `Within budget for all ${releases} planned releases at +${growth}% each` : `Breaches the ${target} MB budget at release ${breached}`,
+    ok: breached === null,
+    kpis: [
+      { value: `${n2(now4, 1)} MB`, label: "today" },
+      { value: `${n2(perRelease, 2)} MB`, label: "added per release" },
+      { value: Number.isFinite(compound) ? n2(compound, 1) : "\u2014", label: "releases if it compounds" }
+    ],
+    table: { head: ["Release", "Projected size (MB)", "Against budget"], rows: table.slice(0, 10) },
+    lines: [
+      `Linear (fixed addition): breach at release ${breached ?? "\u2014 not within the horizon shown"}.`,
+      `Compounding at ${growth}%: the budget is reached after ${Number.isFinite(compound) ? n2(compound, 1) : "\u2014"} releases. The two projections differ because compound growth is what an asset pipeline does and a fixed line item is what a release train does \u2014 plan against the compounding one and the fixed one is a pleasant surprise.`
+    ],
+    basis: `size(r) = current + r \xD7 (current \xD7 growth%) for the fixed case, current \xD7 (1+growth%)^r for the compounding case. A budget is a number somebody chose; this states when it is crossed, not that crossing it is fatal.`
+  };
+}
+function instanceSizing(v2) {
+  const p95 = number4(v2, "p95", 72);
+  const target = number4(v2, "target", 60);
+  const count = number4(v2, "count", 6);
+  const failover = bool2(v2, "failover", true);
+  if (p95 <= 0 || target <= 0 || count <= 0) {
+    return {
+      headline: "Utilisation, target and instance count must all be positive",
+      ok: false,
+      basis: "Little's-Law-style headroom arithmetic needs a measured utilisation and a stated target."
+    };
+  }
+  const needed = Math.ceil(count * p95 / target);
+  const afterUtil = count * p95 / needed;
+  const failoverOk = !failover || needed - 1 >= 1;
+  return {
+    headline: needed === count ? `Current fleet already meets the ${target}% headroom target` : `Move from ${count} to ${needed} instances to hold ${target}% at p95 when the fleet is busy`,
+    ok: failoverOk,
+    kpis: [
+      { value: `${n2(p95, 1)}%`, label: "measured p95" },
+      { value: `${target}%`, label: "target ceiling" },
+      { value: String(needed), label: "instances needed" },
+      { value: `${n2(afterUtil, 1)}%`, label: "p95 after" }
+    ],
+    lines: [
+      `Each instance would sit at about ${n2(p95 * count / needed, 1)}% at the same p95 load.`,
+      failoverOk ? `With one instance lost, ${needed - 1 > 0 ? `${needed - 1} remain in service` : "none remain"} \u2014 the fleet still serves traffic, tighter.` : "At this size, losing one instance loses the service. That is a statement about redundancy, not about utilisation."
+    ],
+    basis: `instances = ceil(current \xD7 p95 \xF7 target) \u2014 headroom arithmetic against the p95 you supplied, assuming load spreads evenly. It is a capacity estimate, not a scheduler: real fleets are also shaped by per-instance memory ceilings and connection limits.`
+  };
+}
+function egressCost(v2) {
+  const gb = number4(v2, "gb", 4e3);
+  const price = number4(v2, "price", 0.09);
+  const hit = number4(v2, "cache", 85);
+  const cdnPrice = number4(v2, "cdn", 0.02);
+  const gross = gb * price;
+  const originGb = gb * (1 - hit / 100);
+  const cdnGb = gb - originGb;
+  const withCdn = originGb * price + cdnGb * cdnPrice;
+  const saved = gross - withCdn;
+  return {
+    headline: saved > 0 ? `A ${n2(hit, 0)}% cache hit rate moves ${n2(saved, 0)} per month off the origin bill` : "At these prices the cache is not cheaper \u2014 the numbers say so",
+    ok: saved > 0,
+    kpis: [
+      { value: n2(gross, 0), label: "origin, uncached" },
+      { value: n2(withCdn, 0), label: "with the cache" },
+      { value: n2(saved, 0), label: "saved / month" },
+      { value: n2(saved * 12, 0), label: "saved / year" }
+    ],
+    table: {
+      head: ["Path", "GB / month", "Price / GB", "Cost / month"],
+      rows: [
+        ["Origin (uncached)", n2(gb, 0), n2(price, 2), n2(gross, 0)],
+        ["Origin (cache misses)", n2(originGb, 0), n2(price, 2), n2(originGb * price, 0)],
+        ["Cache (hits)", n2(cdnGb, 0), n2(cdnPrice, 2), n2(cdnGb * cdnPrice, 0)]
+      ]
+    },
+    basis: `cost = \u03A3 GB \xD7 price per path, with hits served from the cache and misses from the origin. Prices are the currency you type, not a quoted rate \u2014 the arithmetic holds for any tariff table.`
+  };
+}
+function indexSelectivity(v2) {
+  const total = number4(v2, "rows", 4e6);
+  const distinct = number4(v2, "distinct", 12e3);
+  const matched = number4(v2, "matched", 400);
+  const kind = str(v2, "kind", "btree");
+  if (total <= 0 || distinct <= 0) {
+    return {
+      headline: "Row count and distinct values must both be positive",
+      ok: false,
+      basis: "Selectivity needs the table's row count and the column's distinct-value count."
+    };
+  }
+  const density = distinct / total;
+  const hitFraction = matched / total;
+  const good = hitFraction < 0.05;
+  return {
+    headline: good ? `A ${kind} index on this column should be used \u2014 the predicate matches ${n2(hitFraction * 100, 3)}% of rows` : `The predicate matches ${n2(hitFraction * 100, 1)}% of rows \u2014 a sequential scan is likely cheaper than the index`,
+    ok: good,
+    kpis: [
+      { value: n2(density * 100, 4) + "%", label: "key density" },
+      { value: n2(hitFraction * 100, 3) + "%", label: "rows matched" },
+      { value: String(Math.round(total / distinct)), label: "rows per key" }
+    ],
+    lines: [
+      `Roughly ${Math.round(total / distinct)} rows share each distinct value \u2014 that is the number that decides whether the index saves a scan or adds one.`,
+      `Verdict threshold applied at 5% of the table: below it an indexed lookup usually wins, above it a sequential read usually does, and in between the planner's cost model decides.`
+    ],
+    basis: `density = distinct \xF7 rows; matched fraction = predicate rows \xF7 total rows; the 5% crossover is the conventional planner heuristic, not a guarantee. This reads your numbers \u2014 run the real planner (EXPLAIN ANALYZE) before you ship a migration.`
+  };
+}
+function poolSizing(v2) {
+  const rps = number4(v2, "rps", 300);
+  const ms = number4(v2, "ms", 18);
+  const instances = number4(v2, "instances", 3);
+  const maxConns = number4(v2, "max", 100);
+  const headroom = number4(v2, "headroom", 25);
+  const inFlight = rps * ms / 1e3;
+  const perInstance = Math.ceil(inFlight / instances * (1 + headroom / 100));
+  const total = perInstance * instances;
+  const fits = total <= maxConns;
+  return {
+    headline: fits ? `Pool size ${perInstance} per instance \u2014 ${total} connections against a ${maxConns} ceiling` : `Pool size ${perInstance} per instance would need ${total} connections \u2014 over the ${maxConns} the server allows`,
+    ok: fits,
+    kpis: [
+      { value: n2(inFlight, 1), label: "queries in flight" },
+      { value: String(perInstance), label: "pool per instance" },
+      { value: `${total}/${maxConns}`, label: "connections" }
+    ],
+    lines: [
+      fits ? `Spare headroom: ${maxConns - total} connections remain for migrations, admin and a second service on the same server.` : `Either raise max_connections, add ${Math.max(1, Math.ceil((total - maxConns) / perInstance))} fewer instance(s)' worth of pool, or cut latency \u2014 the connection count is concurrency, not traffic.`
+    ],
+    basis: `Little's Law: concurrent queries = requests/second \xD7 query duration. Pool = that concurrency spread across instances, plus the headroom you asked for. It is the standard three-line calculation and it is the one most often skipped.`
+  };
+}
+function powerBudget(v2) {
+  const capacity = number4(v2, "mah", 2e3);
+  const active = number4(v2, "active", 45);
+  const sleep2 = number4(v2, "sleep", 20);
+  const duty = number4(v2, "duty", 4);
+  if (capacity <= 0 || active <= 0) {
+    return {
+      headline: "Battery capacity and active current must both be positive",
+      ok: false,
+      basis: "Runtime comes from coulomb counting: charge \xF7 average current."
+    };
+  }
+  const d3 = duty / 100;
+  const avg = active * d3 + sleep2 / 1e3 * (1 - d3);
+  const hours = capacity / avg;
+  return {
+    headline: `About ${n2(hours, 1)} hours (${n2(hours / 24, 1)} days) at a ${duty}% duty cycle`,
+    ok: hours >= 24,
+    kpis: [
+      { value: n2(avg, 2), label: "average mA" },
+      { value: n2(hours, 1), label: "hours" },
+      { value: n2(hours / 24, 1), label: "days" }
+    ],
+    table: {
+      head: ["State", "Share of time", "Current", "Charge share"],
+      rows: [
+        ["Active", `${duty}%`, `${active} mA`, `${n2(active * d3 / avg * 100, 1)}%`],
+        ["Sleep", `${n2(100 - duty, 1)}%`, `${sleep2} \xB5A`, `${n2(sleep2 / 1e3 * (1 - d3) / avg * 100, 1)}%`]
+      ]
+    },
+    lines: [
+      `The active state consumes ${n2(active * d3 / avg * 100, 1)}% of the charge while occupying ${duty}% of the time \u2014 that ratio, not the duty cycle, is what a power optimisation actually moves.`,
+      sleep2 > 0 && sleep2 / 1e3 * (1 - d3) > active * d3 ? "Sleep current dominates, which is unusual: check the sleep figure before optimising the active path." : "The active path dominates, so the next gain is in time on, not in sleep current."
+    ],
+    basis: `average current = active \xD7 duty + sleep \xD7 (1 \u2212 duty); runtime = capacity \xF7 average. Static estimate: it assumes the published currents hold and ignores temperature, regulator efficiency and self-discharge.`
+  };
+}
+function timingSlack(v2) {
+  const tasks = rows(v2, "tasks").map((line) => {
+    const [name, wcet, period] = line.split(/[,=]/).map((x3) => (x3 ?? "").trim());
+    return { name: name || "task", wcet: Number(wcet), period: Number(period) };
+  }).filter((t2) => Number.isFinite(t2.wcet) && Number.isFinite(t2.period) && t2.period > 0);
+  if (tasks.length === 0) {
+    return {
+      headline: "No tasks to schedule \u2014 each line is `name, WCET ms, period ms`",
+      ok: false,
+      basis: "Rate-monotonic analysis needs, per task, its worst-case execution time and its period."
+    };
+  }
+  const table = tasks.map((t2) => [t2.name, `${t2.wcet} ms`, `${t2.period} ms`, `${n2(t2.wcet / t2.period * 100, 2)}%`]);
+  const totalU = tasks.reduce((s2, t2) => s2 + t2.wcet / t2.period, 0);
+  const n3 = tasks.length;
+  const bound = n3 * (Math.pow(2, 1 / n3) - 1);
+  const feasible = totalU <= bound;
+  const rt = tasks.reduce((s2, t2) => s2 + t2.wcet, 0);
+  return {
+    headline: feasible ? `Schedulable: utilisation ${n2(totalU, 3)} \u2264 the rate-monotonic bound ${n2(bound, 3)}` : totalU <= 1 ? `Utilisation ${n2(totalU, 3)} exceeds the rate-monotonic bound ${n2(bound, 3)} \u2014 not guaranteed by the bound (and it is above 1 if it is above 1)` : `Overloaded: utilisation ${n2(totalU, 3)} exceeds 1.0 \u2014 no schedule exists for these tasks as declared`,
+    ok: feasible,
+    kpis: [
+      { value: String(n3), label: "tasks" },
+      { value: `${n2(totalU * 100, 1)}%`, label: "utilisation" },
+      { value: `${n2(bound * 100, 1)}%`, label: "RM bound" },
+      { value: feasible ? `${n2((bound - totalU) * 100, 1)}%` : "\u2014", label: "slack to the bound" }
+    ],
+    table: { head: ["Task", "WCET", "Period", "Utilisation"], rows: table },
+    lines: [
+      `Worst-case blocking, if every task runs in priority order: ${n2(rt, 2)} ms before the lowest-priority task completes.`,
+      totalU <= bound ? "Under the bound, rate-monotonic priority assignment (shortest period first) schedules all of these against the deadline." : totalU <= 1 ? "Above the bound the test is inconclusive rather than failing: exact response-time analysis, or a deadline-driven policy, may still schedule it." : "Above 1.0 utilisation there is no schedule at all with these periods and execution times \u2014 the task set itself must change."
+    ],
+    basis: `Liu & Layland (1973): utilisation U = \u03A3 C\u1D62/T\u1D62, rate-monotonic sufficient bound n(2^(1/n) \u2212 1). The bound is SUFFICIENT, not necessary \u2014 passing guarantees schedulability, failing proves nothing either way. Interrupts, blocking and jitter are outside this model.`
+  };
+}
+var n2, TARGET_MIN, SYSTEMS_TOOLS;
+var init_systems = __esm({
+  "src/specialists/systems.ts"() {
+    "use strict";
+    init_types();
+    n2 = (x3, dp = 2) => x3.toFixed(dp);
+    TARGET_MIN = {
+      "Apple iOS (44pt)": { px: 44, src: "Apple Human Interface Guidelines \u2014 44\xD744 pt minimum" },
+      "Android (48dp)": { px: 48, src: "Material Design \u2014 48\xD748 dp minimum touch target" },
+      "WCAG 2.5.8 (24px)": { px: 24, src: "WCAG 2.2 SC 2.5.8 Target Size (Minimum) \u2014 24\xD724 CSS px" }
+    };
+    SYSTEMS_TOOLS = Object.freeze([
+      {
+        id: "touch-targets",
+        domain: "mobile",
+        label: "Touch targets",
+        blurb: "Measure every control against the platform's minimum touch size, spacing exception included.",
+        fields: [
+          sel("platform", "Platform floor", Object.keys(TARGET_MIN), "Apple iOS (44pt)"),
+          num("spacing", "Gap between targets (px)", "8", "used to evaluate the WCAG spacing exception"),
+          area("targets", "Targets \u2014 one per line: name, WxH px", "back, 32x32\nsave, 44x44\nmenu, 24x48")
+        ],
+        run: touchTargets
+      },
+      {
+        id: "app-size-budget",
+        domain: "mobile",
+        label: "App size budget",
+        blurb: "Project release size against a budget, linearly and compounding \u2014 they disagree.",
+        fields: [
+          num("current", "Current download (MB)", "42"),
+          num("target", "Budget (MB)", "60"),
+          num("growth", "Growth per release (%)", "6"),
+          num("releases", "Releases to project", "12")
+        ],
+        run: appSizeBudget
+      },
+      {
+        id: "instance-sizing",
+        domain: "cloud",
+        label: "Instance sizing",
+        blurb: "How many instances hold a headroom target at your measured p95.",
+        fields: [
+          num("p95", "Measured p95 utilisation (%)", "72"),
+          num("target", "Target ceiling (%)", "60"),
+          num("count", "Instances today", "6"),
+          flag("failover", "Keep N+1 failover", true)
+        ],
+        run: instanceSizing
+      },
+      {
+        id: "egress-cost",
+        domain: "cloud",
+        label: "Egress cost",
+        blurb: "What a cache hit rate is actually worth against your own tariff numbers.",
+        fields: [
+          num("gb", "Egress per month (GB)", "4000"),
+          num("price", "Origin price per GB", "0.09"),
+          num("cache", "Cache hit rate (%)", "85"),
+          num("cdn", "Cache price per GB", "0.02")
+        ],
+        run: egressCost
+      },
+      {
+        id: "index-selectivity",
+        domain: "db",
+        label: "Index selectivity",
+        blurb: "Whether an index should be used, from key density and how much the predicate matches.",
+        fields: [
+          num("rows", "Table rows", "4000000"),
+          num("distinct", "Distinct values in the column", "12000"),
+          num("matched", "Rows the predicate matches", "400"),
+          sel("kind", "Index kind", ["btree", "hash", "gin", "gist", "brin"], "btree")
+        ],
+        run: indexSelectivity
+      },
+      {
+        id: "pool-sizing",
+        domain: "db",
+        label: "Connection pool",
+        blurb: "Pool size from Little's Law, checked against the server's connection ceiling.",
+        fields: [
+          num("rps", "Requests per second", "300"),
+          num("ms", "Average query (ms)", "18"),
+          num("instances", "App instances", "3"),
+          num("max", "Server max connections", "100"),
+          num("headroom", "Headroom (%)", "25")
+        ],
+        run: poolSizing
+      },
+      {
+        id: "power-budget",
+        domain: "embedded",
+        label: "Power budget",
+        blurb: "Runtime from capacity, duty cycle and sleep current \u2014 and which state owns the charge.",
+        fields: [
+          num("mah", "Battery (mAh)", "2000"),
+          num("active", "Active current (mA)", "45"),
+          num("sleep", "Sleep current (\xB5A)", "20"),
+          num("duty", "Duty cycle (%)", "4")
+        ],
+        run: powerBudget
+      },
+      {
+        id: "timing-slack",
+        domain: "embedded",
+        label: "Schedulability",
+        blurb: "Rate-monotonic analysis: is this task set schedulable, and how much room is left.",
+        fields: [
+          area("tasks", "Tasks \u2014 one per line: name, WCET ms, period ms", "sense, 2, 20\ncontrol, 5, 50\nlog, 12, 200")
+        ],
+        run: timingSlack
+      }
+    ]);
+  }
+});
+
+// src/specialists/intelligence.ts
+function evalInterval(v2) {
+  const n3 = number4(v2, "n", 500);
+  const wins = number4(v2, "wins", 431);
+  const conf = str(v2, "conf", "95%");
+  const baseline = number4(v2, "baseline", 80);
+  if (n3 <= 0 || wins < 0 || wins > n3) {
+    return {
+      headline: "Trials and successes must be consistent \u2014 0 \u2264 wins \u2264 trials",
+      ok: false,
+      basis: "A proportion needs a sample size and a count inside it."
+    };
+  }
+  const p2 = wins / n3;
+  const z4 = Z[conf] ?? 1.96;
+  const denom = 1 + z4 * z4 / n3;
+  const centre = (p2 + z4 * z4 / (2 * n3)) / denom;
+  const half = z4 / denom * Math.sqrt(p2 * (1 - p2) / n3 + z4 * z4 / (4 * n3 * n3));
+  const lo = Math.max(0, centre - half), hi = Math.min(1, centre + half);
+  const beats = lo > baseline / 100;
+  return {
+    headline: `${n22(p2 * 100, 1)}% on ${n3} examples \u2014 ${conf} interval ${n22(lo * 100, 1)}% to ${n22(hi * 100, 1)}%`,
+    ok: beats,
+    kpis: [
+      { value: `${n22(p2 * 100, 1)}%`, label: "measured" },
+      { value: `${n22(lo * 100, 1)}\u2013${n22(hi * 100, 1)}%`, label: `${conf} interval` },
+      { value: `${n22((hi - lo) * 100, 1)} pts`, label: "width" },
+      { value: String(n3), label: "examples" }
+    ],
+    lines: [
+      beats ? `The whole interval clears the ${baseline}% baseline, so the result is not explained by sampling alone.` : `The interval overlaps the ${baseline}% baseline \u2014 this run does not establish that the system beats it.`,
+      `Halving the interval needs roughly ${Math.ceil(n3 * 4)} examples: precision costs quadratically, and that is the sentence to write before anyone promises a deadline.`
+    ],
+    basis: `Wilson score interval (Wilson 1927) at ${conf}; z = ${z4}. Chosen over the normal approximation because evaluations live at the edges (0% and 100%) where the naive interval is wrong. The interval describes sampling error only \u2014 label noise and a leaking split are separate failures.`
+  };
+}
+function splitAudit(v2) {
+  const total = number4(v2, "rows", 5e4);
+  const train = number4(v2, "train", 80);
+  const val = number4(v2, "val", 10);
+  const test = number4(v2, "test", 10);
+  const dupes = number4(v2, "dupes", 0);
+  const groups = str(v2, "groups", "yes");
+  if (total <= 0 || train + val + test !== 100) {
+    return {
+      headline: "The three splits must add up to 100%",
+      ok: false,
+      basis: "Proportions are of one corpus; they have to sum to the whole of it."
+    };
+  }
+  const problems = [];
+  if (val === 0) problems.push("no validation split \u2014 the test set will end up doing that job");
+  if (test < 10) problems.push(`the test split is ${test}% (${Math.round(total * test / 100)} rows), thin for a confident readout`);
+  if (dupes > 0) problems.push(`${dupes} rows appear in more than one split \u2014 that is leakage, and it inflates the score`);
+  if (groups === "no") problems.push("records are split individually, so rows from the same source can straddle the boundary");
+  const clean = problems.length === 0;
+  return {
+    headline: clean ? `Split is clean: ${train}/${val}/${test} over ${total.toLocaleString()} rows, no duplicates, grouped` : `${problems.length} problem${problems.length === 1 ? "" : "s"} in this split`,
+    ok: clean,
+    kpis: [
+      { value: `${train}/${val}/${test}`, label: "train / val / test" },
+      { value: Math.round(total * test / 100).toLocaleString(), label: "test rows" },
+      { value: String(dupes), label: "duplicate rows" }
+    ],
+    table: {
+      head: ["Split", "Share", "Rows"],
+      rows: [
+        ["train", `${train}%`, Math.round(total * train / 100).toLocaleString()],
+        ["val", `${val}%`, Math.round(total * val / 100).toLocaleString()],
+        ["test", `${test}%`, Math.round(total * test / 100).toLocaleString()]
+      ]
+    },
+    lines: problems.length ? problems.map((p2) => `\xB7 ${p2}.`) : ["No structural fault found in the proportions or the grouping rule."],
+    basis: `Proportion arithmetic plus two stated rules: duplicates across splits are leakage, and records from one source belong on one side of the boundary. Neither rule is arithmetic \u2014 they are conventions this tool refuses to guess about, which is why it asks.`
+  };
+}
+function citationLint(v2) {
+  const body = str(v2, "text");
+  const lines = body.split(/\r?\n/).map((l2) => l2.trim()).filter((l2) => l2.length > 0);
+  const words = body.split(/\s+/).filter(Boolean).length;
+  const refs = (body.match(/\[[0-9,\s–-]+\]|\([A-Z][A-Za-z-]+,\s*\d{4}\)|\bDOI\b|https?:\/\//g) ?? []).length;
+  const numbers = lines.filter((l2) => /\d/.test(l2));
+  const uncitedNumeric = numbers.filter((l2) => !/\[[0-9,\s–-]+\]|\([A-Z][A-Za-z-]+,\s*\d{4}\)|https?:\/\//.test(l2));
+  const perK = words > 0 ? refs / words * 1e3 : 0;
+  const ok2 = uncitedNumeric.length === 0 && refs > 0;
+  return {
+    headline: refs === 0 ? "No citations found at all \u2014 every number here is an unsourced claim" : `${refs} citation${refs === 1 ? "" : "s"} across ${words.toLocaleString()} words; ${uncitedNumeric.length} numeric line${uncitedNumeric.length === 1 ? "" : "s"} without one`,
+    ok: ok2,
+    kpis: [
+      { value: String(refs), label: "citations" },
+      { value: n22(perK, 1), label: "per 1,000 words" },
+      { value: String(uncitedNumeric.length), label: "uncited numeric lines" }
+    ],
+    table: uncitedNumeric.length ? { head: ["Line", "Text"], rows: uncitedNumeric.slice(0, 8).map((l2, i2) => [String(i2 + 1), l2.length > 96 ? l2.slice(0, 95) + "\u2026" : l2]) } : void 0,
+    lines: [
+      "A numeric line with no citation beside it is the single most common fault in a draft that is otherwise sound \u2014 and the cheapest to fix before a reviewer finds it.",
+      refs === 0 ? "Zero citations is not a lint failure with a threshold; it is a different kind of document." : `Citation density ${n22(perK, 1)} per 1,000 words. Density is a habit, not a standard: nothing here says a document needs a fixed rate.`
+    ],
+    basis: "Mechanical pattern counts: bracketed references, (Author, year), DOI and URL forms; a line counts as uncited when it carries a digit and none of those markers. It checks that a citation is PRESENT, never that it supports the claim."
+  };
+}
+function raterAgreement(v2) {
+  const pairs = rows(v2, "pairs").map((l2) => l2.split(/[,;]/).map((x3) => x3.trim())).filter((p2) => p2.length >= 2 && p2[0] && p2[1]);
+  if (pairs.length === 0) {
+    return {
+      headline: "No ratings to compare \u2014 each line is `rater A, rater B`",
+      ok: false,
+      basis: "Agreement needs two labels per item, one from each rater."
+    };
+  }
+  const labels = [...new Set(pairs.flatMap((p2) => [p2[0], p2[1]]))];
+  const n3 = pairs.length;
+  const agree = pairs.filter((p2) => p2[0] === p2[1]).length;
+  const po = agree / n3;
+  const aCounts = /* @__PURE__ */ new Map(), bCounts = /* @__PURE__ */ new Map();
+  for (const [a3, b3] of pairs) {
+    aCounts.set(a3, (aCounts.get(a3) ?? 0) + 1);
+    bCounts.set(b3, (bCounts.get(b3) ?? 0) + 1);
+  }
+  const pe = labels.reduce((s2, l2) => s2 + (aCounts.get(l2) ?? 0) / n3 * ((bCounts.get(l2) ?? 0) / n3), 0);
+  const kappa = pe === 1 ? 1 : (po - pe) / (1 - pe);
+  const reading = kappa >= 0.8 ? "almost perfect" : kappa >= 0.6 ? "substantial" : kappa >= 0.4 ? "moderate" : kappa >= 0.2 ? "fair" : "slight or worse";
+  return {
+    headline: `Raters agree on ${n22(po * 100, 1)}% of ${n3} items \u2014 \u03BA = ${n22(kappa, 3)} (${reading})`,
+    ok: kappa >= 0.6,
+    kpis: [
+      { value: `${n22(po * 100, 1)}%`, label: "observed agreement" },
+      { value: `${n22(pe * 100, 1)}%`, label: "chance agreement" },
+      { value: n22(kappa, 3), label: "Cohen's \u03BA" },
+      { value: String(labels.length), label: "labels used" }
+    ],
+    table: {
+      head: ["Label", "Rater A", "Rater B"],
+      rows: labels.map((l2) => [l2, String(aCounts.get(l2) ?? 0), String(bCounts.get(l2) ?? 0)])
+    },
+    lines: [
+      `${n22(pe * 100, 1)}% agreement is what chance alone would produce with these label frequencies \u2014 \u03BA is the part above it.`,
+      kappa < 0.6 ? "Below substantial: the disagreement is in the instructions or the rubric, not in the raters. Fix the definition before multiplying the labels." : "Substantial agreement: these labels can carry weight in an evaluation."
+    ],
+    basis: `Cohen's \u03BA = (Po \u2212 Pe) \xF7 (1 \u2212 Pe), with Pe from the raters' own marginal distributions. Landis & Koch's verbal bands (0.6 substantial, 0.8 almost perfect) are the convention quoted here, not a law of nature. \u03BA assumes the labels are exhaustive and mutually exclusive.`
+  };
+}
+function loudnessGain(v2) {
+  const measured = number4(v2, "measured", -9.4);
+  const target = number4(v2, "target", -14);
+  const peak = number4(v2, "peak", -0.8);
+  const ceiling = number4(v2, "ceiling", -1);
+  const gain = target - measured;
+  const peakAfter = peak + gain;
+  const over = peakAfter > ceiling;
+  return {
+    headline: over ? `Gain ${n22(gain, 1)} dB would push the true peak to ${n22(peakAfter, 2)} dBTP \u2014 past the ${ceiling} dBTP ceiling` : `Gain ${n22(gain, 1)} dB reaches the ${target} LUFS target with peak at ${n22(peakAfter, 2)} dBTP`,
+    ok: !over,
+    kpis: [
+      { value: `${n22(measured, 1)} LUFS`, label: "measured" },
+      { value: `${n22(gain, 1)} dB`, label: "gain to apply" },
+      { value: `${n22(peakAfter, 2)} dBTP`, label: "peak after" }
+    ],
+    lines: [
+      over ? `The limiter must do ${n22(peakAfter - ceiling, 2)} dB of work. That is a real change to the material, not a normalisation step \u2014 a gentler target or fewer peaky transients is the honest route.` : "No limiting needed: the gain fits under the ceiling with room to spare.",
+      `Peak and loudness move together under linear gain, so this is one subtraction on each \u2014 the two do not need separate passes.`
+    ],
+    basis: `Loudness is integrated LUFS (ITU-R BS.1770 / EBU R128); the \u221214 LUFS target is the streaming convention, not a broadcast standard (EBU R128 broadcast is \u221223 LUFS). True peak is measured against the ceiling you declare; a lossy codec can overshoot a true-peak reading, so keep margin.`
+  };
+}
+function bitrateBudget(v2) {
+  const minutes = number4(v2, "minutes", 42);
+  const target = number4(v2, "target", 800);
+  const audio = number4(v2, "audio", 128);
+  const ladder = series(v2, "ladder");
+  const rungs = (ladder.length ? ladder : [2e3, 3e3, 4500, 6e3, 8e3]).map((kbps) => {
+    const mb = (kbps + audio) * minutes * 60 / 8 / 1e3;
+    return { kbps, mb };
+  });
+  const fits = rungs.filter((r3) => r3.mb <= target);
+  const best = fits.length ? fits[fits.length - 1] : null;
+  return {
+    headline: best ? `Highest rung that fits ${target} MB over ${minutes} min: ${best.kbps} kbps (${n22(best.mb, 0)} MB with ${audio} kbps audio)` : `Nothing on the ladder fits ${target} MB \u2014 the smallest rung alone is ${n22(rungs[0].mb, 0)} MB`,
+    ok: !!best,
+    kpis: [
+      { value: `${n22(rungs[0].mb, 0)}\u2013${n22(rungs[rungs.length - 1].mb, 0)} MB`, label: "ladder range" },
+      { value: String(best?.kbps ?? rungs[0].kbps), label: "rung to ship" },
+      { value: `${minutes} min`, label: "duration" }
+    ],
+    table: { head: ["Rung (kbps)", "Size (MB)", "Against the target"], rows: rungs.map((r3) => [String(r3.kbps), n22(r3.mb, 0), r3.mb <= target ? "fits" : "over"]) },
+    lines: [
+      `Audio is charged against every rung the same way \u2014 ${n22(audio * minutes * 60 / 8 / 1e3, 0)} MB of it \u2014 which is why dropping the video rung is not the same as dropping the size.`,
+      "Size = bitrate \xD7 duration. It is exact arithmetic, and every streaming budget conversation is a variant of it."
+    ],
+    basis: `MB = (video kbps + audio kbps) \xD7 duration(seconds) \xF7 8 \xF7 1000. Variable-bitrate encodes land under this number on average and over it in busy scenes, so leave margin rather than budgeting to the byte.`
+  };
+}
+function spendForecast(v2) {
+  const months = series(v2, "months");
+  const horizon = number4(v2, "horizon", 3);
+  if (months.length < 2) {
+    return {
+      headline: "Give at least two months of spend \u2014 a trend needs two points",
+      ok: false,
+      basis: "Least-squares needs at least two observations; two is already a weak fit and the result says so."
+    };
+  }
+  const n3 = months.length;
+  const xs = months.map((_2, i2) => i2 + 1);
+  const mx = xs.reduce((a3, b3) => a3 + b3, 0) / n3;
+  const my = months.reduce((a3, b3) => a3 + b3, 0) / n3;
+  const sxx = xs.reduce((s2, x3) => s2 + (x3 - mx) ** 2, 0);
+  const sxy = xs.reduce((s2, x3, i2) => s2 + (x3 - mx) * (months[i2] - my), 0);
+  const slope = sxx === 0 ? 0 : sxy / sxx;
+  const intercept = my - slope * mx;
+  const forecast = Array.from({ length: Math.max(1, Math.min(24, horizon)) }, (_2, i2) => n3 + i2 + 1).map((x3) => ({
+    x: x3,
+    y: intercept + slope * x3
+  }));
+  const last = forecast[forecast.length - 1];
+  return {
+    headline: `${slope >= 0 ? "+" : ""}${n22(slope, 0)} per month on a ${n22(my, 0)} average \u2014 ${n22(last.y, 0)} expected in month ${last.x}`,
+    ok: slope <= 0,
+    kpis: [
+      { value: n22(my, 0), label: "average" },
+      { value: `${slope >= 0 ? "+" : ""}${n22(slope, 1)}`, label: "trend / month" },
+      { value: n22(last.y, 0), label: `month ${last.x}` },
+      { value: String(n3), label: "months observed" }
+    ],
+    table: {
+      head: ["Month", "Observed", "Fitted"],
+      rows: [
+        ...months.map((m3, i2) => [String(i2 + 1), n22(m3, 0), n22(intercept + slope * (i2 + 1), 0)]),
+        ...forecast.map((f4) => [String(f4.x), "\u2014", n22(f4.y, 0)])
+      ].slice(0, 14)
+    },
+    lines: [
+      `Trend is ${slope >= 0 ? "upward" : "downward"} at ${n22(Math.abs(slope), 0)} per month across ${n3} months of evidence.`,
+      n3 < 6 ? `${n3} months is a thin basis for a trend and the fit will chase whatever happened last \u2014 treat the projection as one scenario, not a budget.` : "The fit is a straight line through months that were probably not straight; use it as the trend, not as the plan."
+    ],
+    basis: `Ordinary least squares on month index: fitted = mean + slope \xD7 (x \u2212 mean x). A linear fit to spend is a statement that the recent past continues \u2014 it cannot see a contract ending, a migration finishing or a price change.`
+  };
+}
+function anomalyZ(v2) {
+  const values = series(v2, "values");
+  const threshold = number4(v2, "z", 3);
+  if (values.length < 4) {
+    return {
+      headline: "Give at least four observations \u2014 a mean and a spread need them",
+      ok: false,
+      basis: "A z-score compares each day with the mean and standard deviation of the rest; three points make both meaningless."
+    };
+  }
+  const mean2 = values.reduce((a3, b3) => a3 + b3, 0) / values.length;
+  const sd = Math.sqrt(values.reduce((s2, x3) => s2 + (x3 - mean2) ** 2, 0) / (values.length - 1));
+  const flagged = values.map((x3, i2) => ({ i: i2 + 1, x: x3, z: sd === 0 ? 0 : (x3 - mean2) / sd })).filter((r3) => Math.abs(r3.z) >= threshold);
+  return {
+    headline: flagged.length === 0 ? `No day crosses ${threshold}\u03C3 against a mean of ${n22(mean2, 2)}` : `${flagged.length} day${flagged.length === 1 ? "" : "s"} cross ${threshold}\u03C3 \u2014 ${flagged.map((f4) => `day ${f4.i}`).join(", ")}`,
+    ok: flagged.length === 0,
+    kpis: [
+      { value: n22(mean2, 2), label: "mean" },
+      { value: n22(sd, 2), label: "std deviation" },
+      { value: String(flagged.length), label: `\u2265 ${threshold}\u03C3` },
+      { value: String(values.length), label: "days" }
+    ],
+    table: flagged.length ? { head: ["Day", "Value", "z"], rows: flagged.slice(0, 10).map((f4) => [String(f4.i), n22(f4.x, 2), n22(f4.z, 2)]) } : void 0,
+    lines: [
+      `Each flagged day sits at least ${threshold} standard deviations from the mean of the whole window.`,
+      flagged.length ? "A single outlier inflates the mean and the spread together, which hides the next one. Re-run with the flagged day removed before deciding it is the only anomaly." : "No day is unusual against this window. That is a statement about the window, not about the bill."
+    ],
+    basis: `z = (x \u2212 mean) \xF7 sample standard deviation (n \u2212 1), flagged at |z| \u2265 ${threshold}. Daily spend is skewed and autocorrelated (weekends, batch jobs), so a normal-theory threshold is a screen for attention, not a verdict \u2014 and one outlier masks the next.`
+  };
+}
+var n22, Z, INTELLIGENCE_TOOLS;
+var init_intelligence = __esm({
+  "src/specialists/intelligence.ts"() {
+    "use strict";
+    init_types();
+    n22 = (x3, dp = 2) => x3.toFixed(dp);
+    Z = { "80%": 1.2816, "90%": 1.6449, "95%": 1.96, "99%": 2.5758 };
+    INTELLIGENCE_TOOLS = Object.freeze([
+      {
+        id: "eval-interval",
+        domain: "ml",
+        label: "Evaluation interval",
+        blurb: "The interval around an accuracy figure \u2014 never the score on its own.",
+        fields: [
+          num("n", "Examples evaluated", "500"),
+          num("wins", "Correct outcomes", "431"),
+          sel("conf", "Confidence", Object.keys(Z), "95%"),
+          num("baseline", "Baseline to beat (%)", "80")
+        ],
+        run: evalInterval
+      },
+      {
+        id: "split-audit",
+        domain: "ml",
+        label: "Split audit",
+        blurb: "Check train/val/test proportions, duplicates and the grouping rule for leakage.",
+        fields: [
+          num("rows", "Corpus rows", "50000"),
+          num("train", "Train (%)", "80"),
+          num("val", "Validation (%)", "10"),
+          num("test", "Test (%)", "10"),
+          num("dupes", "Rows appearing in more than one split", "0"),
+          sel("groups", "Split by group, not by row", ["yes", "no"], "yes")
+        ],
+        run: splitAudit
+      },
+      {
+        id: "citation-lint",
+        domain: "research",
+        label: "Citation lint",
+        blurb: "Which numeric claims carry no citation \u2014 the cheapest fault to fix before review.",
+        fields: [
+          area("text", "Draft", "Latency improved by 37% in the second run [3].\nCost fell to 12 per unit in March.\nThroughput reached 9,400 rpm (Iyer, 2024).")
+        ],
+        run: citationLint
+      },
+      {
+        id: "rater-agreement",
+        domain: "research",
+        label: "Rater agreement",
+        blurb: "Cohen's \u03BA beside the raw agreement, because chance agreement is not zero.",
+        fields: [
+          area(
+            "pairs",
+            "One item per line: rater A label, rater B label",
+            "pass, pass\nfail, fail\npass, pass\nborderline, fail\nfail, fail\npass, pass\nborderline, borderline\nfail, fail"
+          )
+        ],
+        run: raterAgreement
+      },
+      {
+        id: "loudness-gain",
+        domain: "media",
+        label: "Loudness gain",
+        blurb: "The gain to a target LUFS, and whether the limiter has to work for it.",
+        fields: [
+          num("measured", "Measured integrated loudness (LUFS)", "-9.4"),
+          num("target", "Target (LUFS)", "-14"),
+          num("peak", "Measured true peak (dBTP)", "-0.8"),
+          num("ceiling", "Peak ceiling (dBTP)", "-1")
+        ],
+        run: loudnessGain
+      },
+      {
+        id: "bitrate-budget",
+        domain: "media",
+        label: "Bitrate budget",
+        blurb: "Which rung of an encoding ladder fits a size budget over the runtime.",
+        fields: [
+          num("minutes", "Duration (minutes)", "42"),
+          num("target", "Size budget (MB)", "800"),
+          num("audio", "Audio bitrate (kbps)", "128"),
+          area("ladder", "Video rungs in kbps \u2014 one per line, or comma separated", "2000\n3000\n4500\n6000\n8000")
+        ],
+        run: bitrateBudget
+      },
+      {
+        id: "spend-forecast",
+        domain: "finops",
+        label: "Spend forecast",
+        blurb: "Trend and projection from the months you have, with the fit's honesty stated.",
+        fields: [
+          area("months", "Monthly spend \u2014 one per line", "18400\n19250\n18900\n21100\n22600\n23900"),
+          num("horizon", "Months to project", "3")
+        ],
+        run: spendForecast
+      },
+      {
+        id: "anomaly-z",
+        domain: "finops",
+        label: "Spend anomalies",
+        blurb: "Days that sit far from their own window's mean, with the caveat attached.",
+        fields: [
+          area("values", "Spend per day \u2014 one per line", "410\n398\n425\n402\n418\n24000\n430\n415\n398\n440\n420\n405"),
+          num("z", "Flag at |z| \u2265", "3")
+        ],
+        run: anomalyZ
+      }
+    ]);
+  }
+});
+
+// src/specialists/governance.ts
+function clauseLint(v2) {
+  const body = str(v2, "text");
+  const terms = rows(v2, "terms").map((t2) => t2.toLowerCase()).filter(Boolean);
+  const words = body.split(/\s+/).filter(Boolean).length;
+  if (words === 0) {
+    return {
+      headline: "Nothing to read \u2014 paste the clause or the section",
+      ok: false,
+      basis: "A density needs text; the tool counts terms, it does not interpret clauses."
+    };
+  }
+  const found = terms.map((t2) => {
+    const hits = (body.toLowerCase().match(new RegExp(`\\b${t2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g")) ?? []).length;
+    return { term: t2, hits };
+  }).filter((f4) => f4.hits > 0).sort((a3, b3) => b3.hits - a3.hits);
+  const total = found.reduce((s2, f4) => s2 + f4.hits, 0);
+  const perK = total / words * 1e3;
+  return {
+    headline: total === 0 ? "No vague terms from this list appear \u2014 the drafting is specific about obligations" : `${total} undefined term${total === 1 ? "" : "s"} across ${words.toLocaleString()} words (${n23(perK, 1)} per 1,000)`,
+    ok: total === 0,
+    kpis: [
+      { value: String(total), label: "vague terms" },
+      { value: n23(perK, 1), label: "per 1,000 words" },
+      { value: String(found.length), label: "distinct terms" },
+      { value: String(words), label: "words" }
+    ],
+    table: found.length ? { head: ["Term", "Occurrences"], rows: found.map((f4) => [f4.term, String(f4.hits)]) } : void 0,
+    lines: [
+      "Each hit is a word that will be argued about later unless the contract defines it. The tool does not know which of them matter \u2014 it points at all of them so the lawyer decides.",
+      total > 0 ? `Highest count: \u201C${found[0].term}\u201D at ${found[0].hits}.` : "Nothing to rank."
+    ],
+    basis: "Mechanical word-boundary counts against a term list (yours, or the usual suspects). It neither parses clauses nor gives legal advice; a defined term appearing five times is fine, and an undefined one appearing once may be fatal."
+  };
+}
+function dateTerms(v2) {
+  const start = parseDate(str(v2, "start", "2026-04-01"));
+  const months = number4(v2, "months", 12);
+  const notice = number4(v2, "notice", 90);
+  const renew = bool2(v2, "renew", true);
+  if (start === null) {
+    return {
+      headline: "The effective date must be written as YYYY-MM-DD",
+      ok: false,
+      basis: "Date arithmetic here is calendar arithmetic on an unambiguous date; a locale-ambiguous date is refused rather than guessed."
+    };
+  }
+  const addMonths = (ms, m3) => {
+    const d3 = new Date(ms);
+    const target = new Date(Date.UTC(d3.getUTCFullYear(), d3.getUTCMonth() + m3, 1));
+    const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+    return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), Math.min(d3.getUTCDate(), lastDay));
+  };
+  const expiry = addMonths(start, months);
+  const lastNotice = expiry - notice * day;
+  const today = Date.UTC(2026, 8, 22);
+  const daysToNotice = Math.round((lastNotice - today) / day);
+  return {
+    headline: daysToNotice < 0 ? `The notice window closed ${Math.abs(daysToNotice)} days ago on the dates as typed` : `${daysToNotice} days remain to serve notice \u2014 last day ${iso(lastNotice)}`,
+    ok: daysToNotice >= 0,
+    kpis: [
+      { value: iso(start), label: "effective" },
+      { value: iso(expiry), label: `expiry (+${months}m)` },
+      { value: iso(lastNotice), label: `notice (${notice}d)` },
+      { value: String(daysToNotice), label: "days to decide" }
+    ],
+    table: {
+      head: ["Milestone", "Date", "From"],
+      rows: [
+        ["Effective", iso(start), "as declared"],
+        ["Expiry", iso(expiry), `+${months} months, day-clamped`],
+        ["Last day to notice", iso(lastNotice), `expiry \u2212 ${notice} days`],
+        ["Renewal decision", iso(lastNotice), renew ? "auto-renew unless notice served" : "no auto-renew clause assumed"]
+      ]
+    },
+    lines: [
+      `Adding ${months} months clamps an end-of-month day to the target month's last day (31 Jan + 1 month = 28/29 Feb). That is the common intent and it is not the only convention \u2014 the other one carries into the next month.`,
+      `Calendar days are used throughout. A contract counting BUSINESS days needs a holiday calendar, which this tool does not have and will not invent.`
+    ],
+    basis: "Calendar arithmetic in UTC: expiry = effective + term (day-clamped), last notice day = expiry \u2212 notice period. Whether the boundary day counts inclusive or exclusive is a drafting question this tool surfaces rather than decides."
+  };
+}
+function luhn(digits) {
+  const d3 = digits.replace(/\D/g, "");
+  if (d3.length < 13 || d3.length > 19) return false;
+  let sum = 0, alt = false;
+  for (let i2 = d3.length - 1; i2 >= 0; i2 -= 1) {
+    let x3 = Number(d3[i2]);
+    if (alt) {
+      x3 *= 2;
+      if (x3 > 9) x3 -= 9;
+    }
+    sum += x3;
+    alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+function piiScan(v2) {
+  const body = str(v2, "text");
+  if (!body.trim()) {
+    return {
+      headline: "Nothing to scan \u2014 paste a sample or a document body",
+      ok: false,
+      basis: "The scan reports pattern classes present in text you supply. It never sends the text anywhere."
+    };
+  }
+  const found = PII.map((p2) => {
+    const hits = body.match(p2.re) ?? [];
+    const verified = p2.name === "card-shaped number" ? hits.filter(luhn) : hits;
+    return { ...p2, hits: verified };
+  }).filter((f4) => f4.hits.length > 0);
+  const total = found.reduce((s2, f4) => s2 + f4.hits.length, 0);
+  const table = found.map((f4) => [f4.name, String(f4.hits.length), f4.note, f4.hits.slice(0, 2).map(mask).join(" \xB7 ")]);
+  return {
+    headline: total === 0 ? "No personal-data patterns of these classes appear in the text" : `${total} personal-data pattern${total === 1 ? "" : "s"} across ${found.length} class${found.length === 1 ? "" : "es"}`,
+    ok: total === 0,
+    kpis: [
+      { value: String(total), label: "matches" },
+      { value: String(found.length), label: "classes" },
+      { value: body.length.toLocaleString(), label: "characters read" }
+    ],
+    table: table.length ? { head: ["Class", "Count", "Basis", "Masked sample"], rows: table } : void 0,
+    lines: [
+      "Every sample in the table is masked: the first and last characters only, never the value.",
+      total > 0 ? "A match is a shape, not a finding. A 12-digit number may be an invoice; a date may be a delivery date. What the scan establishes is that the text needs a classification decision by a human before it is copied anywhere." : "Clean against these patterns \u2014 which is not the same as clean. Names, addresses and free-text identifiers have no regex, and this tool will not pretend to one."
+    ],
+    basis: "Pattern classes with published shapes (email, E.164-ish phone, PAN's mask, ISO dates) plus a Luhn checksum for card-shaped digits. Card shapes are only counted when Luhn passes; Aadhaar shapes are counted on shape alone and labelled as such. Nothing is transmitted; the scan runs on this machine."
+  };
+}
+function retentionClock(v2) {
+  const today = parseDate(str(v2, "today", "2026-09-22"));
+  const listed = rows(v2, "items").map((line) => {
+    const [category, created, days] = line.split(/[,=]/).map((x3) => (x3 ?? "").trim());
+    const c3 = parseDate(created ?? "");
+    const d3 = Number(days);
+    return c3 === null || !Number.isFinite(d3) ? null : { category: category || "item", created: c3, days: d3 };
+  }).filter((x3) => x3 !== null);
+  if (today === null || listed.length === 0) {
+    return {
+      headline: "Give the reference date (YYYY-MM-DD) and rows of `category, created, retention days`",
+      ok: false,
+      basis: "A retention clock is creation date plus retention period, measured against a stated reference date."
+    };
+  }
+  const table = listed.map((it) => {
+    const expiry = it.created + it.days * day;
+    const left = Math.round((expiry - today) / day);
+    return { it, expiry, left };
+  }).sort((a3, b3) => a3.left - b3.left);
+  const overdue = table.filter((t2) => t2.left < 0).length;
+  const soon = table.filter((t2) => t2.left >= 0 && t2.left <= 30).length;
+  return {
+    headline: overdue > 0 ? `${overdue} categor${overdue === 1 ? "y is" : "ies are"} past their retention date` : `Nothing overdue \u2014 ${soon} categor${soon === 1 ? "y falls" : "ies fall"} due within 30 days`,
+    ok: overdue === 0,
+    kpis: [
+      { value: String(table.length), label: "categories" },
+      { value: String(overdue), label: "overdue" },
+      { value: String(soon), label: "due \u2264 30 days" },
+      { value: iso(today), label: "as at" }
+    ],
+    table: {
+      head: ["Category", "Created", "Retention", "Expires", "Days"],
+      rows: table.map((t2) => [t2.it.category, iso(t2.it.created), `${t2.it.days}d`, iso(t2.expiry), (t2.left < 0 ? "" : "+") + String(t2.left)])
+    },
+    lines: [
+      "Retention is stated as a period from creation, which is the shape most policies are written in. A policy written from LAST ACTIVITY needs the activity date, not the creation date \u2014 the two clocks differ and the difference is usually the whole argument.",
+      overdue > 0 ? "An overdue category is a deletion that policy says should already have happened; whether it can happen is a legal holdup question this tool does not answer." : "No category is past its date."
+    ],
+    basis: "expiry = created + retention days; days remaining = expiry \u2212 reference date. Plain calendar arithmetic, no business-day adjustment, no legal-hold awareness."
+  };
+}
+function headcountModel(v2) {
+  const current = number4(v2, "current", 40);
+  const hires = number4(v2, "hires", 3);
+  const attrition = number4(v2, "attrition", 1.5);
+  const months = Math.max(1, Math.min(36, number4(v2, "months", 12)));
+  if (current <= 0) {
+    return { headline: "Headcount must be greater than zero", ok: false, basis: "Recurrence modelling needs a starting population." };
+  }
+  const a3 = attrition / 100;
+  let h2 = current;
+  const rowsOut = [];
+  for (let m3 = 1; m3 <= months; m3 += 1) {
+    const leavers = h2 * a3;
+    h2 = h2 - leavers + hires;
+    if (m3 <= 6 || m3 === months) rowsOut.push([String(m3), n23(leavers, 1), String(hires), n23(h2, 1)]);
+  }
+  const net = h2 - current;
+  return {
+    headline: `${current} \u2192 ${n23(h2, 1)} over ${months} months at ${hires} hires and ${attrition}% monthly attrition`,
+    ok: net >= 0,
+    kpis: [
+      { value: `${net >= 0 ? "+" : ""}${n23(net, 1)}`, label: "net change" },
+      { value: n23(h2, 1), label: `month ${months}` },
+      { value: String(hires * months), label: "hires made" },
+      { value: n23(current * a3 * months, 1), label: "approximate leavers" }
+    ],
+    table: { head: ["Month", "Leavers", "Hires", "Headcount"], rows: rowsOut },
+    lines: [
+      `Attrition is charged monthly against the headcount that exists, not the one you planned \u2014 which is why a flat hiring plan still curves downward as the base grows.`,
+      net < 0 ? "This plan shrinks the team. If that is not the intent, the hire rate has to rise before attrition compounds, not after." : "The plan grows the team while replacing its own losses."
+    ],
+    basis: "h(m+1) = h(m) \xD7 (1 \u2212 attrition%) + hires, monthly. Attrition is the rate you typed, applied uniformly \u2014 real attrition clusters in cohorts (new joiners, post-review periods), so treat the curve as a centre line."
+  };
+}
+function compBand(v2) {
+  const min2 = number4(v2, "min", 18e5);
+  const mid = number4(v2, "mid", 24e5);
+  const max2 = number4(v2, "max", 32e5);
+  const offer = number4(v2, "offer", 252e4);
+  if (!(min2 < mid && mid < max2)) {
+    return {
+      headline: "A band runs min < mid < max \u2014 check these three",
+      ok: false,
+      basis: "Position in band needs a well-formed band; a malformed one is refused rather than normalised."
+    };
+  }
+  const inBand = offer >= min2 && offer <= max2;
+  const position = (offer - min2) / (max2 - min2) * 100;
+  const compa = offer / mid * 100;
+  return {
+    headline: inBand ? `The offer sits at ${n23(position, 1)}% of the band \u2014 compa-ratio ${n23(compa, 1)}` : offer < min2 ? `The offer is below the band minimum by ${n23(min2 - offer, 0)}` : `The offer is above the band maximum by ${n23(offer - max2, 0)}`,
+    ok: inBand,
+    kpis: [
+      { value: `${n23(position, 1)}%`, label: "position in band" },
+      { value: n23(compa, 1), label: "compa-ratio" },
+      { value: inBand ? "within band" : "outside band", label: "fit" }
+    ],
+    table: {
+      head: ["Point", "Value", "Offer vs point"],
+      rows: [
+        ["Minimum", min2.toLocaleString("en-IN"), `${n23((offer - min2) / min2 * 100, 1)}%`],
+        ["Midpoint", mid.toLocaleString("en-IN"), `${n23(compa - 100, 1)}%`],
+        ["Maximum", max2.toLocaleString("en-IN"), `${n23((offer - max2) / max2 * 100, 1)}%`]
+      ]
+    },
+    lines: [
+      "Position in band is cumulative and compa-ratio is relative to the midpoint; they answer different questions and a band review asked for one is not answered by the other.",
+      inBand ? "Within the band. Whether it is FAIR within the band is a policy question \u2014 the arithmetic cannot see the peers." : "Outside the band: that is an exception path, not a compa-ratio discussion."
+    ],
+    basis: "compa-ratio = offer \xF7 midpoint \xD7 100; position = (offer \u2212 min) \xF7 (max \u2212 min) \xD7 100. Both are standard. Neither accounts for tenure, location differentials or equity \u2014 the tool reports position, not fairness, and it will not guess at either."
+  };
+}
+function pipelineCoverage(v2) {
+  const quota = number4(v2, "quota", 12e6);
+  const target = number4(v2, "coverage", 3.5);
+  const listed = rows(v2, "pipeline").map((line) => {
+    const [stage, value, win] = line.split(/[,=]/).map((x3) => (x3 ?? "").trim());
+    return { stage: stage || "stage", value: Number(String(value).replace(/[,\s₹]/g, "")), win: Number(win) };
+  }).filter((s2) => Number.isFinite(s2.value) && Number.isFinite(s2.win) && s2.value > 0);
+  if (listed.length === 0 || quota <= 0) {
+    return {
+      headline: "Give a quota and rows of `stage, value, win rate %`",
+      ok: false,
+      basis: "Coverage is weighted pipeline against the quota it has to cover."
+    };
+  }
+  const weighted = listed.reduce((s2, x3) => s2 + x3.value * x3.win / 100, 0);
+  const raw = listed.reduce((s2, x3) => s2 + x3.value, 0);
+  const coverage = weighted / quota;
+  const gap = Math.max(0, quota - weighted);
+  const needed = gap > 0 ? gap / (weighted / raw || 1) : 0;
+  return {
+    headline: coverage >= target ? `Weighted coverage ${n23(coverage, 2)}\xD7 against a ${target}\xD7 convention \u2014 ${n23(weighted, 0)} of ${n23(quota, 0)}` : `Weighted coverage ${n23(coverage, 2)}\xD7 is under the ${target}\xD7 convention \u2014 ${n23(gap, 0)} short`,
+    ok: coverage >= target,
+    kpis: [
+      { value: n23(weighted, 0), label: "weighted pipeline" },
+      { value: `${n23(coverage, 2)}\xD7`, label: "coverage" },
+      { value: gap > 0 ? n23(gap, 0) : "met", label: "weighted gap" },
+      { value: n23(raw, 0), label: "raw pipeline" }
+    ],
+    table: {
+      head: ["Stage", "Value", "Win rate", "Weighted"],
+      rows: listed.map((x3) => [x3.stage, n23(x3.value, 0), `${x3.win}%`, n23(x3.value * x3.win / 100, 0)])
+    },
+    lines: [
+      `Raw pipeline is ${n23(raw / quota, 2)}\xD7 the quota; the win rates take it to ${n23(coverage, 2)}\xD7. The gap between those two numbers is the entire reason coverage is weighted.`,
+      gap > 0 ? `To close it with this stage mix you need roughly ${n23(needed, 0)} of additional raw pipeline \u2014 or a higher win rate on what exists, which is not arithmetic.` : "Coverage meets the convention. Whether the win rates themselves are honest is a separate question, and the one worth asking next."
+    ],
+    basis: "weighted = \u03A3 value \xD7 win rate; coverage = weighted \xF7 quota. The 3\u20134\xD7 convention quoted on the surface is a habit, not a law \u2014 the number that matters is whether the win rates came from closed history or from optimism."
+  };
+}
+function slaClock(v2) {
+  const targets = { P1: 1, P2: 4, P3: 24, P4: 72 };
+  const listed = rows(v2, "tickets").map((line) => {
+    const [id, priority, opened, responded] = line.split(/[,=]/).map((x3) => (x3 ?? "").trim());
+    const t0 = opened ? Date.parse(opened) : NaN;
+    const t1 = responded ? Date.parse(responded) : NaN;
+    return { id: id || "ticket", priority: priority || "P3", t0, t1 };
+  }).filter((t2) => Number.isFinite(t2.t0));
+  if (listed.length === 0) {
+    return {
+      headline: "Give rows of `id, priority, opened, first response` (ISO timestamps)",
+      ok: false,
+      basis: "The clock needs an opening time and a first-response time per ticket."
+    };
+  }
+  const table = listed.map((t2) => {
+    const hours = Number.isFinite(t2.t1) ? (t2.t1 - t2.t0) / 36e5 : null;
+    const limit = targets[t2.priority] ?? 24;
+    const breach = hours === null ? true : hours > limit;
+    return [t2.id, t2.priority, hours === null ? "no response" : `${n23(hours, 2)}h`, `${limit}h`, breach ? hours === null ? "open, past target" : "breached" : "met"];
+  });
+  const breaches = table.filter((r3) => r3[4] !== "met").length;
+  return {
+    headline: breaches === 0 ? `All ${table.length} tickets responded inside their target` : `${breaches} of ${table.length} tickets missed their first-response target`,
+    ok: breaches === 0,
+    kpis: [
+      { value: String(table.length), label: "tickets" },
+      { value: String(breaches), label: "breached" },
+      { value: `${n23((table.length - breaches) / table.length * 100, 1)}%`, label: "attainment" }
+    ],
+    table: { head: ["Ticket", "Priority", "First response", "Target", "Verdict"], rows: table },
+    lines: [
+      "Targets applied: P1 1h, P2 4h, P3 24h, P4 72h \u2014 the common shape, and yours may differ; change the priorities and the verdicts follow.",
+      "Wall-clock hours. A contract measuring business hours needs a calendar and a holiday list, neither of which this tool invents."
+    ],
+    basis: "first response = responded \u2212 opened, compared with the target for the priority. Timestamps are read as ISO; a ticket with no response is treated as still inside (or past) the clock, never as met."
+  };
+}
+var n23, day, iso, parseDate, VAGUE_DEFAULT, PII, mask, GOVERNANCE_TOOLS;
+var init_governance = __esm({
+  "src/specialists/governance.ts"() {
+    "use strict";
+    init_types();
+    n23 = (x3, dp = 2) => x3.toFixed(dp);
+    day = 864e5;
+    iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+    parseDate = (s2) => {
+      const m3 = s2.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m3) return null;
+      const t2 = Date.UTC(Number(m3[1]), Number(m3[2]) - 1, Number(m3[3]));
+      return Number.isFinite(t2) ? t2 : null;
+    };
+    VAGUE_DEFAULT = "reasonable efforts\nmaterial\npromptly\nas appropriate\nsole discretion\nfrom time to time\nsubstantially\nbest efforts";
+    PII = [
+      { name: "email address", re: /[\w.+-]+@[\w-]+\.[\w.-]{2,}/g, note: "pattern" },
+      { name: "phone (international)", re: /\+\d[\d\s\-()]{7,}\d/g, note: "pattern" },
+      { name: "PAN (India)", re: /\b[A-Z]{5}\d{4}[A-Z]\b/g, note: "pattern + 4th-character holder type" },
+      { name: "Aadhaar-shaped 12 digits", re: /\b\d{4}\s?\d{4}\s?\d{4}\b/g, note: "shape only \u2014 not checksum-verified" },
+      { name: "card-shaped number", re: /\b(?:\d[ -]?){13,19}\b/g, note: "shape + Luhn checked below" },
+      { name: "IPv4 address", re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, note: "pattern" },
+      { name: "date of birth (ISO)", re: /\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b/g, note: "pattern \u2014 a date is PII only in context" }
+    ];
+    mask = (s2) => s2.length <= 4 ? "\u2022".repeat(s2.length) : `${s2.slice(0, 2)}${"\u2022".repeat(Math.min(10, s2.length - 4))}${s2.slice(-2)}`;
+    GOVERNANCE_TOOLS = Object.freeze([
+      {
+        id: "clause-lint",
+        domain: "legal",
+        label: "Clause terms",
+        blurb: "Density of undefined terms a contract will be argued over later.",
+        fields: [
+          area("text", "Clause or section", "The Supplier shall use reasonable efforts to deliver promptly, and may in its sole discretion vary the scope from time to time. Material changes require approval."),
+          area("terms", "Terms to count \u2014 one per line", VAGUE_DEFAULT)
+        ],
+        run: clauseLint
+      },
+      {
+        id: "date-terms",
+        domain: "legal",
+        label: "Contract dates",
+        blurb: "Expiry and the last day to serve notice, from the term and notice period.",
+        fields: [
+          text("start", "Effective date (YYYY-MM-DD)", "2026-04-01"),
+          num("months", "Term (months)", "12"),
+          num("notice", "Notice period (days)", "90"),
+          flag("renew", "Auto-renew unless notice is served", true)
+        ],
+        run: dateTerms
+      },
+      {
+        id: "pii-scan",
+        domain: "privacy",
+        label: "Personal-data scan",
+        blurb: "Pattern classes present in a text, every sample masked, nothing transmitted.",
+        fields: [
+          area("text", "Text to scan", "Contact: priya.raman@example.in, +91 98400 12345.\nCard 4111 1111 1111 1111 was refunded.\nPAN AAFPU0939F on file. Order ref 2026-05-14.")
+        ],
+        run: piiScan
+      },
+      {
+        id: "retention-clock",
+        domain: "privacy",
+        label: "Retention clock",
+        blurb: "What has passed its retention date, and what falls due in the next 30 days.",
+        fields: [
+          text("today", "Reference date (YYYY-MM-DD)", "2026-09-22"),
+          area(
+            "items",
+            "Rows of `category, created, retention days`",
+            "support tickets, 2024-03-11, 730\nmarketing leads, 2023-01-04, 365\ninvoices, 2021-06-30, 2920\naccess logs, 2026-08-01, 90"
+          )
+        ],
+        run: retentionClock
+      },
+      {
+        id: "headcount-model",
+        domain: "people",
+        label: "Headcount model",
+        blurb: "What a hiring plan actually does once attrition compounds against it.",
+        fields: [
+          num("current", "Headcount today", "40"),
+          num("hires", "Hires per month", "3"),
+          num("attrition", "Monthly attrition (%)", "1.5"),
+          num("months", "Months to project", "12")
+        ],
+        run: headcountModel
+      },
+      {
+        id: "comp-band",
+        domain: "people",
+        label: "Band position",
+        blurb: "Where an offer sits in a band, as position and as compa-ratio.",
+        fields: [
+          num("min", "Band minimum", "1800000"),
+          num("mid", "Band midpoint", "2400000"),
+          num("max", "Band maximum", "3200000"),
+          num("offer", "Offer", "2520000")
+        ],
+        run: compBand
+      },
+      {
+        id: "pipeline-coverage",
+        domain: "revenue",
+        label: "Pipeline coverage",
+        blurb: "Stage-weighted pipeline against the quota it has to cover.",
+        fields: [
+          num("quota", "Quota", "12000000"),
+          num("coverage", "Coverage convention (\xD7)", "3.5"),
+          area(
+            "pipeline",
+            "Rows of `stage, value, win rate %`",
+            "discovery, 14000000, 15\nproposal, 9000000, 40\nnegotiation, 4200000, 65\nverbal, 1600000, 85"
+          )
+        ],
+        run: pipelineCoverage
+      },
+      {
+        id: "sla-clock",
+        domain: "revenue",
+        label: "SLA clock",
+        blurb: "First response against priority targets, ticket by ticket.",
+        fields: [
+          area(
+            "tickets",
+            "Rows of `id, priority, opened, first response` (ISO)",
+            "T-1041, P1, 2026-09-20T09:12:00Z, 2026-09-20T09:48:00Z\nT-1042, P2, 2026-09-20T11:00:00Z, 2026-09-20T16:30:00Z\nT-1043, P3, 2026-09-19T08:00:00Z, 2026-09-19T20:15:00Z\nT-1044, P2, 2026-09-21T07:30:00Z, "
+          )
+        ],
+        run: slaClock
+      }
+    ]);
+  }
+});
+
+// src/specialists/commerce.ts
+function metaLint(v2) {
+  const title = str(v2, "title");
+  const desc = str(v2, "desc");
+  const slug = str(v2, "slug");
+  if (!title.trim() && !desc.trim()) {
+    return {
+      headline: "Nothing to lint \u2014 give a title, a description or a slug",
+      ok: false,
+      basis: "Display limits are counted from the strings you paste; there is nothing to count otherwise."
+    };
+  }
+  const TITLE_MAX = 60, DESC_MAX = 155, SLUG_MAX = 75;
+  const stop = /* @__PURE__ */ new Set(["a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "with", "is", "are", "be", "by", "at", "from"]);
+  const slugWords = slug.split("-").map((w4) => w4.trim()).filter(Boolean);
+  const filler = slugWords.filter((w4) => stop.has(w4.toLowerCase()));
+  const checks = [
+    ["Title", `${title.length} chars (limit ${TITLE_MAX})`, title.length > 0 && title.length <= TITLE_MAX],
+    ["Description", `${desc.length} chars (limit ${DESC_MAX})`, desc.length > 0 && desc.length <= DESC_MAX],
+    ["Slug", `${slugWords.length} segments (limit ${SLUG_MAX} chars)`, slug.length > 0 && slug.length <= SLUG_MAX]
+  ];
+  const failing = checks.filter((c3) => !c3[2]).length;
+  return {
+    headline: failing === 0 ? "Title, description and slug all sit inside their display limits" : `${failing} field${failing === 1 ? "" : "s"} would be truncated or is empty`,
+    ok: failing === 0 && filler.length === 0,
+    kpis: [
+      { value: `${title.length}/${TITLE_MAX}`, label: "title" },
+      { value: `${desc.length}/${DESC_MAX}`, label: "description" },
+      { value: String(slugWords.length), label: "slug segments" },
+      { value: String(filler.length), label: "filler words" }
+    ],
+    table: { head: ["Field", "Measured", "Verdict"], rows: checks.map(([f4, m3, ok2]) => [f4, m3, ok2 ? "within" : "over or empty"]) },
+    lines: [
+      "Search engines truncate by rendered width, not by character count, so these limits are the conventional proxies \u2014 a title of 58 wide characters can still be cut and one of 62 narrow ones can survive intact.",
+      filler.length ? `Slug filler words to drop: ${filler.join(", ")}. They cost width and match nothing.` : "The slug carries no filler words; every segment is earning its place."
+    ],
+    basis: `Character counts against the commonly cited display limits (title ~60, description ~155) \u2014 conventions derived from pixel widths, not published maxima. Slug hygiene is a stop-word check, which is a style rule, not a ranking factor this tool can measure.`
+  };
+}
+function crawlBudget(v2) {
+  const pages = number4(v2, "pages", 25e4);
+  const latency = number4(v2, "latency", 320);
+  const rate2 = number4(v2, "rate", 5);
+  const window_ = number4(v2, "window", 10);
+  if (pages <= 0 || rate2 <= 0) {
+    return {
+      headline: "Pages and crawl rate must both be greater than zero",
+      ok: false,
+      basis: "Crawl time is pages \xD7 latency \xF7 concurrency, bounded by the rate the server allows."
+    };
+  }
+  const parallelizable = Math.max(1, Math.floor(window_ * 1e3 / latency));
+  const effective = Math.min(rate2, parallelizable);
+  const seconds = pages * latency / 1e3 / effective;
+  const hours = seconds / 3600;
+  const days = hours / 24;
+  const limited = parallelizable < rate2;
+  return {
+    headline: `About ${n24(days, 1)} days to crawl ${pages.toLocaleString()} pages at ${effective.toFixed(1)} req/s`,
+    ok: days <= 30,
+    kpis: [
+      { value: n24(hours, 1), label: "hours" },
+      { value: n24(days, 1), label: "days" },
+      { value: String(effective.toFixed(1)), label: "effective req/s" },
+      { value: String(parallelizable), label: "parallel slots" }
+    ],
+    table: {
+      head: ["Limit", "Value", "Binds?"],
+      rows: [
+        ["Robots/Crawl-delay rate", `${rate2} req/s`, limited ? "no" : "yes"],
+        ["Client parallelism", `${parallelizable} in flight`, limited ? "yes" : "no"],
+        ["Latency", `${latency} ms`, "always"]
+      ]
+    },
+    lines: [
+      limited ? `The client can hold ${parallelizable} requests in flight but each takes ${latency} ms, so parallelism \u2014 not the rate limit \u2014 is what bounds this crawl. More workers would help.` : `The rate the server allows (${rate2} req/s) is the binding constraint; more client parallelism would change nothing.`,
+      `Crawl rate is also a politeness question, and politeness is a decision, not a calculation: this tells you what the current numbers imply, not what the site deserves.`
+    ],
+    basis: `time = pages \xD7 latency \xF7 effective concurrency, where effective = min(declared rate, floor(window \xF7 latency)). It is throughput arithmetic; it ignores server-side variability, redirects and the pages a crawl discovers only by crawling.`
+  };
+}
+function localeCoverage(v2) {
+  const base = number4(v2, "base", 4200);
+  const threshold = number4(v2, "threshold", 98);
+  const listed = rows(v2, "locales").map((line) => {
+    const [locale, done, todo] = line.split(/[,=]/).map((x3) => (x3 ?? "").trim());
+    const d3 = Number(String(done).replace(/[,\s]/g, ""));
+    const t2 = Number(String(todo).replace(/[,\s]/g, ""));
+    return { locale: locale || "??", done: Number.isFinite(d3) ? d3 : 0, todo: Number.isFinite(t2) ? t2 : 0 };
+  });
+  if (base <= 0 || listed.length === 0) {
+    return {
+      headline: "Give the key count and rows of `locale, translated, missing`",
+      ok: false,
+      basis: "Coverage is translated keys over the base key count."
+    };
+  }
+  const table = listed.map((l2) => {
+    const pct = l2.done / base * 100;
+    return [l2.locale, String(l2.done), String(l2.todo), `${n24(pct, 1)}%`, pct >= threshold ? "shippable" : "below the bar"];
+  });
+  const worst = listed.reduce((a3, b3) => a3.done / base <= b3.done / base ? a3 : b3);
+  const shipping = table.filter((r3) => r3[4] === "shippable").length;
+  return {
+    headline: shipping === listed.length ? `All ${listed.length} locales are at or above ${threshold}% of the ${base.toLocaleString()} keys` : `${listed.length - shipping} of ${listed.length} locales sit below ${threshold}% \u2014 worst is ${worst.locale}`,
+    ok: shipping === listed.length,
+    kpis: [
+      { value: String(base.toLocaleString()), label: "base keys" },
+      { value: String(listed.length), label: "locales" },
+      { value: `${n24(worst.done / base * 100, 1)}%`, label: `worst (${worst.locale})` },
+      { value: `${threshold}%`, label: "bar" }
+    ],
+    table: { head: ["Locale", "Translated", "Missing", "Coverage", "Verdict"], rows: table },
+    lines: [
+      "Coverage is a count of keys present, not of sentences that read well. A locale at 99% with the wrong 1% missing \u2014 checkout, errors, consent \u2014 is a worse product than one at 95% with the gaps in a helping page.",
+      "Missing keys fall back to the base language at runtime, which is why partial coverage looks shipable until a user hits the gap."
+    ],
+    basis: `coverage = translated \xF7 base keys \xD7 100, compared with the threshold you declare. It counts what exists in the catalogue; it cannot see whether a translated string is correct, or whether it is the string that was there yesterday.`
+  };
+}
+function stringExpansion(v2) {
+  const source = str(v2, "source");
+  const locale = str(v2, "locale", "German (de)");
+  const budget = number4(v2, "budget", 0);
+  const range = EXPANSION[locale] ?? [1.15, 1.3];
+  const len = source.length;
+  const low = Math.ceil(len * range[0]), high = Math.ceil(len * range[1]);
+  const over = budget > 0 && high > budget;
+  const table = [];
+  if (budget > 0) {
+    table.push(...EXPANSION[locale] ? [[locale, `${low}\u2013${high} chars`, String(budget), over ? "may overflow" : "fits at the top of the range"]] : []);
+  }
+  return {
+    headline: over ? `\u201C${source.slice(0, 42)}${source.length > 42 ? "\u2026" : ""}\u201D grows to ${low}\u2013${high} characters \u2014 past the ${budget}-character budget` : `${len} characters becomes roughly ${low}\u2013${high} in ${locale}`,
+    ok: !over,
+    kpis: [
+      { value: String(len), label: "source chars" },
+      { value: `${low}\u2013${high}`, label: "translated chars" },
+      { value: budget > 0 ? String(budget) : "\u2014", label: "budget" },
+      { value: `${n24(range[0], 2)}\u2013${n24(range[1], 2)}\xD7`, label: "factor used" }
+    ],
+    table: table.length ? { head: ["Locale", "Expected length", "Budget", "Verdict"], rows: table } : void 0,
+    lines: [
+      `The factor for ${locale} is a published planning range (${n24(range[0], 2)}\u2013${n24(range[1], 2)}\xD7), not a measurement of your string. Short strings expand more than long ones in percentage terms, which is exactly where buttons and tabs live.`,
+      over ? "Design to the top of the range or the layout will break on real translations: fixed-width buttons are the usual casualty." : "The top of the range fits the declared budget."
+    ],
+    basis: `expected length = source length \xD7 the published expansion range for the target locale; expansion ranges are industry planning factors (from localisation practice), not measurements of a specific string. Programming languages with wide glyphs and locales without case add their own constraints this does not model.`
+  };
+}
+function eoq(v2) {
+  const demand = number4(v2, "demand", 24e3);
+  const orderCost = number4(v2, "order", 450);
+  const holding = number4(v2, "holding", 12);
+  if (demand <= 0 || orderCost <= 0 || holding <= 0) {
+    return {
+      headline: "Demand, order cost and holding cost must all be positive",
+      ok: false,
+      basis: "The economic order quantity is a square root of a ratio; a zero anywhere makes it meaningless."
+    };
+  }
+  const q2 = Math.sqrt(2 * demand * orderCost / holding);
+  const orders = demand / q2;
+  const cycle = 365 / orders;
+  const ordering = orders * orderCost;
+  const carrying = q2 / 2 * holding;
+  return {
+    headline: `Order ${n24(q2, 0)} units, ${n24(orders, 1)} times a year (every ${n24(cycle, 1)} days)`,
+    ok: true,
+    kpis: [
+      { value: n24(q2, 0), label: "order quantity" },
+      { value: n24(orders, 1), label: "orders / year" },
+      { value: `${n24(cycle, 1)}d`, label: "cycle" },
+      { value: money(ordering + carrying, 0), label: "total annual cost" }
+    ],
+    table: {
+      head: ["Component", "Formula", "Annual cost"],
+      rows: [
+        ["Ordering", `(${demand} \xF7 ${n24(q2, 0)}) \xD7 ${orderCost}`, money(ordering, 0)],
+        ["Holding", `(${n24(q2, 0)} \xF7 2) \xD7 ${holding}`, money(carrying, 0)],
+        ["Total", "EOQ minimises the sum of the two", money(ordering + carrying, 0)]
+      ]
+    },
+    lines: [
+      "At the EOQ the ordering cost and the holding cost are equal \u2014 that is the property the formula is built to produce, and it is a useful sanity check on any number you compute by hand.",
+      "The model assumes demand is smooth and lead time is known. Real demand is neither, which is what the safety-stock tool is for."
+    ],
+    basis: "Wilson's EOQ: Q* = \u221A(2DS \xF7 H), yearly cycles = D \xF7 Q*, cycle days = 365 \xF7 cycles. Classic inventory theory: it assumes constant demand, instantaneous replenishment and no quantity discounts. A supplier's price break usually beats the formula, deliberately."
+  };
+}
+function safetyStock(v2) {
+  const mean2 = number4(v2, "mean", 180);
+  const sd = number4(v2, "sd", 42);
+  const lead = number4(v2, "lead", 9);
+  const service = str(v2, "service", "95%");
+  const z4 = SERVICE_Z[service] ?? 1.6449;
+  if (mean2 <= 0 || sd < 0 || lead <= 0) {
+    return {
+      headline: "Daily demand, its spread and the lead time must make sense",
+      ok: false,
+      basis: "Safety stock is a quantile of demand over the lead time; it needs a mean, a spread and a duration."
+    };
+  }
+  const ss = z4 * sd * Math.sqrt(lead);
+  const rop = mean2 * lead + ss;
+  return {
+    headline: `Hold ${n24(ss, 0)} units of safety stock \u2014 reorder at ${n24(rop, 0)}`,
+    ok: true,
+    kpis: [
+      { value: n24(ss, 0), label: "safety stock" },
+      { value: n24(rop, 0), label: "reorder point" },
+      { value: n24(mean2 * lead, 0), label: "lead-time demand" },
+      { value: n24(z4, 4), label: `z at ${service}` }
+    ],
+    table: {
+      head: ["Service level", "z", "Safety stock"],
+      rows: Object.entries(SERVICE_Z).map(([lvl, zz]) => [lvl, n24(zz, 4), n24(zz * sd * Math.sqrt(lead), 0)])
+    },
+    lines: [
+      `Safety stock is the extra above average demand over the lead time; here that average is ${n24(mean2 * lead, 0)} units, so the reorder point is the sum of the two.`,
+      `Raising the service level from 95% to 99% costs ${n24((2.3263 * sd * Math.sqrt(lead) / (z4 * sd * Math.sqrt(lead)) - 1) * 100, 0)}% more stock for the last ${n24(99 - 95, 0)} points \u2014 the tail is where the money is, and it is usually worth asking whether it is worth it.`
+    ],
+    basis: `SS = z \xD7 \u03C3_daily \xD7 \u221Aleadtime, ROP = mean demand \xD7 lead time + SS. It assumes demand is normally distributed and independent day to day \u2014 a normal approximation \u2014 and covers demand variability only. Supplier lead-time variability usually matters more and is a separate term.`
+  };
+}
+function gasPlan(v2) {
+  const units = number4(v2, "units", 145e3);
+  const base = number4(v2, "base", 18);
+  const priority = number4(v2, "priority", 1.5);
+  const eth = number4(v2, "eth", 3200);
+  const ops = number4(v2, "ops", 250);
+  const perOpGwei = units * (base + priority);
+  const perOpEth = perOpGwei * 1e-9;
+  const perOpUsd = perOpEth * eth;
+  const totalUsd = perOpUsd * ops;
+  return {
+    headline: `${money(perOpUsd, 2)} per operation \u2014 ${money(totalUsd, 2)} for ${ops.toLocaleString()}`,
+    ok: totalUsd < 1e3,
+    kpis: [
+      { value: `${money(perOpGwei / 1e9, 6)} ETH`, label: "gas per op" },
+      { value: `${((base + priority) / base).toFixed(2)}\xD7`, label: "priority uplift" },
+      { value: money(perOpUsd, 2), label: "per operation" },
+      { value: money(totalUsd, 2), label: "for the batch" }
+    ],
+    table: {
+      head: ["Component", "Gwei", "Share"],
+      rows: [
+        ["Base fee", n24(base * units / 1e9, 6), `${n24(base / (base + priority) * 100, 1)}%`],
+        ["Priority fee", n24(priority * units / 1e9, 6), `${n24(priority / (base + priority) * 100, 1)}%`],
+        ["Total per operation", n24(perOpGwei / 1e9, 6), "100%"]
+      ]
+    },
+    lines: [
+      `The priority fee is ${n24(priority / (base + priority) * 100, 1)}% of what you pay. On a congested chain that share rises sharply while the base fee also moves \u2014 which is why a budget built on today's base fee does not survive a busy week.`,
+      `Base fees change per block; this is a point-in-time estimate from the two figures you entered, not a quoted fee.`
+    ],
+    basis: `cost = gas units \xD7 (base fee + priority fee) in gwei \xD7 1e-9 ETH per gwei \xD7 price per ETH. EIP-1559 arithmetic: the base fee is burned and the priority fee is paid to the validator, so the split is a real distinction, not a presentation choice.`
+  };
+}
+function tokenDecimals(v2) {
+  const raw = str(v2, "raw", "1234567890123456789");
+  const decimals = number4(v2, "decimals", 18);
+  const amount = number4(v2, "amount", 1.5);
+  if (!/^\d+$/.test(raw.trim())) {
+    return {
+      headline: "The raw amount must be an integer in base units \u2014 digits only",
+      ok: false,
+      basis: "Tokens are integers on the wire; the decimal point exists only in the interface. A non-integer input is refused rather than rounded."
+    };
+  }
+  if (decimals < 0 || decimals > 36 || !Number.isInteger(decimals)) {
+    return {
+      headline: "Decimals must be a whole number between 0 and 36",
+      ok: false,
+      basis: "The base-unit convention needs a whole number of decimal places."
+    };
+  }
+  const s2 = raw.trim().padStart(decimals + 1, "0");
+  const whole = s2.slice(0, s2.length - decimals).replace(/^0+(?=\d)/, "") || "0";
+  const frac = decimals > 0 ? s2.slice(s2.length - decimals).replace(/0+$/, "") : "";
+  const human = frac ? `${whole}.${frac}` : whole;
+  const back = `${whole}${frac.padEnd(decimals, "0")}`;
+  const forOneAndAHalf = Math.round(amount * Math.pow(10, decimals)).toString();
+  return {
+    headline: `${raw.trim()} base units at ${decimals} decimals is ${human}`,
+    ok: back === s2.replace(/^0+(?=\d)/, ""),
+    kpis: [
+      { value: String(decimals), label: "decimals" },
+      { value: human.length > 24 ? human.slice(0, 23) + "\u2026" : human, label: "human amount" },
+      { value: `${forOneAndAHalf}`, label: `${amount} in base units` }
+    ],
+    lines: [
+      `Round trip: ${human} \u2192 ${back} base units (leading zeros trimmed, which is the same integer).`,
+      `${amount} tokens at ${decimals} decimals is ${forOneAndAHalf} base units \u2014 the multiplication that turns a display amount into something a contract will accept, and the one most often written with a floating-point mistake.`
+    ],
+    basis: "Base-unit arithmetic on integer strings: the human amount is the raw integer with a decimal point inserted `decimals` from the right, trailing zeros trimmed. No floating point touches the conversion \u2014 token math done in floats is where precision quietly disappears."
+  };
+}
+var n24, money, EXPANSION, SERVICE_Z, COMMERCE_TOOLS;
+var init_commerce = __esm({
+  "src/specialists/commerce.ts"() {
+    "use strict";
+    init_types();
+    n24 = (x3, dp = 2) => x3.toFixed(dp);
+    money = (x3, dp = 2) => x3.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    EXPANSION = {
+      "German (de)": [1.2, 1.35],
+      "French (fr)": [1.15, 1.25],
+      "Spanish (es)": [1.15, 1.25],
+      "Russian (ru)": [1.15, 1.3],
+      "Portuguese (pt)": [1.15, 1.25],
+      "Italian (it)": [1.1, 1.2],
+      "Hindi (hi)": [1, 1.2],
+      "Tamil (ta)": [1, 1.25],
+      "Japanese (ja)": [0.8, 0.95],
+      "Chinese, simplified (zh-Hans)": [0.75, 0.9],
+      "Korean (ko)": [0.8, 0.95],
+      "Arabic (ar)": [0.9, 1.15]
+    };
+    SERVICE_Z = { "90%": 1.2816, "95%": 1.6449, "97.5%": 1.96, "99%": 2.3263, "99.9%": 3.0902 };
+    COMMERCE_TOOLS = Object.freeze([
+      {
+        id: "meta-lint",
+        domain: "marketing",
+        label: "Title & meta",
+        blurb: "What a search result truncates, and which slug segments earn their width.",
+        fields: [
+          text("title", "Page title", "Deterministic specialist tools for engineering teams"),
+          text("desc", "Meta description", "Forty deterministic tools across nine domains \u2014 contrast, semver, retries, error budgets and more. Every answer prints the rule it came from."),
+          text("slug", "URL slug", "the-deterministic-specialist-tools-for-engineering-teams")
+        ],
+        run: metaLint
+      },
+      {
+        id: "crawl-budget",
+        domain: "marketing",
+        label: "Crawl budget",
+        blurb: "How long a crawl takes, and which limit is actually binding.",
+        fields: [
+          num("pages", "Pages to crawl", "250000"),
+          num("latency", "Average response (ms)", "320"),
+          num("rate", "Allowed rate (req/s)", "5"),
+          num("window", "Concurrency window (seconds)", "10")
+        ],
+        run: crawlBudget
+      },
+      {
+        id: "locale-coverage",
+        domain: "locale",
+        label: "Translation coverage",
+        blurb: "Which locales clear the shipping bar, and which are one gap from a broken screen.",
+        fields: [
+          num("base", "Base-language keys", "4200"),
+          num("threshold", "Shipping bar (%)", "98"),
+          area(
+            "locales",
+            "Rows of `locale, translated, missing`",
+            "de-DE, 4130, 70\nfr-FR, 4095, 105\nta-IN, 3610, 590\nja-JP, 4200, 0"
+          )
+        ],
+        run: localeCoverage
+      },
+      {
+        id: "string-expansion",
+        domain: "locale",
+        label: "String expansion",
+        blurb: "How much longer a translated string gets, before it breaks the layout.",
+        fields: [
+          text("source", "Source string (English)", "Save and continue"),
+          sel("locale", "Target locale", Object.keys(EXPANSION), "German (de)"),
+          num("budget", "Available width (characters)", "18", "0 to skip the budget check")
+        ],
+        run: stringExpansion
+      },
+      {
+        id: "eoq",
+        domain: "supply",
+        label: "Order quantity",
+        blurb: "The order size that minimises ordering plus holding cost together.",
+        fields: [
+          num("demand", "Annual demand (units)", "24000"),
+          num("order", "Cost per order", "450"),
+          num("holding", "Holding cost per unit / year", "12")
+        ],
+        run: eoq
+      },
+      {
+        id: "safety-stock",
+        domain: "supply",
+        label: "Safety stock",
+        blurb: "The buffer a service level actually costs, and where the reorder point lands.",
+        fields: [
+          num("mean", "Mean daily demand (units)", "180"),
+          num("sd", "Standard deviation of daily demand", "42"),
+          num("lead", "Lead time (days)", "9"),
+          sel("service", "Service level", Object.keys(SERVICE_Z), "95%")
+        ],
+        run: safetyStock
+      },
+      {
+        id: "gas-plan",
+        domain: "web3",
+        label: "Gas plan",
+        blurb: "Per-operation and batch cost from gas units, the fee market and the price.",
+        fields: [
+          num("units", "Gas units per operation", "145000"),
+          num("base", "Base fee (gwei)", "18"),
+          num("priority", "Priority fee (gwei)", "1.5"),
+          num("eth", "Price per ETH", "3200"),
+          num("ops", "Operations in the batch", "250")
+        ],
+        run: gasPlan
+      },
+      {
+        id: "token-decimals",
+        domain: "web3",
+        label: "Token decimals",
+        blurb: "Base units to a human amount and back, in integer arithmetic only.",
+        fields: [
+          text("raw", "Raw amount in base units", "1234567890123456789"),
+          num("decimals", "Decimals", "18"),
+          num("amount", "Display amount to convert", "1.5")
+        ],
+        run: tokenDecimals
+      }
+    ]);
   }
 });
 
@@ -159703,6 +161352,2431 @@ var init_roster = __esm({
         purpose: "Model a price change: what it earns, what churn it can absorb, and who it touches.",
         requiresApproval: true,
         receipt: "the model, the break-even churn, and the human's approval \u2014 a price change is customer-facing"
+      }),
+      /* ── 19.7.15 [Cartographer]: the pack widens to twenty-four domains ───────── */
+      /* ── mobile ───────────────────────────────────────────────────── */
+      A2({
+        id: "mobile.touch-audit",
+        name: "Touch-target audit",
+        domain: "mobile",
+        status: "engine",
+        engine: "touchTargets",
+        inputs: "a screen's controls and their pixel sizes",
+        output: "every control's verdict against the platform floor",
+        purpose: "Measure each control against the platform's minimum touch size before a reviewer finds the one nobody can hit.",
+        requiresApproval: false,
+        receipt: "each target measured, the floor applied, and where the spacing exception was used"
+      }),
+      A2({
+        id: "mobile.size-budget",
+        name: "Size budget",
+        domain: "mobile",
+        status: "engine",
+        engine: "appSizeBudget",
+        inputs: "current download size, budget and growth per release",
+        output: "the release at which the budget is crossed",
+        purpose: "Project download size release by release so the budget is a number somebody watches, not a surprise at store review.",
+        requiresApproval: false,
+        receipt: "the size today, the growth applied, and the release where the budget is crossed"
+      }),
+      A2({
+        id: "mobile.grid-snap",
+        name: "Grid snap review",
+        domain: "mobile",
+        status: "engine",
+        engine: "snapToGrid",
+        inputs: "spacing tokens taken from the design file",
+        output: "off-grid values and the distance to the grid",
+        purpose: "Keep spacing tokens on one grid so two screens built by two people still look like one product.",
+        requiresApproval: false,
+        receipt: "every token checked, off-grid values named, and the direction of each correction"
+      }),
+      A2({
+        id: "mobile.startup-percentiles",
+        name: "Startup percentiles",
+        domain: "mobile",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "cold-start timings collected from a device fleet",
+        output: "p50, p95 and p99 rather than an average",
+        purpose: "Report startup at the percentiles users feel, because an average hides the slower half of a device fleet.",
+        requiresApproval: false,
+        receipt: "the sample size, the percentile method used, and the p50/p95/p99 readout"
+      }),
+      A2({
+        id: "mobile.ab-readout",
+        name: "UI experiment readout",
+        domain: "mobile",
+        status: "engine",
+        engine: "abTest",
+        inputs: "two arms with their conversions",
+        output: "the lift, its interval and whether it is real",
+        purpose: "Read a UI experiment honestly: the lift, its uncertainty, and whether the sample supports shipping it.",
+        requiresApproval: false,
+        receipt: "both arms, the test applied, and the interval around the difference"
+      }),
+      A2({
+        id: "mobile.release",
+        name: "Mobile release",
+        domain: "mobile",
+        status: "workflow",
+        engine: "appSizeBudget + touchTargets",
+        inputs: "a build number and the store submission checklist",
+        output: "a release package ready to submit, gated",
+        purpose: "Ship a mobile build: the size and touch-target gates cleared, store metadata checked, and a human approving the push.",
+        requiresApproval: true,
+        receipt: "the gates cleared, the metadata checked, and the human's approval of the store submission"
+      }),
+      A2({
+        id: "mobile.store-listing",
+        name: "Store listing copy",
+        domain: "mobile",
+        status: "engine",
+        engine: "metaLint",
+        inputs: "title, subtitle and description for the store",
+        output: "what each field will truncate",
+        purpose: "Catch truncation in a store listing before the store does it silently on a customer's phone.",
+        requiresApproval: false,
+        receipt: "each field measured, the display limit applied, and the truncation point named"
+      }),
+      A2({
+        id: "mobile.locale-coverage",
+        name: "Locale coverage",
+        domain: "mobile",
+        status: "engine",
+        engine: "localeCoverage",
+        inputs: "translated keys per app locale",
+        output: "which locales clear the shipping bar",
+        purpose: "Decide which app locales can ship from translated keys on disk rather than from intent in a planning document.",
+        requiresApproval: false,
+        receipt: "the key count, each locale's coverage, and the bar that was applied"
+      }),
+      A2({
+        id: "mobile.payload-budget",
+        name: "Payload budget",
+        domain: "mobile",
+        status: "engine",
+        engine: "payloadBudget",
+        inputs: "the API response shape behind one screen",
+        output: "the response size against a mobile data budget",
+        purpose: "Hold a screen's API response inside a data budget that a phone on a slow network can actually afford.",
+        requiresApproval: false,
+        receipt: "the measured payload, the budget declared, and the fields that dominate it"
+      }),
+      A2({
+        id: "mobile.battery-profile",
+        name: "Battery profile",
+        domain: "mobile",
+        status: "engine",
+        engine: "powerBudget",
+        inputs: "battery capacity, duty cycle and the active and sleep currents",
+        output: "runtime, and which state owns the charge",
+        purpose: "Tell a user how long the app lasts and which state is spending the battery, before a review calls it heavy.",
+        requiresApproval: false,
+        receipt: "the duty cycle, the currents, and the state consuming the largest share of the charge"
+      }),
+      A2({
+        id: "mobile.push-send",
+        name: "Push campaign",
+        domain: "mobile",
+        status: "workflow",
+        engine: "funnel + growthModel",
+        inputs: "a notification campaign and its audience definition",
+        output: "the modelled effect, gated before anything sends",
+        purpose: "Model a notification campaign and stop at the gate, because a push is a message delivered to somebody's phone.",
+        requiresApproval: true,
+        receipt: "the audience size, the modelled effect, and the human's approval before any message is sent"
+      }),
+      /* ── cloud ───────────────────────────────────────────────────── */
+      A2({
+        id: "cloud.instance-plan",
+        name: "Instance sizing",
+        domain: "cloud",
+        status: "engine",
+        engine: "instanceSizing",
+        inputs: "p95 utilisation, a headroom target and the current fleet size",
+        output: "instances needed and the resulting p95",
+        purpose: "Size a fleet from measured p95 and a stated headroom target instead of from memory of the last incident.",
+        requiresApproval: false,
+        receipt: "the measured utilisation, the target declared, and the resulting instance count"
+      }),
+      A2({
+        id: "cloud.egress-review",
+        name: "Egress review",
+        domain: "cloud",
+        status: "engine",
+        engine: "egressCost",
+        inputs: "egress volume, origin price and cache hit rate",
+        output: "monthly cost with and without the cache",
+        purpose: "Show what a cache is worth in money, using the tariff the team actually pays rather than a published list price.",
+        requiresApproval: false,
+        receipt: "the volumes, the prices, and the saving computed per path"
+      }),
+      A2({
+        id: "cloud.token-scope",
+        name: "Token scope audit",
+        domain: "cloud",
+        status: "engine",
+        engine: "jwtInspect",
+        inputs: "a service token used by a workload",
+        output: "its scopes, expiry and claims, decoded",
+        purpose: "Read what a service token can actually do, because a scope nobody intended is a permission that outlives its reason.",
+        requiresApproval: false,
+        receipt: "the decoded claims, the expiry, and the scopes the token carries"
+      }),
+      A2({
+        id: "cloud.cost-anomaly",
+        name: "Cost anomaly watch",
+        domain: "cloud",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "daily spend history for a service",
+        output: "days that sit far from their own window's mean",
+        purpose: "Surface the day a bill moved without an incident, while nobody was watching the graph.",
+        requiresApproval: false,
+        receipt: "the window examined, the mean and spread, and each flagged day with its z"
+      }),
+      A2({
+        id: "cloud.spend-forecast",
+        name: "Spend forecast",
+        domain: "cloud",
+        status: "engine",
+        engine: "spendForecast",
+        inputs: "months of infrastructure spend",
+        output: "the trend and a projected month",
+        purpose: "Put a trajectory on infrastructure spend so the budget conversation starts from a line rather than a feeling.",
+        requiresApproval: false,
+        receipt: "the months observed, the fitted trend, and the projection with its caveat attached"
+      }),
+      A2({
+        id: "cloud.capacity-runway",
+        name: "Capacity runway",
+        domain: "cloud",
+        status: "engine",
+        engine: "capacityHeadroom",
+        inputs: "current headroom, growth rate and a threshold",
+        output: "how long the headroom lasts before the threshold",
+        purpose: "Answer how long current capacity lasts, so a migration can be scheduled instead of demanded.",
+        requiresApproval: false,
+        receipt: "the headroom today, the growth rate assumed, and the runway before the threshold is crossed"
+      }),
+      A2({
+        id: "cloud.error-budget",
+        name: "Platform error budget",
+        domain: "cloud",
+        status: "engine",
+        engine: "sloErrorBudget",
+        inputs: "an SLO target and the measurement window",
+        output: "the budget, what is spent and what remains",
+        purpose: "Spend reliability effort against a budget instead of against the loudest recent incident.",
+        requiresApproval: false,
+        receipt: "the SLO, the window, and the error minutes allowed and consumed"
+      }),
+      A2({
+        id: "cloud.deploy-window",
+        name: "Deployment window",
+        domain: "cloud",
+        status: "engine",
+        engine: "deployRisk",
+        inputs: "a change set and the blast radius it touches",
+        output: "a risk read for the window chosen",
+        purpose: "Choose a deployment window from the change's own risk shape rather than the team's calendar preference.",
+        requiresApproval: false,
+        receipt: "the change size, the blast radius, and the factors behind the risk read"
+      }),
+      A2({
+        id: "cloud.retention-audit",
+        name: "Log retention audit",
+        domain: "cloud",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "log classes with creation dates and retention terms",
+        output: "what is already overdue for deletion",
+        purpose: "Find log classes past their retention date, which is the finding an auditor asks about first.",
+        requiresApproval: false,
+        receipt: "each class, its retention term, and the days past or remaining"
+      }),
+      A2({
+        id: "cloud.autoscale-apply",
+        name: "Autoscale policy apply",
+        domain: "cloud",
+        status: "workflow",
+        engine: "instanceSizing + sloErrorBudget",
+        inputs: "a proposed scaling policy for a production service",
+        output: "a production scaling change, gated",
+        purpose: "Change how production scales: modelled first, applied by a human, because a scaling policy is a production change.",
+        requiresApproval: true,
+        receipt: "the model, the policy difference, and the human's approval of the apply"
+      }),
+      A2({
+        id: "cloud.rotation-run",
+        name: "Credential rotation",
+        domain: "cloud",
+        status: "workflow",
+        engine: "scanSecrets + stringEntropyBits",
+        inputs: "the credentials due for rotation this cycle",
+        output: "the rotation plan and its execution, gated",
+        purpose: "Rotate credentials on schedule with the exposure window measured and the change approved before it goes out.",
+        requiresApproval: true,
+        receipt: "which credentials rotated, the exposure window, and the human's approval"
+      }),
+      /* ── database ───────────────────────────────────────────────────── */
+      A2({
+        id: "db.index-selectivity",
+        name: "Index selectivity",
+        domain: "db",
+        status: "engine",
+        engine: "indexSelectivity",
+        inputs: "table row counts and how much a predicate matches",
+        output: "whether the index will be used, and why",
+        purpose: "Decide whether an index earns its write cost from key density rather than from the shape of the query alone.",
+        requiresApproval: false,
+        receipt: "the row and distinct counts, the fraction matched, and the crossover applied"
+      }),
+      A2({
+        id: "db.pool-sizing",
+        name: "Connection pool",
+        domain: "db",
+        status: "engine",
+        engine: "poolSizing",
+        inputs: "request rate, query latency and instance count",
+        output: "pool size per instance against the server ceiling",
+        purpose: "Size connection pools from Little's Law instead of from the number that happened to work last time.",
+        requiresApproval: false,
+        receipt: "the concurrency computed, the pool size derived, and the headroom left on the server"
+      }),
+      A2({
+        id: "db.slow-query-percentiles",
+        name: "Slow-query percentiles",
+        domain: "db",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "query durations lifted from a log",
+        output: "p50, p95 and p99 per query",
+        purpose: "Rank slow queries at the percentiles that hurt, because an average query time is not a user experience.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the readout per query"
+      }),
+      A2({
+        id: "db.outlier-queries",
+        name: "Outlier queries",
+        domain: "db",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "query durations from one window",
+        output: "queries beyond the Tukey fence",
+        purpose: "Separate the genuinely exceptional queries from the merely slow ones, so tuning effort lands where it pays.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and every query outside it"
+      }),
+      A2({
+        id: "db.migration-order",
+        name: "Migration ordering",
+        domain: "db",
+        status: "engine",
+        engine: "compareSemver",
+        inputs: "migration file names in their numeric order",
+        output: "the order they will actually apply in",
+        purpose: "Check that a migration series applies in the order intended, because lexical filenames and numeric order disagree.",
+        requiresApproval: false,
+        receipt: "the sorted order, the anomalies found, and the convention applied"
+      }),
+      A2({
+        id: "db.backup-retention",
+        name: "Backup retention",
+        domain: "db",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "backup sets with creation dates and retention terms",
+        output: "which backups are past their retention date",
+        purpose: "Keep backup retention honest: neither so short that recovery is impossible nor so long that it is a liability.",
+        requiresApproval: false,
+        receipt: "each backup set, its retention term, and the days past or remaining"
+      }),
+      A2({
+        id: "db.migration-plan",
+        name: "Migration plan",
+        domain: "db",
+        status: "engine",
+        engine: "deployRisk",
+        inputs: "a proposed schema change and its blast radius",
+        output: "a risk read before the change is written",
+        purpose: "Read a schema change's risk before it is written, when the plan is still cheap to alter.",
+        requiresApproval: false,
+        receipt: "the change described, the blast radius, and the factors behind the risk read"
+      }),
+      A2({
+        id: "db.migration-apply",
+        name: "Migration apply",
+        domain: "db",
+        status: "workflow",
+        engine: "deployRisk + indexSelectivity",
+        inputs: "a migration ready against a production database",
+        output: "the migration applied, gated",
+        purpose: "Apply a schema migration: the plan reviewed, the lock window known, and a human approving the change to production.",
+        requiresApproval: true,
+        receipt: "the plan reviewed, the lock window estimated, and the human's approval of the apply"
+      }),
+      A2({
+        id: "db.replica-lag-watch",
+        name: "Replica lag watch",
+        domain: "db",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "replication lag samples over time",
+        output: "replicas whose lag is out of family",
+        purpose: "Catch a replica falling behind before a read from it returns stale data to a customer.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each replica flagged with its z"
+      }),
+      A2({
+        id: "db.capacity-plan",
+        name: "Storage capacity plan",
+        domain: "db",
+        status: "engine",
+        engine: "capacityHeadroom",
+        inputs: "current storage use, growth and the warning threshold",
+        output: "when the threshold is reached",
+        purpose: "Turn storage growth into a date, so provisioning is a scheduled task rather than a pager event.",
+        requiresApproval: false,
+        receipt: "the headroom today, the growth rate, and the date the threshold is reached"
+      }),
+      A2({
+        id: "db.partition-plan",
+        name: "Partition plan",
+        domain: "db",
+        status: "workflow",
+        engine: "percentiles + indexSelectivity",
+        inputs: "table sizes, access patterns and retention",
+        output: "a partitioning change to production, gated",
+        purpose: "Restructure a large table for access and retention, with the change gated because partitioning is a schema change.",
+        requiresApproval: true,
+        receipt: "the access pattern evidence, the partition scheme proposed, and the human's approval"
+      }),
+      /* ── embedded ───────────────────────────────────────────────────── */
+      A2({
+        id: "embedded.power-budget",
+        name: "Power budget",
+        domain: "embedded",
+        status: "engine",
+        engine: "powerBudget",
+        inputs: "battery capacity, duty cycle and the active and sleep currents",
+        output: "runtime, and which state owns the charge",
+        purpose: "Know the runtime a device will achieve before the hardware is ordered, and which state is spending it.",
+        requiresApproval: false,
+        receipt: "the duty cycle, the currents measured, and the state consuming the largest share"
+      }),
+      A2({
+        id: "embedded.schedulability",
+        name: "Schedulability",
+        domain: "embedded",
+        status: "engine",
+        engine: "timingSlack",
+        inputs: "task periods and worst-case execution times",
+        output: "utilisation against the rate-monotonic bound",
+        purpose: "Prove a task set schedulable before a missed deadline proves it was not.",
+        requiresApproval: false,
+        receipt: "each task's utilisation, the bound applied, and the slack remaining"
+      }),
+      A2({
+        id: "embedded.loop-percentiles",
+        name: "Loop-time percentiles",
+        domain: "embedded",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "control-loop execution times from a run",
+        output: "p50, p95 and p99 for the loop",
+        purpose: "Watch the tail of a control loop, because the deadline is missed by the worst case, not the average.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the loop's tail behaviour"
+      }),
+      A2({
+        id: "embedded.jitter-outliers",
+        name: "Jitter outliers",
+        domain: "embedded",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "interrupt-to-task latencies",
+        output: "the latencies outside the Tukey fence",
+        purpose: "Find the interrupts whose latency is genuinely out of family rather than merely above average.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and the offending latencies"
+      }),
+      A2({
+        id: "embedded.retry-ladder",
+        name: "Retry ladder",
+        domain: "embedded",
+        status: "engine",
+        engine: "backoffSchedule",
+        inputs: "a base delay and a retry count for a bus or link",
+        output: "the retry schedule on the wire",
+        purpose: "Fix the retry schedule for a link so a flapping bus does not turn into a burst of traffic.",
+        requiresApproval: false,
+        receipt: "the base delay, the ladder produced, and the total window it occupies"
+      }),
+      A2({
+        id: "embedded.payload-budget",
+        name: "Frame budget",
+        domain: "embedded",
+        status: "engine",
+        engine: "payloadBudget",
+        inputs: "a frame or message shape on the wire",
+        output: "its size against the transport budget",
+        purpose: "Keep a message inside the transport's frame budget, where one byte over is not slower, it is absent.",
+        requiresApproval: false,
+        receipt: "the frame size measured, the budget, and the fields that dominate it"
+      }),
+      A2({
+        id: "embedded.secret-scan",
+        name: "Device key scan",
+        domain: "embedded",
+        status: "engine",
+        engine: "scanSecrets",
+        inputs: "firmware sources and configuration files",
+        output: "credential shapes found in them",
+        purpose: "Find credentials that were compiled into firmware, where they cannot be rotated by any operation short of a recall.",
+        requiresApproval: false,
+        receipt: "each secret shape found, where it appeared, and the file it came from"
+      }),
+      A2({
+        id: "embedded.entropy-check",
+        name: "Key entropy",
+        domain: "embedded",
+        status: "engine",
+        engine: "stringEntropyBits",
+        inputs: "device keys and identifiers as generated",
+        output: "the entropy their shape implies",
+        purpose: "Check that a device key has the entropy its purpose needs before a fleet is provisioned with it.",
+        requiresApproval: false,
+        receipt: "the entropy computed, the requirement, and the key's own shape"
+      }),
+      A2({
+        id: "embedded.fleet-growth",
+        name: "Fleet growth model",
+        domain: "embedded",
+        status: "engine",
+        engine: "growthModel",
+        inputs: "a provisioning plan and its churn",
+        output: "the fleet trajectory and its end state",
+        purpose: "Model fleet growth so backend capacity and certificate lifetimes are planned rather than discovered.",
+        requiresApproval: false,
+        receipt: "the plan modelled period by period, the rates assumed, and the end state"
+      }),
+      A2({
+        id: "embedded.firmware-release",
+        name: "Firmware release",
+        domain: "embedded",
+        status: "workflow",
+        engine: "appSizeBudget + timingSlack",
+        inputs: "a firmware build and the target hardware list",
+        output: "a release package ready to flash, gated",
+        purpose: "Release firmware with the size and timing gates cleared and a human approving, because it cannot be redeployed.",
+        requiresApproval: true,
+        receipt: "the gates cleared, the hardware list, and the human's approval of the release"
+      }),
+      A2({
+        id: "embedded.key-provision",
+        name: "Key provisioning",
+        domain: "embedded",
+        status: "workflow",
+        engine: "stringEntropyBits + scanSecrets",
+        inputs: "a device identity to be provisioned at manufacture",
+        output: "a provisioning run, gated",
+        purpose: "Provision device identity with the entropy verified and the run approved, because a fleet's keys are set once.",
+        requiresApproval: true,
+        receipt: "the entropy verified, the keys provisioned, and the human's approval of the run"
+      }),
+      /* ── ml & ai ───────────────────────────────────────────────────── */
+      A2({
+        id: "ml.eval-interval",
+        name: "Evaluation interval",
+        domain: "ml",
+        status: "engine",
+        engine: "evalInterval",
+        inputs: "a sample size and the correct outcomes",
+        output: "the proportion and its confidence interval",
+        purpose: "Report an evaluation with the interval around it, because a bare score invites a decision it cannot support.",
+        requiresApproval: false,
+        receipt: "the sample, the confidence level, and the interval computed"
+      }),
+      A2({
+        id: "ml.split-audit",
+        name: "Split audit",
+        domain: "ml",
+        status: "engine",
+        engine: "splitAudit",
+        inputs: "corpus size, split proportions and duplicate rows",
+        output: "whether the split leaks",
+        purpose: "Check that a train/validation/test split is honest before the score it produces is quoted anywhere.",
+        requiresApproval: false,
+        receipt: "the proportions, the duplicate count, and the grouping rule applied"
+      }),
+      A2({
+        id: "ml.sample-size",
+        name: "Evaluation size",
+        domain: "ml",
+        status: "engine",
+        engine: "sampleSize",
+        inputs: "an effect worth detecting and a baseline rate",
+        output: "the sample needed to see it",
+        purpose: "Plan an evaluation from the effect worth detecting, so a null result is informative rather than merely disappointing.",
+        requiresApproval: false,
+        receipt: "the effect, the power, and the sample size derived"
+      }),
+      A2({
+        id: "ml.lift-readout",
+        name: "A/B lift readout",
+        domain: "ml",
+        status: "engine",
+        engine: "abTest",
+        inputs: "two arms with conversions",
+        output: "the lift and whether the sample supports it",
+        purpose: "Read a model or prompt A/B honestly, with the uncertainty attached to the difference.",
+        requiresApproval: false,
+        receipt: "both arms, the statistic applied, and the interval around the lift"
+      }),
+      A2({
+        id: "ml.prompt-budget",
+        name: "Prompt budget",
+        domain: "ml",
+        status: "engine",
+        engine: "payloadBudget",
+        inputs: "system prompt and context as assembled",
+        output: "the token cost of the context",
+        purpose: "Hold the assembled context inside a token budget so cost and latency stay predictable as prompts grow.",
+        requiresApproval: false,
+        receipt: "the context measured, the budget, and the components that dominate it"
+      }),
+      A2({
+        id: "ml.latency-percentiles",
+        name: "Inference latency",
+        domain: "ml",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "inference durations from production traffic",
+        output: "p50, p95 and p99 per model",
+        purpose: "Watch inference at the tail, because autoscaling reacts to the worst requests, not the average ones.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the tail per model"
+      }),
+      A2({
+        id: "ml.cost-per-token",
+        name: "Cost per million tokens",
+        domain: "ml",
+        status: "engine",
+        engine: "unitEconomics",
+        inputs: "token volume, provider pricing and the revenue it serves",
+        output: "cost per million tokens and its payback",
+        purpose: "Put a unit cost on inference so a model choice is a margin decision rather than a preference.",
+        requiresApproval: false,
+        receipt: "the volume, the price used, and the unit cost derived"
+      }),
+      A2({
+        id: "ml.drift-watch",
+        name: "Output drift watch",
+        domain: "ml",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "a daily metric for model outputs",
+        output: "days out of family, and by how far",
+        purpose: "Notice an output distribution moving while every individual response still looks plausible.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each flagged day"
+      }),
+      A2({
+        id: "ml.grounding-lint",
+        name: "Grounding citations",
+        domain: "ml",
+        status: "engine",
+        engine: "citationLint",
+        inputs: "a model answer that cites sources",
+        output: "which numeric claims carry no citation",
+        purpose: "Check that a grounded answer actually cites the claims that need a source.",
+        requiresApproval: false,
+        receipt: "the citations found, the claims without one, and the pattern rules applied"
+      }),
+      A2({
+        id: "ml.model-promote",
+        name: "Model promotion",
+        domain: "ml",
+        status: "workflow",
+        engine: "evalInterval + splitAudit",
+        inputs: "a candidate model with its evaluation",
+        output: "a promotion to serve traffic, gated",
+        purpose: "Promote a model with the evaluation and its interval in front of a human, because promotion changes what customers see.",
+        requiresApproval: true,
+        receipt: "the evaluation, its interval, the split audit, and the human's approval"
+      }),
+      A2({
+        id: "ml.training-run",
+        name: "Training run",
+        domain: "ml",
+        status: "workflow",
+        engine: "spendForecast + evalInterval",
+        inputs: "a training plan with its compute estimate",
+        output: "a training run, gated on spend",
+        purpose: "Start a training run with the cost projected and approved, because compute is money spent before any result exists.",
+        requiresApproval: true,
+        receipt: "the projected spend, the evaluation plan, and the human's approval of the run"
+      }),
+      /* ── research ───────────────────────────────────────────────────── */
+      A2({
+        id: "research.citation-lint",
+        name: "Citation lint",
+        domain: "research",
+        status: "engine",
+        engine: "citationLint",
+        inputs: "a draft with numeric claims",
+        output: "the claims that carry no citation",
+        purpose: "Find uncited numeric claims while the draft is still cheap to fix, rather than at review.",
+        requiresApproval: false,
+        receipt: "the citations counted, the uncited claims listed, and the pattern rules applied"
+      }),
+      A2({
+        id: "research.rater-agreement",
+        name: "Rater agreement",
+        domain: "research",
+        status: "engine",
+        engine: "raterAgreement",
+        inputs: "two raters' labels for the same items",
+        output: "raw agreement and Cohen's kappa beside it",
+        purpose: "Show how much of a coding agreement is simply chance, because raw agreement flatters every rubric.",
+        requiresApproval: false,
+        receipt: "the labels, the observed and chance agreement, and kappa"
+      }),
+      A2({
+        id: "research.sample-size",
+        name: "Study sample size",
+        domain: "research",
+        status: "engine",
+        engine: "sampleSize",
+        inputs: "an effect size worth detecting and a baseline",
+        output: "the sample the study needs",
+        purpose: "Size a study from the effect worth detecting so an inconclusive result is a finding rather than a waste.",
+        requiresApproval: false,
+        receipt: "the effect, the power chosen, and the sample derived"
+      }),
+      A2({
+        id: "research.result-percentiles",
+        name: "Result percentiles",
+        domain: "research",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "measurements from an experiment",
+        output: "p50, p95 and p99 for the distribution",
+        purpose: "Report measurements as a distribution, because a mean hides the tail an experiment may actually be about.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the readout"
+      }),
+      A2({
+        id: "research.outlier-trials",
+        name: "Outlier trials",
+        domain: "research",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "trial measurements from one condition",
+        output: "trials outside the Tukey fence",
+        purpose: "Identify trials that are outliers by the measures used, and separate exclusion decisions from dislike of the result.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and every trial outside it"
+      }),
+      A2({
+        id: "research.paper-readability",
+        name: "Paper readability",
+        domain: "research",
+        status: "engine",
+        engine: "readability",
+        inputs: "a section of the manuscript",
+        output: "its reading grade and the sentences that carry it",
+        purpose: "Keep a paper readable to the people who will use it, not only to the reviewers who will judge it.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "research.reading-time",
+        name: "Reading time",
+        domain: "research",
+        status: "engine",
+        engine: "readingTime",
+        inputs: "a manuscript or abstract",
+        output: "reading time and the sections that dominate it",
+        purpose: "Know what a reviewer has actually been asked to read before assuming a careful read.",
+        requiresApproval: false,
+        receipt: "the word count, the reading speed assumed, and the time computed"
+      }),
+      A2({
+        id: "research.section-structure",
+        name: "Section structure",
+        domain: "research",
+        status: "engine",
+        engine: "headingLint",
+        inputs: "the manuscript's headings",
+        output: "the heading structure and its faults",
+        purpose: "Check that a manuscript's structure follows its own promise, because a missing methods heading is a rejection risk.",
+        requiresApproval: false,
+        receipt: "the headings found, the faults listed, and the structure rule applied"
+      }),
+      A2({
+        id: "research.terminology-drift",
+        name: "Terminology drift",
+        domain: "research",
+        status: "engine",
+        engine: "terminologyDrift",
+        inputs: "a manuscript and the glossary it declares",
+        output: "terms used inconsistently",
+        purpose: "Catch a term that changes meaning halfway through a paper, which is where reviewers lose the thread.",
+        requiresApproval: false,
+        receipt: "the glossary, the drift found, and the sections it appears in"
+      }),
+      A2({
+        id: "research.ethics-submit",
+        name: "Ethics submission",
+        domain: "research",
+        status: "workflow",
+        engine: "headingLint + citationLint",
+        inputs: "a protocol ready for an ethics committee",
+        output: "a submission, gated",
+        purpose: "Submit a protocol with its structure checked and a human approving, because an ethics submission is a commitment.",
+        requiresApproval: true,
+        receipt: "the protocol checked, the attachments verified, and the human's approval of the submission"
+      }),
+      A2({
+        id: "research.preprint-post",
+        name: "Preprint release",
+        domain: "research",
+        status: "workflow",
+        engine: "citationLint + raterAgreement",
+        inputs: "a manuscript ready for public release",
+        output: "a public posting, gated",
+        purpose: "Post a preprint with its citations checked and a human approving, because publication is irreversible in practice.",
+        requiresApproval: true,
+        receipt: "the citation check, the agreement figures attached, and the human's approval"
+      }),
+      /* ── media ───────────────────────────────────────────────────── */
+      A2({
+        id: "media.loudness-gain",
+        name: "Loudness gain",
+        domain: "media",
+        status: "engine",
+        engine: "loudnessGain",
+        inputs: "measured integrated loudness and the target",
+        output: "the gain to apply and the peak after it",
+        purpose: "Reach a loudness target without discovering at the encoder that the limiter had to do the work.",
+        requiresApproval: false,
+        receipt: "the measured loudness, the gain applied, and the peak it produced"
+      }),
+      A2({
+        id: "media.bitrate-budget",
+        name: "Bitrate budget",
+        domain: "media",
+        status: "engine",
+        engine: "bitrateBudget",
+        inputs: "runtime and a size budget with an encoding ladder",
+        output: "which rung of the ladder fits",
+        purpose: "Choose the encoding rung from the size budget and the runtime, instead of from habit or from a competitor's number.",
+        requiresApproval: false,
+        receipt: "the ladder evaluated, the rung chosen, and the size it produces"
+      }),
+      A2({
+        id: "media.segment-durations",
+        name: "Segment durations",
+        domain: "media",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "segment durations from a finished edit",
+        output: "p50, p95 and p99 across the timeline",
+        purpose: "See the shape of an edit, where a few long segments carry the pace of the whole piece.",
+        requiresApproval: false,
+        receipt: "the segments measured, the percentile method, and the readout"
+      }),
+      A2({
+        id: "media.dropout-outliers",
+        name: "Dropout outliers",
+        domain: "media",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "dropped-frame counts across playback sessions",
+        output: "sessions outside the Tukey fence",
+        purpose: "Separate a systematic playback problem from the handful of sessions that were always going to be unlucky.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and the sessions outside it"
+      }),
+      A2({
+        id: "media.subtitle-contrast",
+        name: "Subtitle contrast",
+        domain: "media",
+        status: "engine",
+        engine: "contrastRatio + wcagVerdict",
+        inputs: "subtitle colour and the plate behind it",
+        output: "the contrast ratio and the level it meets",
+        purpose: "Check that subtitles are legible against the actual plate colour rather than against an assumption about it.",
+        requiresApproval: false,
+        receipt: "both colours, the ratio computed, and the standard applied"
+      }),
+      A2({
+        id: "media.caption-type-scale",
+        name: "Caption type scale",
+        domain: "media",
+        status: "engine",
+        engine: "typeScale",
+        inputs: "a base caption size and a ratio",
+        output: "the caption scale in px and rem",
+        purpose: "Generate the caption scale once so every title card and lower third stops being decided individually.",
+        requiresApproval: false,
+        receipt: "the base, the ratio, and every step of the scale produced"
+      }),
+      A2({
+        id: "media.episode-metadata",
+        name: "Episode metadata",
+        domain: "media",
+        status: "engine",
+        engine: "metaLint",
+        inputs: "an episode title and description",
+        output: "what each catalogue and player will truncate",
+        purpose: "Catch the truncation in an episode title where every surface cuts it at a different width.",
+        requiresApproval: false,
+        receipt: "each field measured, the limits applied, and the truncation points"
+      }),
+      A2({
+        id: "media.subtitle-coverage",
+        name: "Subtitle coverage",
+        domain: "media",
+        status: "engine",
+        engine: "localeCoverage",
+        inputs: "subtitle tracks per locale against the base",
+        output: "which locales clear the shipping bar",
+        purpose: "Decide which subtitle tracks ship together, because a missing track is a missing audience.",
+        requiresApproval: false,
+        receipt: "the base count, each locale's coverage, and the bar applied"
+      }),
+      A2({
+        id: "media.subtitle-expansion",
+        name: "Subtitle expansion",
+        domain: "media",
+        status: "engine",
+        engine: "stringExpansion",
+        inputs: "a source line and the target language",
+        output: "the line's expected length when translated",
+        purpose: "Anticipate the reading speed a translated subtitle line will demand before the track is produced.",
+        requiresApproval: false,
+        receipt: "the source line, the expansion range used, and the resulting length"
+      }),
+      A2({
+        id: "media.rendition-publish",
+        name: "Rendition publish",
+        domain: "media",
+        status: "workflow",
+        engine: "bitrateBudget + loudnessGain",
+        inputs: "a mastered asset with its ladder and loudness targets",
+        output: "a publishing run to the CDN, gated",
+        purpose: "Publish renditions with the ladder and loudness verified and a human approving, because publishing is customer-facing.",
+        requiresApproval: true,
+        receipt: "the ladder verified, the loudness measured, and the human's approval of the publish"
+      }),
+      A2({
+        id: "media.rights-clearance",
+        name: "Rights clearance",
+        domain: "media",
+        status: "workflow",
+        engine: "dateTerms + retentionClock",
+        inputs: "a piece of licensed material and its grant",
+        output: "a clearance window, gated for the licence holder",
+        purpose: "Clear licensed material with the window computed and approved, because an expired licence is a takedown.",
+        requiresApproval: true,
+        receipt: "the grant dates, the cleared window, and the human's approval of the use"
+      }),
+      /* ── finops ───────────────────────────────────────────────────── */
+      A2({
+        id: "finops.spend-forecast",
+        name: "Spend forecast",
+        domain: "finops",
+        status: "engine",
+        engine: "spendForecast",
+        inputs: "months of spend for a service or the whole estate",
+        output: "the trend and a projected month",
+        purpose: "Give finance a trajectory instead of last month's number and an assurance.",
+        requiresApproval: false,
+        receipt: "the months observed, the fitted trend, and the projection with its caveat"
+      }),
+      A2({
+        id: "finops.anomaly-watch",
+        name: "Spend anomaly watch",
+        domain: "finops",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "daily spend samples",
+        output: "days out of family, with their z",
+        purpose: "Find the day spend moved without a corresponding incident, while the cause is still cheap to find.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each flagged day"
+      }),
+      A2({
+        id: "finops.unit-cost",
+        name: "Unit cost rollup",
+        domain: "finops",
+        status: "engine",
+        engine: "unitEconomics",
+        inputs: "revenue, margin, acquisition cost and churn",
+        output: "cost per unit and the payback period",
+        purpose: "Express infrastructure cost per customer or per thousand requests, which is the number engineering can act on.",
+        requiresApproval: false,
+        receipt: "the inputs, the cost per unit, and the assumptions the model rests on"
+      }),
+      A2({
+        id: "finops.egress-cost",
+        name: "Egress cost",
+        domain: "finops",
+        status: "engine",
+        engine: "egressCost",
+        inputs: "egress volume, origin price and cache behaviour",
+        output: "cost per path and what the cache saves",
+        purpose: "Show where egress money actually goes, path by path, instead of treating it as one line item.",
+        requiresApproval: false,
+        receipt: "the volumes, the prices, and the per-path computation"
+      }),
+      A2({
+        id: "finops.cost-percentiles",
+        name: "Cost percentiles",
+        domain: "finops",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "per-tenant or per-request cost samples",
+        output: "the distribution, not just the total",
+        purpose: "Find the tenants and requests that carry the tail of the bill, which a total never shows.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the distribution readout"
+      }),
+      A2({
+        id: "finops.capacity-runway",
+        name: "Capacity runway",
+        domain: "finops",
+        status: "engine",
+        engine: "capacityHeadroom",
+        inputs: "current use, growth and the commitment threshold",
+        output: "when the commitment threshold is reached",
+        purpose: "Time a reservation decision rather than making it under pressure when the threshold is already crossed.",
+        requiresApproval: false,
+        receipt: "the headroom, the growth rate, and the runway before the threshold"
+      }),
+      A2({
+        id: "finops.reliability-spend",
+        name: "Reliability spend",
+        domain: "finops",
+        status: "engine",
+        engine: "sloErrorBudget",
+        inputs: "an SLO and the window it is measured over",
+        output: "the error budget and what is left of it",
+        purpose: "Frame reliability work as budget spent, which is the only version of the conversation that ends in a decision.",
+        requiresApproval: false,
+        receipt: "the SLO, the window, and the budget allowed and consumed"
+      }),
+      A2({
+        id: "finops.plan-check",
+        name: "Plan check",
+        domain: "finops",
+        status: "engine",
+        engine: "growthModel",
+        inputs: "a revenue or usage plan with its churn",
+        output: "the trajectory and the exit position",
+        purpose: "Test whether a plan survives its own churn assumption before the cost model is built on top of it.",
+        requiresApproval: false,
+        receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+      }),
+      A2({
+        id: "finops.retention-audit",
+        name: "Retention audit",
+        domain: "finops",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "data classes with creation dates and retention terms",
+        output: "what may be deleted and what is overdue",
+        purpose: "Find the storage that policy already says should be gone, which is the cheapest saving available.",
+        requiresApproval: false,
+        receipt: "each class, its retention term, and the days past or remaining"
+      }),
+      A2({
+        id: "finops.budget-commit",
+        name: "Commitment purchase",
+        domain: "finops",
+        status: "workflow",
+        engine: "spendForecast + egressCost",
+        inputs: "a proposed reservation against forecast usage",
+        output: "a commitment, gated on spend",
+        purpose: "Buy a commitment with the usage modelled and a human approving, because a reservation is money spent up front.",
+        requiresApproval: true,
+        receipt: "the forecast it rests on, the break-even, and the human's approval of the purchase"
+      }),
+      A2({
+        id: "finops.showback-invoice",
+        name: "Chargeback run",
+        domain: "finops",
+        status: "workflow",
+        engine: "unitEconomics + percentiles",
+        inputs: "costs allocated across teams or tenants",
+        output: "an internal invoice run, gated before it is issued",
+        purpose: "Issue internal charges with the allocation method stated and approved, because a chargeback nobody agreed to is an argument.",
+        requiresApproval: true,
+        receipt: "the allocation method, the amounts per team, and the human's approval of the run"
+      }),
+      /* ── legal ───────────────────────────────────────────────────── */
+      A2({
+        id: "legal.clause-terms",
+        name: "Clause terms",
+        domain: "legal",
+        status: "engine",
+        engine: "clauseLint",
+        inputs: "a clause and the terms to count",
+        output: "the density of undefined terms a dispute would turn on",
+        purpose: "Point at the words a contract will be argued over later, while redrafting is still a text edit.",
+        requiresApproval: false,
+        receipt: "the terms counted, their occurrences, and the density per thousand words"
+      }),
+      A2({
+        id: "legal.contract-dates",
+        name: "Contract dates",
+        domain: "legal",
+        status: "engine",
+        engine: "dateTerms",
+        inputs: "an effective date, term length and notice period",
+        output: "expiry and the last day to serve notice",
+        purpose: "Put the dates a contract turns on in front of the people who have to act on them, not only the people who signed.",
+        requiresApproval: false,
+        receipt: "the effective date, the expiry, and the last day to notice"
+      }),
+      A2({
+        id: "legal.terminology-drift",
+        name: "Defined-term drift",
+        domain: "legal",
+        status: "engine",
+        engine: "terminologyDrift",
+        inputs: "a contract and the terms it defines",
+        output: "defined terms used inconsistently",
+        purpose: "Catch a defined term that wanders, which is how a clear clause becomes an ambiguous one.",
+        requiresApproval: false,
+        receipt: "the defined terms, the drift found, and where each appears"
+      }),
+      A2({
+        id: "legal.clause-structure",
+        name: "Clause structure",
+        domain: "legal",
+        status: "engine",
+        engine: "headingLint",
+        inputs: "a contract's clause headings",
+        output: "the structure and the headings that break it",
+        purpose: "Check that a contract's structure matches its own table of contents, which is where cross-references break.",
+        requiresApproval: false,
+        receipt: "the headings found, the faults listed, and the structure rule applied"
+      }),
+      A2({
+        id: "legal.plain-language",
+        name: "Plain language",
+        domain: "legal",
+        status: "engine",
+        engine: "readability",
+        inputs: "a clause or a policy",
+        output: "its reading grade and the sentences that carry it",
+        purpose: "Give a policy a reading grade, because a term nobody understands is a term nobody can follow.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "legal.retention-clock",
+        name: "Retention clock",
+        domain: "legal",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "document classes with creation dates and retention terms",
+        output: "which documents may already be destroyed",
+        purpose: "Run document retention as a clock rather than as a spring clean somebody schedules when they remember.",
+        requiresApproval: false,
+        receipt: "each class, its term, and the days past or remaining"
+      }),
+      A2({
+        id: "legal.pii-in-draft",
+        name: "Personal data in a draft",
+        domain: "legal",
+        status: "engine",
+        engine: "piiScan",
+        inputs: "a draft, an exhibit or a redaction candidate",
+        output: "personal-data classes present, samples masked",
+        purpose: "Find personal data in material about to be filed, and mask the sample so the finding is not itself a disclosure.",
+        requiresApproval: false,
+        receipt: "the classes present, the masked samples, and the patterns applied"
+      }),
+      A2({
+        id: "legal.redaction-strength",
+        name: "Redaction strength",
+        domain: "legal",
+        status: "engine",
+        engine: "stringEntropyBits",
+        inputs: "an identifier as redacted",
+        output: "the entropy the redaction leaves",
+        purpose: "Check that a redaction has removed enough that the identifier cannot be recovered, not merely that it looks shorter.",
+        requiresApproval: false,
+        receipt: "the redacted form, the entropy remaining, and the requirement applied"
+      }),
+      A2({
+        id: "legal.filing-secret-scan",
+        name: "Filing secret scan",
+        domain: "legal",
+        status: "engine",
+        engine: "scanSecrets",
+        inputs: "documents about to be filed or published",
+        output: "credential shapes present in them",
+        purpose: "Catch the API key in an exhibit before the exhibit is a public record.",
+        requiresApproval: false,
+        receipt: "each secret shape found, its location, and the file it came from"
+      }),
+      A2({
+        id: "legal.regulatory-filing",
+        name: "Regulatory filing",
+        domain: "legal",
+        status: "workflow",
+        engine: "dateTerms + clauseLint",
+        inputs: "a filing due to a regulator by a statutory date",
+        output: "a filing, gated on the human",
+        purpose: "File with the statutory date computed and the signatory approved, because a late filing is a penalty, not a delay.",
+        requiresApproval: true,
+        receipt: "the due date computed, the documents attached, and the human's approval of the filing"
+      }),
+      A2({
+        id: "legal.notice-serve",
+        name: "Serve notice",
+        domain: "legal",
+        status: "workflow",
+        engine: "dateTerms",
+        inputs: "a notice to be served inside a contractual window",
+        output: "a notice served, gated",
+        purpose: "Serve a notice inside a window that closes on a fixed date, with the founder or counsel approving the wording.",
+        requiresApproval: true,
+        receipt: "the window computed, the notice text served, and the human's approval"
+      }),
+      /* ── privacy ───────────────────────────────────────────────────── */
+      A2({
+        id: "privacy.pii-scan",
+        name: "Personal-data scan",
+        domain: "privacy",
+        status: "engine",
+        engine: "piiScan",
+        inputs: "a body of text, a sample or an export",
+        output: "personal-data classes present, every sample masked",
+        purpose: "Establish what personal data a text contains before it is copied into a ticket, a prompt or a repo.",
+        requiresApproval: false,
+        receipt: "the classes present, the masked samples, and the patterns applied"
+      }),
+      A2({
+        id: "privacy.retention-clock",
+        name: "Retention clock",
+        domain: "privacy",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "data classes with creation dates and retention terms",
+        output: "what is overdue for deletion",
+        purpose: "Run deletion on the clock the policy promises, rather than on the quarter somebody remembers it.",
+        requiresApproval: false,
+        receipt: "each class, its term, and the days past or remaining"
+      }),
+      A2({
+        id: "privacy.secret-scan",
+        name: "Secret scan",
+        domain: "privacy",
+        status: "engine",
+        engine: "scanSecrets",
+        inputs: "repositories, logs or configuration",
+        output: "credential shapes found in them",
+        purpose: "Find credentials where they should not be, since a secret in a log is a secret with an audience.",
+        requiresApproval: false,
+        receipt: "each secret shape, its location, and the source scanned"
+      }),
+      A2({
+        id: "privacy.identifier-entropy",
+        name: "Identifier entropy",
+        domain: "privacy",
+        status: "engine",
+        engine: "stringEntropyBits",
+        inputs: "an identifier used to refer to a person",
+        output: "the entropy its shape implies",
+        purpose: "Check whether a pseudonymous identifier can be reversed by guessing, which is the difference between pseudonymous and anonymous.",
+        requiresApproval: false,
+        receipt: "the identifier shape, the entropy computed, and the requirement"
+      }),
+      A2({
+        id: "privacy.tracker-surface",
+        name: "Tracker surface",
+        domain: "privacy",
+        status: "engine",
+        engine: "cspAudit",
+        inputs: "a content security policy from a web surface",
+        output: "what the policy permits third parties to do",
+        purpose: "See what a page actually permits, because a tag manager can widen a policy nobody reopened.",
+        requiresApproval: false,
+        receipt: "the directives read, what each permits, and the findings"
+      }),
+      A2({
+        id: "privacy.notice-structure",
+        name: "Notice structure",
+        domain: "privacy",
+        status: "engine",
+        engine: "headingLint",
+        inputs: "a privacy notice's headings",
+        output: "whether the structure carries the required sections",
+        purpose: "Check that a notice is organised so a reader can find the section that applies to them.",
+        requiresApproval: false,
+        receipt: "the headings found, the sections missing, and the structure rule"
+      }),
+      A2({
+        id: "privacy.notice-readability",
+        name: "Notice readability",
+        domain: "privacy",
+        status: "engine",
+        engine: "readability",
+        inputs: "a privacy notice",
+        output: "its reading grade",
+        purpose: "Give a notice a reading grade, because informed consent that requires a law degree is neither.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "privacy.access-outliers",
+        name: "Access outliers",
+        domain: "privacy",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "per-actor access counts over a window",
+        output: "actors outside the Tukey fence",
+        purpose: "Separate an actor whose access pattern is genuinely exceptional from ordinary variation in a busy system.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and the actors outside it"
+      }),
+      A2({
+        id: "privacy.access-percentiles",
+        name: "Access percentiles",
+        domain: "privacy",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "record-access volumes by system",
+        output: "the distribution across systems",
+        purpose: "Rank systems by the tail of their access volume, where over-collection shows up first.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the readout"
+      }),
+      A2({
+        id: "privacy.dsar-respond",
+        name: "Data-subject request",
+        domain: "privacy",
+        status: "workflow",
+        engine: "piiScan + retentionClock",
+        inputs: "a request from a data subject with a statutory clock",
+        output: "a response assembled, gated",
+        purpose: "Answer a data-subject request inside its statutory clock with a human approving the disclosure.",
+        requiresApproval: true,
+        receipt: "the request logged, the clock applied, the records identified, and the human's approval"
+      }),
+      A2({
+        id: "privacy.consent-change",
+        name: "Consent change",
+        domain: "privacy",
+        status: "workflow",
+        engine: "readability + localeCoverage",
+        inputs: "a change to consent wording and the locales it ships in",
+        output: "a consent change, gated",
+        purpose: "Change consent wording with the reading grade and locale coverage known and a human approving the change.",
+        requiresApproval: true,
+        receipt: "the wording diff, the locales covered, and the human's approval"
+      }),
+      /* ── people ───────────────────────────────────────────────────── */
+      A2({
+        id: "people.headcount-model",
+        name: "Headcount model",
+        domain: "people",
+        status: "engine",
+        engine: "headcountModel",
+        inputs: "current headcount, hire rate and attrition",
+        output: "the trajectory and its end state",
+        purpose: "Show what a hiring plan does once attrition compounds against it, before the plan is promised to anyone.",
+        requiresApproval: false,
+        receipt: "the plan modelled month by month, the rates assumed, and the resulting headcount"
+      }),
+      A2({
+        id: "people.band-position",
+        name: "Band position",
+        domain: "people",
+        status: "engine",
+        engine: "compBand",
+        inputs: "a salary band and a proposed offer",
+        output: "position in band and compa-ratio",
+        purpose: "Place an offer in its band as both a position and a compa-ratio, which are different questions asked with one word.",
+        requiresApproval: false,
+        receipt: "the band, the offer, the position computed, and the ratio against the midpoint"
+      }),
+      A2({
+        id: "people.hiring-funnel",
+        name: "Hiring funnel",
+        domain: "people",
+        status: "engine",
+        engine: "funnel",
+        inputs: "stage counts from sourcing to offer",
+        output: "stage conversions and the step losing the most",
+        purpose: "Point recruiting effort at the stage that loses the most people, not the stage with the most candidates.",
+        requiresApproval: false,
+        receipt: "the counts, each stage's conversion, and the step identified as the constraint"
+      }),
+      A2({
+        id: "people.jd-readability",
+        name: "Job-description reading",
+        domain: "people",
+        status: "engine",
+        engine: "readability",
+        inputs: "a job description",
+        output: "its reading grade",
+        purpose: "Write a job description people can read, because a posting nobody finishes is a posting nobody answers.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "people.policy-reading-time",
+        name: "Policy reading time",
+        domain: "people",
+        status: "engine",
+        engine: "readingTime",
+        inputs: "a policy or handbook section",
+        output: "how long it takes to read",
+        purpose: "Know what a policy actually asks of the people who must follow it before announcing it is mandatory.",
+        requiresApproval: false,
+        receipt: "the word count, the reading speed assumed, and the time computed"
+      }),
+      A2({
+        id: "people.criteria-drift",
+        name: "Review-criteria drift",
+        domain: "people",
+        status: "engine",
+        engine: "terminologyDrift",
+        inputs: "a review rubric and the terms it defines",
+        output: "criteria used inconsistently across sections",
+        purpose: "Catch a review criterion that means something different in two places, which is how ratings stop being comparable.",
+        requiresApproval: false,
+        receipt: "the defined criteria, the drift found, and where each appears"
+      }),
+      A2({
+        id: "people.survey-size",
+        name: "Survey sample size",
+        domain: "people",
+        status: "engine",
+        engine: "sampleSize",
+        inputs: "an effect worth detecting and a baseline rate",
+        output: "the responses a survey needs",
+        purpose: "Size an engagement survey from the difference worth acting on, so a weak result is not read as a mandate.",
+        requiresApproval: false,
+        receipt: "the effect, the power chosen, and the responses derived"
+      }),
+      A2({
+        id: "people.scorecard-agreement",
+        name: "Scorecard agreement",
+        domain: "people",
+        status: "engine",
+        engine: "raterAgreement",
+        inputs: "two interviewers' scores for the same candidates",
+        output: "agreement and kappa beside it",
+        purpose: "Show how much interviewer agreement is chance, which is the number that decides whether a scorecard is a measure.",
+        requiresApproval: false,
+        receipt: "the scores compared, the chance agreement, and kappa"
+      }),
+      A2({
+        id: "people.handbook-structure",
+        name: "Handbook structure",
+        domain: "people",
+        status: "engine",
+        engine: "headingLint",
+        inputs: "a handbook's headings",
+        output: "its structure and the sections that break it",
+        purpose: "Check a handbook's structure, because a policy that cannot be found has not been communicated.",
+        requiresApproval: false,
+        receipt: "the headings found, the faults listed, and the structure rule applied"
+      }),
+      A2({
+        id: "people.offer-send",
+        name: "Extend an offer",
+        domain: "people",
+        status: "workflow",
+        engine: "compBand + headcountModel",
+        inputs: "an approved role with a band and its headcount plan",
+        output: "an offer extended, gated",
+        purpose: "Extend an offer with the band position computed and a human approving, because an offer is a commitment to a person.",
+        requiresApproval: true,
+        receipt: "the band position, the plan it fits, and the human's approval of the offer"
+      }),
+      A2({
+        id: "people.comp-change",
+        name: "Compensation change",
+        domain: "people",
+        status: "workflow",
+        engine: "compBand + unitEconomics",
+        inputs: "a proposed change for an individual or a group",
+        output: "a pay change, gated",
+        purpose: "Change compensation with the band effect and the affordability modelled and a human approving the change.",
+        requiresApproval: true,
+        receipt: "the band effect, the cost modelled, and the human's approval"
+      }),
+      /* ── revenue ───────────────────────────────────────────────────── */
+      A2({
+        id: "revenue.pipeline-coverage",
+        name: "Pipeline coverage",
+        domain: "revenue",
+        status: "engine",
+        engine: "pipelineCoverage",
+        inputs: "a quota and stage-weighted pipeline",
+        output: "weighted coverage against the quota",
+        purpose: "Answer whether the quarter is covered by weighted pipeline rather than by the size of the list.",
+        requiresApproval: false,
+        receipt: "each stage, its win rate, the weighted total, and the gap"
+      }),
+      A2({
+        id: "revenue.sla-clock",
+        name: "SLA clock",
+        domain: "revenue",
+        status: "engine",
+        engine: "slaClock",
+        inputs: "tickets with priorities and response times",
+        output: "first response against each priority target",
+        purpose: "Show attainment ticket by ticket, because an average response time hides every customer who waited all day.",
+        requiresApproval: false,
+        receipt: "the tickets measured, the targets applied, and the breaches named"
+      }),
+      A2({
+        id: "revenue.unit-economics",
+        name: "Unit economics",
+        domain: "revenue",
+        status: "engine",
+        engine: "unitEconomics",
+        inputs: "revenue, margin, acquisition cost and churn",
+        output: "lifetime value, the ratio and payback",
+        purpose: "Test whether growth pays for itself before more money is spent proving the question again.",
+        requiresApproval: false,
+        receipt: "the inputs, the ratio, the payback, and the assumptions behind them"
+      }),
+      A2({
+        id: "revenue.revenue-funnel",
+        name: "Revenue funnel",
+        domain: "revenue",
+        status: "engine",
+        engine: "funnel",
+        inputs: "stage counts from lead to closed",
+        output: "stage conversions and the largest proportional loss",
+        purpose: "Find the step where revenue leaks instead of the step where marketing is loudest.",
+        requiresApproval: false,
+        receipt: "the counts, each stage's conversion, and the constraint identified"
+      }),
+      A2({
+        id: "revenue.prioritise",
+        name: "Deal prioritisation",
+        domain: "revenue",
+        status: "engine",
+        engine: "riceScore",
+        inputs: "candidate deals or plays with reach, impact, confidence and effort",
+        output: "a ranked list with the inputs visible",
+        purpose: "Rank competing plays so disagreement traces to an input somebody chose rather than to seniority.",
+        requiresApproval: false,
+        receipt: "every candidate scored, the formula used, and the inputs as supplied"
+      }),
+      A2({
+        id: "revenue.plan-check",
+        name: "Plan check",
+        domain: "revenue",
+        status: "engine",
+        engine: "growthModel",
+        inputs: "a revenue plan with its churn and expansion assumptions",
+        output: "the trajectory and the exit position",
+        purpose: "Test whether a revenue plan survives its own churn assumption before it becomes a hiring plan.",
+        requiresApproval: false,
+        receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+      }),
+      A2({
+        id: "revenue.deal-size-percentiles",
+        name: "Deal-size percentiles",
+        domain: "revenue",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "closed deal values over a period",
+        output: "the distribution, not just the average deal",
+        purpose: "Show a deal-size distribution, because an average deal is a customer that does not quite exist.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the distribution readout"
+      }),
+      A2({
+        id: "revenue.discount-maths",
+        name: "Discount maths",
+        domain: "revenue",
+        status: "engine",
+        engine: "unitEconomics",
+        inputs: "a proposed discount and the deal economics",
+        output: "what the discount costs over the contract",
+        purpose: "Price a discount over the life of the contract rather than in the quarter it is granted.",
+        requiresApproval: false,
+        receipt: "the discount, its cost over the term, and the margin it reduces"
+      }),
+      A2({
+        id: "revenue.pipeline-anomaly",
+        name: "Pipeline anomaly",
+        domain: "revenue",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "daily pipeline creation or stage movement",
+        output: "days out of family",
+        purpose: "Catch a pipeline that moved for a reason nobody recorded, while the reason is still findable.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each flagged day"
+      }),
+      A2({
+        id: "revenue.quote-issue",
+        name: "Issue a quote",
+        domain: "revenue",
+        status: "workflow",
+        engine: "unitEconomics + compBand",
+        inputs: "a deal with its terms and approved pricing",
+        output: "a quote issued to a customer, gated",
+        purpose: "Issue a quote with the economics and the approval chain checked, because a quote is a commitment made in writing.",
+        requiresApproval: true,
+        receipt: "the economics computed, the approvals recorded, and the human's sign-off"
+      }),
+      A2({
+        id: "revenue.discount-approve",
+        name: "Approve a discount",
+        domain: "revenue",
+        status: "workflow",
+        engine: "unitEconomics + pipelineCoverage",
+        inputs: "a discount request beyond the standard band",
+        output: "an exception approved, gated",
+        purpose: "Approve a discount beyond policy with its cost modelled and the decision recorded against a name.",
+        requiresApproval: true,
+        receipt: "the discount modelled over the contract, the coverage effect, and the human's approval"
+      }),
+      /* ── marketing ───────────────────────────────────────────────────── */
+      A2({
+        id: "marketing.meta-lint",
+        name: "Title & meta",
+        domain: "marketing",
+        status: "engine",
+        engine: "metaLint",
+        inputs: "a page title, description and slug",
+        output: "what each search surface truncates",
+        purpose: "Catch the truncation in a search result before a customer reads half a sentence.",
+        requiresApproval: false,
+        receipt: "each field measured, the display limit applied, and the truncation point named"
+      }),
+      A2({
+        id: "marketing.crawl-budget",
+        name: "Crawl budget",
+        domain: "marketing",
+        status: "engine",
+        engine: "crawlBudget",
+        inputs: "page count, response latency and the allowed rate",
+        output: "crawl time and the binding constraint",
+        purpose: "Say how long a crawl takes and which limit binds, before an indexing delay is mistaken for a penalty.",
+        requiresApproval: false,
+        receipt: "the page count, the rate applied, and the limiting factor identified"
+      }),
+      A2({
+        id: "marketing.acquisition-funnel",
+        name: "Acquisition funnel",
+        domain: "marketing",
+        status: "engine",
+        engine: "funnel",
+        inputs: "visitor counts from impression to conversion",
+        output: "stage conversions and the largest loss",
+        purpose: "Find the stage where acquisition actually leaks instead of the stage with the most traffic.",
+        requiresApproval: false,
+        receipt: "the counts, each stage's conversion, and the constraint identified"
+      }),
+      A2({
+        id: "marketing.campaign-ab",
+        name: "Campaign A/B",
+        domain: "marketing",
+        status: "engine",
+        engine: "abTest",
+        inputs: "two creative variants with conversions",
+        output: "the lift and whether the sample supports it",
+        purpose: "Read a creative test with its uncertainty, so a winner is chosen on evidence rather than on the highest number.",
+        requiresApproval: false,
+        receipt: "both variants, the test applied, and the interval around the difference"
+      }),
+      A2({
+        id: "marketing.spend-forecast",
+        name: "Paid spend forecast",
+        domain: "marketing",
+        status: "engine",
+        engine: "spendForecast",
+        inputs: "months of paid-media spend",
+        output: "the trend and a projected month",
+        purpose: "Give a channel a trajectory so budget conversations start from a line rather than a request.",
+        requiresApproval: false,
+        receipt: "the months observed, the fitted trend, and the projection"
+      }),
+      A2({
+        id: "marketing.channel-anomaly",
+        name: "Channel anomaly",
+        domain: "marketing",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "daily sessions, spend or conversions",
+        output: "days out of family",
+        purpose: "Notice a channel moving while nobody changed a campaign, which is the day to look rather than next week.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each flagged day"
+      }),
+      A2({
+        id: "marketing.unit-economics",
+        name: "CAC & payback",
+        domain: "marketing",
+        status: "engine",
+        engine: "unitEconomics",
+        inputs: "revenue, margin, acquisition cost and churn",
+        output: "lifetime value, the ratio and payback",
+        purpose: "Bound what a customer may cost to acquire, which is the ceiling every campaign has to live under.",
+        requiresApproval: false,
+        receipt: "the inputs, the ratio, the payback, and the assumptions behind them"
+      }),
+      A2({
+        id: "marketing.landing-readability",
+        name: "Landing-page reading",
+        domain: "marketing",
+        status: "engine",
+        engine: "readability",
+        inputs: "landing-page copy",
+        output: "its reading grade",
+        purpose: "Match the reading grade of a page to the audience it is actually written for.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "marketing.locale-coverage",
+        name: "Locale coverage",
+        domain: "marketing",
+        status: "engine",
+        engine: "localeCoverage",
+        inputs: "translated campaign assets per locale",
+        output: "which locales can run together",
+        purpose: "Decide which locales launch as one campaign, because a missing translation is a missing market.",
+        requiresApproval: false,
+        receipt: "the base count, each locale's coverage, and the bar applied"
+      }),
+      A2({
+        id: "marketing.campaign-launch",
+        name: "Launch a campaign",
+        domain: "marketing",
+        status: "workflow",
+        engine: "unitEconomics + abTest",
+        inputs: "a campaign ready to spend against an audience",
+        output: "a launch, gated",
+        purpose: "Launch a campaign with the economics bounded and a human approving, because a launch spends money in public.",
+        requiresApproval: true,
+        receipt: "the budget, the expected payback, and the human's approval of the launch"
+      }),
+      A2({
+        id: "marketing.spend-commit",
+        name: "Commit ad spend",
+        domain: "marketing",
+        status: "workflow",
+        engine: "spendForecast + anomalyZ",
+        inputs: "a committed spend against forecast performance",
+        output: "a spend commitment, gated",
+        purpose: "Commit spend with the forecast and its spread in front of a human, because committed media is money already spent.",
+        requiresApproval: true,
+        receipt: "the forecast it rests on, the downside modelled, and the human's approval"
+      }),
+      /* ── localisation ───────────────────────────────────────────────────── */
+      A2({
+        id: "locale.coverage",
+        name: "Translation coverage",
+        domain: "locale",
+        status: "engine",
+        engine: "localeCoverage",
+        inputs: "translated keys per locale",
+        output: "which locales clear the shipping bar",
+        purpose: "Decide which locales ship from what is on disk, before a rollout discovers the gap in production.",
+        requiresApproval: false,
+        receipt: "the key count, each locale's coverage, and the bar applied"
+      }),
+      A2({
+        id: "locale.expansion",
+        name: "String expansion",
+        domain: "locale",
+        status: "engine",
+        engine: "stringExpansion",
+        inputs: "a source string and the target language",
+        output: "the length it will take when translated",
+        purpose: "Design to the length a string becomes rather than the length it was written at.",
+        requiresApproval: false,
+        receipt: "the source string, the expansion range used, and the resulting length"
+      }),
+      A2({
+        id: "locale.heading-structure",
+        name: "Localised structure",
+        domain: "locale",
+        status: "engine",
+        engine: "headingLint",
+        inputs: "headings across translated pages",
+        output: "structure that survives translation",
+        purpose: "Keep hierarchy readable after translation, where titles expand and headings wrap into the body.",
+        requiresApproval: false,
+        receipt: "the headings found, the faults listed, and the structure rule applied"
+      }),
+      A2({
+        id: "locale.terminology-drift",
+        name: "Glossary drift",
+        domain: "locale",
+        status: "engine",
+        engine: "terminologyDrift",
+        inputs: "translated content and the glossary it declares",
+        output: "terms translated inconsistently",
+        purpose: "Keep a product's vocabulary consistent across locales, which is what a glossary is for.",
+        requiresApproval: false,
+        receipt: "the glossary, the drift found, and where each appears"
+      }),
+      A2({
+        id: "locale.translated-readability",
+        name: "Translated readability",
+        domain: "locale",
+        status: "engine",
+        engine: "readability",
+        inputs: "a translated page",
+        output: "its reading grade in the target language",
+        purpose: "Check that a translation is readable in its own language rather than merely faithful to the source.",
+        requiresApproval: false,
+        receipt: "the text measured, the grade computed, and the formula applied"
+      }),
+      A2({
+        id: "locale.script-contrast",
+        name: "Script contrast",
+        domain: "locale",
+        status: "engine",
+        engine: "contrastRatio + wcagVerdict",
+        inputs: "text and background colours used with a script",
+        output: "the ratio and the level it meets",
+        purpose: "Check contrast for the script actually being rendered, where stroke weight and glyph size change legibility.",
+        requiresApproval: false,
+        receipt: "both colours, the ratio computed, and the standard applied"
+      }),
+      A2({
+        id: "locale.script-type-scale",
+        name: "Script type scale",
+        domain: "locale",
+        status: "engine",
+        engine: "typeScale",
+        inputs: "a base size and a ratio for a script",
+        output: "the scale that script needs",
+        purpose: "Give each script a scale its glyphs can carry, instead of scaling Latin metrics by eye.",
+        requiresApproval: false,
+        receipt: "the base, the ratio, and every step of the scale produced"
+      }),
+      A2({
+        id: "locale.grid-snap",
+        name: "Script grid",
+        domain: "locale",
+        status: "engine",
+        engine: "snapToGrid",
+        inputs: "spacing values used with a script",
+        output: "values off the grid and their distance from it",
+        purpose: "Keep spacing sane where line heights differ per script and layouts drift a few pixels at a time.",
+        requiresApproval: false,
+        receipt: "each value checked, off-grid values named, and the direction of correction"
+      }),
+      A2({
+        id: "locale.review-agreement",
+        name: "Review agreement",
+        domain: "locale",
+        status: "engine",
+        engine: "raterAgreement",
+        inputs: "two reviewers' verdicts on the same strings",
+        output: "agreement and kappa beside it",
+        purpose: "Show whether translation reviewers actually agree, which decides whether review is a process or an opinion.",
+        requiresApproval: false,
+        receipt: "the verdicts compared, the chance agreement, and kappa"
+      }),
+      A2({
+        id: "locale.locale-release",
+        name: "Locale release",
+        domain: "locale",
+        status: "workflow",
+        engine: "localeCoverage + stringExpansion",
+        inputs: "a locale ready to be enabled for users",
+        output: "a locale enabled, gated",
+        purpose: "Enable a locale with coverage and layout risk known and a human approving, because a locale is a promise to users.",
+        requiresApproval: true,
+        receipt: "the coverage, the expansion risks found, and the human's approval"
+      }),
+      A2({
+        id: "locale.glossary-commit",
+        name: "Publish a glossary",
+        domain: "locale",
+        status: "workflow",
+        engine: "terminologyDrift + headingLint",
+        inputs: "a glossary change that binds future translations",
+        output: "a glossary published, gated",
+        purpose: "Change the vocabulary every future translation must follow, with the diff reviewed and a human approving it.",
+        requiresApproval: true,
+        receipt: "the terms changed, the affected locales, and the human's approval of the change"
+      }),
+      /* ── supply chain ───────────────────────────────────────────────────── */
+      A2({
+        id: "supply.eoq",
+        name: "Order quantity",
+        domain: "supply",
+        status: "engine",
+        engine: "eoq",
+        inputs: "annual demand, order cost and holding cost",
+        output: "the order size that minimises both costs",
+        purpose: "Set order sizes from the trade-off between ordering and holding, which is the argument that never ends otherwise.",
+        requiresApproval: false,
+        receipt: "the inputs, the quantity derived, and the cost either side of it"
+      }),
+      A2({
+        id: "supply.safety-stock",
+        name: "Safety stock",
+        domain: "supply",
+        status: "engine",
+        engine: "safetyStock",
+        inputs: "demand, its spread, lead time and a service level",
+        output: "the buffer and the reorder point",
+        purpose: "Put a price on a service level, because the last few points of availability cost more than the rest combined.",
+        requiresApproval: false,
+        receipt: "the inputs, the service level applied, and the buffer it requires"
+      }),
+      A2({
+        id: "supply.lead-percentiles",
+        name: "Lead-time percentiles",
+        domain: "supply",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "supplier lead times recorded per order",
+        output: "p50, p95 and p99 lead times",
+        purpose: "Plan against the lead time that happens, not the one on the purchase order.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the lead-time readout"
+      }),
+      A2({
+        id: "supply.demand-outliers",
+        name: "Demand outliers",
+        domain: "supply",
+        status: "engine",
+        engine: "outliersIqr",
+        inputs: "daily or weekly demand figures",
+        output: "periods outside the Tukey fence",
+        purpose: "Separate a genuine demand spike from the ordinary variation that would otherwise set the buffer.",
+        requiresApproval: false,
+        receipt: "the quartiles, the fence, and every period outside it"
+      }),
+      A2({
+        id: "supply.demand-forecast",
+        name: "Demand forecast",
+        domain: "supply",
+        status: "engine",
+        engine: "spendForecast",
+        inputs: "period demand for one item",
+        output: "the trend and a projected period",
+        purpose: "Give replenishment a trajectory so the order is placed before the stockout rather than after it.",
+        requiresApproval: false,
+        receipt: "the periods observed, the fitted trend, and the projection"
+      }),
+      A2({
+        id: "supply.supplier-sla",
+        name: "Supplier SLA clock",
+        domain: "supply",
+        status: "engine",
+        engine: "slaClock",
+        inputs: "orders with promised and actual dates",
+        output: "delivery performance against the promise",
+        purpose: "Measure a supplier against the promise, order by order, rather than against a quarterly impression.",
+        requiresApproval: false,
+        receipt: "the orders, the promise dates, and the performance computed"
+      }),
+      A2({
+        id: "supply.shelf-life",
+        name: "Shelf-life clock",
+        domain: "supply",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "batches with receipt dates and shelf lives",
+        output: "what expires next and what is already past",
+        purpose: "Rotate stock on the clock a batch actually carries, before expiry turns inventory into waste.",
+        requiresApproval: false,
+        receipt: "each batch, its shelf life, and the days remaining"
+      }),
+      A2({
+        id: "supply.warehouse-headroom",
+        name: "Warehouse headroom",
+        domain: "supply",
+        status: "engine",
+        engine: "capacityHeadroom",
+        inputs: "current occupancy, growth and the practical ceiling",
+        output: "when the ceiling is reached",
+        purpose: "Turn warehouse growth into a date so the next lease is negotiated before the space runs out.",
+        requiresApproval: false,
+        receipt: "the occupancy, the growth rate, and the runway to the ceiling"
+      }),
+      A2({
+        id: "supply.network-growth",
+        name: "Network growth check",
+        domain: "supply",
+        status: "engine",
+        engine: "growthModel",
+        inputs: "a supply-network plan with its churn",
+        output: "the trajectory and its end state",
+        purpose: "Test a network plan against its own attrition before it becomes a capital commitment.",
+        requiresApproval: false,
+        receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+      }),
+      A2({
+        id: "supply.po-issue",
+        name: "Raise a purchase order",
+        domain: "supply",
+        status: "workflow",
+        engine: "eoq + safetyStock",
+        inputs: "a replenishment need with quantity and timing",
+        output: "a purchase order, gated",
+        purpose: "Raise a purchase order with the quantity and timing computed and a human approving, because a PO is money committed.",
+        requiresApproval: true,
+        receipt: "the quantity, the timing, the cost, and the human's approval"
+      }),
+      A2({
+        id: "supply.supplier-commit",
+        name: "Supplier commitment",
+        domain: "supply",
+        status: "workflow",
+        engine: "safetyStock + slaClock",
+        inputs: "a volume commitment to a supplier",
+        output: "a commitment, gated",
+        purpose: "Commit volume with the service-level effect and the supplier's record modelled, and a human approving.",
+        requiresApproval: true,
+        receipt: "the volume, the service-level effect, the supplier's record, and the human's approval"
+      }),
+      /* ── web3 ───────────────────────────────────────────────────── */
+      A2({
+        id: "web3.gas-plan",
+        name: "Gas plan",
+        domain: "web3",
+        status: "engine",
+        engine: "gasPlan",
+        inputs: "gas units, the fee market and the price of the asset",
+        output: "cost per operation and for the batch",
+        purpose: "Put a cost on an on-chain operation before the batch is written, when the design can still change.",
+        requiresApproval: false,
+        receipt: "the units, the fee components, and the cost computed per operation"
+      }),
+      A2({
+        id: "web3.token-decimals",
+        name: "Token decimals",
+        domain: "web3",
+        status: "engine",
+        engine: "tokenDecimals",
+        inputs: "a raw base-unit amount and the token's decimals",
+        output: "the human amount, and back again",
+        purpose: "Convert base units in integer arithmetic, which is where a decimal point silently becomes a decimal error.",
+        requiresApproval: false,
+        receipt: "the raw amount, the decimals, and the round trip verified"
+      }),
+      A2({
+        id: "web3.seed-entropy",
+        name: "Seed entropy",
+        domain: "web3",
+        status: "engine",
+        engine: "stringEntropyBits",
+        inputs: "a seed phrase or key as generated",
+        output: "the entropy its structure implies",
+        purpose: "Check that a seed has the entropy it needs before it holds anything worth taking.",
+        requiresApproval: false,
+        receipt: "the entropy computed, the requirement, and the key's structure"
+      }),
+      A2({
+        id: "web3.key-material-scan",
+        name: "Key material scan",
+        domain: "web3",
+        status: "engine",
+        engine: "scanSecrets",
+        inputs: "repositories, configs and deployment scripts",
+        output: "key material found in them",
+        purpose: "Find a private key that reached a repository, because that is not a rotation, it is a compromise.",
+        requiresApproval: false,
+        receipt: "each key shape found, where it appeared, and the source scanned"
+      }),
+      A2({
+        id: "web3.session-token",
+        name: "Session token audit",
+        domain: "web3",
+        status: "engine",
+        engine: "jwtInspect",
+        inputs: "a session token issued by the app",
+        output: "its claims, scopes and expiry, decoded",
+        purpose: "Read what a session token grants, because a widened scope outlives the reason it was granted.",
+        requiresApproval: false,
+        receipt: "the decoded claims, the scopes present, and the expiry"
+      }),
+      A2({
+        id: "web3.dapp-headers",
+        name: "dApp header audit",
+        domain: "web3",
+        status: "engine",
+        engine: "cspAudit",
+        inputs: "the content security policy a dApp serves",
+        output: "what the policy permits",
+        purpose: "See what a front end allows third parties to run, because a wallet session deserves the strictest policy on the estate.",
+        requiresApproval: false,
+        receipt: "the directives read, what each permits, and the findings"
+      }),
+      A2({
+        id: "web3.rpc-rate-plan",
+        name: "RPC rate plan",
+        domain: "web3",
+        status: "engine",
+        engine: "tokenBucketPlan",
+        inputs: "read volume and the provider's rate limit",
+        output: "a token-bucket plan that holds under it",
+        purpose: "Keep RPC calls inside a provider's limit before the provider does it for you, at the worst moment.",
+        requiresApproval: false,
+        receipt: "the rate, the bucket plan, and the burst permitted"
+      }),
+      A2({
+        id: "web3.call-payload",
+        name: "Call payload",
+        domain: "web3",
+        status: "engine",
+        engine: "payloadBudget",
+        inputs: "a contract call's calldata shape",
+        output: "its size against block and cost budgets",
+        purpose: "Keep calldata inside its budget, where every byte costs gas on every single call.",
+        requiresApproval: false,
+        receipt: "the payload measured, the budget, and the fields that dominate it"
+      }),
+      A2({
+        id: "web3.treasury-runway",
+        name: "Treasury runway",
+        domain: "web3",
+        status: "engine",
+        engine: "spendForecast",
+        inputs: "months of treasury outflows",
+        output: "the trend and a projected month",
+        purpose: "Give a treasury a runway in months, which is the number that decides when a raise starts.",
+        requiresApproval: false,
+        receipt: "the months observed, the fitted trend, and the projection"
+      }),
+      A2({
+        id: "web3.tx-sign",
+        name: "Sign a transaction",
+        domain: "web3",
+        status: "workflow",
+        engine: "gasPlan + tokenDecimals",
+        inputs: "a prepared transaction with its cost",
+        output: "a signed transaction, gated",
+        purpose: "Sign a transaction with the cost and the amounts verified in integer arithmetic and a human approving the signature.",
+        requiresApproval: true,
+        receipt: "the transaction, its gas cost, the amounts verified, and the human's approval"
+      }),
+      A2({
+        id: "web3.key-ceremony",
+        name: "Key ceremony",
+        domain: "web3",
+        status: "workflow",
+        engine: "stringEntropyBits + scanSecrets",
+        inputs: "a key generation and custody procedure",
+        output: "a ceremony executed, gated",
+        purpose: "Run a key ceremony with entropy verified, custody recorded, and a human approving each step in the room.",
+        requiresApproval: true,
+        receipt: "each step witnessed, the entropy verified, and the human's approval recorded"
+      }),
+      /* ── frontend (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "fe.focus-targets",
+        name: "Focus target sizes",
+        domain: "frontend",
+        status: "engine",
+        engine: "touchTargets",
+        inputs: "interactive elements and their rendered sizes",
+        output: "which controls are too small to target",
+        purpose: "Treat pointer and keyboard targets with the same minimums as touch, because a trackpad is not a mouse.",
+        requiresApproval: false,
+        receipt: "each element measured, the floor applied, and the spacing exception noted"
+      }),
+      A2({
+        id: "fe.label-expansion",
+        name: "Label expansion",
+        domain: "frontend",
+        status: "engine",
+        engine: "stringExpansion",
+        inputs: "a UI label and the locales it ships in",
+        output: "the length that label becomes",
+        purpose: "Size a button for its longest translation rather than for the English it was designed in.",
+        requiresApproval: false,
+        receipt: "the label, the expansion range used, and the resulting length"
+      }),
+      A2({
+        id: "fe.release",
+        name: "Frontend release",
+        domain: "frontend",
+        status: "workflow",
+        engine: "snapToGrid + localeCoverage",
+        inputs: "a front-end build with its token set and locales",
+        output: "a release published, gated",
+        purpose: "Publish a front-end release with design tokens and locale coverage checked and a human approving the publish.",
+        requiresApproval: true,
+        receipt: "the token check, the locale coverage, and the human's approval of the release"
+      }),
+      /* ── engineering (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "dev.retention-audit",
+        name: "Branch retention",
+        domain: "dev",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "branches with last-commit dates and a retention term",
+        output: "branches past their retention date",
+        purpose: "Retire stale branches on a clock, so review surfaces do not slowly fill with abandoned work.",
+        requiresApproval: false,
+        receipt: "each branch, its age, and the days past its retention term"
+      }),
+      A2({
+        id: "dev.dependency-window",
+        name: "Dependency window",
+        domain: "dev",
+        status: "engine",
+        engine: "dateTerms",
+        inputs: "a support window and the notice a deprecation needs",
+        output: "the last date to migrate off a dependency",
+        purpose: "Plan a dependency migration against the support window rather than against the announcement.",
+        requiresApproval: false,
+        receipt: "the window dates, the migration deadline, and the days remaining"
+      }),
+      A2({
+        id: "dev.release-tag",
+        name: "Tag a release",
+        domain: "dev",
+        status: "workflow",
+        engine: "nextVersion + satisfiesRange",
+        inputs: "a merged change set and the current version",
+        output: "a release tag, gated",
+        purpose: "Tag a release with the version derived from the changes and a human approving, because a tag is a promise to consumers.",
+        requiresApproval: true,
+        receipt: "the version derived, the range check, and the human's approval of the tag"
+      }),
+      /* ── api (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "api.response-budget",
+        name: "Response budget",
+        domain: "api",
+        status: "engine",
+        engine: "payloadBudget",
+        inputs: "an endpoint's response shape",
+        output: "its size against the declared budget",
+        purpose: "Hold an endpoint's response inside a budget so one new field does not double a mobile payload.",
+        requiresApproval: false,
+        receipt: "the shape measured, the budget, and the fields that dominate it"
+      }),
+      A2({
+        id: "api.sla-attainment",
+        name: "API SLA attainment",
+        domain: "api",
+        status: "engine",
+        engine: "slaClock",
+        inputs: "requests with priority classes and response times",
+        output: "attainment against each class target",
+        purpose: "Report API performance per priority class, because one target for every caller is a target for none.",
+        requiresApproval: false,
+        receipt: "the requests, the class targets, and the breaches named"
+      }),
+      A2({
+        id: "api.version-retire",
+        name: "Retire an API version",
+        domain: "api",
+        status: "workflow",
+        engine: "satisfiesRange + dateTerms",
+        inputs: "a version marked for retirement and its consumers",
+        output: "a retirement, gated",
+        purpose: "Retire an API version with the deprecation window computed and a human approving, because consumers are still calling it.",
+        requiresApproval: true,
+        receipt: "the consumers listed, the notice window, and the human's approval of the retirement"
+      }),
+      /* ── data (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "data.split-audit",
+        name: "Dataset split audit",
+        domain: "data",
+        status: "engine",
+        engine: "splitAudit",
+        inputs: "a dataset's split proportions and duplicates",
+        output: "whether the split leaks",
+        purpose: "Check that a published dataset's split does not leak, because a leaked benchmark is a benchmark nobody trusts.",
+        requiresApproval: false,
+        receipt: "the proportions, the duplicates found, and the grouping rule"
+      }),
+      A2({
+        id: "data.retention-clock",
+        name: "Dataset retention",
+        domain: "data",
+        status: "engine",
+        engine: "retentionClock",
+        inputs: "datasets with creation dates and retention terms",
+        output: "datasets past their retention date",
+        purpose: "Run dataset retention as a clock so a training set does not outlive the consent it was collected under.",
+        requiresApproval: false,
+        receipt: "each dataset, its term, and the days past or remaining"
+      }),
+      A2({
+        id: "data.publish-dataset",
+        name: "Publish a dataset",
+        domain: "data",
+        status: "workflow",
+        engine: "outliersIqr + retentionClock",
+        inputs: "a dataset ready for publication",
+        output: "a publication, gated",
+        purpose: "Publish a dataset with outliers reviewed and retention checked, and a human approving what becomes public.",
+        requiresApproval: true,
+        receipt: "the outlier review, the retention check, and the human's approval of the publication"
+      }),
+      /* ── security (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "security.key-entropy",
+        name: "Key entropy",
+        domain: "security",
+        status: "engine",
+        engine: "stringEntropyBits",
+        inputs: "keys as generated by a service",
+        output: "the entropy their shape implies",
+        purpose: "Verify that keys have the entropy their purpose requires, which is cheaper than discovering it during an incident.",
+        requiresApproval: false,
+        receipt: "the key shape, the entropy computed, and the requirement applied"
+      }),
+      A2({
+        id: "security.access-anomaly",
+        name: "Access anomaly",
+        domain: "security",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "per-identity access counts",
+        output: "identities whose volume is out of family",
+        purpose: "Find the identity that changed behaviour this week, while the change is still explainable.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each identity flagged with its z"
+      }),
+      A2({
+        id: "security.key-ceremony",
+        name: "Key ceremony",
+        domain: "security",
+        status: "workflow",
+        engine: "stringEntropyBits + scanSecrets",
+        inputs: "a key generation and custody procedure",
+        output: "a ceremony executed, gated",
+        purpose: "Run a key ceremony with each step witnessed and a human approving, because custody is only as good as its record.",
+        requiresApproval: true,
+        receipt: "each step witnessed, the entropy verified, and the human's approval recorded"
+      }),
+      /* ── reliability (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "ops.capacity-runway",
+        name: "Capacity runway",
+        domain: "ops",
+        status: "engine",
+        engine: "capacityHeadroom",
+        inputs: "headroom, growth and the threshold",
+        output: "how long until the threshold is reached",
+        purpose: "Schedule capacity work from a date rather than from the pager that announces it.",
+        requiresApproval: false,
+        receipt: "the headroom, the growth rate, and the runway before the threshold"
+      }),
+      A2({
+        id: "ops.incident-percentiles",
+        name: "Incident percentiles",
+        domain: "ops",
+        status: "engine",
+        engine: "percentiles",
+        inputs: "incident durations by severity",
+        output: "the distribution of duration, not the mean",
+        purpose: "See how long incidents actually last at the tail, which is what an on-call rotation experiences.",
+        requiresApproval: false,
+        receipt: "the sample, the percentile method, and the duration readout"
+      }),
+      A2({
+        id: "ops.postmortem-publish",
+        name: "Publish a postmortem",
+        domain: "ops",
+        status: "workflow",
+        engine: "readability + headingLint",
+        inputs: "a postmortem ready for the wider team",
+        output: "a publication, gated",
+        purpose: "Publish a postmortem with its structure and readability checked and a human approving what goes on the record.",
+        requiresApproval: true,
+        receipt: "the structure check, the readability measure, and the human's approval"
+      }),
+      /* ── docs (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "docs.translation-expansion",
+        name: "Doc expansion",
+        domain: "docs",
+        status: "engine",
+        engine: "stringExpansion",
+        inputs: "a documentation string and its locales",
+        output: "the length it takes when translated",
+        purpose: "Anticipate the layout damage a translation does to documentation built in English.",
+        requiresApproval: false,
+        receipt: "the string, the expansion range used, and the resulting length"
+      }),
+      A2({
+        id: "docs.review-agreement",
+        name: "Doc review agreement",
+        domain: "docs",
+        status: "engine",
+        engine: "raterAgreement",
+        inputs: "two reviewers' verdicts on the same pages",
+        output: "agreement and kappa beside it",
+        purpose: "Check whether documentation review is a process or two people with different opinions.",
+        requiresApproval: false,
+        receipt: "the verdicts compared, the chance agreement, and kappa"
+      }),
+      A2({
+        id: "docs.publish-runbook",
+        name: "Publish a runbook",
+        domain: "docs",
+        status: "workflow",
+        engine: "headingLint + citationLint",
+        inputs: "a runbook ready for the on-call rotation",
+        output: "a publication, gated",
+        purpose: "Publish a runbook with its structure and citations checked and a human approving, because somebody will follow it at 3am.",
+        requiresApproval: true,
+        receipt: "the structure check, the citations verified, and the human's approval"
+      }),
+      /* ── growth (deepened) ───────────────────────────────────────────────────── */
+      A2({
+        id: "growth.experiment-size",
+        name: "Experiment size",
+        domain: "growth",
+        status: "engine",
+        engine: "sampleSize",
+        inputs: "an effect worth detecting and a baseline rate",
+        output: "the sample the experiment needs",
+        purpose: "Size an experiment from the effect worth acting on, so a null result is a finding rather than a shrug.",
+        requiresApproval: false,
+        receipt: "the effect, the power chosen, and the sample derived"
+      }),
+      A2({
+        id: "growth.metric-anomaly",
+        name: "Metric anomaly",
+        domain: "growth",
+        status: "engine",
+        engine: "anomalyZ",
+        inputs: "a daily growth metric",
+        output: "days out of family",
+        purpose: "Catch a metric that moved without a release or a campaign to explain it.",
+        requiresApproval: false,
+        receipt: "the window, the mean and spread, and each flagged day"
+      }),
+      A2({
+        id: "growth.pricing-page",
+        name: "Publish a pricing page",
+        domain: "growth",
+        status: "workflow",
+        engine: "unitEconomics + metaLint",
+        inputs: "a price change and the page presenting it",
+        output: "a publication, gated",
+        purpose: "Publish a pricing page with the economics modelled and a human approving, because a price is a promise to customers.",
+        requiresApproval: true,
+        receipt: "the economics modelled, the page checked, and the human's approval of the publication"
       })
     ]);
   }
@@ -159725,6 +163799,10 @@ var init_specialists = __esm({
     init_ops();
     init_docs();
     init_growth();
+    init_systems();
+    init_intelligence();
+    init_governance();
+    init_commerce();
     init_roster();
     init_frontend();
     init_dev();
@@ -159734,6 +163812,10 @@ var init_specialists = __esm({
     init_ops();
     init_docs();
     init_growth();
+    init_systems();
+    init_intelligence();
+    init_governance();
+    init_commerce();
     TOOLS2 = Object.freeze([
       ...FRONTEND_TOOLS,
       ...DEV_TOOLS,
@@ -159742,7 +163824,11 @@ var init_specialists = __esm({
       ...SECURITY_TOOLS,
       ...OPS_TOOLS,
       ...DOCS_TOOLS,
-      ...GROWTH_TOOLS
+      ...GROWTH_TOOLS,
+      ...SYSTEMS_TOOLS,
+      ...INTELLIGENCE_TOOLS,
+      ...GOVERNANCE_TOOLS,
+      ...COMMERCE_TOOLS
     ]);
     DOMAINS = Object.freeze([
       { id: "frontend", label: "Frontend", blurb: "Colour, contrast, type and spacing \u2014 the parts of design that are arithmetic." },
@@ -159753,6 +163839,22 @@ var init_specialists = __esm({
       { id: "ops", label: "Reliability", blurb: "Error budgets, capacity runway, severity and deploy risk." },
       { id: "docs", label: "Docs", blurb: "Reading level, length, heading structure and terminology drift." },
       { id: "growth", label: "Growth", blurb: "Unit economics, funnels, prioritisation and revenue trajectory." },
+      { id: "mobile", label: "Mobile", blurb: "Touch targets and the release size budget \u2014 the two that decide whether an app is usable and shippable." },
+      { id: "cloud", label: "Cloud", blurb: "Instance sizing and egress cost \u2014 headroom and the bill, both computed from your own numbers." },
+      { id: "db", label: "Database", blurb: "Index selectivity and connection pools \u2014 the two settings most changed on a hunch." },
+      { id: "embedded", label: "Embedded", blurb: "Power budgets and real-time schedulability for devices that cannot be redeployed." },
+      { id: "ml", label: "ML & AI", blurb: "Evaluation intervals and split audits \u2014 the honest statistics of a model readout." },
+      { id: "research", label: "Research", blurb: "Citation coverage and inter-rater agreement, because a claim needs a source and a label needs a second rater." },
+      { id: "media", label: "Media", blurb: "Loudness normalisation and bitrate budgets for anything watched or listened to." },
+      { id: "finops", label: "FinOps", blurb: "Spend trajectory and anomaly detection against your own billing history." },
+      { id: "legal", label: "Legal", blurb: "Undefined-term density and the date arithmetic a contract turns on \u2014 measures, never advice." },
+      { id: "privacy", label: "Privacy", blurb: "Personal-data classes present in a text, and the clock on how long it may be kept." },
+      { id: "people", label: "People", blurb: "Headcount modelling and band position \u2014 the plan and the offer, tested against themselves." },
+      { id: "revenue", label: "Revenue", blurb: "Pipeline coverage and the SLA clock \u2014 what the quarter needs and what the customer was promised." },
+      { id: "marketing", label: "Marketing", blurb: "What a search result truncates and what a crawl costs, before either is paid for." },
+      { id: "locale", label: "Localisation", blurb: "Translation coverage and the space translated strings take in a layout built for English." },
+      { id: "supply", label: "Supply chain", blurb: "Order quantities and the safety stock a service level actually costs." },
+      { id: "web3", label: "Web3", blurb: "Transaction cost and base-unit arithmetic \u2014 integer maths, because token floats lose money." },
       { id: "finance-in", label: "Finance \xB7 India", blurb: "GST, TDS, ITC reconciliation, MSME clocks \u2014 the Munshi pack." }
     ]);
   }
@@ -159778,9 +163880,9 @@ var init_ruleset = __esm({
 });
 
 // src/munshi/money.ts
-function paise(n2) {
-  if (!Number.isFinite(n2)) throw new Error(`munshi/money: not a finite amount: ${n2}`);
-  return Math.round(n2);
+function paise(n3) {
+  if (!Number.isFinite(n3)) throw new Error(`munshi/money: not a finite amount: ${n3}`);
+  return Math.round(n3);
 }
 function rupeesToPaise(rupees) {
   return paise(rupees * 100);
@@ -159824,17 +163926,17 @@ function parseAmount(input2) {
   s2 = s2.replace(/[₹,\s]/g, "");
   const word = s2.match(/^([0-9]*\.?[0-9]+)(cr|crore|l|lakh|lac|lacs|k)$/i);
   if (word) {
-    const n3 = Number(word[1]);
-    if (!Number.isFinite(n3)) return null;
+    const n4 = Number(word[1]);
+    if (!Number.isFinite(n4)) return null;
     const unit = word[2].toLowerCase();
     const mult = unit.startsWith("cr") ? 1e7 : unit.startsWith("l") ? 1e5 : 1e3;
-    const value2 = rupeesToPaise(n3 * mult);
+    const value2 = rupeesToPaise(n4 * mult);
     return negative ? -value2 : value2;
   }
   if (!/^[0-9]*\.?[0-9]+$/.test(s2)) return null;
-  const n2 = Number(s2);
-  if (!Number.isFinite(n2)) return null;
-  const value = rupeesToPaise(n2);
+  const n3 = Number(s2);
+  if (!Number.isFinite(n3)) return null;
+  const value = rupeesToPaise(n3);
   return negative ? -value : value;
 }
 var init_money = __esm({
@@ -159975,26 +164077,26 @@ var init_gstin = __esm({
 function dueDates(kind, period, scheme = "monthly", qrmpCategory = "X") {
   const [y3, m3] = period.split("-").map(Number);
   const nextMonth = m3 === 12 ? { y: y3 + 1, m: 1 } : { y: y3, m: m3 + 1 };
-  const day = (d3, inPeriod = period) => {
+  const day2 = (d3, inPeriod = period) => {
     const [py2, pm] = inPeriod.split("-").map(Number);
     const nm = pm === 12 ? { y: py2 + 1, m: 1 } : { y: py2, m: pm + 1 };
     return `${nm.y}-${String(nm.m).padStart(2, "0")}-${String(d3).padStart(2, "0")}`;
   };
   switch (kind) {
     case "GSTR-1":
-      return scheme === "monthly" ? [{ kind, period, due: day(11), basis: "Rule 59(1) \u2014 11th of the following month", ruleset: RULESET }] : [{ kind, period, due: day(13), basis: "Rule 59(1) proviso \u2014 13th after quarter end (QRMP)", ruleset: RULESET }];
+      return scheme === "monthly" ? [{ kind, period, due: day2(11), basis: "Rule 59(1) \u2014 11th of the following month", ruleset: RULESET }] : [{ kind, period, due: day2(13), basis: "Rule 59(1) proviso \u2014 13th after quarter end (QRMP)", ruleset: RULESET }];
     case "IFF":
-      return [{ kind, period, due: day(13), basis: "Rule 59(2) \u2014 IFF by the 13th of the next month (QRMP)", ruleset: RULESET }];
+      return [{ kind, period, due: day2(13), basis: "Rule 59(2) \u2014 IFF by the 13th of the next month (QRMP)", ruleset: RULESET }];
     case "GSTR-1A":
-      return [{ kind, period, due: day(11), basis: "GSTR-1A is filed before the period's GSTR-3B \u2014 corrections must reach the 3B", ruleset: RULESET }];
+      return [{ kind, period, due: day2(11), basis: "GSTR-1A is filed before the period's GSTR-3B \u2014 corrections must reach the 3B", ruleset: RULESET }];
     case "GSTR-3B":
       if (scheme === "monthly") {
-        return [{ kind, period, due: day(20), basis: "Rule 61(1)(i) \u2014 20th of the following month", ruleset: RULESET }];
+        return [{ kind, period, due: day2(20), basis: "Rule 61(1)(i) \u2014 20th of the following month", ruleset: RULESET }];
       }
       return [{
         kind,
         period,
-        due: day(qrmpCategory === "X" ? 22 : 24),
+        due: day2(qrmpCategory === "X" ? 22 : 24),
         basis: `Rule 61(1)(ii) \u2014 QRMP Category ${qrmpCategory} (${qrmpCategory === "X" ? "22nd" : "24th"})`,
         ruleset: RULESET
       }];
@@ -160008,15 +164110,15 @@ function dueDates(kind, period, scheme = "monthly", qrmpCategory = "X") {
         ruleset: RULESET
       }];
     case "CMP-08":
-      return [{ kind, period, due: day(18), basis: "Rule 61A \u2014 composition quarterly statement by the 18th", ruleset: RULESET }];
+      return [{ kind, period, due: day2(18), basis: "Rule 61A \u2014 composition quarterly statement by the 18th", ruleset: RULESET }];
     case "GSTR-4":
       return [{ kind, period, due: `${Number(period.slice(0, 4)) + 1}-06-30`, basis: "Rule 62 \u2014 annual composition return by 30 June", ruleset: RULESET }];
     case "ITC-04":
-      return [{ kind, period, due: day(25), basis: "Rule 45 \u2014 job-work statement (half-yearly / annual by turnover)", ruleset: RULESET }];
+      return [{ kind, period, due: day2(25), basis: "Rule 45 \u2014 job-work statement (half-yearly / annual by turnover)", ruleset: RULESET }];
     case "GSTR-7":
-      return [{ kind, period, due: day(10), basis: "Rule 66 \u2014 TDS deductor return by the 10th", ruleset: RULESET }];
+      return [{ kind, period, due: day2(10), basis: "Rule 66 \u2014 TDS deductor return by the 10th", ruleset: RULESET }];
     case "GSTR-8":
-      return [{ kind, period, due: day(10), basis: "Rule 67 \u2014 e-commerce operator return by the 10th", ruleset: RULESET }];
+      return [{ kind, period, due: day2(10), basis: "Rule 67 \u2014 e-commerce operator return by the 10th", ruleset: RULESET }];
     default:
       void nextMonth;
       return [];
@@ -160367,16 +164469,16 @@ var init_statutory = __esm({
 
 // src/munshi/tdsStatute.ts
 function statuteForEvent(earlierOfCreditOrPayment) {
-  const iso = earlierOfCreditOrPayment.trim();
-  const newAct = iso >= TDS_TRANSITION_DATE;
+  const iso2 = earlierOfCreditOrPayment.trim();
+  const newAct = iso2 >= TDS_TRANSITION_DATE;
   return newAct ? {
     statute: "2025",
     act: ACT_NAME["2025"],
-    basis: `${iso} is on or after ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["2025"]}, where resident TDS is s.393, salary is s.392 and TCS is s.394`
+    basis: `${iso2} is on or after ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["2025"]}, where resident TDS is s.393, salary is s.392 and TCS is s.394`
   } : {
     statute: "1961",
     act: ACT_NAME["1961"],
-    basis: `${iso} is before ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["1961"]}, so the 194-series reference applies even if the payment or the challan lands after the changeover`
+    basis: `${iso2} is before ${TDS_TRANSITION_DATE} \u2014 the earlier of credit or payment falls under the ${ACT_NAME["1961"]}, so the 194-series reference applies even if the payment or the challan lands after the changeover`
   };
 }
 function statuteReference(section2, earlierOfCreditOrPayment, kind = "tds") {
@@ -162554,10 +166656,10 @@ function Receipts() {
   const rows2 = all2.filter((r3) => !q2 || (r3.title + r3.signer + r3.digest + r3.kind).toLowerCase().includes(q2.toLowerCase()));
   const ok2 = all2.filter((r3) => r3.state === "ok").length, refused = all2.filter((r3) => r3.state === "refused").length, pending = all2.filter((r3) => r3.state === "pending").length;
   const runs = st.msgs.filter((m3) => m3.resp).length;
-  const fmt = (iso) => {
-    if (!iso) return "\u2014";
+  const fmt = (iso2) => {
+    if (!iso2) return "\u2014";
     try {
-      const d3 = new Date(iso);
+      const d3 = new Date(iso2);
       return `${d3.toLocaleDateString([], { month: "short", day: "2-digit" })} \xB7 ${d3.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     } catch {
       return "\u2014";
@@ -162668,16 +166770,16 @@ function Memory() {
     const nodes2 = [];
     const links2 = [];
     for (const s2 of sessions) nodes2.push({ id: `s:${s2.id}`, name: s2.title, kind: "session", val: 4 + Math.min(8, s2.messageCount), sub: `${s2.messageCount} messages \xB7 ${new Date(s2.startedAt).toLocaleDateString()}` });
-    for (const n2 of g3.nodes) {
-      nodes2.push({ id: `k:${n2.id}`, name: n2.label, kind: "keyword", val: 1 + Math.min(5, n2.weight) });
-      for (const sid of n2.sessionIds) if (sessions.some((s2) => s2.id === sid)) links2.push({ source: `s:${sid}`, target: `k:${n2.id}` });
+    for (const n3 of g3.nodes) {
+      nodes2.push({ id: `k:${n3.id}`, name: n3.label, kind: "keyword", val: 1 + Math.min(5, n3.weight) });
+      for (const sid of n3.sessionIds) if (sessions.some((s2) => s2.id === sid)) links2.push({ source: `s:${sid}`, target: `k:${n3.id}` });
     }
     for (const e3 of g3.edges) links2.push({ source: `k:${e3.a}`, target: `k:${e3.b}` });
     return { nodes: nodes2, links: links2, stats: stats2, sec: sec2 };
   }, [sessions]);
   const selSession = sel2?.id.startsWith("s:") ? sessions.find((s2) => `s:${s2.id}` === sel2.id) ?? null : null;
-  const open2 = (n2) => {
-    if (n2.id.startsWith("s:")) openConversation(n2.id.slice(2));
+  const open2 = (n3) => {
+    if (n3.id.startsWith("s:")) openConversation(n3.id.slice(2));
   };
   return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("header", { className: "top", children: [
@@ -162755,7 +166857,7 @@ function Memory() {
         !selSession && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "hint", children: "Double-click a conversation node to open it." })
       ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "card soft", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "card-b", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("p", { className: "hint", style: { margin: 0 }, children: "Click a node for detail \xB7 double-click a conversation to open it" }) }) }) }),
       /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "graph-foot", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm", onClick: () => setFit((n2) => n2 + 1), children: "Fit" }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm", onClick: () => setFit((n3) => n3 + 1), children: "Fit" }),
         /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: `btn sm ${spin2 ? "" : "ghost"}`, onClick: () => setSpin((s2) => !s2), children: "Auto-rotate" }),
         !confirm ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("button", { className: "btn sm ghost danger", onClick: () => setConfirm(true), children: "Forget everything" }) : /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", { className: "hint", children: "This cannot be undone." }),
@@ -162834,9 +166936,9 @@ function Docs() {
     const r3 = st.decideDocument(id, ok2, "");
     setNote(r3.ok ? { kind: "ok", text: ok2 ? `Approved \u2014 the knowledge is now an installed skill (${r3.note}).` : `Dismissed (${r3.note}). One decision per proposal, recorded.` } : { kind: "warn", text: r3.note });
   }
-  const fmt = (iso) => {
+  const fmt = (iso2) => {
     try {
-      const d3 = new Date(iso);
+      const d3 = new Date(iso2);
       return `${d3.toLocaleDateString([], { month: "short", day: "2-digit" })} \xB7 ${d3.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     } catch {
       return "\u2014";
@@ -163154,7 +167256,7 @@ function Federation() {
       setNote(String(e3));
     } finally {
       setBusy(false);
-      setTick((n2) => n2 + 1);
+      setTick((n3) => n3 + 1);
     }
   };
   return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_jsx_runtime12.Fragment, { children: [
@@ -163344,9 +167446,9 @@ function Chat({ title }) {
   (0, import_react14.useEffect)(() => {
     end.current?.scrollIntoView({ block: "end" });
   }, [msgs.length, gate]);
-  const fmt = (iso) => {
+  const fmt = (iso2) => {
     try {
-      return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return new Date(iso2).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     } catch {
       return "";
     }
@@ -163459,11 +167561,11 @@ function Shell() {
         /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { children: "New mission" }),
         /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("i", { className: "ic ic-steward" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("nav", { className: "nav", children: NAV.map((n2) => /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("button", { onClick: () => go(n2.key), "aria-current": screen === n2.key || screen === "chat" && n2.key === "memory" ? "page" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("i", { className: `ic ic-${n2.icon}` }),
-        n2.label,
-        counts[n2.key] ? /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { className: "n", children: counts[n2.key] }) : null
-      ] }, n2.key)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("nav", { className: "nav", children: NAV.map((n3) => /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("button", { onClick: () => go(n3.key), "aria-current": screen === n3.key || screen === "chat" && n3.key === "memory" ? "page" : void 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("i", { className: `ic ic-${n3.icon}` }),
+        n3.label,
+        counts[n3.key] ? /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { className: "n", children: counts[n3.key] }) : null
+      ] }, n3.key)) }),
       /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: "side-foot", children: [
         /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("button", { className: "status", onClick: () => go("settings"), children: [
           /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("span", { className: `led ${provider ? "ok" : "warn"}` }),

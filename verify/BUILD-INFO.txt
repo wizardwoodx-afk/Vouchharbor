@@ -1,5 +1,5 @@
-Vouch Harbor 19.7.14 Munshi  (engine build record — the product is Velvet Hand; it shows no version)
-built: 19.7.14 Munshi
+Vouch Harbor 19.7.15 Cartographer  (engine build record — the product is Velvet Hand; it shows no version)
+built: 19.7.15 Cartographer
 ts:   2026-09-21T07:55:00Z
 git:  local
 node: certified on v22.23.2 (declared engines floor >=22.12.0) — the complete
@@ -48,16 +48,39 @@ Munshi — the Indian-finance specialist pack (new capability on the SAME engine
   (credential patterns, entropy, JWT decoding without verification, CSP), reliability
   (error budgets, capacity runway, severity, deploy risk), docs (Flesch readability,
   reading time, heading structure, terminology drift) and growth (unit economics, funnels,
-  RICE, revenue trajectory) — 33 tools and 40 specialists, every one driven by
-  probe/specialists.test.ts (150 checks) against its own declared defaults, twice, to prove
+  RICE, revenue trajectory) — 65 tools and 240 specialists, every one driven by
+  probe/specialists.test.ts (213 checks) against its own declared defaults, twice, to prove
   determinism rather than assert it. The tools render from a declared field spec, so the
   shell holds no domain logic and a new domain is a data change.
 
   THE DOOR. The shell's seventh door is now src/ui/screens/Specialists.tsx — the generalist
   surface, with the Indian-finance pack (src/ui/screens/Munshi.tsx) hosted as one domain
-  among nine rather than as a fintech-only screen. Every figure is computed on this machine
+  among twenty-five rather than as a fintech-only screen. Every figure is computed on this machine
   with the same basis line it would carry in a receipt, and nothing is filed, paid,
   deployed or sent.
+
+19.7.15 (Cartographer) — the pack widens to twenty-four domains and the roster grows by 200.
+
+  THE SPREAD. Nine domains became twenty-five. Sixteen new ones, each with deterministic
+  engines of its own: mobile (touch-target floors, release size budgets), cloud (instance
+  sizing, egress cost), database (index selectivity, connection pools), embedded (power
+  budgets, rate-monotonic schedulability), ML & AI (Wilson intervals on an evaluation, split
+  leakage), research (citation coverage, Cohen's kappa), media (loudness normalisation,
+  bitrate ladders), FinOps (spend trend, anomaly z-scores), legal (undefined-term density,
+  contract date arithmetic), privacy (pattern classes with Luhn, retention clocks), people
+  (headcount recurrence, band position), revenue (stage-weighted pipeline coverage, SLA
+  attainment), marketing (display-limit truncation, crawl budget), localisation (coverage,
+  published expansion ranges), supply chain (EOQ, safety stock) and web3 (EIP-1559 cost,
+  base-unit integer arithmetic). Thirty-two new tools, each printing the rule it came from,
+  every one driven twice from its own declared defaults by probe/specialists.test.ts.
+
+  THE ROSTER. 40 specialists became 240 — the sixteen new domains carry eleven each and the
+  original eight are deepened by three. 47 are gated, and in every domain the ungated
+  specialists outnumber the gated, because a gate that always fires is noise. Every engine a
+  specialist names is a function the pack exports; the probe refuses the roster otherwise.
+  The shell absorbed none of this: the surface still renders whatever a tool declares, so the
+  twenty-fifth domain cost the UI nothing.
+
 
 156 self-contained bundles in verify/suites (every probe suite except the pack's
 own freshness gate, which runs only under npm test), plus verify/run.mjs (zero

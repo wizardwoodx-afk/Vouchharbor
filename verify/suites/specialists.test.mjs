@@ -9,39 +9,61 @@ var __export = (target, all) => {
 var specialists_exports = {};
 __export(specialists_exports, {
   API_TOOLS: () => API_TOOLS,
+  COMMERCE_TOOLS: () => COMMERCE_TOOLS,
   DATA_TOOLS: () => DATA_TOOLS,
   DEV_TOOLS: () => DEV_TOOLS,
   DOCS_TOOLS: () => DOCS_TOOLS,
   DOMAINS: () => DOMAINS,
   FRONTEND_TOOLS: () => FRONTEND_TOOLS,
+  GOVERNANCE_TOOLS: () => GOVERNANCE_TOOLS,
   GROWTH_TOOLS: () => GROWTH_TOOLS,
+  INTELLIGENCE_TOOLS: () => INTELLIGENCE_TOOLS,
   OPS_TOOLS: () => OPS_TOOLS,
   SECURITY_TOOLS: () => SECURITY_TOOLS,
   SPECIALISTS: () => SPECIALISTS,
+  SYSTEMS_TOOLS: () => SYSTEMS_TOOLS,
   TOOLS: () => TOOLS,
   abTest: () => abTest,
+  anomalyZ: () => anomalyZ,
+  appSizeBudget: () => appSizeBudget,
   area: () => area,
   backoffSchedule: () => backoffSchedule,
+  bitrateBudget: () => bitrateBudget,
   bool: () => bool,
   capacityHeadroom: () => capacityHeadroom,
   checkIdempotencyKey: () => checkIdempotencyKey,
+  citationLint: () => citationLint,
+  clauseLint: () => clauseLint,
+  compBand: () => compBand,
   compareSemver: () => compareSemver,
   contrastRatio: () => contrastRatio,
+  crawlBudget: () => crawlBudget,
   cspAudit: () => cspAudit,
+  dateTerms: () => dateTerms,
   deployRisk: () => deployRisk,
+  egressCost: () => egressCost,
+  eoq: () => eoq,
+  evalInterval: () => evalInterval,
   findSpecialist: () => findSpecialist,
   flag: () => flag,
   funnel: () => funnel,
+  gasPlan: () => gasPlan,
   growthModel: () => growthModel,
+  headcountModel: () => headcountModel,
   headingLint: () => headingLint,
   hslToRgb: () => hslToRgb,
   httpSemantics: () => httpSemantics,
   incidentSeverity: () => incidentSeverity,
+  indexSelectivity: () => indexSelectivity,
   inr: () => inr,
+  instanceSizing: () => instanceSizing,
   jwtInspect: () => jwtInspect,
   lintCommit: () => lintCommit,
+  localeCoverage: () => localeCoverage,
+  loudnessGain: () => loudnessGain,
   maskSecret: () => maskSecret,
   mean: () => mean,
+  metaLint: () => metaLint,
   nextVersion: () => nextVersion,
   normalTwoSidedP: () => normalTwoSidedP,
   num: () => num,
@@ -55,32 +77,46 @@ __export(specialists_exports, {
   pct: () => pct,
   percentile: () => percentile,
   percentiles: () => percentiles,
+  piiScan: () => piiScan,
+  pipelineCoverage: () => pipelineCoverage,
+  poolSizing: () => poolSizing,
+  powerBudget: () => powerBudget,
+  raterAgreement: () => raterAgreement,
   readability: () => readability,
   readingTime: () => readingTime,
   relativeLuminance: () => relativeLuminance,
+  retentionClock: () => retentionClock,
   rgbToHsl: () => rgbToHsl,
   riceScore: () => riceScore,
   rows: () => rows,
+  safetyStock: () => safetyStock,
   sampleSize: () => sampleSize,
   satisfiesRange: () => satisfiesRange,
   scanSecrets: () => scanSecrets,
   sel: () => sel,
   series: () => series,
+  slaClock: () => slaClock,
   sloErrorBudget: () => sloErrorBudget,
   snapToGrid: () => snapToGrid,
   spacingGrid: () => spacingGrid,
   specialistStatus: () => specialistStatus,
   specialistsByDomain: () => specialistsByDomain,
+  spendForecast: () => spendForecast,
+  splitAudit: () => splitAudit,
   stddev: () => stddev,
   str: () => str,
   stringEntropyBits: () => stringEntropyBits,
+  stringExpansion: () => stringExpansion,
   syllables: () => syllables,
   terminologyDrift: () => terminologyDrift,
   text: () => text,
+  timingSlack: () => timingSlack,
   toHex: () => toHex,
   tokenBucketPlan: () => tokenBucketPlan,
+  tokenDecimals: () => tokenDecimals,
   toolById: () => toolById,
   toolsForDomain: () => toolsForDomain,
+  touchTargets: () => touchTargets,
   typeScale: () => typeScale,
   unitEconomics: () => unitEconomics,
   wcagVerdict: () => wcagVerdict
@@ -102,13 +138,13 @@ var bool = (v, key2, fallback = false) => {
 };
 var number = (v, key2, fallback = 0) => {
   const raw = str(v, key2).replace(/[,\s_₹%]/g, "");
-  const n2 = Number(raw);
-  return Number.isFinite(n2) ? n2 : fallback;
+  const n3 = Number(raw);
+  return Number.isFinite(n3) ? n3 : fallback;
 };
 var rows = (v, key2) => str(v, key2).split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0 && !l.startsWith("#"));
 var series = (v, key2) => rows(v, key2).flatMap((l) => l.split(/[,\s;]+/)).map((c) => Number(c)).filter((x) => Number.isFinite(x));
-var inr = (n2, dp = 2) => `\u20B9${n2.toLocaleString("en-IN", { minimumFractionDigits: dp, maximumFractionDigits: dp })}`;
-var pct = (n2, dp = 1) => `${n2.toFixed(dp)}%`;
+var inr = (n3, dp = 2) => `\u20B9${n3.toLocaleString("en-IN", { minimumFractionDigits: dp, maximumFractionDigits: dp })}`;
+var pct = (n3, dp = 1) => `${n3.toFixed(dp)}%`;
 
 // src/specialists/frontend.ts
 function parseColor(input) {
@@ -151,7 +187,7 @@ function parseColor(input) {
   }
   return null;
 }
-var clamp255 = (n2) => Math.max(0, Math.min(255, Math.round(n2)));
+var clamp255 = (n3) => Math.max(0, Math.min(255, Math.round(n3)));
 function hslToRgb(h, s, l) {
   const hue = (h % 360 + 360) % 360;
   const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -431,10 +467,10 @@ function nextVersion(v, kind) {
       return `${v.major}.${v.minor}.${v.patch + 1}`;
     case "prerelease": {
       const last = v.pre[v.pre.length - 1];
-      const n2 = last && /^\d+$/.test(last) ? Number(last) + 1 : 0;
+      const n3 = last && /^\d+$/.test(last) ? Number(last) + 1 : 0;
       const head = last && /^\d+$/.test(last) ? v.pre.slice(0, -1) : v.pre;
       const pre = head.length ? head : ["rc"];
-      return `${v.major}.${v.minor}.${v.patch}-${[...pre, n2].join(".")}`;
+      return `${v.major}.${v.minor}.${v.patch}-${[...pre, n3].join(".")}`;
     }
     case "release":
       return `${v.major}.${v.minor}.${v.patch}`;
@@ -736,7 +772,7 @@ var DEV_TOOLS = [
           { value: r.fields[1] ?? "", label: "hour" },
           { value: `${r.fields[2]} ${r.fields[3]} ${r.fields[4]}`, label: "dom \xB7 month \xB7 dow" }
         ],
-        lines: r.next.map((n2) => `\xB7 ${n2} UTC`),
+        lines: r.next.map((n3) => `\xB7 ${n3} UTC`),
         code: r.next.join("\n"),
         basis: "standard 5-field cron interpreted in UTC; when BOTH day-of-month and day-of-week are restricted the job runs when EITHER matches \u2014 the rule that silently breaks weekly jobs"
       };
@@ -780,16 +816,16 @@ function payloadBudget(json) {
   const rows2 = [];
   if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
     for (const [k, val] of Object.entries(parsed)) {
-      const size = new TextEncoder().encode(`${JSON.stringify(k)}:${JSON.stringify(val)}`).length;
-      rows2.push({ field: k, bytes: size, share: totalBytes ? size / totalBytes * 100 : 0 });
+      const size2 = new TextEncoder().encode(`${JSON.stringify(k)}:${JSON.stringify(val)}`).length;
+      rows2.push({ field: k, bytes: size2, share: totalBytes ? size2 / totalBytes * 100 : 0 });
     }
   } else if (Array.isArray(parsed)) {
     const first = parsed[0];
     rows2.push({ field: "(array)", bytes: totalBytes, share: 100 });
     if (first && typeof first === "object" && !Array.isArray(first)) {
       for (const k of Object.keys(first)) {
-        const size = new TextEncoder().encode(JSON.stringify(k)).length + 2;
-        rows2.push({ field: `(item).${k}`, bytes: size, share: 0 });
+        const size2 = new TextEncoder().encode(JSON.stringify(k)).length + 2;
+        rows2.push({ field: `(item).${k}`, bytes: size2, share: 0 });
       }
     }
   } else {
@@ -803,8 +839,8 @@ function stringEntropyBits(s) {
   const counts = /* @__PURE__ */ new Map();
   for (const ch of s) counts.set(ch, (counts.get(ch) ?? 0) + 1);
   let bitsPerChar = 0;
-  for (const n2 of counts.values()) {
-    const p = n2 / s.length;
+  for (const n3 of counts.values()) {
+    const p = n3 / s.length;
     bitsPerChar -= p * Math.log2(p);
   }
   return bitsPerChar * s.length;
@@ -989,8 +1025,8 @@ function mean(values) {
 function stddev(values, sample = true) {
   if (values.length < 2) return 0;
   const m = mean(values);
-  const ss = values.reduce((a, b) => a + (b - m) ** 2, 0);
-  return Math.sqrt(ss / (values.length - (sample ? 1 : 0)));
+  const ss2 = values.reduce((a, b) => a + (b - m) ** 2, 0);
+  return Math.sqrt(ss2 / (values.length - (sample ? 1 : 0)));
 }
 function outliersIqr(values, k = 1.5) {
   const sorted = [...values].sort((a, b) => a - b);
@@ -1041,12 +1077,12 @@ function abTest(trialsA, convA, trialsB, convB) {
     guardrails
   };
 }
-function sampleSize(baselinePct, mdeRelativePct, power = 0.8, alpha = 0.05) {
+function sampleSize(baselinePct, mdeRelativePct, power2 = 0.8, alpha = 0.05) {
   const p1 = baselinePct / 100;
   const p2 = p1 * (1 + mdeRelativePct / 100);
   const pBar = (p1 + p2) / 2;
   const zA = alpha === 0.01 ? 2.576 : alpha === 0.1 ? 1.645 : 1.96;
-  const zB = power === 0.9 ? 1.282 : power === 0.95 ? 1.645 : 0.842;
+  const zB = power2 === 0.9 ? 1.282 : power2 === 0.95 ? 1.645 : 0.842;
   const delta = Math.abs(p2 - p1);
   if (delta === 0 || pBar <= 0 || pBar >= 1) return NaN;
   return Math.ceil(
@@ -1162,23 +1198,23 @@ var DATA_TOOLS = [
       sel("alpha", "Alpha", ["0.05", "0.01", "0.1"], "0.05")
     ],
     run: (v) => {
-      const n2 = sampleSize(number(v, "baseline", 8), number(v, "mde", 10), Number(str2(v, "power")) || 0.8, Number(str2(v, "alpha")) || 0.05);
-      if (!Number.isFinite(n2)) return {
+      const n3 = sampleSize(number(v, "baseline", 8), number(v, "mde", 10), Number(str2(v, "power")) || 0.8, Number(str2(v, "alpha")) || 0.05);
+      if (!Number.isFinite(n3)) return {
         headline: "That combination has no finite sample size",
         ok: false,
         basis: "a zero effect or a rate at 0/100% cannot be sized \u2014 check the inputs"
       };
       const perDay = number(v, "baseline", 8) > 0 ? null : null;
       return {
-        headline: `${n2.toLocaleString()} trials per arm`,
+        headline: `${n3.toLocaleString()} trials per arm`,
         ok: true,
         kpis: [
-          { value: n2.toLocaleString(), label: "per arm" },
-          { value: (n2 * 2).toLocaleString(), label: "total" },
+          { value: n3.toLocaleString(), label: "per arm" },
+          { value: (n3 * 2).toLocaleString(), label: "total" },
           { value: `${number(v, "baseline", 8)}% \u2192 ${(number(v, "baseline", 8) * (1 + number(v, "mde", 10) / 100)).toFixed(2)}%`, label: "detecting" }
         ],
         lines: [
-          `Detecting a ${number(v, "mde", 10)}% relative change on an ${number(v, "baseline", 8)}% baseline needs ${n2.toLocaleString()} per arm at ${(Number(str2(v, "power")) || 0.8) * 100}% power.`,
+          `Detecting a ${number(v, "mde", 10)}% relative change on an ${number(v, "baseline", 8)}% baseline needs ${n3.toLocaleString()} per arm at ${(Number(str2(v, "power")) || 0.8) * 100}% power.`,
           "Sample size is a function of the effect you are trying to detect, not of the traffic you happen to have \u2014 if the traffic cannot reach this number in a sensible time, the honest move is to test a bigger change, not a smaller sample.",
           perDay ? "" : "Halving the effect roughly QUADRUPLES the sample: the relationship is inverse-square."
         ].filter(Boolean),
@@ -1266,8 +1302,8 @@ function cspAudit(header, hasNonce = false) {
   const directives = [];
   const findings = [];
   const map = /* @__PURE__ */ new Map();
-  for (const clause of header.split(";")) {
-    const t = clause.trim();
+  for (const clause2 of header.split(";")) {
+    const t = clause2.trim();
     if (!t) continue;
     const [name, ...values] = t.split(/\s+/);
     if (!name) continue;
@@ -1336,15 +1372,15 @@ var SECURITY_TOOLS = [
     run: (v) => {
       const s = str(v, "s");
       if (!s) return { headline: "Nothing to measure", ok: false, basis: "paste the string" };
-      const bits = stringEntropyBits(s);
-      const perChar = bits / s.length;
+      const bits2 = stringEntropyBits(s);
+      const perChar = bits2 / s.length;
       const alphabet = new Set(s).size;
-      const verdict = bits < 40 ? "low \u2014 brute-forceable at scale" : bits < 70 ? "moderate \u2014 acceptable for a rate-limited login, not for a key" : bits < 100 ? "good for a password" : "strong";
+      const verdict = bits2 < 40 ? "low \u2014 brute-forceable at scale" : bits2 < 70 ? "moderate \u2014 acceptable for a rate-limited login, not for a key" : bits2 < 100 ? "good for a password" : "strong";
       return {
-        headline: `~${Math.round(bits)} bits \u2014 ${verdict}`,
-        ok: bits >= 70,
+        headline: `~${Math.round(bits2)} bits \u2014 ${verdict}`,
+        ok: bits2 >= 70,
         kpis: [
-          { value: `~${Math.round(bits)}`, label: "measured bits" },
+          { value: `~${Math.round(bits2)}`, label: "measured bits" },
           { value: perChar.toFixed(2), label: "bits / character" },
           { value: `${s.length}`, label: "characters" },
           { value: `${alphabet}`, label: "distinct characters" }
@@ -1716,7 +1752,7 @@ function terminologyDrift(text2) {
     m.set(w, (m.get(w) ?? 0) + 1);
   }
   for (const [key2, forms] of byLower) {
-    if (forms.size > 1 && [...forms.values()].some((n2) => n2 > 1)) {
+    if (forms.size > 1 && [...forms.values()].some((n3) => n3 > 1)) {
       out.push({
         term: key2,
         variants: [...forms.entries()].map(([form, count]) => ({ form, count })).sort((a, b) => b.count - a.count),
@@ -1812,7 +1848,7 @@ const y = 2;
         ok: h.issues.length === 0,
         kpis: [
           { value: `${h.h1}`, label: "h1 headings" },
-          { value: counts.map(([lvl, n2]) => `h${lvl}:${n2}`).join(" "), label: "by level" }
+          { value: counts.map(([lvl, n3]) => `h${lvl}:${n3}`).join(" "), label: "by level" }
         ],
         table: h.issues.length ? { head: ["Line", "Heading", "Issue"], rows: h.issues.map((i) => [i.line ? `${i.line}` : "\u2014", i.heading, i.issue]) } : void 0,
         basis: "heading levels must not skip, anchors must not collide, and a document needs exactly one h1 \u2014 the rules a table of contents and a screen reader both depend on"
@@ -2021,6 +2057,1623 @@ var GROWTH_TOOLS = [
     }
   }
 ];
+
+// src/specialists/systems.ts
+var n2 = (x, dp = 2) => x.toFixed(dp);
+var TARGET_MIN = {
+  "Apple iOS (44pt)": { px: 44, src: "Apple Human Interface Guidelines \u2014 44\xD744 pt minimum" },
+  "Android (48dp)": { px: 48, src: "Material Design \u2014 48\xD748 dp minimum touch target" },
+  "WCAG 2.5.8 (24px)": { px: 24, src: "WCAG 2.2 SC 2.5.8 Target Size (Minimum) \u2014 24\xD724 CSS px" }
+};
+function touchTargets(v) {
+  const platform = str(v, "platform", "Apple iOS (44pt)");
+  const min = TARGET_MIN[platform] ?? TARGET_MIN["Apple iOS (44pt)"];
+  const spacing = number(v, "spacing", 8);
+  const listed = rows(v, "targets").map((line) => {
+    const [name, size2] = line.split(/[,=]/);
+    const m = (size2 ?? "").match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/);
+    return { name: (name ?? "").trim() || "unnamed", w: m ? Number(m[1]) : 0, h: m ? Number(m[2]) : 0 };
+  });
+  if (listed.length === 0) {
+    return {
+      headline: "No targets to measure \u2014 they are read as `name, WxH` in px",
+      ok: false,
+      basis: `${min.src}. Each line is one control: its name, then its width \xD7 height in pixels.`
+    };
+  }
+  const table = listed.map((t) => {
+    const shortW = Math.max(0, min.px - t.w), shortH = Math.max(0, min.px - t.h);
+    const fitsBySpacing = t.w + spacing >= min.px || t.h + spacing >= min.px;
+    const pass = shortW === 0 && shortH === 0;
+    const verdict = pass ? "meets the floor" : fitsBySpacing ? "undersized \u2014 passes only under the spacing exception" : "undersized";
+    return [t.name, `${t.w}\xD7${t.h}`, `${n2(t.w * t.h, 0)}`, pass ? "\u2014" : `${shortW || shortH}px short`, verdict];
+  });
+  const failing = table.filter((r) => r[4] !== "meets the floor").length;
+  const smallest = listed.reduce((a, b) => a.w * a.h <= b.w * b.h ? a : b);
+  return {
+    headline: failing === 0 ? `All ${listed.length} targets meet the ${platform} floor` : `${failing} of ${listed.length} targets fall under ${min.px}px (${platform})`,
+    ok: failing === 0,
+    kpis: [
+      { value: String(listed.length), label: "targets" },
+      { value: String(failing), label: "under the floor" },
+      { value: `${smallest.w}\xD7${smallest.h}`, label: "smallest" }
+    ],
+    table: { head: ["Target", "Size", "Area px\xB2", "Shortfall", "Verdict"], rows: table },
+    lines: [
+      `Minimum applied: ${min.px}px in both axes. An undersized target is reported against the spacing exception separately, because that exception is conditional and a pass there is not the same claim as a pass without it.`
+    ],
+    basis: `${min.src}; spacing exception measured at the ${spacing}px you declared. This measures the declared sizes, not the rendered ones.`
+  };
+}
+function appSizeBudget(v) {
+  const now = number(v, "current", 42);
+  const target = number(v, "target", 60);
+  const growth = number(v, "growth", 6);
+  const releases = number(v, "releases", 12);
+  if (now <= 0 || target <= now) {
+    return {
+      headline: "The budget must be larger than today's size \u2014 check the two figures",
+      ok: false,
+      basis: "A budget below the current size is already breached at release zero."
+    };
+  }
+  const perRelease = now * (growth / 100);
+  const table = [];
+  let size2 = now, breached = null;
+  for (let r = 1; r <= Math.max(1, Math.min(120, releases)); r += 1) {
+    size2 = breached === null ? size2 + perRelease : size2 * (1 + growth / 100);
+    if (breached === null && size2 > target) breached = r;
+    if (r <= 6 || size2 > target) table.push([`${r}`, n2(size2, 1), size2 > target ? "over" : "within"]);
+  }
+  const compound = Math.log(target / now) / Math.log(1 + growth / 100);
+  return {
+    headline: breached === null ? `Within budget for all ${releases} planned releases at +${growth}% each` : `Breaches the ${target} MB budget at release ${breached}`,
+    ok: breached === null,
+    kpis: [
+      { value: `${n2(now, 1)} MB`, label: "today" },
+      { value: `${n2(perRelease, 2)} MB`, label: "added per release" },
+      { value: Number.isFinite(compound) ? n2(compound, 1) : "\u2014", label: "releases if it compounds" }
+    ],
+    table: { head: ["Release", "Projected size (MB)", "Against budget"], rows: table.slice(0, 10) },
+    lines: [
+      `Linear (fixed addition): breach at release ${breached ?? "\u2014 not within the horizon shown"}.`,
+      `Compounding at ${growth}%: the budget is reached after ${Number.isFinite(compound) ? n2(compound, 1) : "\u2014"} releases. The two projections differ because compound growth is what an asset pipeline does and a fixed line item is what a release train does \u2014 plan against the compounding one and the fixed one is a pleasant surprise.`
+    ],
+    basis: `size(r) = current + r \xD7 (current \xD7 growth%) for the fixed case, current \xD7 (1+growth%)^r for the compounding case. A budget is a number somebody chose; this states when it is crossed, not that crossing it is fatal.`
+  };
+}
+function instanceSizing(v) {
+  const p95 = number(v, "p95", 72);
+  const target = number(v, "target", 60);
+  const count = number(v, "count", 6);
+  const failover = bool(v, "failover", true);
+  if (p95 <= 0 || target <= 0 || count <= 0) {
+    return {
+      headline: "Utilisation, target and instance count must all be positive",
+      ok: false,
+      basis: "Little's-Law-style headroom arithmetic needs a measured utilisation and a stated target."
+    };
+  }
+  const needed = Math.ceil(count * p95 / target);
+  const afterUtil = count * p95 / needed;
+  const failoverOk = !failover || needed - 1 >= 1;
+  return {
+    headline: needed === count ? `Current fleet already meets the ${target}% headroom target` : `Move from ${count} to ${needed} instances to hold ${target}% at p95 when the fleet is busy`,
+    ok: failoverOk,
+    kpis: [
+      { value: `${n2(p95, 1)}%`, label: "measured p95" },
+      { value: `${target}%`, label: "target ceiling" },
+      { value: String(needed), label: "instances needed" },
+      { value: `${n2(afterUtil, 1)}%`, label: "p95 after" }
+    ],
+    lines: [
+      `Each instance would sit at about ${n2(p95 * count / needed, 1)}% at the same p95 load.`,
+      failoverOk ? `With one instance lost, ${needed - 1 > 0 ? `${needed - 1} remain in service` : "none remain"} \u2014 the fleet still serves traffic, tighter.` : "At this size, losing one instance loses the service. That is a statement about redundancy, not about utilisation."
+    ],
+    basis: `instances = ceil(current \xD7 p95 \xF7 target) \u2014 headroom arithmetic against the p95 you supplied, assuming load spreads evenly. It is a capacity estimate, not a scheduler: real fleets are also shaped by per-instance memory ceilings and connection limits.`
+  };
+}
+function egressCost(v) {
+  const gb = number(v, "gb", 4e3);
+  const price = number(v, "price", 0.09);
+  const hit = number(v, "cache", 85);
+  const cdnPrice = number(v, "cdn", 0.02);
+  const gross = gb * price;
+  const originGb = gb * (1 - hit / 100);
+  const cdnGb = gb - originGb;
+  const withCdn = originGb * price + cdnGb * cdnPrice;
+  const saved = gross - withCdn;
+  return {
+    headline: saved > 0 ? `A ${n2(hit, 0)}% cache hit rate moves ${n2(saved, 0)} per month off the origin bill` : "At these prices the cache is not cheaper \u2014 the numbers say so",
+    ok: saved > 0,
+    kpis: [
+      { value: n2(gross, 0), label: "origin, uncached" },
+      { value: n2(withCdn, 0), label: "with the cache" },
+      { value: n2(saved, 0), label: "saved / month" },
+      { value: n2(saved * 12, 0), label: "saved / year" }
+    ],
+    table: {
+      head: ["Path", "GB / month", "Price / GB", "Cost / month"],
+      rows: [
+        ["Origin (uncached)", n2(gb, 0), n2(price, 2), n2(gross, 0)],
+        ["Origin (cache misses)", n2(originGb, 0), n2(price, 2), n2(originGb * price, 0)],
+        ["Cache (hits)", n2(cdnGb, 0), n2(cdnPrice, 2), n2(cdnGb * cdnPrice, 0)]
+      ]
+    },
+    basis: `cost = \u03A3 GB \xD7 price per path, with hits served from the cache and misses from the origin. Prices are the currency you type, not a quoted rate \u2014 the arithmetic holds for any tariff table.`
+  };
+}
+function indexSelectivity(v) {
+  const total = number(v, "rows", 4e6);
+  const distinct = number(v, "distinct", 12e3);
+  const matched = number(v, "matched", 400);
+  const kind = str(v, "kind", "btree");
+  if (total <= 0 || distinct <= 0) {
+    return {
+      headline: "Row count and distinct values must both be positive",
+      ok: false,
+      basis: "Selectivity needs the table's row count and the column's distinct-value count."
+    };
+  }
+  const density = distinct / total;
+  const hitFraction = matched / total;
+  const good = hitFraction < 0.05;
+  return {
+    headline: good ? `A ${kind} index on this column should be used \u2014 the predicate matches ${n2(hitFraction * 100, 3)}% of rows` : `The predicate matches ${n2(hitFraction * 100, 1)}% of rows \u2014 a sequential scan is likely cheaper than the index`,
+    ok: good,
+    kpis: [
+      { value: n2(density * 100, 4) + "%", label: "key density" },
+      { value: n2(hitFraction * 100, 3) + "%", label: "rows matched" },
+      { value: String(Math.round(total / distinct)), label: "rows per key" }
+    ],
+    lines: [
+      `Roughly ${Math.round(total / distinct)} rows share each distinct value \u2014 that is the number that decides whether the index saves a scan or adds one.`,
+      `Verdict threshold applied at 5% of the table: below it an indexed lookup usually wins, above it a sequential read usually does, and in between the planner's cost model decides.`
+    ],
+    basis: `density = distinct \xF7 rows; matched fraction = predicate rows \xF7 total rows; the 5% crossover is the conventional planner heuristic, not a guarantee. This reads your numbers \u2014 run the real planner (EXPLAIN ANALYZE) before you ship a migration.`
+  };
+}
+function poolSizing(v) {
+  const rps = number(v, "rps", 300);
+  const ms = number(v, "ms", 18);
+  const instances = number(v, "instances", 3);
+  const maxConns = number(v, "max", 100);
+  const headroom = number(v, "headroom", 25);
+  const inFlight = rps * ms / 1e3;
+  const perInstance = Math.ceil(inFlight / instances * (1 + headroom / 100));
+  const total = perInstance * instances;
+  const fits = total <= maxConns;
+  return {
+    headline: fits ? `Pool size ${perInstance} per instance \u2014 ${total} connections against a ${maxConns} ceiling` : `Pool size ${perInstance} per instance would need ${total} connections \u2014 over the ${maxConns} the server allows`,
+    ok: fits,
+    kpis: [
+      { value: n2(inFlight, 1), label: "queries in flight" },
+      { value: String(perInstance), label: "pool per instance" },
+      { value: `${total}/${maxConns}`, label: "connections" }
+    ],
+    lines: [
+      fits ? `Spare headroom: ${maxConns - total} connections remain for migrations, admin and a second service on the same server.` : `Either raise max_connections, add ${Math.max(1, Math.ceil((total - maxConns) / perInstance))} fewer instance(s)' worth of pool, or cut latency \u2014 the connection count is concurrency, not traffic.`
+    ],
+    basis: `Little's Law: concurrent queries = requests/second \xD7 query duration. Pool = that concurrency spread across instances, plus the headroom you asked for. It is the standard three-line calculation and it is the one most often skipped.`
+  };
+}
+function powerBudget(v) {
+  const capacity = number(v, "mah", 2e3);
+  const active = number(v, "active", 45);
+  const sleep = number(v, "sleep", 20);
+  const duty = number(v, "duty", 4);
+  if (capacity <= 0 || active <= 0) {
+    return {
+      headline: "Battery capacity and active current must both be positive",
+      ok: false,
+      basis: "Runtime comes from coulomb counting: charge \xF7 average current."
+    };
+  }
+  const d = duty / 100;
+  const avg = active * d + sleep / 1e3 * (1 - d);
+  const hours = capacity / avg;
+  return {
+    headline: `About ${n2(hours, 1)} hours (${n2(hours / 24, 1)} days) at a ${duty}% duty cycle`,
+    ok: hours >= 24,
+    kpis: [
+      { value: n2(avg, 2), label: "average mA" },
+      { value: n2(hours, 1), label: "hours" },
+      { value: n2(hours / 24, 1), label: "days" }
+    ],
+    table: {
+      head: ["State", "Share of time", "Current", "Charge share"],
+      rows: [
+        ["Active", `${duty}%`, `${active} mA`, `${n2(active * d / avg * 100, 1)}%`],
+        ["Sleep", `${n2(100 - duty, 1)}%`, `${sleep} \xB5A`, `${n2(sleep / 1e3 * (1 - d) / avg * 100, 1)}%`]
+      ]
+    },
+    lines: [
+      `The active state consumes ${n2(active * d / avg * 100, 1)}% of the charge while occupying ${duty}% of the time \u2014 that ratio, not the duty cycle, is what a power optimisation actually moves.`,
+      sleep > 0 && sleep / 1e3 * (1 - d) > active * d ? "Sleep current dominates, which is unusual: check the sleep figure before optimising the active path." : "The active path dominates, so the next gain is in time on, not in sleep current."
+    ],
+    basis: `average current = active \xD7 duty + sleep \xD7 (1 \u2212 duty); runtime = capacity \xF7 average. Static estimate: it assumes the published currents hold and ignores temperature, regulator efficiency and self-discharge.`
+  };
+}
+function timingSlack(v) {
+  const tasks = rows(v, "tasks").map((line) => {
+    const [name, wcet, period] = line.split(/[,=]/).map((x) => (x ?? "").trim());
+    return { name: name || "task", wcet: Number(wcet), period: Number(period) };
+  }).filter((t) => Number.isFinite(t.wcet) && Number.isFinite(t.period) && t.period > 0);
+  if (tasks.length === 0) {
+    return {
+      headline: "No tasks to schedule \u2014 each line is `name, WCET ms, period ms`",
+      ok: false,
+      basis: "Rate-monotonic analysis needs, per task, its worst-case execution time and its period."
+    };
+  }
+  const table = tasks.map((t) => [t.name, `${t.wcet} ms`, `${t.period} ms`, `${n2(t.wcet / t.period * 100, 2)}%`]);
+  const totalU = tasks.reduce((s, t) => s + t.wcet / t.period, 0);
+  const n3 = tasks.length;
+  const bound = n3 * (Math.pow(2, 1 / n3) - 1);
+  const feasible = totalU <= bound;
+  const rt = tasks.reduce((s, t) => s + t.wcet, 0);
+  return {
+    headline: feasible ? `Schedulable: utilisation ${n2(totalU, 3)} \u2264 the rate-monotonic bound ${n2(bound, 3)}` : totalU <= 1 ? `Utilisation ${n2(totalU, 3)} exceeds the rate-monotonic bound ${n2(bound, 3)} \u2014 not guaranteed by the bound (and it is above 1 if it is above 1)` : `Overloaded: utilisation ${n2(totalU, 3)} exceeds 1.0 \u2014 no schedule exists for these tasks as declared`,
+    ok: feasible,
+    kpis: [
+      { value: String(n3), label: "tasks" },
+      { value: `${n2(totalU * 100, 1)}%`, label: "utilisation" },
+      { value: `${n2(bound * 100, 1)}%`, label: "RM bound" },
+      { value: feasible ? `${n2((bound - totalU) * 100, 1)}%` : "\u2014", label: "slack to the bound" }
+    ],
+    table: { head: ["Task", "WCET", "Period", "Utilisation"], rows: table },
+    lines: [
+      `Worst-case blocking, if every task runs in priority order: ${n2(rt, 2)} ms before the lowest-priority task completes.`,
+      totalU <= bound ? "Under the bound, rate-monotonic priority assignment (shortest period first) schedules all of these against the deadline." : totalU <= 1 ? "Above the bound the test is inconclusive rather than failing: exact response-time analysis, or a deadline-driven policy, may still schedule it." : "Above 1.0 utilisation there is no schedule at all with these periods and execution times \u2014 the task set itself must change."
+    ],
+    basis: `Liu & Layland (1973): utilisation U = \u03A3 C\u1D62/T\u1D62, rate-monotonic sufficient bound n(2^(1/n) \u2212 1). The bound is SUFFICIENT, not necessary \u2014 passing guarantees schedulability, failing proves nothing either way. Interrupts, blocking and jitter are outside this model.`
+  };
+}
+var SYSTEMS_TOOLS = Object.freeze([
+  {
+    id: "touch-targets",
+    domain: "mobile",
+    label: "Touch targets",
+    blurb: "Measure every control against the platform's minimum touch size, spacing exception included.",
+    fields: [
+      sel("platform", "Platform floor", Object.keys(TARGET_MIN), "Apple iOS (44pt)"),
+      num("spacing", "Gap between targets (px)", "8", "used to evaluate the WCAG spacing exception"),
+      area("targets", "Targets \u2014 one per line: name, WxH px", "back, 32x32\nsave, 44x44\nmenu, 24x48")
+    ],
+    run: touchTargets
+  },
+  {
+    id: "app-size-budget",
+    domain: "mobile",
+    label: "App size budget",
+    blurb: "Project release size against a budget, linearly and compounding \u2014 they disagree.",
+    fields: [
+      num("current", "Current download (MB)", "42"),
+      num("target", "Budget (MB)", "60"),
+      num("growth", "Growth per release (%)", "6"),
+      num("releases", "Releases to project", "12")
+    ],
+    run: appSizeBudget
+  },
+  {
+    id: "instance-sizing",
+    domain: "cloud",
+    label: "Instance sizing",
+    blurb: "How many instances hold a headroom target at your measured p95.",
+    fields: [
+      num("p95", "Measured p95 utilisation (%)", "72"),
+      num("target", "Target ceiling (%)", "60"),
+      num("count", "Instances today", "6"),
+      flag("failover", "Keep N+1 failover", true)
+    ],
+    run: instanceSizing
+  },
+  {
+    id: "egress-cost",
+    domain: "cloud",
+    label: "Egress cost",
+    blurb: "What a cache hit rate is actually worth against your own tariff numbers.",
+    fields: [
+      num("gb", "Egress per month (GB)", "4000"),
+      num("price", "Origin price per GB", "0.09"),
+      num("cache", "Cache hit rate (%)", "85"),
+      num("cdn", "Cache price per GB", "0.02")
+    ],
+    run: egressCost
+  },
+  {
+    id: "index-selectivity",
+    domain: "db",
+    label: "Index selectivity",
+    blurb: "Whether an index should be used, from key density and how much the predicate matches.",
+    fields: [
+      num("rows", "Table rows", "4000000"),
+      num("distinct", "Distinct values in the column", "12000"),
+      num("matched", "Rows the predicate matches", "400"),
+      sel("kind", "Index kind", ["btree", "hash", "gin", "gist", "brin"], "btree")
+    ],
+    run: indexSelectivity
+  },
+  {
+    id: "pool-sizing",
+    domain: "db",
+    label: "Connection pool",
+    blurb: "Pool size from Little's Law, checked against the server's connection ceiling.",
+    fields: [
+      num("rps", "Requests per second", "300"),
+      num("ms", "Average query (ms)", "18"),
+      num("instances", "App instances", "3"),
+      num("max", "Server max connections", "100"),
+      num("headroom", "Headroom (%)", "25")
+    ],
+    run: poolSizing
+  },
+  {
+    id: "power-budget",
+    domain: "embedded",
+    label: "Power budget",
+    blurb: "Runtime from capacity, duty cycle and sleep current \u2014 and which state owns the charge.",
+    fields: [
+      num("mah", "Battery (mAh)", "2000"),
+      num("active", "Active current (mA)", "45"),
+      num("sleep", "Sleep current (\xB5A)", "20"),
+      num("duty", "Duty cycle (%)", "4")
+    ],
+    run: powerBudget
+  },
+  {
+    id: "timing-slack",
+    domain: "embedded",
+    label: "Schedulability",
+    blurb: "Rate-monotonic analysis: is this task set schedulable, and how much room is left.",
+    fields: [
+      area("tasks", "Tasks \u2014 one per line: name, WCET ms, period ms", "sense, 2, 20\ncontrol, 5, 50\nlog, 12, 200")
+    ],
+    run: timingSlack
+  }
+]);
+
+// src/specialists/intelligence.ts
+var n22 = (x, dp = 2) => x.toFixed(dp);
+var Z = { "80%": 1.2816, "90%": 1.6449, "95%": 1.96, "99%": 2.5758 };
+function evalInterval(v) {
+  const n3 = number(v, "n", 500);
+  const wins = number(v, "wins", 431);
+  const conf = str(v, "conf", "95%");
+  const baseline = number(v, "baseline", 80);
+  if (n3 <= 0 || wins < 0 || wins > n3) {
+    return {
+      headline: "Trials and successes must be consistent \u2014 0 \u2264 wins \u2264 trials",
+      ok: false,
+      basis: "A proportion needs a sample size and a count inside it."
+    };
+  }
+  const p = wins / n3;
+  const z = Z[conf] ?? 1.96;
+  const denom = 1 + z * z / n3;
+  const centre = (p + z * z / (2 * n3)) / denom;
+  const half = z / denom * Math.sqrt(p * (1 - p) / n3 + z * z / (4 * n3 * n3));
+  const lo = Math.max(0, centre - half), hi = Math.min(1, centre + half);
+  const beats = lo > baseline / 100;
+  return {
+    headline: `${n22(p * 100, 1)}% on ${n3} examples \u2014 ${conf} interval ${n22(lo * 100, 1)}% to ${n22(hi * 100, 1)}%`,
+    ok: beats,
+    kpis: [
+      { value: `${n22(p * 100, 1)}%`, label: "measured" },
+      { value: `${n22(lo * 100, 1)}\u2013${n22(hi * 100, 1)}%`, label: `${conf} interval` },
+      { value: `${n22((hi - lo) * 100, 1)} pts`, label: "width" },
+      { value: String(n3), label: "examples" }
+    ],
+    lines: [
+      beats ? `The whole interval clears the ${baseline}% baseline, so the result is not explained by sampling alone.` : `The interval overlaps the ${baseline}% baseline \u2014 this run does not establish that the system beats it.`,
+      `Halving the interval needs roughly ${Math.ceil(n3 * 4)} examples: precision costs quadratically, and that is the sentence to write before anyone promises a deadline.`
+    ],
+    basis: `Wilson score interval (Wilson 1927) at ${conf}; z = ${z}. Chosen over the normal approximation because evaluations live at the edges (0% and 100%) where the naive interval is wrong. The interval describes sampling error only \u2014 label noise and a leaking split are separate failures.`
+  };
+}
+function splitAudit(v) {
+  const total = number(v, "rows", 5e4);
+  const train = number(v, "train", 80);
+  const val = number(v, "val", 10);
+  const test = number(v, "test", 10);
+  const dupes = number(v, "dupes", 0);
+  const groups = str(v, "groups", "yes");
+  if (total <= 0 || train + val + test !== 100) {
+    return {
+      headline: "The three splits must add up to 100%",
+      ok: false,
+      basis: "Proportions are of one corpus; they have to sum to the whole of it."
+    };
+  }
+  const problems = [];
+  if (val === 0) problems.push("no validation split \u2014 the test set will end up doing that job");
+  if (test < 10) problems.push(`the test split is ${test}% (${Math.round(total * test / 100)} rows), thin for a confident readout`);
+  if (dupes > 0) problems.push(`${dupes} rows appear in more than one split \u2014 that is leakage, and it inflates the score`);
+  if (groups === "no") problems.push("records are split individually, so rows from the same source can straddle the boundary");
+  const clean = problems.length === 0;
+  return {
+    headline: clean ? `Split is clean: ${train}/${val}/${test} over ${total.toLocaleString()} rows, no duplicates, grouped` : `${problems.length} problem${problems.length === 1 ? "" : "s"} in this split`,
+    ok: clean,
+    kpis: [
+      { value: `${train}/${val}/${test}`, label: "train / val / test" },
+      { value: Math.round(total * test / 100).toLocaleString(), label: "test rows" },
+      { value: String(dupes), label: "duplicate rows" }
+    ],
+    table: {
+      head: ["Split", "Share", "Rows"],
+      rows: [
+        ["train", `${train}%`, Math.round(total * train / 100).toLocaleString()],
+        ["val", `${val}%`, Math.round(total * val / 100).toLocaleString()],
+        ["test", `${test}%`, Math.round(total * test / 100).toLocaleString()]
+      ]
+    },
+    lines: problems.length ? problems.map((p) => `\xB7 ${p}.`) : ["No structural fault found in the proportions or the grouping rule."],
+    basis: `Proportion arithmetic plus two stated rules: duplicates across splits are leakage, and records from one source belong on one side of the boundary. Neither rule is arithmetic \u2014 they are conventions this tool refuses to guess about, which is why it asks.`
+  };
+}
+function citationLint(v) {
+  const body = str(v, "text");
+  const lines = body.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  const words = body.split(/\s+/).filter(Boolean).length;
+  const refs = (body.match(/\[[0-9,\s–-]+\]|\([A-Z][A-Za-z-]+,\s*\d{4}\)|\bDOI\b|https?:\/\//g) ?? []).length;
+  const numbers = lines.filter((l) => /\d/.test(l));
+  const uncitedNumeric = numbers.filter((l) => !/\[[0-9,\s–-]+\]|\([A-Z][A-Za-z-]+,\s*\d{4}\)|https?:\/\//.test(l));
+  const perK = words > 0 ? refs / words * 1e3 : 0;
+  const ok2 = uncitedNumeric.length === 0 && refs > 0;
+  return {
+    headline: refs === 0 ? "No citations found at all \u2014 every number here is an unsourced claim" : `${refs} citation${refs === 1 ? "" : "s"} across ${words.toLocaleString()} words; ${uncitedNumeric.length} numeric line${uncitedNumeric.length === 1 ? "" : "s"} without one`,
+    ok: ok2,
+    kpis: [
+      { value: String(refs), label: "citations" },
+      { value: n22(perK, 1), label: "per 1,000 words" },
+      { value: String(uncitedNumeric.length), label: "uncited numeric lines" }
+    ],
+    table: uncitedNumeric.length ? { head: ["Line", "Text"], rows: uncitedNumeric.slice(0, 8).map((l, i) => [String(i + 1), l.length > 96 ? l.slice(0, 95) + "\u2026" : l]) } : void 0,
+    lines: [
+      "A numeric line with no citation beside it is the single most common fault in a draft that is otherwise sound \u2014 and the cheapest to fix before a reviewer finds it.",
+      refs === 0 ? "Zero citations is not a lint failure with a threshold; it is a different kind of document." : `Citation density ${n22(perK, 1)} per 1,000 words. Density is a habit, not a standard: nothing here says a document needs a fixed rate.`
+    ],
+    basis: "Mechanical pattern counts: bracketed references, (Author, year), DOI and URL forms; a line counts as uncited when it carries a digit and none of those markers. It checks that a citation is PRESENT, never that it supports the claim."
+  };
+}
+function raterAgreement(v) {
+  const pairs = rows(v, "pairs").map((l) => l.split(/[,;]/).map((x) => x.trim())).filter((p) => p.length >= 2 && p[0] && p[1]);
+  if (pairs.length === 0) {
+    return {
+      headline: "No ratings to compare \u2014 each line is `rater A, rater B`",
+      ok: false,
+      basis: "Agreement needs two labels per item, one from each rater."
+    };
+  }
+  const labels = [...new Set(pairs.flatMap((p) => [p[0], p[1]]))];
+  const n3 = pairs.length;
+  const agree = pairs.filter((p) => p[0] === p[1]).length;
+  const po = agree / n3;
+  const aCounts = /* @__PURE__ */ new Map(), bCounts = /* @__PURE__ */ new Map();
+  for (const [a, b] of pairs) {
+    aCounts.set(a, (aCounts.get(a) ?? 0) + 1);
+    bCounts.set(b, (bCounts.get(b) ?? 0) + 1);
+  }
+  const pe = labels.reduce((s, l) => s + (aCounts.get(l) ?? 0) / n3 * ((bCounts.get(l) ?? 0) / n3), 0);
+  const kappa = pe === 1 ? 1 : (po - pe) / (1 - pe);
+  const reading = kappa >= 0.8 ? "almost perfect" : kappa >= 0.6 ? "substantial" : kappa >= 0.4 ? "moderate" : kappa >= 0.2 ? "fair" : "slight or worse";
+  return {
+    headline: `Raters agree on ${n22(po * 100, 1)}% of ${n3} items \u2014 \u03BA = ${n22(kappa, 3)} (${reading})`,
+    ok: kappa >= 0.6,
+    kpis: [
+      { value: `${n22(po * 100, 1)}%`, label: "observed agreement" },
+      { value: `${n22(pe * 100, 1)}%`, label: "chance agreement" },
+      { value: n22(kappa, 3), label: "Cohen's \u03BA" },
+      { value: String(labels.length), label: "labels used" }
+    ],
+    table: {
+      head: ["Label", "Rater A", "Rater B"],
+      rows: labels.map((l) => [l, String(aCounts.get(l) ?? 0), String(bCounts.get(l) ?? 0)])
+    },
+    lines: [
+      `${n22(pe * 100, 1)}% agreement is what chance alone would produce with these label frequencies \u2014 \u03BA is the part above it.`,
+      kappa < 0.6 ? "Below substantial: the disagreement is in the instructions or the rubric, not in the raters. Fix the definition before multiplying the labels." : "Substantial agreement: these labels can carry weight in an evaluation."
+    ],
+    basis: `Cohen's \u03BA = (Po \u2212 Pe) \xF7 (1 \u2212 Pe), with Pe from the raters' own marginal distributions. Landis & Koch's verbal bands (0.6 substantial, 0.8 almost perfect) are the convention quoted here, not a law of nature. \u03BA assumes the labels are exhaustive and mutually exclusive.`
+  };
+}
+function loudnessGain(v) {
+  const measured = number(v, "measured", -9.4);
+  const target = number(v, "target", -14);
+  const peak = number(v, "peak", -0.8);
+  const ceiling = number(v, "ceiling", -1);
+  const gain = target - measured;
+  const peakAfter = peak + gain;
+  const over = peakAfter > ceiling;
+  return {
+    headline: over ? `Gain ${n22(gain, 1)} dB would push the true peak to ${n22(peakAfter, 2)} dBTP \u2014 past the ${ceiling} dBTP ceiling` : `Gain ${n22(gain, 1)} dB reaches the ${target} LUFS target with peak at ${n22(peakAfter, 2)} dBTP`,
+    ok: !over,
+    kpis: [
+      { value: `${n22(measured, 1)} LUFS`, label: "measured" },
+      { value: `${n22(gain, 1)} dB`, label: "gain to apply" },
+      { value: `${n22(peakAfter, 2)} dBTP`, label: "peak after" }
+    ],
+    lines: [
+      over ? `The limiter must do ${n22(peakAfter - ceiling, 2)} dB of work. That is a real change to the material, not a normalisation step \u2014 a gentler target or fewer peaky transients is the honest route.` : "No limiting needed: the gain fits under the ceiling with room to spare.",
+      `Peak and loudness move together under linear gain, so this is one subtraction on each \u2014 the two do not need separate passes.`
+    ],
+    basis: `Loudness is integrated LUFS (ITU-R BS.1770 / EBU R128); the \u221214 LUFS target is the streaming convention, not a broadcast standard (EBU R128 broadcast is \u221223 LUFS). True peak is measured against the ceiling you declare; a lossy codec can overshoot a true-peak reading, so keep margin.`
+  };
+}
+function bitrateBudget(v) {
+  const minutes = number(v, "minutes", 42);
+  const target = number(v, "target", 800);
+  const audio = number(v, "audio", 128);
+  const ladder2 = series(v, "ladder");
+  const rungs = (ladder2.length ? ladder2 : [2e3, 3e3, 4500, 6e3, 8e3]).map((kbps) => {
+    const mb = (kbps + audio) * minutes * 60 / 8 / 1e3;
+    return { kbps, mb };
+  });
+  const fits = rungs.filter((r) => r.mb <= target);
+  const best = fits.length ? fits[fits.length - 1] : null;
+  return {
+    headline: best ? `Highest rung that fits ${target} MB over ${minutes} min: ${best.kbps} kbps (${n22(best.mb, 0)} MB with ${audio} kbps audio)` : `Nothing on the ladder fits ${target} MB \u2014 the smallest rung alone is ${n22(rungs[0].mb, 0)} MB`,
+    ok: !!best,
+    kpis: [
+      { value: `${n22(rungs[0].mb, 0)}\u2013${n22(rungs[rungs.length - 1].mb, 0)} MB`, label: "ladder range" },
+      { value: String(best?.kbps ?? rungs[0].kbps), label: "rung to ship" },
+      { value: `${minutes} min`, label: "duration" }
+    ],
+    table: { head: ["Rung (kbps)", "Size (MB)", "Against the target"], rows: rungs.map((r) => [String(r.kbps), n22(r.mb, 0), r.mb <= target ? "fits" : "over"]) },
+    lines: [
+      `Audio is charged against every rung the same way \u2014 ${n22(audio * minutes * 60 / 8 / 1e3, 0)} MB of it \u2014 which is why dropping the video rung is not the same as dropping the size.`,
+      "Size = bitrate \xD7 duration. It is exact arithmetic, and every streaming budget conversation is a variant of it."
+    ],
+    basis: `MB = (video kbps + audio kbps) \xD7 duration(seconds) \xF7 8 \xF7 1000. Variable-bitrate encodes land under this number on average and over it in busy scenes, so leave margin rather than budgeting to the byte.`
+  };
+}
+function spendForecast(v) {
+  const months = series(v, "months");
+  const horizon = number(v, "horizon", 3);
+  if (months.length < 2) {
+    return {
+      headline: "Give at least two months of spend \u2014 a trend needs two points",
+      ok: false,
+      basis: "Least-squares needs at least two observations; two is already a weak fit and the result says so."
+    };
+  }
+  const n3 = months.length;
+  const xs = months.map((_, i) => i + 1);
+  const mx = xs.reduce((a, b) => a + b, 0) / n3;
+  const my = months.reduce((a, b) => a + b, 0) / n3;
+  const sxx = xs.reduce((s, x) => s + (x - mx) ** 2, 0);
+  const sxy = xs.reduce((s, x, i) => s + (x - mx) * (months[i] - my), 0);
+  const slope = sxx === 0 ? 0 : sxy / sxx;
+  const intercept = my - slope * mx;
+  const forecast = Array.from({ length: Math.max(1, Math.min(24, horizon)) }, (_, i) => n3 + i + 1).map((x) => ({
+    x,
+    y: intercept + slope * x
+  }));
+  const last = forecast[forecast.length - 1];
+  return {
+    headline: `${slope >= 0 ? "+" : ""}${n22(slope, 0)} per month on a ${n22(my, 0)} average \u2014 ${n22(last.y, 0)} expected in month ${last.x}`,
+    ok: slope <= 0,
+    kpis: [
+      { value: n22(my, 0), label: "average" },
+      { value: `${slope >= 0 ? "+" : ""}${n22(slope, 1)}`, label: "trend / month" },
+      { value: n22(last.y, 0), label: `month ${last.x}` },
+      { value: String(n3), label: "months observed" }
+    ],
+    table: {
+      head: ["Month", "Observed", "Fitted"],
+      rows: [
+        ...months.map((m, i) => [String(i + 1), n22(m, 0), n22(intercept + slope * (i + 1), 0)]),
+        ...forecast.map((f2) => [String(f2.x), "\u2014", n22(f2.y, 0)])
+      ].slice(0, 14)
+    },
+    lines: [
+      `Trend is ${slope >= 0 ? "upward" : "downward"} at ${n22(Math.abs(slope), 0)} per month across ${n3} months of evidence.`,
+      n3 < 6 ? `${n3} months is a thin basis for a trend and the fit will chase whatever happened last \u2014 treat the projection as one scenario, not a budget.` : "The fit is a straight line through months that were probably not straight; use it as the trend, not as the plan."
+    ],
+    basis: `Ordinary least squares on month index: fitted = mean + slope \xD7 (x \u2212 mean x). A linear fit to spend is a statement that the recent past continues \u2014 it cannot see a contract ending, a migration finishing or a price change.`
+  };
+}
+function anomalyZ(v) {
+  const values = series(v, "values");
+  const threshold = number(v, "z", 3);
+  if (values.length < 4) {
+    return {
+      headline: "Give at least four observations \u2014 a mean and a spread need them",
+      ok: false,
+      basis: "A z-score compares each day with the mean and standard deviation of the rest; three points make both meaningless."
+    };
+  }
+  const mean2 = values.reduce((a, b) => a + b, 0) / values.length;
+  const sd = Math.sqrt(values.reduce((s, x) => s + (x - mean2) ** 2, 0) / (values.length - 1));
+  const flagged = values.map((x, i) => ({ i: i + 1, x, z: sd === 0 ? 0 : (x - mean2) / sd })).filter((r) => Math.abs(r.z) >= threshold);
+  return {
+    headline: flagged.length === 0 ? `No day crosses ${threshold}\u03C3 against a mean of ${n22(mean2, 2)}` : `${flagged.length} day${flagged.length === 1 ? "" : "s"} cross ${threshold}\u03C3 \u2014 ${flagged.map((f2) => `day ${f2.i}`).join(", ")}`,
+    ok: flagged.length === 0,
+    kpis: [
+      { value: n22(mean2, 2), label: "mean" },
+      { value: n22(sd, 2), label: "std deviation" },
+      { value: String(flagged.length), label: `\u2265 ${threshold}\u03C3` },
+      { value: String(values.length), label: "days" }
+    ],
+    table: flagged.length ? { head: ["Day", "Value", "z"], rows: flagged.slice(0, 10).map((f2) => [String(f2.i), n22(f2.x, 2), n22(f2.z, 2)]) } : void 0,
+    lines: [
+      `Each flagged day sits at least ${threshold} standard deviations from the mean of the whole window.`,
+      flagged.length ? "A single outlier inflates the mean and the spread together, which hides the next one. Re-run with the flagged day removed before deciding it is the only anomaly." : "No day is unusual against this window. That is a statement about the window, not about the bill."
+    ],
+    basis: `z = (x \u2212 mean) \xF7 sample standard deviation (n \u2212 1), flagged at |z| \u2265 ${threshold}. Daily spend is skewed and autocorrelated (weekends, batch jobs), so a normal-theory threshold is a screen for attention, not a verdict \u2014 and one outlier masks the next.`
+  };
+}
+var INTELLIGENCE_TOOLS = Object.freeze([
+  {
+    id: "eval-interval",
+    domain: "ml",
+    label: "Evaluation interval",
+    blurb: "The interval around an accuracy figure \u2014 never the score on its own.",
+    fields: [
+      num("n", "Examples evaluated", "500"),
+      num("wins", "Correct outcomes", "431"),
+      sel("conf", "Confidence", Object.keys(Z), "95%"),
+      num("baseline", "Baseline to beat (%)", "80")
+    ],
+    run: evalInterval
+  },
+  {
+    id: "split-audit",
+    domain: "ml",
+    label: "Split audit",
+    blurb: "Check train/val/test proportions, duplicates and the grouping rule for leakage.",
+    fields: [
+      num("rows", "Corpus rows", "50000"),
+      num("train", "Train (%)", "80"),
+      num("val", "Validation (%)", "10"),
+      num("test", "Test (%)", "10"),
+      num("dupes", "Rows appearing in more than one split", "0"),
+      sel("groups", "Split by group, not by row", ["yes", "no"], "yes")
+    ],
+    run: splitAudit
+  },
+  {
+    id: "citation-lint",
+    domain: "research",
+    label: "Citation lint",
+    blurb: "Which numeric claims carry no citation \u2014 the cheapest fault to fix before review.",
+    fields: [
+      area("text", "Draft", "Latency improved by 37% in the second run [3].\nCost fell to 12 per unit in March.\nThroughput reached 9,400 rpm (Iyer, 2024).")
+    ],
+    run: citationLint
+  },
+  {
+    id: "rater-agreement",
+    domain: "research",
+    label: "Rater agreement",
+    blurb: "Cohen's \u03BA beside the raw agreement, because chance agreement is not zero.",
+    fields: [
+      area(
+        "pairs",
+        "One item per line: rater A label, rater B label",
+        "pass, pass\nfail, fail\npass, pass\nborderline, fail\nfail, fail\npass, pass\nborderline, borderline\nfail, fail"
+      )
+    ],
+    run: raterAgreement
+  },
+  {
+    id: "loudness-gain",
+    domain: "media",
+    label: "Loudness gain",
+    blurb: "The gain to a target LUFS, and whether the limiter has to work for it.",
+    fields: [
+      num("measured", "Measured integrated loudness (LUFS)", "-9.4"),
+      num("target", "Target (LUFS)", "-14"),
+      num("peak", "Measured true peak (dBTP)", "-0.8"),
+      num("ceiling", "Peak ceiling (dBTP)", "-1")
+    ],
+    run: loudnessGain
+  },
+  {
+    id: "bitrate-budget",
+    domain: "media",
+    label: "Bitrate budget",
+    blurb: "Which rung of an encoding ladder fits a size budget over the runtime.",
+    fields: [
+      num("minutes", "Duration (minutes)", "42"),
+      num("target", "Size budget (MB)", "800"),
+      num("audio", "Audio bitrate (kbps)", "128"),
+      area("ladder", "Video rungs in kbps \u2014 one per line, or comma separated", "2000\n3000\n4500\n6000\n8000")
+    ],
+    run: bitrateBudget
+  },
+  {
+    id: "spend-forecast",
+    domain: "finops",
+    label: "Spend forecast",
+    blurb: "Trend and projection from the months you have, with the fit's honesty stated.",
+    fields: [
+      area("months", "Monthly spend \u2014 one per line", "18400\n19250\n18900\n21100\n22600\n23900"),
+      num("horizon", "Months to project", "3")
+    ],
+    run: spendForecast
+  },
+  {
+    id: "anomaly-z",
+    domain: "finops",
+    label: "Spend anomalies",
+    blurb: "Days that sit far from their own window's mean, with the caveat attached.",
+    fields: [
+      area("values", "Spend per day \u2014 one per line", "410\n398\n425\n402\n418\n24000\n430\n415\n398\n440\n420\n405"),
+      num("z", "Flag at |z| \u2265", "3")
+    ],
+    run: anomalyZ
+  }
+]);
+
+// src/specialists/governance.ts
+var n23 = (x, dp = 2) => x.toFixed(dp);
+var day = 864e5;
+var iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+var parseDate = (s) => {
+  const m = s.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const t = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Number.isFinite(t) ? t : null;
+};
+var VAGUE_DEFAULT = "reasonable efforts\nmaterial\npromptly\nas appropriate\nsole discretion\nfrom time to time\nsubstantially\nbest efforts";
+function clauseLint(v) {
+  const body = str(v, "text");
+  const terms = rows(v, "terms").map((t) => t.toLowerCase()).filter(Boolean);
+  const words = body.split(/\s+/).filter(Boolean).length;
+  if (words === 0) {
+    return {
+      headline: "Nothing to read \u2014 paste the clause or the section",
+      ok: false,
+      basis: "A density needs text; the tool counts terms, it does not interpret clauses."
+    };
+  }
+  const found = terms.map((t) => {
+    const hits2 = (body.toLowerCase().match(new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g")) ?? []).length;
+    return { term: t, hits: hits2 };
+  }).filter((f2) => f2.hits > 0).sort((a, b) => b.hits - a.hits);
+  const total = found.reduce((s, f2) => s + f2.hits, 0);
+  const perK = total / words * 1e3;
+  return {
+    headline: total === 0 ? "No vague terms from this list appear \u2014 the drafting is specific about obligations" : `${total} undefined term${total === 1 ? "" : "s"} across ${words.toLocaleString()} words (${n23(perK, 1)} per 1,000)`,
+    ok: total === 0,
+    kpis: [
+      { value: String(total), label: "vague terms" },
+      { value: n23(perK, 1), label: "per 1,000 words" },
+      { value: String(found.length), label: "distinct terms" },
+      { value: String(words), label: "words" }
+    ],
+    table: found.length ? { head: ["Term", "Occurrences"], rows: found.map((f2) => [f2.term, String(f2.hits)]) } : void 0,
+    lines: [
+      "Each hit is a word that will be argued about later unless the contract defines it. The tool does not know which of them matter \u2014 it points at all of them so the lawyer decides.",
+      total > 0 ? `Highest count: \u201C${found[0].term}\u201D at ${found[0].hits}.` : "Nothing to rank."
+    ],
+    basis: "Mechanical word-boundary counts against a term list (yours, or the usual suspects). It neither parses clauses nor gives legal advice; a defined term appearing five times is fine, and an undefined one appearing once may be fatal."
+  };
+}
+function dateTerms(v) {
+  const start = parseDate(str(v, "start", "2026-04-01"));
+  const months = number(v, "months", 12);
+  const notice = number(v, "notice", 90);
+  const renew = bool(v, "renew", true);
+  if (start === null) {
+    return {
+      headline: "The effective date must be written as YYYY-MM-DD",
+      ok: false,
+      basis: "Date arithmetic here is calendar arithmetic on an unambiguous date; a locale-ambiguous date is refused rather than guessed."
+    };
+  }
+  const addMonths = (ms, m) => {
+    const d = new Date(ms);
+    const target = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + m, 1));
+    const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+    return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), Math.min(d.getUTCDate(), lastDay));
+  };
+  const expiry = addMonths(start, months);
+  const lastNotice = expiry - notice * day;
+  const today = Date.UTC(2026, 8, 22);
+  const daysToNotice = Math.round((lastNotice - today) / day);
+  return {
+    headline: daysToNotice < 0 ? `The notice window closed ${Math.abs(daysToNotice)} days ago on the dates as typed` : `${daysToNotice} days remain to serve notice \u2014 last day ${iso(lastNotice)}`,
+    ok: daysToNotice >= 0,
+    kpis: [
+      { value: iso(start), label: "effective" },
+      { value: iso(expiry), label: `expiry (+${months}m)` },
+      { value: iso(lastNotice), label: `notice (${notice}d)` },
+      { value: String(daysToNotice), label: "days to decide" }
+    ],
+    table: {
+      head: ["Milestone", "Date", "From"],
+      rows: [
+        ["Effective", iso(start), "as declared"],
+        ["Expiry", iso(expiry), `+${months} months, day-clamped`],
+        ["Last day to notice", iso(lastNotice), `expiry \u2212 ${notice} days`],
+        ["Renewal decision", iso(lastNotice), renew ? "auto-renew unless notice served" : "no auto-renew clause assumed"]
+      ]
+    },
+    lines: [
+      `Adding ${months} months clamps an end-of-month day to the target month's last day (31 Jan + 1 month = 28/29 Feb). That is the common intent and it is not the only convention \u2014 the other one carries into the next month.`,
+      `Calendar days are used throughout. A contract counting BUSINESS days needs a holiday calendar, which this tool does not have and will not invent.`
+    ],
+    basis: "Calendar arithmetic in UTC: expiry = effective + term (day-clamped), last notice day = expiry \u2212 notice period. Whether the boundary day counts inclusive or exclusive is a drafting question this tool surfaces rather than decides."
+  };
+}
+var PII = [
+  { name: "email address", re: /[\w.+-]+@[\w-]+\.[\w.-]{2,}/g, note: "pattern" },
+  { name: "phone (international)", re: /\+\d[\d\s\-()]{7,}\d/g, note: "pattern" },
+  { name: "PAN (India)", re: /\b[A-Z]{5}\d{4}[A-Z]\b/g, note: "pattern + 4th-character holder type" },
+  { name: "Aadhaar-shaped 12 digits", re: /\b\d{4}\s?\d{4}\s?\d{4}\b/g, note: "shape only \u2014 not checksum-verified" },
+  { name: "card-shaped number", re: /\b(?:\d[ -]?){13,19}\b/g, note: "shape + Luhn checked below" },
+  { name: "IPv4 address", re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, note: "pattern" },
+  { name: "date of birth (ISO)", re: /\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b/g, note: "pattern \u2014 a date is PII only in context" }
+];
+function luhn(digits) {
+  const d = digits.replace(/\D/g, "");
+  if (d.length < 13 || d.length > 19) return false;
+  let sum = 0, alt = false;
+  for (let i = d.length - 1; i >= 0; i -= 1) {
+    let x = Number(d[i]);
+    if (alt) {
+      x *= 2;
+      if (x > 9) x -= 9;
+    }
+    sum += x;
+    alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+var mask = (s) => s.length <= 4 ? "\u2022".repeat(s.length) : `${s.slice(0, 2)}${"\u2022".repeat(Math.min(10, s.length - 4))}${s.slice(-2)}`;
+function piiScan(v) {
+  const body = str(v, "text");
+  if (!body.trim()) {
+    return {
+      headline: "Nothing to scan \u2014 paste a sample or a document body",
+      ok: false,
+      basis: "The scan reports pattern classes present in text you supply. It never sends the text anywhere."
+    };
+  }
+  const found = PII.map((p) => {
+    const hits2 = body.match(p.re) ?? [];
+    const verified = p.name === "card-shaped number" ? hits2.filter(luhn) : hits2;
+    return { ...p, hits: verified };
+  }).filter((f2) => f2.hits.length > 0);
+  const total = found.reduce((s, f2) => s + f2.hits.length, 0);
+  const table = found.map((f2) => [f2.name, String(f2.hits.length), f2.note, f2.hits.slice(0, 2).map(mask).join(" \xB7 ")]);
+  return {
+    headline: total === 0 ? "No personal-data patterns of these classes appear in the text" : `${total} personal-data pattern${total === 1 ? "" : "s"} across ${found.length} class${found.length === 1 ? "" : "es"}`,
+    ok: total === 0,
+    kpis: [
+      { value: String(total), label: "matches" },
+      { value: String(found.length), label: "classes" },
+      { value: body.length.toLocaleString(), label: "characters read" }
+    ],
+    table: table.length ? { head: ["Class", "Count", "Basis", "Masked sample"], rows: table } : void 0,
+    lines: [
+      "Every sample in the table is masked: the first and last characters only, never the value.",
+      total > 0 ? "A match is a shape, not a finding. A 12-digit number may be an invoice; a date may be a delivery date. What the scan establishes is that the text needs a classification decision by a human before it is copied anywhere." : "Clean against these patterns \u2014 which is not the same as clean. Names, addresses and free-text identifiers have no regex, and this tool will not pretend to one."
+    ],
+    basis: "Pattern classes with published shapes (email, E.164-ish phone, PAN's mask, ISO dates) plus a Luhn checksum for card-shaped digits. Card shapes are only counted when Luhn passes; Aadhaar shapes are counted on shape alone and labelled as such. Nothing is transmitted; the scan runs on this machine."
+  };
+}
+function retentionClock(v) {
+  const today = parseDate(str(v, "today", "2026-09-22"));
+  const listed = rows(v, "items").map((line) => {
+    const [category, created, days] = line.split(/[,=]/).map((x) => (x ?? "").trim());
+    const c = parseDate(created ?? "");
+    const d = Number(days);
+    return c === null || !Number.isFinite(d) ? null : { category: category || "item", created: c, days: d };
+  }).filter((x) => x !== null);
+  if (today === null || listed.length === 0) {
+    return {
+      headline: "Give the reference date (YYYY-MM-DD) and rows of `category, created, retention days`",
+      ok: false,
+      basis: "A retention clock is creation date plus retention period, measured against a stated reference date."
+    };
+  }
+  const table = listed.map((it) => {
+    const expiry = it.created + it.days * day;
+    const left = Math.round((expiry - today) / day);
+    return { it, expiry, left };
+  }).sort((a, b) => a.left - b.left);
+  const overdue = table.filter((t) => t.left < 0).length;
+  const soon = table.filter((t) => t.left >= 0 && t.left <= 30).length;
+  return {
+    headline: overdue > 0 ? `${overdue} categor${overdue === 1 ? "y is" : "ies are"} past their retention date` : `Nothing overdue \u2014 ${soon} categor${soon === 1 ? "y falls" : "ies fall"} due within 30 days`,
+    ok: overdue === 0,
+    kpis: [
+      { value: String(table.length), label: "categories" },
+      { value: String(overdue), label: "overdue" },
+      { value: String(soon), label: "due \u2264 30 days" },
+      { value: iso(today), label: "as at" }
+    ],
+    table: {
+      head: ["Category", "Created", "Retention", "Expires", "Days"],
+      rows: table.map((t) => [t.it.category, iso(t.it.created), `${t.it.days}d`, iso(t.expiry), (t.left < 0 ? "" : "+") + String(t.left)])
+    },
+    lines: [
+      "Retention is stated as a period from creation, which is the shape most policies are written in. A policy written from LAST ACTIVITY needs the activity date, not the creation date \u2014 the two clocks differ and the difference is usually the whole argument.",
+      overdue > 0 ? "An overdue category is a deletion that policy says should already have happened; whether it can happen is a legal holdup question this tool does not answer." : "No category is past its date."
+    ],
+    basis: "expiry = created + retention days; days remaining = expiry \u2212 reference date. Plain calendar arithmetic, no business-day adjustment, no legal-hold awareness."
+  };
+}
+function headcountModel(v) {
+  const current = number(v, "current", 40);
+  const hires = number(v, "hires", 3);
+  const attrition = number(v, "attrition", 1.5);
+  const months = Math.max(1, Math.min(36, number(v, "months", 12)));
+  if (current <= 0) {
+    return { headline: "Headcount must be greater than zero", ok: false, basis: "Recurrence modelling needs a starting population." };
+  }
+  const a = attrition / 100;
+  let h = current;
+  const rowsOut = [];
+  for (let m = 1; m <= months; m += 1) {
+    const leavers = h * a;
+    h = h - leavers + hires;
+    if (m <= 6 || m === months) rowsOut.push([String(m), n23(leavers, 1), String(hires), n23(h, 1)]);
+  }
+  const net = h - current;
+  return {
+    headline: `${current} \u2192 ${n23(h, 1)} over ${months} months at ${hires} hires and ${attrition}% monthly attrition`,
+    ok: net >= 0,
+    kpis: [
+      { value: `${net >= 0 ? "+" : ""}${n23(net, 1)}`, label: "net change" },
+      { value: n23(h, 1), label: `month ${months}` },
+      { value: String(hires * months), label: "hires made" },
+      { value: n23(current * a * months, 1), label: "approximate leavers" }
+    ],
+    table: { head: ["Month", "Leavers", "Hires", "Headcount"], rows: rowsOut },
+    lines: [
+      `Attrition is charged monthly against the headcount that exists, not the one you planned \u2014 which is why a flat hiring plan still curves downward as the base grows.`,
+      net < 0 ? "This plan shrinks the team. If that is not the intent, the hire rate has to rise before attrition compounds, not after." : "The plan grows the team while replacing its own losses."
+    ],
+    basis: "h(m+1) = h(m) \xD7 (1 \u2212 attrition%) + hires, monthly. Attrition is the rate you typed, applied uniformly \u2014 real attrition clusters in cohorts (new joiners, post-review periods), so treat the curve as a centre line."
+  };
+}
+function compBand(v) {
+  const min = number(v, "min", 18e5);
+  const mid = number(v, "mid", 24e5);
+  const max = number(v, "max", 32e5);
+  const offer = number(v, "offer", 252e4);
+  if (!(min < mid && mid < max)) {
+    return {
+      headline: "A band runs min < mid < max \u2014 check these three",
+      ok: false,
+      basis: "Position in band needs a well-formed band; a malformed one is refused rather than normalised."
+    };
+  }
+  const inBand = offer >= min && offer <= max;
+  const position = (offer - min) / (max - min) * 100;
+  const compa = offer / mid * 100;
+  return {
+    headline: inBand ? `The offer sits at ${n23(position, 1)}% of the band \u2014 compa-ratio ${n23(compa, 1)}` : offer < min ? `The offer is below the band minimum by ${n23(min - offer, 0)}` : `The offer is above the band maximum by ${n23(offer - max, 0)}`,
+    ok: inBand,
+    kpis: [
+      { value: `${n23(position, 1)}%`, label: "position in band" },
+      { value: n23(compa, 1), label: "compa-ratio" },
+      { value: inBand ? "within band" : "outside band", label: "fit" }
+    ],
+    table: {
+      head: ["Point", "Value", "Offer vs point"],
+      rows: [
+        ["Minimum", min.toLocaleString("en-IN"), `${n23((offer - min) / min * 100, 1)}%`],
+        ["Midpoint", mid.toLocaleString("en-IN"), `${n23(compa - 100, 1)}%`],
+        ["Maximum", max.toLocaleString("en-IN"), `${n23((offer - max) / max * 100, 1)}%`]
+      ]
+    },
+    lines: [
+      "Position in band is cumulative and compa-ratio is relative to the midpoint; they answer different questions and a band review asked for one is not answered by the other.",
+      inBand ? "Within the band. Whether it is FAIR within the band is a policy question \u2014 the arithmetic cannot see the peers." : "Outside the band: that is an exception path, not a compa-ratio discussion."
+    ],
+    basis: "compa-ratio = offer \xF7 midpoint \xD7 100; position = (offer \u2212 min) \xF7 (max \u2212 min) \xD7 100. Both are standard. Neither accounts for tenure, location differentials or equity \u2014 the tool reports position, not fairness, and it will not guess at either."
+  };
+}
+function pipelineCoverage(v) {
+  const quota = number(v, "quota", 12e6);
+  const target = number(v, "coverage", 3.5);
+  const listed = rows(v, "pipeline").map((line) => {
+    const [stage, value, win] = line.split(/[,=]/).map((x) => (x ?? "").trim());
+    return { stage: stage || "stage", value: Number(String(value).replace(/[,\s₹]/g, "")), win: Number(win) };
+  }).filter((s) => Number.isFinite(s.value) && Number.isFinite(s.win) && s.value > 0);
+  if (listed.length === 0 || quota <= 0) {
+    return {
+      headline: "Give a quota and rows of `stage, value, win rate %`",
+      ok: false,
+      basis: "Coverage is weighted pipeline against the quota it has to cover."
+    };
+  }
+  const weighted = listed.reduce((s, x) => s + x.value * x.win / 100, 0);
+  const raw = listed.reduce((s, x) => s + x.value, 0);
+  const coverage = weighted / quota;
+  const gap = Math.max(0, quota - weighted);
+  const needed = gap > 0 ? gap / (weighted / raw || 1) : 0;
+  return {
+    headline: coverage >= target ? `Weighted coverage ${n23(coverage, 2)}\xD7 against a ${target}\xD7 convention \u2014 ${n23(weighted, 0)} of ${n23(quota, 0)}` : `Weighted coverage ${n23(coverage, 2)}\xD7 is under the ${target}\xD7 convention \u2014 ${n23(gap, 0)} short`,
+    ok: coverage >= target,
+    kpis: [
+      { value: n23(weighted, 0), label: "weighted pipeline" },
+      { value: `${n23(coverage, 2)}\xD7`, label: "coverage" },
+      { value: gap > 0 ? n23(gap, 0) : "met", label: "weighted gap" },
+      { value: n23(raw, 0), label: "raw pipeline" }
+    ],
+    table: {
+      head: ["Stage", "Value", "Win rate", "Weighted"],
+      rows: listed.map((x) => [x.stage, n23(x.value, 0), `${x.win}%`, n23(x.value * x.win / 100, 0)])
+    },
+    lines: [
+      `Raw pipeline is ${n23(raw / quota, 2)}\xD7 the quota; the win rates take it to ${n23(coverage, 2)}\xD7. The gap between those two numbers is the entire reason coverage is weighted.`,
+      gap > 0 ? `To close it with this stage mix you need roughly ${n23(needed, 0)} of additional raw pipeline \u2014 or a higher win rate on what exists, which is not arithmetic.` : "Coverage meets the convention. Whether the win rates themselves are honest is a separate question, and the one worth asking next."
+    ],
+    basis: "weighted = \u03A3 value \xD7 win rate; coverage = weighted \xF7 quota. The 3\u20134\xD7 convention quoted on the surface is a habit, not a law \u2014 the number that matters is whether the win rates came from closed history or from optimism."
+  };
+}
+function slaClock(v) {
+  const targets2 = { P1: 1, P2: 4, P3: 24, P4: 72 };
+  const listed = rows(v, "tickets").map((line) => {
+    const [id, priority, opened, responded] = line.split(/[,=]/).map((x) => (x ?? "").trim());
+    const t0 = opened ? Date.parse(opened) : NaN;
+    const t1 = responded ? Date.parse(responded) : NaN;
+    return { id: id || "ticket", priority: priority || "P3", t0, t1 };
+  }).filter((t) => Number.isFinite(t.t0));
+  if (listed.length === 0) {
+    return {
+      headline: "Give rows of `id, priority, opened, first response` (ISO timestamps)",
+      ok: false,
+      basis: "The clock needs an opening time and a first-response time per ticket."
+    };
+  }
+  const table = listed.map((t) => {
+    const hours = Number.isFinite(t.t1) ? (t.t1 - t.t0) / 36e5 : null;
+    const limit = targets2[t.priority] ?? 24;
+    const breach = hours === null ? true : hours > limit;
+    return [t.id, t.priority, hours === null ? "no response" : `${n23(hours, 2)}h`, `${limit}h`, breach ? hours === null ? "open, past target" : "breached" : "met"];
+  });
+  const breaches = table.filter((r) => r[4] !== "met").length;
+  return {
+    headline: breaches === 0 ? `All ${table.length} tickets responded inside their target` : `${breaches} of ${table.length} tickets missed their first-response target`,
+    ok: breaches === 0,
+    kpis: [
+      { value: String(table.length), label: "tickets" },
+      { value: String(breaches), label: "breached" },
+      { value: `${n23((table.length - breaches) / table.length * 100, 1)}%`, label: "attainment" }
+    ],
+    table: { head: ["Ticket", "Priority", "First response", "Target", "Verdict"], rows: table },
+    lines: [
+      "Targets applied: P1 1h, P2 4h, P3 24h, P4 72h \u2014 the common shape, and yours may differ; change the priorities and the verdicts follow.",
+      "Wall-clock hours. A contract measuring business hours needs a calendar and a holiday list, neither of which this tool invents."
+    ],
+    basis: "first response = responded \u2212 opened, compared with the target for the priority. Timestamps are read as ISO; a ticket with no response is treated as still inside (or past) the clock, never as met."
+  };
+}
+var GOVERNANCE_TOOLS = Object.freeze([
+  {
+    id: "clause-lint",
+    domain: "legal",
+    label: "Clause terms",
+    blurb: "Density of undefined terms a contract will be argued over later.",
+    fields: [
+      area("text", "Clause or section", "The Supplier shall use reasonable efforts to deliver promptly, and may in its sole discretion vary the scope from time to time. Material changes require approval."),
+      area("terms", "Terms to count \u2014 one per line", VAGUE_DEFAULT)
+    ],
+    run: clauseLint
+  },
+  {
+    id: "date-terms",
+    domain: "legal",
+    label: "Contract dates",
+    blurb: "Expiry and the last day to serve notice, from the term and notice period.",
+    fields: [
+      text("start", "Effective date (YYYY-MM-DD)", "2026-04-01"),
+      num("months", "Term (months)", "12"),
+      num("notice", "Notice period (days)", "90"),
+      flag("renew", "Auto-renew unless notice is served", true)
+    ],
+    run: dateTerms
+  },
+  {
+    id: "pii-scan",
+    domain: "privacy",
+    label: "Personal-data scan",
+    blurb: "Pattern classes present in a text, every sample masked, nothing transmitted.",
+    fields: [
+      area("text", "Text to scan", "Contact: priya.raman@example.in, +91 98400 12345.\nCard 4111 1111 1111 1111 was refunded.\nPAN AAFPU0939F on file. Order ref 2026-05-14.")
+    ],
+    run: piiScan
+  },
+  {
+    id: "retention-clock",
+    domain: "privacy",
+    label: "Retention clock",
+    blurb: "What has passed its retention date, and what falls due in the next 30 days.",
+    fields: [
+      text("today", "Reference date (YYYY-MM-DD)", "2026-09-22"),
+      area(
+        "items",
+        "Rows of `category, created, retention days`",
+        "support tickets, 2024-03-11, 730\nmarketing leads, 2023-01-04, 365\ninvoices, 2021-06-30, 2920\naccess logs, 2026-08-01, 90"
+      )
+    ],
+    run: retentionClock
+  },
+  {
+    id: "headcount-model",
+    domain: "people",
+    label: "Headcount model",
+    blurb: "What a hiring plan actually does once attrition compounds against it.",
+    fields: [
+      num("current", "Headcount today", "40"),
+      num("hires", "Hires per month", "3"),
+      num("attrition", "Monthly attrition (%)", "1.5"),
+      num("months", "Months to project", "12")
+    ],
+    run: headcountModel
+  },
+  {
+    id: "comp-band",
+    domain: "people",
+    label: "Band position",
+    blurb: "Where an offer sits in a band, as position and as compa-ratio.",
+    fields: [
+      num("min", "Band minimum", "1800000"),
+      num("mid", "Band midpoint", "2400000"),
+      num("max", "Band maximum", "3200000"),
+      num("offer", "Offer", "2520000")
+    ],
+    run: compBand
+  },
+  {
+    id: "pipeline-coverage",
+    domain: "revenue",
+    label: "Pipeline coverage",
+    blurb: "Stage-weighted pipeline against the quota it has to cover.",
+    fields: [
+      num("quota", "Quota", "12000000"),
+      num("coverage", "Coverage convention (\xD7)", "3.5"),
+      area(
+        "pipeline",
+        "Rows of `stage, value, win rate %`",
+        "discovery, 14000000, 15\nproposal, 9000000, 40\nnegotiation, 4200000, 65\nverbal, 1600000, 85"
+      )
+    ],
+    run: pipelineCoverage
+  },
+  {
+    id: "sla-clock",
+    domain: "revenue",
+    label: "SLA clock",
+    blurb: "First response against priority targets, ticket by ticket.",
+    fields: [
+      area(
+        "tickets",
+        "Rows of `id, priority, opened, first response` (ISO)",
+        "T-1041, P1, 2026-09-20T09:12:00Z, 2026-09-20T09:48:00Z\nT-1042, P2, 2026-09-20T11:00:00Z, 2026-09-20T16:30:00Z\nT-1043, P3, 2026-09-19T08:00:00Z, 2026-09-19T20:15:00Z\nT-1044, P2, 2026-09-21T07:30:00Z, "
+      )
+    ],
+    run: slaClock
+  }
+]);
+
+// src/specialists/commerce.ts
+var n24 = (x, dp = 2) => x.toFixed(dp);
+var money = (x, dp = 2) => x.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+function metaLint(v) {
+  const title = str(v, "title");
+  const desc = str(v, "desc");
+  const slug = str(v, "slug");
+  if (!title.trim() && !desc.trim()) {
+    return {
+      headline: "Nothing to lint \u2014 give a title, a description or a slug",
+      ok: false,
+      basis: "Display limits are counted from the strings you paste; there is nothing to count otherwise."
+    };
+  }
+  const TITLE_MAX = 60, DESC_MAX = 155, SLUG_MAX = 75;
+  const stop = /* @__PURE__ */ new Set(["a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "with", "is", "are", "be", "by", "at", "from"]);
+  const slugWords = slug.split("-").map((w) => w.trim()).filter(Boolean);
+  const filler = slugWords.filter((w) => stop.has(w.toLowerCase()));
+  const checks = [
+    ["Title", `${title.length} chars (limit ${TITLE_MAX})`, title.length > 0 && title.length <= TITLE_MAX],
+    ["Description", `${desc.length} chars (limit ${DESC_MAX})`, desc.length > 0 && desc.length <= DESC_MAX],
+    ["Slug", `${slugWords.length} segments (limit ${SLUG_MAX} chars)`, slug.length > 0 && slug.length <= SLUG_MAX]
+  ];
+  const failing = checks.filter((c) => !c[2]).length;
+  return {
+    headline: failing === 0 ? "Title, description and slug all sit inside their display limits" : `${failing} field${failing === 1 ? "" : "s"} would be truncated or is empty`,
+    ok: failing === 0 && filler.length === 0,
+    kpis: [
+      { value: `${title.length}/${TITLE_MAX}`, label: "title" },
+      { value: `${desc.length}/${DESC_MAX}`, label: "description" },
+      { value: String(slugWords.length), label: "slug segments" },
+      { value: String(filler.length), label: "filler words" }
+    ],
+    table: { head: ["Field", "Measured", "Verdict"], rows: checks.map(([f2, m, ok2]) => [f2, m, ok2 ? "within" : "over or empty"]) },
+    lines: [
+      "Search engines truncate by rendered width, not by character count, so these limits are the conventional proxies \u2014 a title of 58 wide characters can still be cut and one of 62 narrow ones can survive intact.",
+      filler.length ? `Slug filler words to drop: ${filler.join(", ")}. They cost width and match nothing.` : "The slug carries no filler words; every segment is earning its place."
+    ],
+    basis: `Character counts against the commonly cited display limits (title ~60, description ~155) \u2014 conventions derived from pixel widths, not published maxima. Slug hygiene is a stop-word check, which is a style rule, not a ranking factor this tool can measure.`
+  };
+}
+function crawlBudget(v) {
+  const pages = number(v, "pages", 25e4);
+  const latency = number(v, "latency", 320);
+  const rate = number(v, "rate", 5);
+  const window_ = number(v, "window", 10);
+  if (pages <= 0 || rate <= 0) {
+    return {
+      headline: "Pages and crawl rate must both be greater than zero",
+      ok: false,
+      basis: "Crawl time is pages \xD7 latency \xF7 concurrency, bounded by the rate the server allows."
+    };
+  }
+  const parallelizable = Math.max(1, Math.floor(window_ * 1e3 / latency));
+  const effective = Math.min(rate, parallelizable);
+  const seconds = pages * latency / 1e3 / effective;
+  const hours = seconds / 3600;
+  const days = hours / 24;
+  const limited = parallelizable < rate;
+  return {
+    headline: `About ${n24(days, 1)} days to crawl ${pages.toLocaleString()} pages at ${effective.toFixed(1)} req/s`,
+    ok: days <= 30,
+    kpis: [
+      { value: n24(hours, 1), label: "hours" },
+      { value: n24(days, 1), label: "days" },
+      { value: String(effective.toFixed(1)), label: "effective req/s" },
+      { value: String(parallelizable), label: "parallel slots" }
+    ],
+    table: {
+      head: ["Limit", "Value", "Binds?"],
+      rows: [
+        ["Robots/Crawl-delay rate", `${rate} req/s`, limited ? "no" : "yes"],
+        ["Client parallelism", `${parallelizable} in flight`, limited ? "yes" : "no"],
+        ["Latency", `${latency} ms`, "always"]
+      ]
+    },
+    lines: [
+      limited ? `The client can hold ${parallelizable} requests in flight but each takes ${latency} ms, so parallelism \u2014 not the rate limit \u2014 is what bounds this crawl. More workers would help.` : `The rate the server allows (${rate} req/s) is the binding constraint; more client parallelism would change nothing.`,
+      `Crawl rate is also a politeness question, and politeness is a decision, not a calculation: this tells you what the current numbers imply, not what the site deserves.`
+    ],
+    basis: `time = pages \xD7 latency \xF7 effective concurrency, where effective = min(declared rate, floor(window \xF7 latency)). It is throughput arithmetic; it ignores server-side variability, redirects and the pages a crawl discovers only by crawling.`
+  };
+}
+function localeCoverage(v) {
+  const base = number(v, "base", 4200);
+  const threshold = number(v, "threshold", 98);
+  const listed = rows(v, "locales").map((line) => {
+    const [locale, done, todo] = line.split(/[,=]/).map((x) => (x ?? "").trim());
+    const d = Number(String(done).replace(/[,\s]/g, ""));
+    const t = Number(String(todo).replace(/[,\s]/g, ""));
+    return { locale: locale || "??", done: Number.isFinite(d) ? d : 0, todo: Number.isFinite(t) ? t : 0 };
+  });
+  if (base <= 0 || listed.length === 0) {
+    return {
+      headline: "Give the key count and rows of `locale, translated, missing`",
+      ok: false,
+      basis: "Coverage is translated keys over the base key count."
+    };
+  }
+  const table = listed.map((l) => {
+    const pct2 = l.done / base * 100;
+    return [l.locale, String(l.done), String(l.todo), `${n24(pct2, 1)}%`, pct2 >= threshold ? "shippable" : "below the bar"];
+  });
+  const worst = listed.reduce((a, b) => a.done / base <= b.done / base ? a : b);
+  const shipping = table.filter((r) => r[4] === "shippable").length;
+  return {
+    headline: shipping === listed.length ? `All ${listed.length} locales are at or above ${threshold}% of the ${base.toLocaleString()} keys` : `${listed.length - shipping} of ${listed.length} locales sit below ${threshold}% \u2014 worst is ${worst.locale}`,
+    ok: shipping === listed.length,
+    kpis: [
+      { value: String(base.toLocaleString()), label: "base keys" },
+      { value: String(listed.length), label: "locales" },
+      { value: `${n24(worst.done / base * 100, 1)}%`, label: `worst (${worst.locale})` },
+      { value: `${threshold}%`, label: "bar" }
+    ],
+    table: { head: ["Locale", "Translated", "Missing", "Coverage", "Verdict"], rows: table },
+    lines: [
+      "Coverage is a count of keys present, not of sentences that read well. A locale at 99% with the wrong 1% missing \u2014 checkout, errors, consent \u2014 is a worse product than one at 95% with the gaps in a helping page.",
+      "Missing keys fall back to the base language at runtime, which is why partial coverage looks shipable until a user hits the gap."
+    ],
+    basis: `coverage = translated \xF7 base keys \xD7 100, compared with the threshold you declare. It counts what exists in the catalogue; it cannot see whether a translated string is correct, or whether it is the string that was there yesterday.`
+  };
+}
+var EXPANSION = {
+  "German (de)": [1.2, 1.35],
+  "French (fr)": [1.15, 1.25],
+  "Spanish (es)": [1.15, 1.25],
+  "Russian (ru)": [1.15, 1.3],
+  "Portuguese (pt)": [1.15, 1.25],
+  "Italian (it)": [1.1, 1.2],
+  "Hindi (hi)": [1, 1.2],
+  "Tamil (ta)": [1, 1.25],
+  "Japanese (ja)": [0.8, 0.95],
+  "Chinese, simplified (zh-Hans)": [0.75, 0.9],
+  "Korean (ko)": [0.8, 0.95],
+  "Arabic (ar)": [0.9, 1.15]
+};
+function stringExpansion(v) {
+  const source = str(v, "source");
+  const locale = str(v, "locale", "German (de)");
+  const budget2 = number(v, "budget", 0);
+  const range = EXPANSION[locale] ?? [1.15, 1.3];
+  const len = source.length;
+  const low = Math.ceil(len * range[0]), high = Math.ceil(len * range[1]);
+  const over = budget2 > 0 && high > budget2;
+  const table = [];
+  if (budget2 > 0) {
+    table.push(...EXPANSION[locale] ? [[locale, `${low}\u2013${high} chars`, String(budget2), over ? "may overflow" : "fits at the top of the range"]] : []);
+  }
+  return {
+    headline: over ? `\u201C${source.slice(0, 42)}${source.length > 42 ? "\u2026" : ""}\u201D grows to ${low}\u2013${high} characters \u2014 past the ${budget2}-character budget` : `${len} characters becomes roughly ${low}\u2013${high} in ${locale}`,
+    ok: !over,
+    kpis: [
+      { value: String(len), label: "source chars" },
+      { value: `${low}\u2013${high}`, label: "translated chars" },
+      { value: budget2 > 0 ? String(budget2) : "\u2014", label: "budget" },
+      { value: `${n24(range[0], 2)}\u2013${n24(range[1], 2)}\xD7`, label: "factor used" }
+    ],
+    table: table.length ? { head: ["Locale", "Expected length", "Budget", "Verdict"], rows: table } : void 0,
+    lines: [
+      `The factor for ${locale} is a published planning range (${n24(range[0], 2)}\u2013${n24(range[1], 2)}\xD7), not a measurement of your string. Short strings expand more than long ones in percentage terms, which is exactly where buttons and tabs live.`,
+      over ? "Design to the top of the range or the layout will break on real translations: fixed-width buttons are the usual casualty." : "The top of the range fits the declared budget."
+    ],
+    basis: `expected length = source length \xD7 the published expansion range for the target locale; expansion ranges are industry planning factors (from localisation practice), not measurements of a specific string. Programming languages with wide glyphs and locales without case add their own constraints this does not model.`
+  };
+}
+function eoq(v) {
+  const demand = number(v, "demand", 24e3);
+  const orderCost = number(v, "order", 450);
+  const holding = number(v, "holding", 12);
+  if (demand <= 0 || orderCost <= 0 || holding <= 0) {
+    return {
+      headline: "Demand, order cost and holding cost must all be positive",
+      ok: false,
+      basis: "The economic order quantity is a square root of a ratio; a zero anywhere makes it meaningless."
+    };
+  }
+  const q = Math.sqrt(2 * demand * orderCost / holding);
+  const orders = demand / q;
+  const cycle = 365 / orders;
+  const ordering = orders * orderCost;
+  const carrying = q / 2 * holding;
+  return {
+    headline: `Order ${n24(q, 0)} units, ${n24(orders, 1)} times a year (every ${n24(cycle, 1)} days)`,
+    ok: true,
+    kpis: [
+      { value: n24(q, 0), label: "order quantity" },
+      { value: n24(orders, 1), label: "orders / year" },
+      { value: `${n24(cycle, 1)}d`, label: "cycle" },
+      { value: money(ordering + carrying, 0), label: "total annual cost" }
+    ],
+    table: {
+      head: ["Component", "Formula", "Annual cost"],
+      rows: [
+        ["Ordering", `(${demand} \xF7 ${n24(q, 0)}) \xD7 ${orderCost}`, money(ordering, 0)],
+        ["Holding", `(${n24(q, 0)} \xF7 2) \xD7 ${holding}`, money(carrying, 0)],
+        ["Total", "EOQ minimises the sum of the two", money(ordering + carrying, 0)]
+      ]
+    },
+    lines: [
+      "At the EOQ the ordering cost and the holding cost are equal \u2014 that is the property the formula is built to produce, and it is a useful sanity check on any number you compute by hand.",
+      "The model assumes demand is smooth and lead time is known. Real demand is neither, which is what the safety-stock tool is for."
+    ],
+    basis: "Wilson's EOQ: Q* = \u221A(2DS \xF7 H), yearly cycles = D \xF7 Q*, cycle days = 365 \xF7 cycles. Classic inventory theory: it assumes constant demand, instantaneous replenishment and no quantity discounts. A supplier's price break usually beats the formula, deliberately."
+  };
+}
+var SERVICE_Z = { "90%": 1.2816, "95%": 1.6449, "97.5%": 1.96, "99%": 2.3263, "99.9%": 3.0902 };
+function safetyStock(v) {
+  const mean2 = number(v, "mean", 180);
+  const sd = number(v, "sd", 42);
+  const lead = number(v, "lead", 9);
+  const service = str(v, "service", "95%");
+  const z = SERVICE_Z[service] ?? 1.6449;
+  if (mean2 <= 0 || sd < 0 || lead <= 0) {
+    return {
+      headline: "Daily demand, its spread and the lead time must make sense",
+      ok: false,
+      basis: "Safety stock is a quantile of demand over the lead time; it needs a mean, a spread and a duration."
+    };
+  }
+  const ss2 = z * sd * Math.sqrt(lead);
+  const rop = mean2 * lead + ss2;
+  return {
+    headline: `Hold ${n24(ss2, 0)} units of safety stock \u2014 reorder at ${n24(rop, 0)}`,
+    ok: true,
+    kpis: [
+      { value: n24(ss2, 0), label: "safety stock" },
+      { value: n24(rop, 0), label: "reorder point" },
+      { value: n24(mean2 * lead, 0), label: "lead-time demand" },
+      { value: n24(z, 4), label: `z at ${service}` }
+    ],
+    table: {
+      head: ["Service level", "z", "Safety stock"],
+      rows: Object.entries(SERVICE_Z).map(([lvl, zz]) => [lvl, n24(zz, 4), n24(zz * sd * Math.sqrt(lead), 0)])
+    },
+    lines: [
+      `Safety stock is the extra above average demand over the lead time; here that average is ${n24(mean2 * lead, 0)} units, so the reorder point is the sum of the two.`,
+      `Raising the service level from 95% to 99% costs ${n24((2.3263 * sd * Math.sqrt(lead) / (z * sd * Math.sqrt(lead)) - 1) * 100, 0)}% more stock for the last ${n24(99 - 95, 0)} points \u2014 the tail is where the money is, and it is usually worth asking whether it is worth it.`
+    ],
+    basis: `SS = z \xD7 \u03C3_daily \xD7 \u221Aleadtime, ROP = mean demand \xD7 lead time + SS. It assumes demand is normally distributed and independent day to day \u2014 a normal approximation \u2014 and covers demand variability only. Supplier lead-time variability usually matters more and is a separate term.`
+  };
+}
+function gasPlan(v) {
+  const units = number(v, "units", 145e3);
+  const base = number(v, "base", 18);
+  const priority = number(v, "priority", 1.5);
+  const eth = number(v, "eth", 3200);
+  const ops = number(v, "ops", 250);
+  const perOpGwei = units * (base + priority);
+  const perOpEth = perOpGwei * 1e-9;
+  const perOpUsd = perOpEth * eth;
+  const totalUsd = perOpUsd * ops;
+  return {
+    headline: `${money(perOpUsd, 2)} per operation \u2014 ${money(totalUsd, 2)} for ${ops.toLocaleString()}`,
+    ok: totalUsd < 1e3,
+    kpis: [
+      { value: `${money(perOpGwei / 1e9, 6)} ETH`, label: "gas per op" },
+      { value: `${((base + priority) / base).toFixed(2)}\xD7`, label: "priority uplift" },
+      { value: money(perOpUsd, 2), label: "per operation" },
+      { value: money(totalUsd, 2), label: "for the batch" }
+    ],
+    table: {
+      head: ["Component", "Gwei", "Share"],
+      rows: [
+        ["Base fee", n24(base * units / 1e9, 6), `${n24(base / (base + priority) * 100, 1)}%`],
+        ["Priority fee", n24(priority * units / 1e9, 6), `${n24(priority / (base + priority) * 100, 1)}%`],
+        ["Total per operation", n24(perOpGwei / 1e9, 6), "100%"]
+      ]
+    },
+    lines: [
+      `The priority fee is ${n24(priority / (base + priority) * 100, 1)}% of what you pay. On a congested chain that share rises sharply while the base fee also moves \u2014 which is why a budget built on today's base fee does not survive a busy week.`,
+      `Base fees change per block; this is a point-in-time estimate from the two figures you entered, not a quoted fee.`
+    ],
+    basis: `cost = gas units \xD7 (base fee + priority fee) in gwei \xD7 1e-9 ETH per gwei \xD7 price per ETH. EIP-1559 arithmetic: the base fee is burned and the priority fee is paid to the validator, so the split is a real distinction, not a presentation choice.`
+  };
+}
+function tokenDecimals(v) {
+  const raw = str(v, "raw", "1234567890123456789");
+  const decimals = number(v, "decimals", 18);
+  const amount = number(v, "amount", 1.5);
+  if (!/^\d+$/.test(raw.trim())) {
+    return {
+      headline: "The raw amount must be an integer in base units \u2014 digits only",
+      ok: false,
+      basis: "Tokens are integers on the wire; the decimal point exists only in the interface. A non-integer input is refused rather than rounded."
+    };
+  }
+  if (decimals < 0 || decimals > 36 || !Number.isInteger(decimals)) {
+    return {
+      headline: "Decimals must be a whole number between 0 and 36",
+      ok: false,
+      basis: "The base-unit convention needs a whole number of decimal places."
+    };
+  }
+  const s = raw.trim().padStart(decimals + 1, "0");
+  const whole = s.slice(0, s.length - decimals).replace(/^0+(?=\d)/, "") || "0";
+  const frac = decimals > 0 ? s.slice(s.length - decimals).replace(/0+$/, "") : "";
+  const human = frac ? `${whole}.${frac}` : whole;
+  const back = `${whole}${frac.padEnd(decimals, "0")}`;
+  const forOneAndAHalf = Math.round(amount * Math.pow(10, decimals)).toString();
+  return {
+    headline: `${raw.trim()} base units at ${decimals} decimals is ${human}`,
+    ok: back === s.replace(/^0+(?=\d)/, ""),
+    kpis: [
+      { value: String(decimals), label: "decimals" },
+      { value: human.length > 24 ? human.slice(0, 23) + "\u2026" : human, label: "human amount" },
+      { value: `${forOneAndAHalf}`, label: `${amount} in base units` }
+    ],
+    lines: [
+      `Round trip: ${human} \u2192 ${back} base units (leading zeros trimmed, which is the same integer).`,
+      `${amount} tokens at ${decimals} decimals is ${forOneAndAHalf} base units \u2014 the multiplication that turns a display amount into something a contract will accept, and the one most often written with a floating-point mistake.`
+    ],
+    basis: "Base-unit arithmetic on integer strings: the human amount is the raw integer with a decimal point inserted `decimals` from the right, trailing zeros trimmed. No floating point touches the conversion \u2014 token math done in floats is where precision quietly disappears."
+  };
+}
+var COMMERCE_TOOLS = Object.freeze([
+  {
+    id: "meta-lint",
+    domain: "marketing",
+    label: "Title & meta",
+    blurb: "What a search result truncates, and which slug segments earn their width.",
+    fields: [
+      text("title", "Page title", "Deterministic specialist tools for engineering teams"),
+      text("desc", "Meta description", "Forty deterministic tools across nine domains \u2014 contrast, semver, retries, error budgets and more. Every answer prints the rule it came from."),
+      text("slug", "URL slug", "the-deterministic-specialist-tools-for-engineering-teams")
+    ],
+    run: metaLint
+  },
+  {
+    id: "crawl-budget",
+    domain: "marketing",
+    label: "Crawl budget",
+    blurb: "How long a crawl takes, and which limit is actually binding.",
+    fields: [
+      num("pages", "Pages to crawl", "250000"),
+      num("latency", "Average response (ms)", "320"),
+      num("rate", "Allowed rate (req/s)", "5"),
+      num("window", "Concurrency window (seconds)", "10")
+    ],
+    run: crawlBudget
+  },
+  {
+    id: "locale-coverage",
+    domain: "locale",
+    label: "Translation coverage",
+    blurb: "Which locales clear the shipping bar, and which are one gap from a broken screen.",
+    fields: [
+      num("base", "Base-language keys", "4200"),
+      num("threshold", "Shipping bar (%)", "98"),
+      area(
+        "locales",
+        "Rows of `locale, translated, missing`",
+        "de-DE, 4130, 70\nfr-FR, 4095, 105\nta-IN, 3610, 590\nja-JP, 4200, 0"
+      )
+    ],
+    run: localeCoverage
+  },
+  {
+    id: "string-expansion",
+    domain: "locale",
+    label: "String expansion",
+    blurb: "How much longer a translated string gets, before it breaks the layout.",
+    fields: [
+      text("source", "Source string (English)", "Save and continue"),
+      sel("locale", "Target locale", Object.keys(EXPANSION), "German (de)"),
+      num("budget", "Available width (characters)", "18", "0 to skip the budget check")
+    ],
+    run: stringExpansion
+  },
+  {
+    id: "eoq",
+    domain: "supply",
+    label: "Order quantity",
+    blurb: "The order size that minimises ordering plus holding cost together.",
+    fields: [
+      num("demand", "Annual demand (units)", "24000"),
+      num("order", "Cost per order", "450"),
+      num("holding", "Holding cost per unit / year", "12")
+    ],
+    run: eoq
+  },
+  {
+    id: "safety-stock",
+    domain: "supply",
+    label: "Safety stock",
+    blurb: "The buffer a service level actually costs, and where the reorder point lands.",
+    fields: [
+      num("mean", "Mean daily demand (units)", "180"),
+      num("sd", "Standard deviation of daily demand", "42"),
+      num("lead", "Lead time (days)", "9"),
+      sel("service", "Service level", Object.keys(SERVICE_Z), "95%")
+    ],
+    run: safetyStock
+  },
+  {
+    id: "gas-plan",
+    domain: "web3",
+    label: "Gas plan",
+    blurb: "Per-operation and batch cost from gas units, the fee market and the price.",
+    fields: [
+      num("units", "Gas units per operation", "145000"),
+      num("base", "Base fee (gwei)", "18"),
+      num("priority", "Priority fee (gwei)", "1.5"),
+      num("eth", "Price per ETH", "3200"),
+      num("ops", "Operations in the batch", "250")
+    ],
+    run: gasPlan
+  },
+  {
+    id: "token-decimals",
+    domain: "web3",
+    label: "Token decimals",
+    blurb: "Base units to a human amount and back, in integer arithmetic only.",
+    fields: [
+      text("raw", "Raw amount in base units", "1234567890123456789"),
+      num("decimals", "Decimals", "18"),
+      num("amount", "Display amount to convert", "1.5")
+    ],
+    run: tokenDecimals
+  }
+]);
 
 // src/specialists/roster.ts
 var A = (a) => a;
@@ -2512,6 +4165,2431 @@ var SPECIALISTS = Object.freeze([
     purpose: "Model a price change: what it earns, what churn it can absorb, and who it touches.",
     requiresApproval: true,
     receipt: "the model, the break-even churn, and the human's approval \u2014 a price change is customer-facing"
+  }),
+  /* ── 19.7.15 [Cartographer]: the pack widens to twenty-four domains ───────── */
+  /* ── mobile ───────────────────────────────────────────────────── */
+  A({
+    id: "mobile.touch-audit",
+    name: "Touch-target audit",
+    domain: "mobile",
+    status: "engine",
+    engine: "touchTargets",
+    inputs: "a screen's controls and their pixel sizes",
+    output: "every control's verdict against the platform floor",
+    purpose: "Measure each control against the platform's minimum touch size before a reviewer finds the one nobody can hit.",
+    requiresApproval: false,
+    receipt: "each target measured, the floor applied, and where the spacing exception was used"
+  }),
+  A({
+    id: "mobile.size-budget",
+    name: "Size budget",
+    domain: "mobile",
+    status: "engine",
+    engine: "appSizeBudget",
+    inputs: "current download size, budget and growth per release",
+    output: "the release at which the budget is crossed",
+    purpose: "Project download size release by release so the budget is a number somebody watches, not a surprise at store review.",
+    requiresApproval: false,
+    receipt: "the size today, the growth applied, and the release where the budget is crossed"
+  }),
+  A({
+    id: "mobile.grid-snap",
+    name: "Grid snap review",
+    domain: "mobile",
+    status: "engine",
+    engine: "snapToGrid",
+    inputs: "spacing tokens taken from the design file",
+    output: "off-grid values and the distance to the grid",
+    purpose: "Keep spacing tokens on one grid so two screens built by two people still look like one product.",
+    requiresApproval: false,
+    receipt: "every token checked, off-grid values named, and the direction of each correction"
+  }),
+  A({
+    id: "mobile.startup-percentiles",
+    name: "Startup percentiles",
+    domain: "mobile",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "cold-start timings collected from a device fleet",
+    output: "p50, p95 and p99 rather than an average",
+    purpose: "Report startup at the percentiles users feel, because an average hides the slower half of a device fleet.",
+    requiresApproval: false,
+    receipt: "the sample size, the percentile method used, and the p50/p95/p99 readout"
+  }),
+  A({
+    id: "mobile.ab-readout",
+    name: "UI experiment readout",
+    domain: "mobile",
+    status: "engine",
+    engine: "abTest",
+    inputs: "two arms with their conversions",
+    output: "the lift, its interval and whether it is real",
+    purpose: "Read a UI experiment honestly: the lift, its uncertainty, and whether the sample supports shipping it.",
+    requiresApproval: false,
+    receipt: "both arms, the test applied, and the interval around the difference"
+  }),
+  A({
+    id: "mobile.release",
+    name: "Mobile release",
+    domain: "mobile",
+    status: "workflow",
+    engine: "appSizeBudget + touchTargets",
+    inputs: "a build number and the store submission checklist",
+    output: "a release package ready to submit, gated",
+    purpose: "Ship a mobile build: the size and touch-target gates cleared, store metadata checked, and a human approving the push.",
+    requiresApproval: true,
+    receipt: "the gates cleared, the metadata checked, and the human's approval of the store submission"
+  }),
+  A({
+    id: "mobile.store-listing",
+    name: "Store listing copy",
+    domain: "mobile",
+    status: "engine",
+    engine: "metaLint",
+    inputs: "title, subtitle and description for the store",
+    output: "what each field will truncate",
+    purpose: "Catch truncation in a store listing before the store does it silently on a customer's phone.",
+    requiresApproval: false,
+    receipt: "each field measured, the display limit applied, and the truncation point named"
+  }),
+  A({
+    id: "mobile.locale-coverage",
+    name: "Locale coverage",
+    domain: "mobile",
+    status: "engine",
+    engine: "localeCoverage",
+    inputs: "translated keys per app locale",
+    output: "which locales clear the shipping bar",
+    purpose: "Decide which app locales can ship from translated keys on disk rather than from intent in a planning document.",
+    requiresApproval: false,
+    receipt: "the key count, each locale's coverage, and the bar that was applied"
+  }),
+  A({
+    id: "mobile.payload-budget",
+    name: "Payload budget",
+    domain: "mobile",
+    status: "engine",
+    engine: "payloadBudget",
+    inputs: "the API response shape behind one screen",
+    output: "the response size against a mobile data budget",
+    purpose: "Hold a screen's API response inside a data budget that a phone on a slow network can actually afford.",
+    requiresApproval: false,
+    receipt: "the measured payload, the budget declared, and the fields that dominate it"
+  }),
+  A({
+    id: "mobile.battery-profile",
+    name: "Battery profile",
+    domain: "mobile",
+    status: "engine",
+    engine: "powerBudget",
+    inputs: "battery capacity, duty cycle and the active and sleep currents",
+    output: "runtime, and which state owns the charge",
+    purpose: "Tell a user how long the app lasts and which state is spending the battery, before a review calls it heavy.",
+    requiresApproval: false,
+    receipt: "the duty cycle, the currents, and the state consuming the largest share of the charge"
+  }),
+  A({
+    id: "mobile.push-send",
+    name: "Push campaign",
+    domain: "mobile",
+    status: "workflow",
+    engine: "funnel + growthModel",
+    inputs: "a notification campaign and its audience definition",
+    output: "the modelled effect, gated before anything sends",
+    purpose: "Model a notification campaign and stop at the gate, because a push is a message delivered to somebody's phone.",
+    requiresApproval: true,
+    receipt: "the audience size, the modelled effect, and the human's approval before any message is sent"
+  }),
+  /* ── cloud ───────────────────────────────────────────────────── */
+  A({
+    id: "cloud.instance-plan",
+    name: "Instance sizing",
+    domain: "cloud",
+    status: "engine",
+    engine: "instanceSizing",
+    inputs: "p95 utilisation, a headroom target and the current fleet size",
+    output: "instances needed and the resulting p95",
+    purpose: "Size a fleet from measured p95 and a stated headroom target instead of from memory of the last incident.",
+    requiresApproval: false,
+    receipt: "the measured utilisation, the target declared, and the resulting instance count"
+  }),
+  A({
+    id: "cloud.egress-review",
+    name: "Egress review",
+    domain: "cloud",
+    status: "engine",
+    engine: "egressCost",
+    inputs: "egress volume, origin price and cache hit rate",
+    output: "monthly cost with and without the cache",
+    purpose: "Show what a cache is worth in money, using the tariff the team actually pays rather than a published list price.",
+    requiresApproval: false,
+    receipt: "the volumes, the prices, and the saving computed per path"
+  }),
+  A({
+    id: "cloud.token-scope",
+    name: "Token scope audit",
+    domain: "cloud",
+    status: "engine",
+    engine: "jwtInspect",
+    inputs: "a service token used by a workload",
+    output: "its scopes, expiry and claims, decoded",
+    purpose: "Read what a service token can actually do, because a scope nobody intended is a permission that outlives its reason.",
+    requiresApproval: false,
+    receipt: "the decoded claims, the expiry, and the scopes the token carries"
+  }),
+  A({
+    id: "cloud.cost-anomaly",
+    name: "Cost anomaly watch",
+    domain: "cloud",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "daily spend history for a service",
+    output: "days that sit far from their own window's mean",
+    purpose: "Surface the day a bill moved without an incident, while nobody was watching the graph.",
+    requiresApproval: false,
+    receipt: "the window examined, the mean and spread, and each flagged day with its z"
+  }),
+  A({
+    id: "cloud.spend-forecast",
+    name: "Spend forecast",
+    domain: "cloud",
+    status: "engine",
+    engine: "spendForecast",
+    inputs: "months of infrastructure spend",
+    output: "the trend and a projected month",
+    purpose: "Put a trajectory on infrastructure spend so the budget conversation starts from a line rather than a feeling.",
+    requiresApproval: false,
+    receipt: "the months observed, the fitted trend, and the projection with its caveat attached"
+  }),
+  A({
+    id: "cloud.capacity-runway",
+    name: "Capacity runway",
+    domain: "cloud",
+    status: "engine",
+    engine: "capacityHeadroom",
+    inputs: "current headroom, growth rate and a threshold",
+    output: "how long the headroom lasts before the threshold",
+    purpose: "Answer how long current capacity lasts, so a migration can be scheduled instead of demanded.",
+    requiresApproval: false,
+    receipt: "the headroom today, the growth rate assumed, and the runway before the threshold is crossed"
+  }),
+  A({
+    id: "cloud.error-budget",
+    name: "Platform error budget",
+    domain: "cloud",
+    status: "engine",
+    engine: "sloErrorBudget",
+    inputs: "an SLO target and the measurement window",
+    output: "the budget, what is spent and what remains",
+    purpose: "Spend reliability effort against a budget instead of against the loudest recent incident.",
+    requiresApproval: false,
+    receipt: "the SLO, the window, and the error minutes allowed and consumed"
+  }),
+  A({
+    id: "cloud.deploy-window",
+    name: "Deployment window",
+    domain: "cloud",
+    status: "engine",
+    engine: "deployRisk",
+    inputs: "a change set and the blast radius it touches",
+    output: "a risk read for the window chosen",
+    purpose: "Choose a deployment window from the change's own risk shape rather than the team's calendar preference.",
+    requiresApproval: false,
+    receipt: "the change size, the blast radius, and the factors behind the risk read"
+  }),
+  A({
+    id: "cloud.retention-audit",
+    name: "Log retention audit",
+    domain: "cloud",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "log classes with creation dates and retention terms",
+    output: "what is already overdue for deletion",
+    purpose: "Find log classes past their retention date, which is the finding an auditor asks about first.",
+    requiresApproval: false,
+    receipt: "each class, its retention term, and the days past or remaining"
+  }),
+  A({
+    id: "cloud.autoscale-apply",
+    name: "Autoscale policy apply",
+    domain: "cloud",
+    status: "workflow",
+    engine: "instanceSizing + sloErrorBudget",
+    inputs: "a proposed scaling policy for a production service",
+    output: "a production scaling change, gated",
+    purpose: "Change how production scales: modelled first, applied by a human, because a scaling policy is a production change.",
+    requiresApproval: true,
+    receipt: "the model, the policy difference, and the human's approval of the apply"
+  }),
+  A({
+    id: "cloud.rotation-run",
+    name: "Credential rotation",
+    domain: "cloud",
+    status: "workflow",
+    engine: "scanSecrets + stringEntropyBits",
+    inputs: "the credentials due for rotation this cycle",
+    output: "the rotation plan and its execution, gated",
+    purpose: "Rotate credentials on schedule with the exposure window measured and the change approved before it goes out.",
+    requiresApproval: true,
+    receipt: "which credentials rotated, the exposure window, and the human's approval"
+  }),
+  /* ── database ───────────────────────────────────────────────────── */
+  A({
+    id: "db.index-selectivity",
+    name: "Index selectivity",
+    domain: "db",
+    status: "engine",
+    engine: "indexSelectivity",
+    inputs: "table row counts and how much a predicate matches",
+    output: "whether the index will be used, and why",
+    purpose: "Decide whether an index earns its write cost from key density rather than from the shape of the query alone.",
+    requiresApproval: false,
+    receipt: "the row and distinct counts, the fraction matched, and the crossover applied"
+  }),
+  A({
+    id: "db.pool-sizing",
+    name: "Connection pool",
+    domain: "db",
+    status: "engine",
+    engine: "poolSizing",
+    inputs: "request rate, query latency and instance count",
+    output: "pool size per instance against the server ceiling",
+    purpose: "Size connection pools from Little's Law instead of from the number that happened to work last time.",
+    requiresApproval: false,
+    receipt: "the concurrency computed, the pool size derived, and the headroom left on the server"
+  }),
+  A({
+    id: "db.slow-query-percentiles",
+    name: "Slow-query percentiles",
+    domain: "db",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "query durations lifted from a log",
+    output: "p50, p95 and p99 per query",
+    purpose: "Rank slow queries at the percentiles that hurt, because an average query time is not a user experience.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the readout per query"
+  }),
+  A({
+    id: "db.outlier-queries",
+    name: "Outlier queries",
+    domain: "db",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "query durations from one window",
+    output: "queries beyond the Tukey fence",
+    purpose: "Separate the genuinely exceptional queries from the merely slow ones, so tuning effort lands where it pays.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and every query outside it"
+  }),
+  A({
+    id: "db.migration-order",
+    name: "Migration ordering",
+    domain: "db",
+    status: "engine",
+    engine: "compareSemver",
+    inputs: "migration file names in their numeric order",
+    output: "the order they will actually apply in",
+    purpose: "Check that a migration series applies in the order intended, because lexical filenames and numeric order disagree.",
+    requiresApproval: false,
+    receipt: "the sorted order, the anomalies found, and the convention applied"
+  }),
+  A({
+    id: "db.backup-retention",
+    name: "Backup retention",
+    domain: "db",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "backup sets with creation dates and retention terms",
+    output: "which backups are past their retention date",
+    purpose: "Keep backup retention honest: neither so short that recovery is impossible nor so long that it is a liability.",
+    requiresApproval: false,
+    receipt: "each backup set, its retention term, and the days past or remaining"
+  }),
+  A({
+    id: "db.migration-plan",
+    name: "Migration plan",
+    domain: "db",
+    status: "engine",
+    engine: "deployRisk",
+    inputs: "a proposed schema change and its blast radius",
+    output: "a risk read before the change is written",
+    purpose: "Read a schema change's risk before it is written, when the plan is still cheap to alter.",
+    requiresApproval: false,
+    receipt: "the change described, the blast radius, and the factors behind the risk read"
+  }),
+  A({
+    id: "db.migration-apply",
+    name: "Migration apply",
+    domain: "db",
+    status: "workflow",
+    engine: "deployRisk + indexSelectivity",
+    inputs: "a migration ready against a production database",
+    output: "the migration applied, gated",
+    purpose: "Apply a schema migration: the plan reviewed, the lock window known, and a human approving the change to production.",
+    requiresApproval: true,
+    receipt: "the plan reviewed, the lock window estimated, and the human's approval of the apply"
+  }),
+  A({
+    id: "db.replica-lag-watch",
+    name: "Replica lag watch",
+    domain: "db",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "replication lag samples over time",
+    output: "replicas whose lag is out of family",
+    purpose: "Catch a replica falling behind before a read from it returns stale data to a customer.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each replica flagged with its z"
+  }),
+  A({
+    id: "db.capacity-plan",
+    name: "Storage capacity plan",
+    domain: "db",
+    status: "engine",
+    engine: "capacityHeadroom",
+    inputs: "current storage use, growth and the warning threshold",
+    output: "when the threshold is reached",
+    purpose: "Turn storage growth into a date, so provisioning is a scheduled task rather than a pager event.",
+    requiresApproval: false,
+    receipt: "the headroom today, the growth rate, and the date the threshold is reached"
+  }),
+  A({
+    id: "db.partition-plan",
+    name: "Partition plan",
+    domain: "db",
+    status: "workflow",
+    engine: "percentiles + indexSelectivity",
+    inputs: "table sizes, access patterns and retention",
+    output: "a partitioning change to production, gated",
+    purpose: "Restructure a large table for access and retention, with the change gated because partitioning is a schema change.",
+    requiresApproval: true,
+    receipt: "the access pattern evidence, the partition scheme proposed, and the human's approval"
+  }),
+  /* ── embedded ───────────────────────────────────────────────────── */
+  A({
+    id: "embedded.power-budget",
+    name: "Power budget",
+    domain: "embedded",
+    status: "engine",
+    engine: "powerBudget",
+    inputs: "battery capacity, duty cycle and the active and sleep currents",
+    output: "runtime, and which state owns the charge",
+    purpose: "Know the runtime a device will achieve before the hardware is ordered, and which state is spending it.",
+    requiresApproval: false,
+    receipt: "the duty cycle, the currents measured, and the state consuming the largest share"
+  }),
+  A({
+    id: "embedded.schedulability",
+    name: "Schedulability",
+    domain: "embedded",
+    status: "engine",
+    engine: "timingSlack",
+    inputs: "task periods and worst-case execution times",
+    output: "utilisation against the rate-monotonic bound",
+    purpose: "Prove a task set schedulable before a missed deadline proves it was not.",
+    requiresApproval: false,
+    receipt: "each task's utilisation, the bound applied, and the slack remaining"
+  }),
+  A({
+    id: "embedded.loop-percentiles",
+    name: "Loop-time percentiles",
+    domain: "embedded",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "control-loop execution times from a run",
+    output: "p50, p95 and p99 for the loop",
+    purpose: "Watch the tail of a control loop, because the deadline is missed by the worst case, not the average.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the loop's tail behaviour"
+  }),
+  A({
+    id: "embedded.jitter-outliers",
+    name: "Jitter outliers",
+    domain: "embedded",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "interrupt-to-task latencies",
+    output: "the latencies outside the Tukey fence",
+    purpose: "Find the interrupts whose latency is genuinely out of family rather than merely above average.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and the offending latencies"
+  }),
+  A({
+    id: "embedded.retry-ladder",
+    name: "Retry ladder",
+    domain: "embedded",
+    status: "engine",
+    engine: "backoffSchedule",
+    inputs: "a base delay and a retry count for a bus or link",
+    output: "the retry schedule on the wire",
+    purpose: "Fix the retry schedule for a link so a flapping bus does not turn into a burst of traffic.",
+    requiresApproval: false,
+    receipt: "the base delay, the ladder produced, and the total window it occupies"
+  }),
+  A({
+    id: "embedded.payload-budget",
+    name: "Frame budget",
+    domain: "embedded",
+    status: "engine",
+    engine: "payloadBudget",
+    inputs: "a frame or message shape on the wire",
+    output: "its size against the transport budget",
+    purpose: "Keep a message inside the transport's frame budget, where one byte over is not slower, it is absent.",
+    requiresApproval: false,
+    receipt: "the frame size measured, the budget, and the fields that dominate it"
+  }),
+  A({
+    id: "embedded.secret-scan",
+    name: "Device key scan",
+    domain: "embedded",
+    status: "engine",
+    engine: "scanSecrets",
+    inputs: "firmware sources and configuration files",
+    output: "credential shapes found in them",
+    purpose: "Find credentials that were compiled into firmware, where they cannot be rotated by any operation short of a recall.",
+    requiresApproval: false,
+    receipt: "each secret shape found, where it appeared, and the file it came from"
+  }),
+  A({
+    id: "embedded.entropy-check",
+    name: "Key entropy",
+    domain: "embedded",
+    status: "engine",
+    engine: "stringEntropyBits",
+    inputs: "device keys and identifiers as generated",
+    output: "the entropy their shape implies",
+    purpose: "Check that a device key has the entropy its purpose needs before a fleet is provisioned with it.",
+    requiresApproval: false,
+    receipt: "the entropy computed, the requirement, and the key's own shape"
+  }),
+  A({
+    id: "embedded.fleet-growth",
+    name: "Fleet growth model",
+    domain: "embedded",
+    status: "engine",
+    engine: "growthModel",
+    inputs: "a provisioning plan and its churn",
+    output: "the fleet trajectory and its end state",
+    purpose: "Model fleet growth so backend capacity and certificate lifetimes are planned rather than discovered.",
+    requiresApproval: false,
+    receipt: "the plan modelled period by period, the rates assumed, and the end state"
+  }),
+  A({
+    id: "embedded.firmware-release",
+    name: "Firmware release",
+    domain: "embedded",
+    status: "workflow",
+    engine: "appSizeBudget + timingSlack",
+    inputs: "a firmware build and the target hardware list",
+    output: "a release package ready to flash, gated",
+    purpose: "Release firmware with the size and timing gates cleared and a human approving, because it cannot be redeployed.",
+    requiresApproval: true,
+    receipt: "the gates cleared, the hardware list, and the human's approval of the release"
+  }),
+  A({
+    id: "embedded.key-provision",
+    name: "Key provisioning",
+    domain: "embedded",
+    status: "workflow",
+    engine: "stringEntropyBits + scanSecrets",
+    inputs: "a device identity to be provisioned at manufacture",
+    output: "a provisioning run, gated",
+    purpose: "Provision device identity with the entropy verified and the run approved, because a fleet's keys are set once.",
+    requiresApproval: true,
+    receipt: "the entropy verified, the keys provisioned, and the human's approval of the run"
+  }),
+  /* ── ml & ai ───────────────────────────────────────────────────── */
+  A({
+    id: "ml.eval-interval",
+    name: "Evaluation interval",
+    domain: "ml",
+    status: "engine",
+    engine: "evalInterval",
+    inputs: "a sample size and the correct outcomes",
+    output: "the proportion and its confidence interval",
+    purpose: "Report an evaluation with the interval around it, because a bare score invites a decision it cannot support.",
+    requiresApproval: false,
+    receipt: "the sample, the confidence level, and the interval computed"
+  }),
+  A({
+    id: "ml.split-audit",
+    name: "Split audit",
+    domain: "ml",
+    status: "engine",
+    engine: "splitAudit",
+    inputs: "corpus size, split proportions and duplicate rows",
+    output: "whether the split leaks",
+    purpose: "Check that a train/validation/test split is honest before the score it produces is quoted anywhere.",
+    requiresApproval: false,
+    receipt: "the proportions, the duplicate count, and the grouping rule applied"
+  }),
+  A({
+    id: "ml.sample-size",
+    name: "Evaluation size",
+    domain: "ml",
+    status: "engine",
+    engine: "sampleSize",
+    inputs: "an effect worth detecting and a baseline rate",
+    output: "the sample needed to see it",
+    purpose: "Plan an evaluation from the effect worth detecting, so a null result is informative rather than merely disappointing.",
+    requiresApproval: false,
+    receipt: "the effect, the power, and the sample size derived"
+  }),
+  A({
+    id: "ml.lift-readout",
+    name: "A/B lift readout",
+    domain: "ml",
+    status: "engine",
+    engine: "abTest",
+    inputs: "two arms with conversions",
+    output: "the lift and whether the sample supports it",
+    purpose: "Read a model or prompt A/B honestly, with the uncertainty attached to the difference.",
+    requiresApproval: false,
+    receipt: "both arms, the statistic applied, and the interval around the lift"
+  }),
+  A({
+    id: "ml.prompt-budget",
+    name: "Prompt budget",
+    domain: "ml",
+    status: "engine",
+    engine: "payloadBudget",
+    inputs: "system prompt and context as assembled",
+    output: "the token cost of the context",
+    purpose: "Hold the assembled context inside a token budget so cost and latency stay predictable as prompts grow.",
+    requiresApproval: false,
+    receipt: "the context measured, the budget, and the components that dominate it"
+  }),
+  A({
+    id: "ml.latency-percentiles",
+    name: "Inference latency",
+    domain: "ml",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "inference durations from production traffic",
+    output: "p50, p95 and p99 per model",
+    purpose: "Watch inference at the tail, because autoscaling reacts to the worst requests, not the average ones.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the tail per model"
+  }),
+  A({
+    id: "ml.cost-per-token",
+    name: "Cost per million tokens",
+    domain: "ml",
+    status: "engine",
+    engine: "unitEconomics",
+    inputs: "token volume, provider pricing and the revenue it serves",
+    output: "cost per million tokens and its payback",
+    purpose: "Put a unit cost on inference so a model choice is a margin decision rather than a preference.",
+    requiresApproval: false,
+    receipt: "the volume, the price used, and the unit cost derived"
+  }),
+  A({
+    id: "ml.drift-watch",
+    name: "Output drift watch",
+    domain: "ml",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "a daily metric for model outputs",
+    output: "days out of family, and by how far",
+    purpose: "Notice an output distribution moving while every individual response still looks plausible.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each flagged day"
+  }),
+  A({
+    id: "ml.grounding-lint",
+    name: "Grounding citations",
+    domain: "ml",
+    status: "engine",
+    engine: "citationLint",
+    inputs: "a model answer that cites sources",
+    output: "which numeric claims carry no citation",
+    purpose: "Check that a grounded answer actually cites the claims that need a source.",
+    requiresApproval: false,
+    receipt: "the citations found, the claims without one, and the pattern rules applied"
+  }),
+  A({
+    id: "ml.model-promote",
+    name: "Model promotion",
+    domain: "ml",
+    status: "workflow",
+    engine: "evalInterval + splitAudit",
+    inputs: "a candidate model with its evaluation",
+    output: "a promotion to serve traffic, gated",
+    purpose: "Promote a model with the evaluation and its interval in front of a human, because promotion changes what customers see.",
+    requiresApproval: true,
+    receipt: "the evaluation, its interval, the split audit, and the human's approval"
+  }),
+  A({
+    id: "ml.training-run",
+    name: "Training run",
+    domain: "ml",
+    status: "workflow",
+    engine: "spendForecast + evalInterval",
+    inputs: "a training plan with its compute estimate",
+    output: "a training run, gated on spend",
+    purpose: "Start a training run with the cost projected and approved, because compute is money spent before any result exists.",
+    requiresApproval: true,
+    receipt: "the projected spend, the evaluation plan, and the human's approval of the run"
+  }),
+  /* ── research ───────────────────────────────────────────────────── */
+  A({
+    id: "research.citation-lint",
+    name: "Citation lint",
+    domain: "research",
+    status: "engine",
+    engine: "citationLint",
+    inputs: "a draft with numeric claims",
+    output: "the claims that carry no citation",
+    purpose: "Find uncited numeric claims while the draft is still cheap to fix, rather than at review.",
+    requiresApproval: false,
+    receipt: "the citations counted, the uncited claims listed, and the pattern rules applied"
+  }),
+  A({
+    id: "research.rater-agreement",
+    name: "Rater agreement",
+    domain: "research",
+    status: "engine",
+    engine: "raterAgreement",
+    inputs: "two raters' labels for the same items",
+    output: "raw agreement and Cohen's kappa beside it",
+    purpose: "Show how much of a coding agreement is simply chance, because raw agreement flatters every rubric.",
+    requiresApproval: false,
+    receipt: "the labels, the observed and chance agreement, and kappa"
+  }),
+  A({
+    id: "research.sample-size",
+    name: "Study sample size",
+    domain: "research",
+    status: "engine",
+    engine: "sampleSize",
+    inputs: "an effect size worth detecting and a baseline",
+    output: "the sample the study needs",
+    purpose: "Size a study from the effect worth detecting so an inconclusive result is a finding rather than a waste.",
+    requiresApproval: false,
+    receipt: "the effect, the power chosen, and the sample derived"
+  }),
+  A({
+    id: "research.result-percentiles",
+    name: "Result percentiles",
+    domain: "research",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "measurements from an experiment",
+    output: "p50, p95 and p99 for the distribution",
+    purpose: "Report measurements as a distribution, because a mean hides the tail an experiment may actually be about.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the readout"
+  }),
+  A({
+    id: "research.outlier-trials",
+    name: "Outlier trials",
+    domain: "research",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "trial measurements from one condition",
+    output: "trials outside the Tukey fence",
+    purpose: "Identify trials that are outliers by the measures used, and separate exclusion decisions from dislike of the result.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and every trial outside it"
+  }),
+  A({
+    id: "research.paper-readability",
+    name: "Paper readability",
+    domain: "research",
+    status: "engine",
+    engine: "readability",
+    inputs: "a section of the manuscript",
+    output: "its reading grade and the sentences that carry it",
+    purpose: "Keep a paper readable to the people who will use it, not only to the reviewers who will judge it.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "research.reading-time",
+    name: "Reading time",
+    domain: "research",
+    status: "engine",
+    engine: "readingTime",
+    inputs: "a manuscript or abstract",
+    output: "reading time and the sections that dominate it",
+    purpose: "Know what a reviewer has actually been asked to read before assuming a careful read.",
+    requiresApproval: false,
+    receipt: "the word count, the reading speed assumed, and the time computed"
+  }),
+  A({
+    id: "research.section-structure",
+    name: "Section structure",
+    domain: "research",
+    status: "engine",
+    engine: "headingLint",
+    inputs: "the manuscript's headings",
+    output: "the heading structure and its faults",
+    purpose: "Check that a manuscript's structure follows its own promise, because a missing methods heading is a rejection risk.",
+    requiresApproval: false,
+    receipt: "the headings found, the faults listed, and the structure rule applied"
+  }),
+  A({
+    id: "research.terminology-drift",
+    name: "Terminology drift",
+    domain: "research",
+    status: "engine",
+    engine: "terminologyDrift",
+    inputs: "a manuscript and the glossary it declares",
+    output: "terms used inconsistently",
+    purpose: "Catch a term that changes meaning halfway through a paper, which is where reviewers lose the thread.",
+    requiresApproval: false,
+    receipt: "the glossary, the drift found, and the sections it appears in"
+  }),
+  A({
+    id: "research.ethics-submit",
+    name: "Ethics submission",
+    domain: "research",
+    status: "workflow",
+    engine: "headingLint + citationLint",
+    inputs: "a protocol ready for an ethics committee",
+    output: "a submission, gated",
+    purpose: "Submit a protocol with its structure checked and a human approving, because an ethics submission is a commitment.",
+    requiresApproval: true,
+    receipt: "the protocol checked, the attachments verified, and the human's approval of the submission"
+  }),
+  A({
+    id: "research.preprint-post",
+    name: "Preprint release",
+    domain: "research",
+    status: "workflow",
+    engine: "citationLint + raterAgreement",
+    inputs: "a manuscript ready for public release",
+    output: "a public posting, gated",
+    purpose: "Post a preprint with its citations checked and a human approving, because publication is irreversible in practice.",
+    requiresApproval: true,
+    receipt: "the citation check, the agreement figures attached, and the human's approval"
+  }),
+  /* ── media ───────────────────────────────────────────────────── */
+  A({
+    id: "media.loudness-gain",
+    name: "Loudness gain",
+    domain: "media",
+    status: "engine",
+    engine: "loudnessGain",
+    inputs: "measured integrated loudness and the target",
+    output: "the gain to apply and the peak after it",
+    purpose: "Reach a loudness target without discovering at the encoder that the limiter had to do the work.",
+    requiresApproval: false,
+    receipt: "the measured loudness, the gain applied, and the peak it produced"
+  }),
+  A({
+    id: "media.bitrate-budget",
+    name: "Bitrate budget",
+    domain: "media",
+    status: "engine",
+    engine: "bitrateBudget",
+    inputs: "runtime and a size budget with an encoding ladder",
+    output: "which rung of the ladder fits",
+    purpose: "Choose the encoding rung from the size budget and the runtime, instead of from habit or from a competitor's number.",
+    requiresApproval: false,
+    receipt: "the ladder evaluated, the rung chosen, and the size it produces"
+  }),
+  A({
+    id: "media.segment-durations",
+    name: "Segment durations",
+    domain: "media",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "segment durations from a finished edit",
+    output: "p50, p95 and p99 across the timeline",
+    purpose: "See the shape of an edit, where a few long segments carry the pace of the whole piece.",
+    requiresApproval: false,
+    receipt: "the segments measured, the percentile method, and the readout"
+  }),
+  A({
+    id: "media.dropout-outliers",
+    name: "Dropout outliers",
+    domain: "media",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "dropped-frame counts across playback sessions",
+    output: "sessions outside the Tukey fence",
+    purpose: "Separate a systematic playback problem from the handful of sessions that were always going to be unlucky.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and the sessions outside it"
+  }),
+  A({
+    id: "media.subtitle-contrast",
+    name: "Subtitle contrast",
+    domain: "media",
+    status: "engine",
+    engine: "contrastRatio + wcagVerdict",
+    inputs: "subtitle colour and the plate behind it",
+    output: "the contrast ratio and the level it meets",
+    purpose: "Check that subtitles are legible against the actual plate colour rather than against an assumption about it.",
+    requiresApproval: false,
+    receipt: "both colours, the ratio computed, and the standard applied"
+  }),
+  A({
+    id: "media.caption-type-scale",
+    name: "Caption type scale",
+    domain: "media",
+    status: "engine",
+    engine: "typeScale",
+    inputs: "a base caption size and a ratio",
+    output: "the caption scale in px and rem",
+    purpose: "Generate the caption scale once so every title card and lower third stops being decided individually.",
+    requiresApproval: false,
+    receipt: "the base, the ratio, and every step of the scale produced"
+  }),
+  A({
+    id: "media.episode-metadata",
+    name: "Episode metadata",
+    domain: "media",
+    status: "engine",
+    engine: "metaLint",
+    inputs: "an episode title and description",
+    output: "what each catalogue and player will truncate",
+    purpose: "Catch the truncation in an episode title where every surface cuts it at a different width.",
+    requiresApproval: false,
+    receipt: "each field measured, the limits applied, and the truncation points"
+  }),
+  A({
+    id: "media.subtitle-coverage",
+    name: "Subtitle coverage",
+    domain: "media",
+    status: "engine",
+    engine: "localeCoverage",
+    inputs: "subtitle tracks per locale against the base",
+    output: "which locales clear the shipping bar",
+    purpose: "Decide which subtitle tracks ship together, because a missing track is a missing audience.",
+    requiresApproval: false,
+    receipt: "the base count, each locale's coverage, and the bar applied"
+  }),
+  A({
+    id: "media.subtitle-expansion",
+    name: "Subtitle expansion",
+    domain: "media",
+    status: "engine",
+    engine: "stringExpansion",
+    inputs: "a source line and the target language",
+    output: "the line's expected length when translated",
+    purpose: "Anticipate the reading speed a translated subtitle line will demand before the track is produced.",
+    requiresApproval: false,
+    receipt: "the source line, the expansion range used, and the resulting length"
+  }),
+  A({
+    id: "media.rendition-publish",
+    name: "Rendition publish",
+    domain: "media",
+    status: "workflow",
+    engine: "bitrateBudget + loudnessGain",
+    inputs: "a mastered asset with its ladder and loudness targets",
+    output: "a publishing run to the CDN, gated",
+    purpose: "Publish renditions with the ladder and loudness verified and a human approving, because publishing is customer-facing.",
+    requiresApproval: true,
+    receipt: "the ladder verified, the loudness measured, and the human's approval of the publish"
+  }),
+  A({
+    id: "media.rights-clearance",
+    name: "Rights clearance",
+    domain: "media",
+    status: "workflow",
+    engine: "dateTerms + retentionClock",
+    inputs: "a piece of licensed material and its grant",
+    output: "a clearance window, gated for the licence holder",
+    purpose: "Clear licensed material with the window computed and approved, because an expired licence is a takedown.",
+    requiresApproval: true,
+    receipt: "the grant dates, the cleared window, and the human's approval of the use"
+  }),
+  /* ── finops ───────────────────────────────────────────────────── */
+  A({
+    id: "finops.spend-forecast",
+    name: "Spend forecast",
+    domain: "finops",
+    status: "engine",
+    engine: "spendForecast",
+    inputs: "months of spend for a service or the whole estate",
+    output: "the trend and a projected month",
+    purpose: "Give finance a trajectory instead of last month's number and an assurance.",
+    requiresApproval: false,
+    receipt: "the months observed, the fitted trend, and the projection with its caveat"
+  }),
+  A({
+    id: "finops.anomaly-watch",
+    name: "Spend anomaly watch",
+    domain: "finops",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "daily spend samples",
+    output: "days out of family, with their z",
+    purpose: "Find the day spend moved without a corresponding incident, while the cause is still cheap to find.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each flagged day"
+  }),
+  A({
+    id: "finops.unit-cost",
+    name: "Unit cost rollup",
+    domain: "finops",
+    status: "engine",
+    engine: "unitEconomics",
+    inputs: "revenue, margin, acquisition cost and churn",
+    output: "cost per unit and the payback period",
+    purpose: "Express infrastructure cost per customer or per thousand requests, which is the number engineering can act on.",
+    requiresApproval: false,
+    receipt: "the inputs, the cost per unit, and the assumptions the model rests on"
+  }),
+  A({
+    id: "finops.egress-cost",
+    name: "Egress cost",
+    domain: "finops",
+    status: "engine",
+    engine: "egressCost",
+    inputs: "egress volume, origin price and cache behaviour",
+    output: "cost per path and what the cache saves",
+    purpose: "Show where egress money actually goes, path by path, instead of treating it as one line item.",
+    requiresApproval: false,
+    receipt: "the volumes, the prices, and the per-path computation"
+  }),
+  A({
+    id: "finops.cost-percentiles",
+    name: "Cost percentiles",
+    domain: "finops",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "per-tenant or per-request cost samples",
+    output: "the distribution, not just the total",
+    purpose: "Find the tenants and requests that carry the tail of the bill, which a total never shows.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the distribution readout"
+  }),
+  A({
+    id: "finops.capacity-runway",
+    name: "Capacity runway",
+    domain: "finops",
+    status: "engine",
+    engine: "capacityHeadroom",
+    inputs: "current use, growth and the commitment threshold",
+    output: "when the commitment threshold is reached",
+    purpose: "Time a reservation decision rather than making it under pressure when the threshold is already crossed.",
+    requiresApproval: false,
+    receipt: "the headroom, the growth rate, and the runway before the threshold"
+  }),
+  A({
+    id: "finops.reliability-spend",
+    name: "Reliability spend",
+    domain: "finops",
+    status: "engine",
+    engine: "sloErrorBudget",
+    inputs: "an SLO and the window it is measured over",
+    output: "the error budget and what is left of it",
+    purpose: "Frame reliability work as budget spent, which is the only version of the conversation that ends in a decision.",
+    requiresApproval: false,
+    receipt: "the SLO, the window, and the budget allowed and consumed"
+  }),
+  A({
+    id: "finops.plan-check",
+    name: "Plan check",
+    domain: "finops",
+    status: "engine",
+    engine: "growthModel",
+    inputs: "a revenue or usage plan with its churn",
+    output: "the trajectory and the exit position",
+    purpose: "Test whether a plan survives its own churn assumption before the cost model is built on top of it.",
+    requiresApproval: false,
+    receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+  }),
+  A({
+    id: "finops.retention-audit",
+    name: "Retention audit",
+    domain: "finops",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "data classes with creation dates and retention terms",
+    output: "what may be deleted and what is overdue",
+    purpose: "Find the storage that policy already says should be gone, which is the cheapest saving available.",
+    requiresApproval: false,
+    receipt: "each class, its retention term, and the days past or remaining"
+  }),
+  A({
+    id: "finops.budget-commit",
+    name: "Commitment purchase",
+    domain: "finops",
+    status: "workflow",
+    engine: "spendForecast + egressCost",
+    inputs: "a proposed reservation against forecast usage",
+    output: "a commitment, gated on spend",
+    purpose: "Buy a commitment with the usage modelled and a human approving, because a reservation is money spent up front.",
+    requiresApproval: true,
+    receipt: "the forecast it rests on, the break-even, and the human's approval of the purchase"
+  }),
+  A({
+    id: "finops.showback-invoice",
+    name: "Chargeback run",
+    domain: "finops",
+    status: "workflow",
+    engine: "unitEconomics + percentiles",
+    inputs: "costs allocated across teams or tenants",
+    output: "an internal invoice run, gated before it is issued",
+    purpose: "Issue internal charges with the allocation method stated and approved, because a chargeback nobody agreed to is an argument.",
+    requiresApproval: true,
+    receipt: "the allocation method, the amounts per team, and the human's approval of the run"
+  }),
+  /* ── legal ───────────────────────────────────────────────────── */
+  A({
+    id: "legal.clause-terms",
+    name: "Clause terms",
+    domain: "legal",
+    status: "engine",
+    engine: "clauseLint",
+    inputs: "a clause and the terms to count",
+    output: "the density of undefined terms a dispute would turn on",
+    purpose: "Point at the words a contract will be argued over later, while redrafting is still a text edit.",
+    requiresApproval: false,
+    receipt: "the terms counted, their occurrences, and the density per thousand words"
+  }),
+  A({
+    id: "legal.contract-dates",
+    name: "Contract dates",
+    domain: "legal",
+    status: "engine",
+    engine: "dateTerms",
+    inputs: "an effective date, term length and notice period",
+    output: "expiry and the last day to serve notice",
+    purpose: "Put the dates a contract turns on in front of the people who have to act on them, not only the people who signed.",
+    requiresApproval: false,
+    receipt: "the effective date, the expiry, and the last day to notice"
+  }),
+  A({
+    id: "legal.terminology-drift",
+    name: "Defined-term drift",
+    domain: "legal",
+    status: "engine",
+    engine: "terminologyDrift",
+    inputs: "a contract and the terms it defines",
+    output: "defined terms used inconsistently",
+    purpose: "Catch a defined term that wanders, which is how a clear clause becomes an ambiguous one.",
+    requiresApproval: false,
+    receipt: "the defined terms, the drift found, and where each appears"
+  }),
+  A({
+    id: "legal.clause-structure",
+    name: "Clause structure",
+    domain: "legal",
+    status: "engine",
+    engine: "headingLint",
+    inputs: "a contract's clause headings",
+    output: "the structure and the headings that break it",
+    purpose: "Check that a contract's structure matches its own table of contents, which is where cross-references break.",
+    requiresApproval: false,
+    receipt: "the headings found, the faults listed, and the structure rule applied"
+  }),
+  A({
+    id: "legal.plain-language",
+    name: "Plain language",
+    domain: "legal",
+    status: "engine",
+    engine: "readability",
+    inputs: "a clause or a policy",
+    output: "its reading grade and the sentences that carry it",
+    purpose: "Give a policy a reading grade, because a term nobody understands is a term nobody can follow.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "legal.retention-clock",
+    name: "Retention clock",
+    domain: "legal",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "document classes with creation dates and retention terms",
+    output: "which documents may already be destroyed",
+    purpose: "Run document retention as a clock rather than as a spring clean somebody schedules when they remember.",
+    requiresApproval: false,
+    receipt: "each class, its term, and the days past or remaining"
+  }),
+  A({
+    id: "legal.pii-in-draft",
+    name: "Personal data in a draft",
+    domain: "legal",
+    status: "engine",
+    engine: "piiScan",
+    inputs: "a draft, an exhibit or a redaction candidate",
+    output: "personal-data classes present, samples masked",
+    purpose: "Find personal data in material about to be filed, and mask the sample so the finding is not itself a disclosure.",
+    requiresApproval: false,
+    receipt: "the classes present, the masked samples, and the patterns applied"
+  }),
+  A({
+    id: "legal.redaction-strength",
+    name: "Redaction strength",
+    domain: "legal",
+    status: "engine",
+    engine: "stringEntropyBits",
+    inputs: "an identifier as redacted",
+    output: "the entropy the redaction leaves",
+    purpose: "Check that a redaction has removed enough that the identifier cannot be recovered, not merely that it looks shorter.",
+    requiresApproval: false,
+    receipt: "the redacted form, the entropy remaining, and the requirement applied"
+  }),
+  A({
+    id: "legal.filing-secret-scan",
+    name: "Filing secret scan",
+    domain: "legal",
+    status: "engine",
+    engine: "scanSecrets",
+    inputs: "documents about to be filed or published",
+    output: "credential shapes present in them",
+    purpose: "Catch the API key in an exhibit before the exhibit is a public record.",
+    requiresApproval: false,
+    receipt: "each secret shape found, its location, and the file it came from"
+  }),
+  A({
+    id: "legal.regulatory-filing",
+    name: "Regulatory filing",
+    domain: "legal",
+    status: "workflow",
+    engine: "dateTerms + clauseLint",
+    inputs: "a filing due to a regulator by a statutory date",
+    output: "a filing, gated on the human",
+    purpose: "File with the statutory date computed and the signatory approved, because a late filing is a penalty, not a delay.",
+    requiresApproval: true,
+    receipt: "the due date computed, the documents attached, and the human's approval of the filing"
+  }),
+  A({
+    id: "legal.notice-serve",
+    name: "Serve notice",
+    domain: "legal",
+    status: "workflow",
+    engine: "dateTerms",
+    inputs: "a notice to be served inside a contractual window",
+    output: "a notice served, gated",
+    purpose: "Serve a notice inside a window that closes on a fixed date, with the founder or counsel approving the wording.",
+    requiresApproval: true,
+    receipt: "the window computed, the notice text served, and the human's approval"
+  }),
+  /* ── privacy ───────────────────────────────────────────────────── */
+  A({
+    id: "privacy.pii-scan",
+    name: "Personal-data scan",
+    domain: "privacy",
+    status: "engine",
+    engine: "piiScan",
+    inputs: "a body of text, a sample or an export",
+    output: "personal-data classes present, every sample masked",
+    purpose: "Establish what personal data a text contains before it is copied into a ticket, a prompt or a repo.",
+    requiresApproval: false,
+    receipt: "the classes present, the masked samples, and the patterns applied"
+  }),
+  A({
+    id: "privacy.retention-clock",
+    name: "Retention clock",
+    domain: "privacy",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "data classes with creation dates and retention terms",
+    output: "what is overdue for deletion",
+    purpose: "Run deletion on the clock the policy promises, rather than on the quarter somebody remembers it.",
+    requiresApproval: false,
+    receipt: "each class, its term, and the days past or remaining"
+  }),
+  A({
+    id: "privacy.secret-scan",
+    name: "Secret scan",
+    domain: "privacy",
+    status: "engine",
+    engine: "scanSecrets",
+    inputs: "repositories, logs or configuration",
+    output: "credential shapes found in them",
+    purpose: "Find credentials where they should not be, since a secret in a log is a secret with an audience.",
+    requiresApproval: false,
+    receipt: "each secret shape, its location, and the source scanned"
+  }),
+  A({
+    id: "privacy.identifier-entropy",
+    name: "Identifier entropy",
+    domain: "privacy",
+    status: "engine",
+    engine: "stringEntropyBits",
+    inputs: "an identifier used to refer to a person",
+    output: "the entropy its shape implies",
+    purpose: "Check whether a pseudonymous identifier can be reversed by guessing, which is the difference between pseudonymous and anonymous.",
+    requiresApproval: false,
+    receipt: "the identifier shape, the entropy computed, and the requirement"
+  }),
+  A({
+    id: "privacy.tracker-surface",
+    name: "Tracker surface",
+    domain: "privacy",
+    status: "engine",
+    engine: "cspAudit",
+    inputs: "a content security policy from a web surface",
+    output: "what the policy permits third parties to do",
+    purpose: "See what a page actually permits, because a tag manager can widen a policy nobody reopened.",
+    requiresApproval: false,
+    receipt: "the directives read, what each permits, and the findings"
+  }),
+  A({
+    id: "privacy.notice-structure",
+    name: "Notice structure",
+    domain: "privacy",
+    status: "engine",
+    engine: "headingLint",
+    inputs: "a privacy notice's headings",
+    output: "whether the structure carries the required sections",
+    purpose: "Check that a notice is organised so a reader can find the section that applies to them.",
+    requiresApproval: false,
+    receipt: "the headings found, the sections missing, and the structure rule"
+  }),
+  A({
+    id: "privacy.notice-readability",
+    name: "Notice readability",
+    domain: "privacy",
+    status: "engine",
+    engine: "readability",
+    inputs: "a privacy notice",
+    output: "its reading grade",
+    purpose: "Give a notice a reading grade, because informed consent that requires a law degree is neither.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "privacy.access-outliers",
+    name: "Access outliers",
+    domain: "privacy",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "per-actor access counts over a window",
+    output: "actors outside the Tukey fence",
+    purpose: "Separate an actor whose access pattern is genuinely exceptional from ordinary variation in a busy system.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and the actors outside it"
+  }),
+  A({
+    id: "privacy.access-percentiles",
+    name: "Access percentiles",
+    domain: "privacy",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "record-access volumes by system",
+    output: "the distribution across systems",
+    purpose: "Rank systems by the tail of their access volume, where over-collection shows up first.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the readout"
+  }),
+  A({
+    id: "privacy.dsar-respond",
+    name: "Data-subject request",
+    domain: "privacy",
+    status: "workflow",
+    engine: "piiScan + retentionClock",
+    inputs: "a request from a data subject with a statutory clock",
+    output: "a response assembled, gated",
+    purpose: "Answer a data-subject request inside its statutory clock with a human approving the disclosure.",
+    requiresApproval: true,
+    receipt: "the request logged, the clock applied, the records identified, and the human's approval"
+  }),
+  A({
+    id: "privacy.consent-change",
+    name: "Consent change",
+    domain: "privacy",
+    status: "workflow",
+    engine: "readability + localeCoverage",
+    inputs: "a change to consent wording and the locales it ships in",
+    output: "a consent change, gated",
+    purpose: "Change consent wording with the reading grade and locale coverage known and a human approving the change.",
+    requiresApproval: true,
+    receipt: "the wording diff, the locales covered, and the human's approval"
+  }),
+  /* ── people ───────────────────────────────────────────────────── */
+  A({
+    id: "people.headcount-model",
+    name: "Headcount model",
+    domain: "people",
+    status: "engine",
+    engine: "headcountModel",
+    inputs: "current headcount, hire rate and attrition",
+    output: "the trajectory and its end state",
+    purpose: "Show what a hiring plan does once attrition compounds against it, before the plan is promised to anyone.",
+    requiresApproval: false,
+    receipt: "the plan modelled month by month, the rates assumed, and the resulting headcount"
+  }),
+  A({
+    id: "people.band-position",
+    name: "Band position",
+    domain: "people",
+    status: "engine",
+    engine: "compBand",
+    inputs: "a salary band and a proposed offer",
+    output: "position in band and compa-ratio",
+    purpose: "Place an offer in its band as both a position and a compa-ratio, which are different questions asked with one word.",
+    requiresApproval: false,
+    receipt: "the band, the offer, the position computed, and the ratio against the midpoint"
+  }),
+  A({
+    id: "people.hiring-funnel",
+    name: "Hiring funnel",
+    domain: "people",
+    status: "engine",
+    engine: "funnel",
+    inputs: "stage counts from sourcing to offer",
+    output: "stage conversions and the step losing the most",
+    purpose: "Point recruiting effort at the stage that loses the most people, not the stage with the most candidates.",
+    requiresApproval: false,
+    receipt: "the counts, each stage's conversion, and the step identified as the constraint"
+  }),
+  A({
+    id: "people.jd-readability",
+    name: "Job-description reading",
+    domain: "people",
+    status: "engine",
+    engine: "readability",
+    inputs: "a job description",
+    output: "its reading grade",
+    purpose: "Write a job description people can read, because a posting nobody finishes is a posting nobody answers.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "people.policy-reading-time",
+    name: "Policy reading time",
+    domain: "people",
+    status: "engine",
+    engine: "readingTime",
+    inputs: "a policy or handbook section",
+    output: "how long it takes to read",
+    purpose: "Know what a policy actually asks of the people who must follow it before announcing it is mandatory.",
+    requiresApproval: false,
+    receipt: "the word count, the reading speed assumed, and the time computed"
+  }),
+  A({
+    id: "people.criteria-drift",
+    name: "Review-criteria drift",
+    domain: "people",
+    status: "engine",
+    engine: "terminologyDrift",
+    inputs: "a review rubric and the terms it defines",
+    output: "criteria used inconsistently across sections",
+    purpose: "Catch a review criterion that means something different in two places, which is how ratings stop being comparable.",
+    requiresApproval: false,
+    receipt: "the defined criteria, the drift found, and where each appears"
+  }),
+  A({
+    id: "people.survey-size",
+    name: "Survey sample size",
+    domain: "people",
+    status: "engine",
+    engine: "sampleSize",
+    inputs: "an effect worth detecting and a baseline rate",
+    output: "the responses a survey needs",
+    purpose: "Size an engagement survey from the difference worth acting on, so a weak result is not read as a mandate.",
+    requiresApproval: false,
+    receipt: "the effect, the power chosen, and the responses derived"
+  }),
+  A({
+    id: "people.scorecard-agreement",
+    name: "Scorecard agreement",
+    domain: "people",
+    status: "engine",
+    engine: "raterAgreement",
+    inputs: "two interviewers' scores for the same candidates",
+    output: "agreement and kappa beside it",
+    purpose: "Show how much interviewer agreement is chance, which is the number that decides whether a scorecard is a measure.",
+    requiresApproval: false,
+    receipt: "the scores compared, the chance agreement, and kappa"
+  }),
+  A({
+    id: "people.handbook-structure",
+    name: "Handbook structure",
+    domain: "people",
+    status: "engine",
+    engine: "headingLint",
+    inputs: "a handbook's headings",
+    output: "its structure and the sections that break it",
+    purpose: "Check a handbook's structure, because a policy that cannot be found has not been communicated.",
+    requiresApproval: false,
+    receipt: "the headings found, the faults listed, and the structure rule applied"
+  }),
+  A({
+    id: "people.offer-send",
+    name: "Extend an offer",
+    domain: "people",
+    status: "workflow",
+    engine: "compBand + headcountModel",
+    inputs: "an approved role with a band and its headcount plan",
+    output: "an offer extended, gated",
+    purpose: "Extend an offer with the band position computed and a human approving, because an offer is a commitment to a person.",
+    requiresApproval: true,
+    receipt: "the band position, the plan it fits, and the human's approval of the offer"
+  }),
+  A({
+    id: "people.comp-change",
+    name: "Compensation change",
+    domain: "people",
+    status: "workflow",
+    engine: "compBand + unitEconomics",
+    inputs: "a proposed change for an individual or a group",
+    output: "a pay change, gated",
+    purpose: "Change compensation with the band effect and the affordability modelled and a human approving the change.",
+    requiresApproval: true,
+    receipt: "the band effect, the cost modelled, and the human's approval"
+  }),
+  /* ── revenue ───────────────────────────────────────────────────── */
+  A({
+    id: "revenue.pipeline-coverage",
+    name: "Pipeline coverage",
+    domain: "revenue",
+    status: "engine",
+    engine: "pipelineCoverage",
+    inputs: "a quota and stage-weighted pipeline",
+    output: "weighted coverage against the quota",
+    purpose: "Answer whether the quarter is covered by weighted pipeline rather than by the size of the list.",
+    requiresApproval: false,
+    receipt: "each stage, its win rate, the weighted total, and the gap"
+  }),
+  A({
+    id: "revenue.sla-clock",
+    name: "SLA clock",
+    domain: "revenue",
+    status: "engine",
+    engine: "slaClock",
+    inputs: "tickets with priorities and response times",
+    output: "first response against each priority target",
+    purpose: "Show attainment ticket by ticket, because an average response time hides every customer who waited all day.",
+    requiresApproval: false,
+    receipt: "the tickets measured, the targets applied, and the breaches named"
+  }),
+  A({
+    id: "revenue.unit-economics",
+    name: "Unit economics",
+    domain: "revenue",
+    status: "engine",
+    engine: "unitEconomics",
+    inputs: "revenue, margin, acquisition cost and churn",
+    output: "lifetime value, the ratio and payback",
+    purpose: "Test whether growth pays for itself before more money is spent proving the question again.",
+    requiresApproval: false,
+    receipt: "the inputs, the ratio, the payback, and the assumptions behind them"
+  }),
+  A({
+    id: "revenue.revenue-funnel",
+    name: "Revenue funnel",
+    domain: "revenue",
+    status: "engine",
+    engine: "funnel",
+    inputs: "stage counts from lead to closed",
+    output: "stage conversions and the largest proportional loss",
+    purpose: "Find the step where revenue leaks instead of the step where marketing is loudest.",
+    requiresApproval: false,
+    receipt: "the counts, each stage's conversion, and the constraint identified"
+  }),
+  A({
+    id: "revenue.prioritise",
+    name: "Deal prioritisation",
+    domain: "revenue",
+    status: "engine",
+    engine: "riceScore",
+    inputs: "candidate deals or plays with reach, impact, confidence and effort",
+    output: "a ranked list with the inputs visible",
+    purpose: "Rank competing plays so disagreement traces to an input somebody chose rather than to seniority.",
+    requiresApproval: false,
+    receipt: "every candidate scored, the formula used, and the inputs as supplied"
+  }),
+  A({
+    id: "revenue.plan-check",
+    name: "Plan check",
+    domain: "revenue",
+    status: "engine",
+    engine: "growthModel",
+    inputs: "a revenue plan with its churn and expansion assumptions",
+    output: "the trajectory and the exit position",
+    purpose: "Test whether a revenue plan survives its own churn assumption before it becomes a hiring plan.",
+    requiresApproval: false,
+    receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+  }),
+  A({
+    id: "revenue.deal-size-percentiles",
+    name: "Deal-size percentiles",
+    domain: "revenue",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "closed deal values over a period",
+    output: "the distribution, not just the average deal",
+    purpose: "Show a deal-size distribution, because an average deal is a customer that does not quite exist.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the distribution readout"
+  }),
+  A({
+    id: "revenue.discount-maths",
+    name: "Discount maths",
+    domain: "revenue",
+    status: "engine",
+    engine: "unitEconomics",
+    inputs: "a proposed discount and the deal economics",
+    output: "what the discount costs over the contract",
+    purpose: "Price a discount over the life of the contract rather than in the quarter it is granted.",
+    requiresApproval: false,
+    receipt: "the discount, its cost over the term, and the margin it reduces"
+  }),
+  A({
+    id: "revenue.pipeline-anomaly",
+    name: "Pipeline anomaly",
+    domain: "revenue",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "daily pipeline creation or stage movement",
+    output: "days out of family",
+    purpose: "Catch a pipeline that moved for a reason nobody recorded, while the reason is still findable.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each flagged day"
+  }),
+  A({
+    id: "revenue.quote-issue",
+    name: "Issue a quote",
+    domain: "revenue",
+    status: "workflow",
+    engine: "unitEconomics + compBand",
+    inputs: "a deal with its terms and approved pricing",
+    output: "a quote issued to a customer, gated",
+    purpose: "Issue a quote with the economics and the approval chain checked, because a quote is a commitment made in writing.",
+    requiresApproval: true,
+    receipt: "the economics computed, the approvals recorded, and the human's sign-off"
+  }),
+  A({
+    id: "revenue.discount-approve",
+    name: "Approve a discount",
+    domain: "revenue",
+    status: "workflow",
+    engine: "unitEconomics + pipelineCoverage",
+    inputs: "a discount request beyond the standard band",
+    output: "an exception approved, gated",
+    purpose: "Approve a discount beyond policy with its cost modelled and the decision recorded against a name.",
+    requiresApproval: true,
+    receipt: "the discount modelled over the contract, the coverage effect, and the human's approval"
+  }),
+  /* ── marketing ───────────────────────────────────────────────────── */
+  A({
+    id: "marketing.meta-lint",
+    name: "Title & meta",
+    domain: "marketing",
+    status: "engine",
+    engine: "metaLint",
+    inputs: "a page title, description and slug",
+    output: "what each search surface truncates",
+    purpose: "Catch the truncation in a search result before a customer reads half a sentence.",
+    requiresApproval: false,
+    receipt: "each field measured, the display limit applied, and the truncation point named"
+  }),
+  A({
+    id: "marketing.crawl-budget",
+    name: "Crawl budget",
+    domain: "marketing",
+    status: "engine",
+    engine: "crawlBudget",
+    inputs: "page count, response latency and the allowed rate",
+    output: "crawl time and the binding constraint",
+    purpose: "Say how long a crawl takes and which limit binds, before an indexing delay is mistaken for a penalty.",
+    requiresApproval: false,
+    receipt: "the page count, the rate applied, and the limiting factor identified"
+  }),
+  A({
+    id: "marketing.acquisition-funnel",
+    name: "Acquisition funnel",
+    domain: "marketing",
+    status: "engine",
+    engine: "funnel",
+    inputs: "visitor counts from impression to conversion",
+    output: "stage conversions and the largest loss",
+    purpose: "Find the stage where acquisition actually leaks instead of the stage with the most traffic.",
+    requiresApproval: false,
+    receipt: "the counts, each stage's conversion, and the constraint identified"
+  }),
+  A({
+    id: "marketing.campaign-ab",
+    name: "Campaign A/B",
+    domain: "marketing",
+    status: "engine",
+    engine: "abTest",
+    inputs: "two creative variants with conversions",
+    output: "the lift and whether the sample supports it",
+    purpose: "Read a creative test with its uncertainty, so a winner is chosen on evidence rather than on the highest number.",
+    requiresApproval: false,
+    receipt: "both variants, the test applied, and the interval around the difference"
+  }),
+  A({
+    id: "marketing.spend-forecast",
+    name: "Paid spend forecast",
+    domain: "marketing",
+    status: "engine",
+    engine: "spendForecast",
+    inputs: "months of paid-media spend",
+    output: "the trend and a projected month",
+    purpose: "Give a channel a trajectory so budget conversations start from a line rather than a request.",
+    requiresApproval: false,
+    receipt: "the months observed, the fitted trend, and the projection"
+  }),
+  A({
+    id: "marketing.channel-anomaly",
+    name: "Channel anomaly",
+    domain: "marketing",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "daily sessions, spend or conversions",
+    output: "days out of family",
+    purpose: "Notice a channel moving while nobody changed a campaign, which is the day to look rather than next week.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each flagged day"
+  }),
+  A({
+    id: "marketing.unit-economics",
+    name: "CAC & payback",
+    domain: "marketing",
+    status: "engine",
+    engine: "unitEconomics",
+    inputs: "revenue, margin, acquisition cost and churn",
+    output: "lifetime value, the ratio and payback",
+    purpose: "Bound what a customer may cost to acquire, which is the ceiling every campaign has to live under.",
+    requiresApproval: false,
+    receipt: "the inputs, the ratio, the payback, and the assumptions behind them"
+  }),
+  A({
+    id: "marketing.landing-readability",
+    name: "Landing-page reading",
+    domain: "marketing",
+    status: "engine",
+    engine: "readability",
+    inputs: "landing-page copy",
+    output: "its reading grade",
+    purpose: "Match the reading grade of a page to the audience it is actually written for.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "marketing.locale-coverage",
+    name: "Locale coverage",
+    domain: "marketing",
+    status: "engine",
+    engine: "localeCoverage",
+    inputs: "translated campaign assets per locale",
+    output: "which locales can run together",
+    purpose: "Decide which locales launch as one campaign, because a missing translation is a missing market.",
+    requiresApproval: false,
+    receipt: "the base count, each locale's coverage, and the bar applied"
+  }),
+  A({
+    id: "marketing.campaign-launch",
+    name: "Launch a campaign",
+    domain: "marketing",
+    status: "workflow",
+    engine: "unitEconomics + abTest",
+    inputs: "a campaign ready to spend against an audience",
+    output: "a launch, gated",
+    purpose: "Launch a campaign with the economics bounded and a human approving, because a launch spends money in public.",
+    requiresApproval: true,
+    receipt: "the budget, the expected payback, and the human's approval of the launch"
+  }),
+  A({
+    id: "marketing.spend-commit",
+    name: "Commit ad spend",
+    domain: "marketing",
+    status: "workflow",
+    engine: "spendForecast + anomalyZ",
+    inputs: "a committed spend against forecast performance",
+    output: "a spend commitment, gated",
+    purpose: "Commit spend with the forecast and its spread in front of a human, because committed media is money already spent.",
+    requiresApproval: true,
+    receipt: "the forecast it rests on, the downside modelled, and the human's approval"
+  }),
+  /* ── localisation ───────────────────────────────────────────────────── */
+  A({
+    id: "locale.coverage",
+    name: "Translation coverage",
+    domain: "locale",
+    status: "engine",
+    engine: "localeCoverage",
+    inputs: "translated keys per locale",
+    output: "which locales clear the shipping bar",
+    purpose: "Decide which locales ship from what is on disk, before a rollout discovers the gap in production.",
+    requiresApproval: false,
+    receipt: "the key count, each locale's coverage, and the bar applied"
+  }),
+  A({
+    id: "locale.expansion",
+    name: "String expansion",
+    domain: "locale",
+    status: "engine",
+    engine: "stringExpansion",
+    inputs: "a source string and the target language",
+    output: "the length it will take when translated",
+    purpose: "Design to the length a string becomes rather than the length it was written at.",
+    requiresApproval: false,
+    receipt: "the source string, the expansion range used, and the resulting length"
+  }),
+  A({
+    id: "locale.heading-structure",
+    name: "Localised structure",
+    domain: "locale",
+    status: "engine",
+    engine: "headingLint",
+    inputs: "headings across translated pages",
+    output: "structure that survives translation",
+    purpose: "Keep hierarchy readable after translation, where titles expand and headings wrap into the body.",
+    requiresApproval: false,
+    receipt: "the headings found, the faults listed, and the structure rule applied"
+  }),
+  A({
+    id: "locale.terminology-drift",
+    name: "Glossary drift",
+    domain: "locale",
+    status: "engine",
+    engine: "terminologyDrift",
+    inputs: "translated content and the glossary it declares",
+    output: "terms translated inconsistently",
+    purpose: "Keep a product's vocabulary consistent across locales, which is what a glossary is for.",
+    requiresApproval: false,
+    receipt: "the glossary, the drift found, and where each appears"
+  }),
+  A({
+    id: "locale.translated-readability",
+    name: "Translated readability",
+    domain: "locale",
+    status: "engine",
+    engine: "readability",
+    inputs: "a translated page",
+    output: "its reading grade in the target language",
+    purpose: "Check that a translation is readable in its own language rather than merely faithful to the source.",
+    requiresApproval: false,
+    receipt: "the text measured, the grade computed, and the formula applied"
+  }),
+  A({
+    id: "locale.script-contrast",
+    name: "Script contrast",
+    domain: "locale",
+    status: "engine",
+    engine: "contrastRatio + wcagVerdict",
+    inputs: "text and background colours used with a script",
+    output: "the ratio and the level it meets",
+    purpose: "Check contrast for the script actually being rendered, where stroke weight and glyph size change legibility.",
+    requiresApproval: false,
+    receipt: "both colours, the ratio computed, and the standard applied"
+  }),
+  A({
+    id: "locale.script-type-scale",
+    name: "Script type scale",
+    domain: "locale",
+    status: "engine",
+    engine: "typeScale",
+    inputs: "a base size and a ratio for a script",
+    output: "the scale that script needs",
+    purpose: "Give each script a scale its glyphs can carry, instead of scaling Latin metrics by eye.",
+    requiresApproval: false,
+    receipt: "the base, the ratio, and every step of the scale produced"
+  }),
+  A({
+    id: "locale.grid-snap",
+    name: "Script grid",
+    domain: "locale",
+    status: "engine",
+    engine: "snapToGrid",
+    inputs: "spacing values used with a script",
+    output: "values off the grid and their distance from it",
+    purpose: "Keep spacing sane where line heights differ per script and layouts drift a few pixels at a time.",
+    requiresApproval: false,
+    receipt: "each value checked, off-grid values named, and the direction of correction"
+  }),
+  A({
+    id: "locale.review-agreement",
+    name: "Review agreement",
+    domain: "locale",
+    status: "engine",
+    engine: "raterAgreement",
+    inputs: "two reviewers' verdicts on the same strings",
+    output: "agreement and kappa beside it",
+    purpose: "Show whether translation reviewers actually agree, which decides whether review is a process or an opinion.",
+    requiresApproval: false,
+    receipt: "the verdicts compared, the chance agreement, and kappa"
+  }),
+  A({
+    id: "locale.locale-release",
+    name: "Locale release",
+    domain: "locale",
+    status: "workflow",
+    engine: "localeCoverage + stringExpansion",
+    inputs: "a locale ready to be enabled for users",
+    output: "a locale enabled, gated",
+    purpose: "Enable a locale with coverage and layout risk known and a human approving, because a locale is a promise to users.",
+    requiresApproval: true,
+    receipt: "the coverage, the expansion risks found, and the human's approval"
+  }),
+  A({
+    id: "locale.glossary-commit",
+    name: "Publish a glossary",
+    domain: "locale",
+    status: "workflow",
+    engine: "terminologyDrift + headingLint",
+    inputs: "a glossary change that binds future translations",
+    output: "a glossary published, gated",
+    purpose: "Change the vocabulary every future translation must follow, with the diff reviewed and a human approving it.",
+    requiresApproval: true,
+    receipt: "the terms changed, the affected locales, and the human's approval of the change"
+  }),
+  /* ── supply chain ───────────────────────────────────────────────────── */
+  A({
+    id: "supply.eoq",
+    name: "Order quantity",
+    domain: "supply",
+    status: "engine",
+    engine: "eoq",
+    inputs: "annual demand, order cost and holding cost",
+    output: "the order size that minimises both costs",
+    purpose: "Set order sizes from the trade-off between ordering and holding, which is the argument that never ends otherwise.",
+    requiresApproval: false,
+    receipt: "the inputs, the quantity derived, and the cost either side of it"
+  }),
+  A({
+    id: "supply.safety-stock",
+    name: "Safety stock",
+    domain: "supply",
+    status: "engine",
+    engine: "safetyStock",
+    inputs: "demand, its spread, lead time and a service level",
+    output: "the buffer and the reorder point",
+    purpose: "Put a price on a service level, because the last few points of availability cost more than the rest combined.",
+    requiresApproval: false,
+    receipt: "the inputs, the service level applied, and the buffer it requires"
+  }),
+  A({
+    id: "supply.lead-percentiles",
+    name: "Lead-time percentiles",
+    domain: "supply",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "supplier lead times recorded per order",
+    output: "p50, p95 and p99 lead times",
+    purpose: "Plan against the lead time that happens, not the one on the purchase order.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the lead-time readout"
+  }),
+  A({
+    id: "supply.demand-outliers",
+    name: "Demand outliers",
+    domain: "supply",
+    status: "engine",
+    engine: "outliersIqr",
+    inputs: "daily or weekly demand figures",
+    output: "periods outside the Tukey fence",
+    purpose: "Separate a genuine demand spike from the ordinary variation that would otherwise set the buffer.",
+    requiresApproval: false,
+    receipt: "the quartiles, the fence, and every period outside it"
+  }),
+  A({
+    id: "supply.demand-forecast",
+    name: "Demand forecast",
+    domain: "supply",
+    status: "engine",
+    engine: "spendForecast",
+    inputs: "period demand for one item",
+    output: "the trend and a projected period",
+    purpose: "Give replenishment a trajectory so the order is placed before the stockout rather than after it.",
+    requiresApproval: false,
+    receipt: "the periods observed, the fitted trend, and the projection"
+  }),
+  A({
+    id: "supply.supplier-sla",
+    name: "Supplier SLA clock",
+    domain: "supply",
+    status: "engine",
+    engine: "slaClock",
+    inputs: "orders with promised and actual dates",
+    output: "delivery performance against the promise",
+    purpose: "Measure a supplier against the promise, order by order, rather than against a quarterly impression.",
+    requiresApproval: false,
+    receipt: "the orders, the promise dates, and the performance computed"
+  }),
+  A({
+    id: "supply.shelf-life",
+    name: "Shelf-life clock",
+    domain: "supply",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "batches with receipt dates and shelf lives",
+    output: "what expires next and what is already past",
+    purpose: "Rotate stock on the clock a batch actually carries, before expiry turns inventory into waste.",
+    requiresApproval: false,
+    receipt: "each batch, its shelf life, and the days remaining"
+  }),
+  A({
+    id: "supply.warehouse-headroom",
+    name: "Warehouse headroom",
+    domain: "supply",
+    status: "engine",
+    engine: "capacityHeadroom",
+    inputs: "current occupancy, growth and the practical ceiling",
+    output: "when the ceiling is reached",
+    purpose: "Turn warehouse growth into a date so the next lease is negotiated before the space runs out.",
+    requiresApproval: false,
+    receipt: "the occupancy, the growth rate, and the runway to the ceiling"
+  }),
+  A({
+    id: "supply.network-growth",
+    name: "Network growth check",
+    domain: "supply",
+    status: "engine",
+    engine: "growthModel",
+    inputs: "a supply-network plan with its churn",
+    output: "the trajectory and its end state",
+    purpose: "Test a network plan against its own attrition before it becomes a capital commitment.",
+    requiresApproval: false,
+    receipt: "the plan modelled period by period, the rates assumed, and the exit position"
+  }),
+  A({
+    id: "supply.po-issue",
+    name: "Raise a purchase order",
+    domain: "supply",
+    status: "workflow",
+    engine: "eoq + safetyStock",
+    inputs: "a replenishment need with quantity and timing",
+    output: "a purchase order, gated",
+    purpose: "Raise a purchase order with the quantity and timing computed and a human approving, because a PO is money committed.",
+    requiresApproval: true,
+    receipt: "the quantity, the timing, the cost, and the human's approval"
+  }),
+  A({
+    id: "supply.supplier-commit",
+    name: "Supplier commitment",
+    domain: "supply",
+    status: "workflow",
+    engine: "safetyStock + slaClock",
+    inputs: "a volume commitment to a supplier",
+    output: "a commitment, gated",
+    purpose: "Commit volume with the service-level effect and the supplier's record modelled, and a human approving.",
+    requiresApproval: true,
+    receipt: "the volume, the service-level effect, the supplier's record, and the human's approval"
+  }),
+  /* ── web3 ───────────────────────────────────────────────────── */
+  A({
+    id: "web3.gas-plan",
+    name: "Gas plan",
+    domain: "web3",
+    status: "engine",
+    engine: "gasPlan",
+    inputs: "gas units, the fee market and the price of the asset",
+    output: "cost per operation and for the batch",
+    purpose: "Put a cost on an on-chain operation before the batch is written, when the design can still change.",
+    requiresApproval: false,
+    receipt: "the units, the fee components, and the cost computed per operation"
+  }),
+  A({
+    id: "web3.token-decimals",
+    name: "Token decimals",
+    domain: "web3",
+    status: "engine",
+    engine: "tokenDecimals",
+    inputs: "a raw base-unit amount and the token's decimals",
+    output: "the human amount, and back again",
+    purpose: "Convert base units in integer arithmetic, which is where a decimal point silently becomes a decimal error.",
+    requiresApproval: false,
+    receipt: "the raw amount, the decimals, and the round trip verified"
+  }),
+  A({
+    id: "web3.seed-entropy",
+    name: "Seed entropy",
+    domain: "web3",
+    status: "engine",
+    engine: "stringEntropyBits",
+    inputs: "a seed phrase or key as generated",
+    output: "the entropy its structure implies",
+    purpose: "Check that a seed has the entropy it needs before it holds anything worth taking.",
+    requiresApproval: false,
+    receipt: "the entropy computed, the requirement, and the key's structure"
+  }),
+  A({
+    id: "web3.key-material-scan",
+    name: "Key material scan",
+    domain: "web3",
+    status: "engine",
+    engine: "scanSecrets",
+    inputs: "repositories, configs and deployment scripts",
+    output: "key material found in them",
+    purpose: "Find a private key that reached a repository, because that is not a rotation, it is a compromise.",
+    requiresApproval: false,
+    receipt: "each key shape found, where it appeared, and the source scanned"
+  }),
+  A({
+    id: "web3.session-token",
+    name: "Session token audit",
+    domain: "web3",
+    status: "engine",
+    engine: "jwtInspect",
+    inputs: "a session token issued by the app",
+    output: "its claims, scopes and expiry, decoded",
+    purpose: "Read what a session token grants, because a widened scope outlives the reason it was granted.",
+    requiresApproval: false,
+    receipt: "the decoded claims, the scopes present, and the expiry"
+  }),
+  A({
+    id: "web3.dapp-headers",
+    name: "dApp header audit",
+    domain: "web3",
+    status: "engine",
+    engine: "cspAudit",
+    inputs: "the content security policy a dApp serves",
+    output: "what the policy permits",
+    purpose: "See what a front end allows third parties to run, because a wallet session deserves the strictest policy on the estate.",
+    requiresApproval: false,
+    receipt: "the directives read, what each permits, and the findings"
+  }),
+  A({
+    id: "web3.rpc-rate-plan",
+    name: "RPC rate plan",
+    domain: "web3",
+    status: "engine",
+    engine: "tokenBucketPlan",
+    inputs: "read volume and the provider's rate limit",
+    output: "a token-bucket plan that holds under it",
+    purpose: "Keep RPC calls inside a provider's limit before the provider does it for you, at the worst moment.",
+    requiresApproval: false,
+    receipt: "the rate, the bucket plan, and the burst permitted"
+  }),
+  A({
+    id: "web3.call-payload",
+    name: "Call payload",
+    domain: "web3",
+    status: "engine",
+    engine: "payloadBudget",
+    inputs: "a contract call's calldata shape",
+    output: "its size against block and cost budgets",
+    purpose: "Keep calldata inside its budget, where every byte costs gas on every single call.",
+    requiresApproval: false,
+    receipt: "the payload measured, the budget, and the fields that dominate it"
+  }),
+  A({
+    id: "web3.treasury-runway",
+    name: "Treasury runway",
+    domain: "web3",
+    status: "engine",
+    engine: "spendForecast",
+    inputs: "months of treasury outflows",
+    output: "the trend and a projected month",
+    purpose: "Give a treasury a runway in months, which is the number that decides when a raise starts.",
+    requiresApproval: false,
+    receipt: "the months observed, the fitted trend, and the projection"
+  }),
+  A({
+    id: "web3.tx-sign",
+    name: "Sign a transaction",
+    domain: "web3",
+    status: "workflow",
+    engine: "gasPlan + tokenDecimals",
+    inputs: "a prepared transaction with its cost",
+    output: "a signed transaction, gated",
+    purpose: "Sign a transaction with the cost and the amounts verified in integer arithmetic and a human approving the signature.",
+    requiresApproval: true,
+    receipt: "the transaction, its gas cost, the amounts verified, and the human's approval"
+  }),
+  A({
+    id: "web3.key-ceremony",
+    name: "Key ceremony",
+    domain: "web3",
+    status: "workflow",
+    engine: "stringEntropyBits + scanSecrets",
+    inputs: "a key generation and custody procedure",
+    output: "a ceremony executed, gated",
+    purpose: "Run a key ceremony with entropy verified, custody recorded, and a human approving each step in the room.",
+    requiresApproval: true,
+    receipt: "each step witnessed, the entropy verified, and the human's approval recorded"
+  }),
+  /* ── frontend (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "fe.focus-targets",
+    name: "Focus target sizes",
+    domain: "frontend",
+    status: "engine",
+    engine: "touchTargets",
+    inputs: "interactive elements and their rendered sizes",
+    output: "which controls are too small to target",
+    purpose: "Treat pointer and keyboard targets with the same minimums as touch, because a trackpad is not a mouse.",
+    requiresApproval: false,
+    receipt: "each element measured, the floor applied, and the spacing exception noted"
+  }),
+  A({
+    id: "fe.label-expansion",
+    name: "Label expansion",
+    domain: "frontend",
+    status: "engine",
+    engine: "stringExpansion",
+    inputs: "a UI label and the locales it ships in",
+    output: "the length that label becomes",
+    purpose: "Size a button for its longest translation rather than for the English it was designed in.",
+    requiresApproval: false,
+    receipt: "the label, the expansion range used, and the resulting length"
+  }),
+  A({
+    id: "fe.release",
+    name: "Frontend release",
+    domain: "frontend",
+    status: "workflow",
+    engine: "snapToGrid + localeCoverage",
+    inputs: "a front-end build with its token set and locales",
+    output: "a release published, gated",
+    purpose: "Publish a front-end release with design tokens and locale coverage checked and a human approving the publish.",
+    requiresApproval: true,
+    receipt: "the token check, the locale coverage, and the human's approval of the release"
+  }),
+  /* ── engineering (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "dev.retention-audit",
+    name: "Branch retention",
+    domain: "dev",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "branches with last-commit dates and a retention term",
+    output: "branches past their retention date",
+    purpose: "Retire stale branches on a clock, so review surfaces do not slowly fill with abandoned work.",
+    requiresApproval: false,
+    receipt: "each branch, its age, and the days past its retention term"
+  }),
+  A({
+    id: "dev.dependency-window",
+    name: "Dependency window",
+    domain: "dev",
+    status: "engine",
+    engine: "dateTerms",
+    inputs: "a support window and the notice a deprecation needs",
+    output: "the last date to migrate off a dependency",
+    purpose: "Plan a dependency migration against the support window rather than against the announcement.",
+    requiresApproval: false,
+    receipt: "the window dates, the migration deadline, and the days remaining"
+  }),
+  A({
+    id: "dev.release-tag",
+    name: "Tag a release",
+    domain: "dev",
+    status: "workflow",
+    engine: "nextVersion + satisfiesRange",
+    inputs: "a merged change set and the current version",
+    output: "a release tag, gated",
+    purpose: "Tag a release with the version derived from the changes and a human approving, because a tag is a promise to consumers.",
+    requiresApproval: true,
+    receipt: "the version derived, the range check, and the human's approval of the tag"
+  }),
+  /* ── api (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "api.response-budget",
+    name: "Response budget",
+    domain: "api",
+    status: "engine",
+    engine: "payloadBudget",
+    inputs: "an endpoint's response shape",
+    output: "its size against the declared budget",
+    purpose: "Hold an endpoint's response inside a budget so one new field does not double a mobile payload.",
+    requiresApproval: false,
+    receipt: "the shape measured, the budget, and the fields that dominate it"
+  }),
+  A({
+    id: "api.sla-attainment",
+    name: "API SLA attainment",
+    domain: "api",
+    status: "engine",
+    engine: "slaClock",
+    inputs: "requests with priority classes and response times",
+    output: "attainment against each class target",
+    purpose: "Report API performance per priority class, because one target for every caller is a target for none.",
+    requiresApproval: false,
+    receipt: "the requests, the class targets, and the breaches named"
+  }),
+  A({
+    id: "api.version-retire",
+    name: "Retire an API version",
+    domain: "api",
+    status: "workflow",
+    engine: "satisfiesRange + dateTerms",
+    inputs: "a version marked for retirement and its consumers",
+    output: "a retirement, gated",
+    purpose: "Retire an API version with the deprecation window computed and a human approving, because consumers are still calling it.",
+    requiresApproval: true,
+    receipt: "the consumers listed, the notice window, and the human's approval of the retirement"
+  }),
+  /* ── data (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "data.split-audit",
+    name: "Dataset split audit",
+    domain: "data",
+    status: "engine",
+    engine: "splitAudit",
+    inputs: "a dataset's split proportions and duplicates",
+    output: "whether the split leaks",
+    purpose: "Check that a published dataset's split does not leak, because a leaked benchmark is a benchmark nobody trusts.",
+    requiresApproval: false,
+    receipt: "the proportions, the duplicates found, and the grouping rule"
+  }),
+  A({
+    id: "data.retention-clock",
+    name: "Dataset retention",
+    domain: "data",
+    status: "engine",
+    engine: "retentionClock",
+    inputs: "datasets with creation dates and retention terms",
+    output: "datasets past their retention date",
+    purpose: "Run dataset retention as a clock so a training set does not outlive the consent it was collected under.",
+    requiresApproval: false,
+    receipt: "each dataset, its term, and the days past or remaining"
+  }),
+  A({
+    id: "data.publish-dataset",
+    name: "Publish a dataset",
+    domain: "data",
+    status: "workflow",
+    engine: "outliersIqr + retentionClock",
+    inputs: "a dataset ready for publication",
+    output: "a publication, gated",
+    purpose: "Publish a dataset with outliers reviewed and retention checked, and a human approving what becomes public.",
+    requiresApproval: true,
+    receipt: "the outlier review, the retention check, and the human's approval of the publication"
+  }),
+  /* ── security (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "security.key-entropy",
+    name: "Key entropy",
+    domain: "security",
+    status: "engine",
+    engine: "stringEntropyBits",
+    inputs: "keys as generated by a service",
+    output: "the entropy their shape implies",
+    purpose: "Verify that keys have the entropy their purpose requires, which is cheaper than discovering it during an incident.",
+    requiresApproval: false,
+    receipt: "the key shape, the entropy computed, and the requirement applied"
+  }),
+  A({
+    id: "security.access-anomaly",
+    name: "Access anomaly",
+    domain: "security",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "per-identity access counts",
+    output: "identities whose volume is out of family",
+    purpose: "Find the identity that changed behaviour this week, while the change is still explainable.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each identity flagged with its z"
+  }),
+  A({
+    id: "security.key-ceremony",
+    name: "Key ceremony",
+    domain: "security",
+    status: "workflow",
+    engine: "stringEntropyBits + scanSecrets",
+    inputs: "a key generation and custody procedure",
+    output: "a ceremony executed, gated",
+    purpose: "Run a key ceremony with each step witnessed and a human approving, because custody is only as good as its record.",
+    requiresApproval: true,
+    receipt: "each step witnessed, the entropy verified, and the human's approval recorded"
+  }),
+  /* ── reliability (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "ops.capacity-runway",
+    name: "Capacity runway",
+    domain: "ops",
+    status: "engine",
+    engine: "capacityHeadroom",
+    inputs: "headroom, growth and the threshold",
+    output: "how long until the threshold is reached",
+    purpose: "Schedule capacity work from a date rather than from the pager that announces it.",
+    requiresApproval: false,
+    receipt: "the headroom, the growth rate, and the runway before the threshold"
+  }),
+  A({
+    id: "ops.incident-percentiles",
+    name: "Incident percentiles",
+    domain: "ops",
+    status: "engine",
+    engine: "percentiles",
+    inputs: "incident durations by severity",
+    output: "the distribution of duration, not the mean",
+    purpose: "See how long incidents actually last at the tail, which is what an on-call rotation experiences.",
+    requiresApproval: false,
+    receipt: "the sample, the percentile method, and the duration readout"
+  }),
+  A({
+    id: "ops.postmortem-publish",
+    name: "Publish a postmortem",
+    domain: "ops",
+    status: "workflow",
+    engine: "readability + headingLint",
+    inputs: "a postmortem ready for the wider team",
+    output: "a publication, gated",
+    purpose: "Publish a postmortem with its structure and readability checked and a human approving what goes on the record.",
+    requiresApproval: true,
+    receipt: "the structure check, the readability measure, and the human's approval"
+  }),
+  /* ── docs (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "docs.translation-expansion",
+    name: "Doc expansion",
+    domain: "docs",
+    status: "engine",
+    engine: "stringExpansion",
+    inputs: "a documentation string and its locales",
+    output: "the length it takes when translated",
+    purpose: "Anticipate the layout damage a translation does to documentation built in English.",
+    requiresApproval: false,
+    receipt: "the string, the expansion range used, and the resulting length"
+  }),
+  A({
+    id: "docs.review-agreement",
+    name: "Doc review agreement",
+    domain: "docs",
+    status: "engine",
+    engine: "raterAgreement",
+    inputs: "two reviewers' verdicts on the same pages",
+    output: "agreement and kappa beside it",
+    purpose: "Check whether documentation review is a process or two people with different opinions.",
+    requiresApproval: false,
+    receipt: "the verdicts compared, the chance agreement, and kappa"
+  }),
+  A({
+    id: "docs.publish-runbook",
+    name: "Publish a runbook",
+    domain: "docs",
+    status: "workflow",
+    engine: "headingLint + citationLint",
+    inputs: "a runbook ready for the on-call rotation",
+    output: "a publication, gated",
+    purpose: "Publish a runbook with its structure and citations checked and a human approving, because somebody will follow it at 3am.",
+    requiresApproval: true,
+    receipt: "the structure check, the citations verified, and the human's approval"
+  }),
+  /* ── growth (deepened) ───────────────────────────────────────────────────── */
+  A({
+    id: "growth.experiment-size",
+    name: "Experiment size",
+    domain: "growth",
+    status: "engine",
+    engine: "sampleSize",
+    inputs: "an effect worth detecting and a baseline rate",
+    output: "the sample the experiment needs",
+    purpose: "Size an experiment from the effect worth acting on, so a null result is a finding rather than a shrug.",
+    requiresApproval: false,
+    receipt: "the effect, the power chosen, and the sample derived"
+  }),
+  A({
+    id: "growth.metric-anomaly",
+    name: "Metric anomaly",
+    domain: "growth",
+    status: "engine",
+    engine: "anomalyZ",
+    inputs: "a daily growth metric",
+    output: "days out of family",
+    purpose: "Catch a metric that moved without a release or a campaign to explain it.",
+    requiresApproval: false,
+    receipt: "the window, the mean and spread, and each flagged day"
+  }),
+  A({
+    id: "growth.pricing-page",
+    name: "Publish a pricing page",
+    domain: "growth",
+    status: "workflow",
+    engine: "unitEconomics + metaLint",
+    inputs: "a price change and the page presenting it",
+    output: "a publication, gated",
+    purpose: "Publish a pricing page with the economics modelled and a human approving, because a price is a promise to customers.",
+    requiresApproval: true,
+    receipt: "the economics modelled, the page checked, and the human's approval of the publication"
   })
 ]);
 function specialistsByDomain(domain) {
@@ -2539,7 +6617,11 @@ var TOOLS = Object.freeze([
   ...SECURITY_TOOLS,
   ...OPS_TOOLS,
   ...DOCS_TOOLS,
-  ...GROWTH_TOOLS
+  ...GROWTH_TOOLS,
+  ...SYSTEMS_TOOLS,
+  ...INTELLIGENCE_TOOLS,
+  ...GOVERNANCE_TOOLS,
+  ...COMMERCE_TOOLS
 ]);
 var DOMAINS = Object.freeze([
   { id: "frontend", label: "Frontend", blurb: "Colour, contrast, type and spacing \u2014 the parts of design that are arithmetic." },
@@ -2550,6 +6632,22 @@ var DOMAINS = Object.freeze([
   { id: "ops", label: "Reliability", blurb: "Error budgets, capacity runway, severity and deploy risk." },
   { id: "docs", label: "Docs", blurb: "Reading level, length, heading structure and terminology drift." },
   { id: "growth", label: "Growth", blurb: "Unit economics, funnels, prioritisation and revenue trajectory." },
+  { id: "mobile", label: "Mobile", blurb: "Touch targets and the release size budget \u2014 the two that decide whether an app is usable and shippable." },
+  { id: "cloud", label: "Cloud", blurb: "Instance sizing and egress cost \u2014 headroom and the bill, both computed from your own numbers." },
+  { id: "db", label: "Database", blurb: "Index selectivity and connection pools \u2014 the two settings most changed on a hunch." },
+  { id: "embedded", label: "Embedded", blurb: "Power budgets and real-time schedulability for devices that cannot be redeployed." },
+  { id: "ml", label: "ML & AI", blurb: "Evaluation intervals and split audits \u2014 the honest statistics of a model readout." },
+  { id: "research", label: "Research", blurb: "Citation coverage and inter-rater agreement, because a claim needs a source and a label needs a second rater." },
+  { id: "media", label: "Media", blurb: "Loudness normalisation and bitrate budgets for anything watched or listened to." },
+  { id: "finops", label: "FinOps", blurb: "Spend trajectory and anomaly detection against your own billing history." },
+  { id: "legal", label: "Legal", blurb: "Undefined-term density and the date arithmetic a contract turns on \u2014 measures, never advice." },
+  { id: "privacy", label: "Privacy", blurb: "Personal-data classes present in a text, and the clock on how long it may be kept." },
+  { id: "people", label: "People", blurb: "Headcount modelling and band position \u2014 the plan and the offer, tested against themselves." },
+  { id: "revenue", label: "Revenue", blurb: "Pipeline coverage and the SLA clock \u2014 what the quarter needs and what the customer was promised." },
+  { id: "marketing", label: "Marketing", blurb: "What a search result truncates and what a crawl costs, before either is paid for." },
+  { id: "locale", label: "Localisation", blurb: "Translation coverage and the space translated strings take in a layout built for English." },
+  { id: "supply", label: "Supply chain", blurb: "Order quantities and the safety stock a service level actually costs." },
+  { id: "web3", label: "Web3", blurb: "Transaction cost and base-unit arithmetic \u2014 integer maths, because token floats lose money." },
   { id: "finance-in", label: "Finance \xB7 India", blurb: "GST, TDS, ITC reconciliation, MSME clocks \u2014 the Munshi pack." }
 ]);
 function toolsForDomain(domain) {
@@ -2579,12 +6677,22 @@ function section(name) {
 }
 section("1. every tool drives from its own defaults, twice, identically");
 ok("the pack ships a substantial set of tools", TOOLS.length >= 30, `${TOOLS.length} tools`);
-ok("across all nine domains", DOMAINS.length === 9, `${DOMAINS.length} domains`);
+ok("across all twenty-five domains", DOMAINS.length === 25, `${DOMAINS.length} domains`);
 var TOOL_DOMAINS = [...new Set(TOOLS.map((t) => t.domain))];
 ok(
   "every domain except finance-in has tools of its own",
-  TOOL_DOMAINS.length === 8 && !TOOL_DOMAINS.includes("finance-in"),
+  TOOL_DOMAINS.length === 24 && !TOOL_DOMAINS.includes("finance-in"),
   TOOL_DOMAINS.join(" \xB7 ")
+);
+ok(
+  "and every one of those domains has at least two deterministic tools",
+  DOMAINS.filter((d) => d.id !== "finance-in").every((d) => toolsForDomain(d.id).length >= 2),
+  DOMAINS.filter((d) => d.id !== "finance-in" && toolsForDomain(d.id).length < 2).map((d) => d.id).join(", ")
+);
+ok(
+  "the pack ships sixty-five tools of its own (seven more arrive with the finance pack)",
+  TOOLS.length === 65,
+  `${TOOLS.length} tools`
 );
 var toolFailures = [];
 var nondeterministic = [];
@@ -2927,8 +7035,13 @@ ok(
 ok("exit ARR is twelve times exit MRR", Math.abs(model.exitArr - model.exitMrr * 12) < 1e-6);
 section("10. the roster holds itself to its own claims");
 var status = specialistStatus();
-ok("the generalist pack ships forty specialists", status.total === 40, String(status.total));
-ok("across eight domains", status.domains === 8, String(status.domains));
+ok("the generalist pack ships two hundred and forty specialists", status.total === 240, String(status.total));
+ok("across twenty-four domains", status.domains === 24, String(status.domains));
+ok(
+  "every domain carries at least eight specialists",
+  DOMAINS.filter((d) => d.id !== "finance-in").every((d) => specialistsByDomain(d.id).length >= 8),
+  DOMAINS.filter((d) => d.id !== "finance-in").map((d) => `${d.id}:${specialistsByDomain(d.id).length}`).join(" ")
+);
 ok("an id is unique per specialist", new Set(SPECIALISTS.map((s) => s.id)).size === status.total);
 ok(
   "every specialist declares a purpose and a receipt",
@@ -2945,7 +7058,7 @@ for (const s of SPECIALISTS) {
   }
 }
 ok("every engine a specialist claims exists in the pack", missing.length === 0, missing.slice(0, 5).join(", "));
-var MUST_BE_GATED = /^(ops\.deploy-gate|ops\.change|dev\.migration|sec\.rotation|growth\.price|docs\.release|api\.contract|fe\.a11y)/;
+var MUST_BE_GATED = /^(ops\.deploy-gate|ops\.change|ops\.postmortem-publish|dev\.migration|dev\.release-tag|sec\.rotation|sec\.key-ceremony|growth\.price|growth\.pricing-page|docs\.release|docs\.publish-runbook|api\.contract|api\.version-retire|fe\.a11y|fe\.release|data\.publish-dataset|mobile\.release|mobile\.push-send|cloud\.autoscale-apply|cloud\.rotation-run|cloud\.budget-commit|db\.migration-apply|db\.partition-plan|embedded\.firmware-release|embedded\.key-provision|ml\.model-promote|ml\.training-run|research\.ethics-submit|research\.preprint-post|media\.rendition-publish|media\.rights-clearance|finops\.budget-commit|finops\.showback-invoice|legal\.filing-submit|legal\.regulatory-filing|legal\.notice-serve|privacy\.dsar-respond|privacy\.consent-change|people\.offer-send|people\.comp-change|revenue\.quote-issue|revenue\.discount-approve|marketing\.campaign-launch|marketing\.spend-commit|locale\.locale-release|locale\.glossary-commit|supply\.po-issue|supply\.supplier-commit|web3\.tx-sign|web3\.key-ceremony)/;
 var gatedIds = SPECIALISTS.filter((s) => s.requiresApproval).map((s) => s.id);
 var ungatedDestructive = SPECIALISTS.filter((s) => MUST_BE_GATED.test(s.id) && !s.requiresApproval).map((s) => s.id);
 ok(
@@ -2953,7 +7066,28 @@ ok(
   ungatedDestructive.length === 0,
   ungatedDestructive.join(", ")
 );
-ok("and the gate is a real set, not a single token", gatedIds.length === 7, `${gatedIds.length}: ${gatedIds.join(", ")}`);
+ok(
+  "and the gate is a real set, not a single token",
+  gatedIds.length === 47 && gatedIds.length < status.total / 2,
+  `${gatedIds.length} gated of ${status.total}`
+);
+var NEW_DOMAINS = /^(mobile|cloud|db|embedded|ml|research|media|finops|legal|privacy|people|revenue|marketing|locale|supply|web3)\./;
+ok(
+  "every specialist this release gated is a workflow that changes something",
+  SPECIALISTS.filter((s) => s.requiresApproval && NEW_DOMAINS.test(s.id)).every((s) => s.status === "workflow"),
+  SPECIALISTS.filter((s) => s.requiresApproval && NEW_DOMAINS.test(s.id) && s.status !== "workflow").map((s) => s.id).join(", ")
+);
+ok(
+  "and no domain is mostly gates \u2014 in every one, the ungated specialists outnumber the gated",
+  DOMAINS.filter((d) => d.id !== "finance-in").every((d) => {
+    const list = specialistsByDomain(d.id);
+    return list.filter((s) => !s.requiresApproval).length > list.filter((s) => s.requiresApproval).length;
+  }),
+  DOMAINS.filter((d) => d.id !== "finance-in").map((d) => {
+    const list = specialistsByDomain(d.id);
+    return `${d.id}:${list.filter((s) => !s.requiresApproval).length}/${list.filter((s) => s.requiresApproval).length}`;
+  }).join(" ")
+);
 ok(
   "a read-only audit is NOT gated, because a gate that always fires is noise",
   SPECIALISTS.filter((s) => /(audit|sweep|inspect|read|check|watch|scan)/i.test(s.id)).every((s) => !s.requiresApproval),
@@ -2968,6 +7102,240 @@ ok("findSpecialist resolves an id", findSpecialist("ops.deploy-gate")?.requiresA
 ok(
   "the finance pack is listed as a domain of this pack, not copied into it",
   DOMAINS.some((d) => d.id === "finance-in" && d.label.includes("India"))
+);
+var drive = (id) => {
+  const t = toolById(id);
+  if (!t) throw new Error(`no such tool: ${id}`);
+  const defaults = {};
+  for (const f2 of t.fields) defaults[f2.key] = f2.def;
+  return t.run(defaults);
+};
+section("11. the new domains \u2014 mobile, cloud, database, embedded");
+var targets = drive("touch-targets");
+ok(
+  "a 32\xD732 control is under the 44pt floor and a 44\xD744 one is not",
+  targets.table.rows.filter((r) => r[4] === "meets the floor").length === 1,
+  JSON.stringify(targets.kpis)
+);
+ok(
+  "an undersized-but-spaced target is reported as passing only by the spacing exception",
+  targets.table.rows.some((r) => /spacing exception/.test(r[4]))
+);
+ok("the smallest target is named", targets.table.rows.some((r) => r[1] === "32\xD732"));
+var size = drive("app-size-budget");
+ok("2.52 MB per release crosses a 60 MB budget at release eight", /release 8/.test(size.headline), size.headline);
+ok(
+  "compounded at 6% the same budget lasts 6.1 releases",
+  size.kpis.some((k) => k.label === "releases if it compounds" && k.value === "6.1"),
+  JSON.stringify(size.kpis)
+);
+var inst = drive("instance-sizing");
+ok(
+  "72% p95 against a 60% ceiling needs eight instances, not six",
+  inst.kpis.some((k) => k.label === "instances needed" && k.value === "8"),
+  JSON.stringify(inst.kpis)
+);
+ok("and lands the fleet at 54% at the same load", inst.kpis.some((k) => k.value === "54.0%"));
+var egress = drive("egress-cost");
+ok(
+  "an 85% hit rate turns a 360 bill into 122 \u2014 238 saved",
+  egress.kpis.some((k) => k.label === "with the cache" && k.value === "122") && egress.kpis.some((k) => k.label === "saved / month" && k.value === "238"),
+  JSON.stringify(egress.kpis)
+);
+var idx = drive("index-selectivity");
+ok("a predicate matching 0.01% of a table should use the index", idx.ok === true, idx.headline);
+ok("and the rows-per-key figure is 333", idx.kpis.some((k) => k.value === "333"));
+var pool = drive("pool-sizing");
+ok("300 rps at 18 ms is 5.4 queries in flight", pool.kpis.some((k) => k.value === "5.4"), JSON.stringify(pool.kpis));
+ok("which is a pool of three per instance across three instances", pool.kpis.some((k) => k.label === "pool per instance" && k.value === "3"));
+var power = drive("power-budget");
+ok(
+  "2000 mAh at a 4% duty of 45 mA with 20 \xB5A sleep lasts about 1099 hours",
+  Math.abs(Number(power.kpis.find((k) => k.label === "hours").value) - 1099.4) < 0.5,
+  JSON.stringify(power.kpis)
+);
+var sched = drive("timing-slack");
+ok(
+  "Liu & Layland on 2/20, 5/50, 12/200 gives U = 0.26",
+  sched.kpis.some((k) => k.label === "utilisation" && k.value === "26.0%"),
+  JSON.stringify(sched.kpis)
+);
+ok("against a three-task bound of 0.780", sched.kpis.some((k) => k.label === "RM bound" && k.value === "78.0%"));
+ok("so the task set passes the sufficient test", sched.ok === true);
+section("12. the new domains \u2014 ml, research, media, finops");
+var ev = drive("eval-interval");
+var evLo = Number(ev.kpis.find((k) => k.label.startsWith("95%")).value.split("\u2013")[0].replace("%", ""));
+var evHi = Number(ev.kpis.find((k) => k.label.startsWith("95%")).value.split("\u2013")[1].replace("%", ""));
+ok(
+  "431/500 is 86.2%, and the Wilson interval is about 82.9\u201388.9%",
+  Math.abs(evLo - 82.9) < 0.4 && Math.abs(evHi - 88.9) < 0.4,
+  `${evLo}\u2013${evHi}`
+);
+ok("the interval clears an 80% baseline, so the result is not sampling noise", ev.ok === true);
+var split = drive("split-audit");
+ok(
+  "an 80/10/10 split of 50,000 rows with no duplicates is clean",
+  split.ok === true && split.kpis.some((k) => k.value === "5,000"),
+  JSON.stringify(split.kpis)
+);
+var cite = drive("citation-lint");
+ok(
+  "the draft cites two claims and leaves one numeric line uncited",
+  cite.kpis.some((k) => k.label === "citations" && k.value === "2") && cite.kpis.some((k) => k.label === "uncited numeric lines" && k.value === "1"),
+  JSON.stringify(cite.kpis)
+);
+var kap = drive("rater-agreement");
+ok(
+  "seven of eight labels agree \u2014 Po = 0.875",
+  kap.kpis.some((k) => k.label === "observed agreement" && k.value === "87.5%"),
+  JSON.stringify(kap.kpis)
+);
+ok(
+  "and Cohen's \u03BA is 0.805 once chance is removed",
+  Math.abs(Number(kap.kpis.find((k) => k.label === "Cohen's \u03BA").value) - 0.805) < 3e-3,
+  JSON.stringify(kap.kpis)
+);
+var loud = drive("loudness-gain");
+ok(
+  "\u22129.4 LUFS to a \u221214 target is a 4.6 dB cut, peak still under the ceiling",
+  loud.kpis.some((k) => k.value === "-4.6 dB") && loud.ok === true,
+  JSON.stringify(loud.kpis)
+);
+var bits = drive("bitrate-budget");
+ok(
+  "a 42-minute piece at 2000 kbps + 128 kbps audio is 670 MB, the only rung inside 800",
+  bits.kpis.some((k) => k.value === "2000"),
+  JSON.stringify(bits.kpis)
+);
+var fc = drive("spend-forecast");
+ok(
+  "the six-month spend series trends up by about 1136 a month",
+  Math.abs(Number(fc.kpis.find((k) => k.label === "trend / month").value) - 1135.7) < 1.5,
+  JSON.stringify(fc.kpis)
+);
+ok(
+  "and the projection for month nine is about 26,938",
+  Math.abs(Number(fc.kpis.find((k) => k.label.startsWith("month 9")).value) - 26938) < 6,
+  JSON.stringify(fc.kpis)
+);
+var anom = drive("anomaly-z");
+ok(
+  "one day out of twelve is flagged at 3\u03C3 \u2014 the 24,000 day",
+  anom.kpis.some((k) => k.label === "\u2265 3\u03C3" && k.value === "1") && !anom.ok,
+  JSON.stringify(anom.kpis)
+);
+ok("and it names day six", anom.table.rows.some((r) => r[0] === "6"));
+section("13. the new domains \u2014 legal, privacy, people, revenue");
+var clause = drive("clause-lint");
+ok("the sample clause carries five undefined terms", clause.kpis.some((k) => k.value === "5"), JSON.stringify(clause.kpis));
+ok(
+  "and the most frequent one is named in the lines",
+  clause.lines.join(" ").includes("reasonable efforts"),
+  clause.lines.join(" ")
+);
+var dates = drive("date-terms");
+ok(
+  "effective 1 Apr 2026 + 12 months ends 1 Apr 2027",
+  dates.kpis.some((k) => k.value === "2027-04-01"),
+  JSON.stringify(dates.kpis)
+);
+ok(
+  "with 90 days' notice the last day to serve it is 1 Jan 2027",
+  dates.kpis.some((k) => k.value === "2027-01-01"),
+  JSON.stringify(dates.kpis)
+);
+var pii = drive("pii-scan");
+ok(
+  "personal-data patterns are found, and every sample in the table is masked",
+  pii.table.rows.every((r) => r[3].includes("\u2022")) && !pii.table.rows.some((r) => /@|\d{4} \d{4} \d{4} \d{4}/.test(r[3])),
+  JSON.stringify(pii.table.rows.map((r) => r[3]))
+);
+ok(
+  "a card-shaped number is only counted when Luhn passes",
+  pii.table.rows.some((r) => r[0] === "card-shaped number" && r[1] === "1"),
+  JSON.stringify(pii.table.rows)
+);
+var ret = drive("retention-clock");
+ok("two of the four categories are past their retention date", ret.kpis.some((k) => k.value === "2"), JSON.stringify(ret.kpis));
+ok("and the overdue ones are at the top of the table", ret.table.rows[0][4].startsWith("-"), JSON.stringify(ret.table.rows[0]));
+var hc = drive("headcount-model");
+ok(
+  "40 people, 3 hires a month and 1.5% attrition ends at 66.5 after a year",
+  Math.abs(Number(hc.kpis.find((k) => k.label === "month 12").value) - 66.5) < 0.2,
+  JSON.stringify(hc.kpis)
+);
+var band = drive("comp-band");
+ok(
+  "2.52 against a 1.8\u20133.2 band is 51.4% of the way up",
+  band.kpis.some((k) => k.value === "51.4%"),
+  JSON.stringify(band.kpis)
+);
+ok("and a compa-ratio of 105.0", band.kpis.some((k) => k.value === "105.0"));
+var pipe = drive("pipeline-coverage");
+ok(
+  "a 12,000,000 quota against 9,790,000 weighted is 0.82\xD7 coverage",
+  pipe.kpis.some((k) => k.value === "0.82\xD7"),
+  JSON.stringify(pipe.kpis)
+);
+ok("which is under the 3.5\xD7 convention, so the tool says so", pipe.ok === false);
+var sla = drive("sla-clock");
+ok("two of four tickets miss their first-response target", sla.kpis.some((k) => k.value === "2"), JSON.stringify(sla.kpis));
+ok("at 50% attainment", sla.kpis.some((k) => k.value === "50.0%"));
+section("14. the new domains \u2014 marketing, localisation, supply chain, web3");
+var meta = drive("meta-lint");
+ok(
+  "the sample title fits the 60-character display limit",
+  meta.kpis.some((k) => k.label === "title" && k.value.startsWith("52/")),
+  JSON.stringify(meta.kpis)
+);
+ok("and two filler words in the slug are flagged", meta.kpis.some((k) => k.label === "filler words" && k.value === "2"));
+var crawl = drive("crawl-budget");
+ok(
+  "250,000 pages at 320 ms against a 5 req/s limit is under a day",
+  crawl.ok === true && /0\.2 days/.test(crawl.headline),
+  crawl.headline
+);
+var cov = drive("locale-coverage");
+ok("two of four locales clear the 98% bar", cov.table.rows.filter((r) => r[4] === "shippable").length === 2, JSON.stringify(cov.table.rows));
+ok("and the worst locale is named as Tamil", /Tamil|ta-IN/.test(cov.headline), cov.headline);
+var expn = drive("string-expansion");
+ok(
+  "17 English characters become 21\u201323 in German",
+  expn.kpis.some((k) => k.value === "21\u201323"),
+  JSON.stringify(expn.kpis)
+);
+ok("which overflows an 18-character budget, so the tool refuses to call it fine", expn.ok === false);
+var eoqRes = drive("eoq");
+ok(
+  "EOQ for 24,000 units at 450 an order and 12 held is 1,342 units",
+  eoqRes.kpis.some((k) => k.value === "1342"),
+  JSON.stringify(eoqRes.kpis)
+);
+ok("meaning 17.9 orders a year", eoqRes.kpis.some((k) => k.value === "17.9"));
+var ss = drive("safety-stock");
+ok(
+  "a 95% service level on 42 units of daily spread over 9 days holds 207 units",
+  ss.kpis.some((k) => k.value === "207"),
+  JSON.stringify(ss.kpis)
+);
+ok("putting the reorder point at 1,827", ss.kpis.some((k) => k.value === "1827"));
+var gas = drive("gas-plan");
+ok(
+  "145,000 gas at 19.5 gwei with ETH at 3,200 is 9.05 a call",
+  gas.kpis.some((k) => k.value === "9.05"),
+  JSON.stringify(gas.kpis)
+);
+ok("and 2,262 for the batch of 250, which the tool flags", gas.ok === false);
+var dec = drive("token-decimals");
+ok(
+  "1.234567890123456789 tokens is exactly its base-unit integer",
+  dec.headline.includes("1.234567890123456789") && dec.ok === true,
+  dec.headline
+);
+ok(
+  "and 1.5 tokens at 18 decimals is 1500000000000000000 base units",
+  dec.lines.join(" ").includes("1500000000000000000"),
+  dec.lines.join(" ")
 );
 console.log(`
 ${passed} passed, ${failed} failed`);

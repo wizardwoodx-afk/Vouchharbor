@@ -5,8 +5,8 @@
  * README, BUILD-NATIVE, Cargo.lock, package-lock) must agree with this.
  * `probe/versionDrift.test.ts` enforces that.
  */
-export const VH_VERSION = "19.7.14";
+export const VH_VERSION = "19.7.15";
 export const VH_SHORT = "19.7";
-export const VH_CODENAME = "Munshi";
+export const VH_CODENAME = "Cartographer";
 export const VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 export const VH_TAGLINE = "Your agents, with receipts.";

@@ -27,11 +27,18 @@ function section(name: string): void { console.log(`\n== ${name}`); }
 section("1. every tool drives from its own defaults, twice, identically");
 
 ok("the pack ships a substantial set of tools", sp.TOOLS.length >= 30, `${sp.TOOLS.length} tools`);
-ok("across all nine domains", sp.DOMAINS.length === 9, `${sp.DOMAINS.length} domains`);
+// 19.7.15 [Cartographer]: the pack widens from nine domains to twenty-five — sixteen new
+// ones, each with engines of its own, because a domain with no tool is a label, not a domain.
+ok("across all twenty-five domains", sp.DOMAINS.length === 25, `${sp.DOMAINS.length} domains`);
 const TOOL_DOMAINS = [...new Set(sp.TOOLS.map((t) => t.domain))];
 ok("every domain except finance-in has tools of its own",
-  TOOL_DOMAINS.length === 8 && !TOOL_DOMAINS.includes("finance-in"),
+  TOOL_DOMAINS.length === 24 && !TOOL_DOMAINS.includes("finance-in"),
   TOOL_DOMAINS.join(" · "));
+ok("and every one of those domains has at least two deterministic tools",
+  sp.DOMAINS.filter((d) => d.id !== "finance-in").every((d) => sp.toolsForDomain(d.id).length >= 2),
+  sp.DOMAINS.filter((d) => d.id !== "finance-in" && sp.toolsForDomain(d.id).length < 2).map((d) => d.id).join(", "));
+ok("the pack ships sixty-five tools of its own (seven more arrive with the finance pack)",
+  sp.TOOLS.length === 65, `${sp.TOOLS.length} tools`);
 
 const toolFailures: string[] = [];
 const nondeterministic: string[] = [];
@@ -330,8 +337,14 @@ ok("exit ARR is twelve times exit MRR", Math.abs(model.exitArr - model.exitMrr *
 section("10. the roster holds itself to its own claims");
 
 const status = sp.specialistStatus();
-ok("the generalist pack ships forty specialists", status.total === 40, String(status.total));
-ok("across eight domains", status.domains === 8, String(status.domains));
+// 19.7.15: two hundred specialists joined the roster — sixteen new domains carrying eleven
+// each, and the original eight deepened by three. The count is pinned so a silent loss is a
+// failure rather than a smaller number nobody notices.
+ok("the generalist pack ships two hundred and forty specialists", status.total === 240, String(status.total));
+ok("across twenty-four domains", status.domains === 24, String(status.domains));
+ok("every domain carries at least eight specialists",
+  sp.DOMAINS.filter((d) => d.id !== "finance-in").every((d) => sp.specialistsByDomain(d.id).length >= 8),
+  sp.DOMAINS.filter((d) => d.id !== "finance-in").map((d) => `${d.id}:${sp.specialistsByDomain(d.id).length}`).join(" "));
 ok("an id is unique per specialist", new Set(sp.SPECIALISTS.map((s) => s.id)).size === status.total);
 ok("every specialist declares a purpose and a receipt",
   sp.SPECIALISTS.every((s) => s.purpose.length > 40 && s.receipt.length > 20));
@@ -353,12 +366,29 @@ ok("every engine a specialist claims exists in the pack", missing.length === 0, 
 
 /* The gate. A read-only audit needs none; anything that touches production, a credential, a
    customer or money does. Pin that as an invariant over the ids, not as a headcount. */
-const MUST_BE_GATED = /^(ops\.deploy-gate|ops\.change|dev\.migration|sec\.rotation|growth\.price|docs\.release|api\.contract|fe\.a11y)/;
+const MUST_BE_GATED = /^(ops\.deploy-gate|ops\.change|ops\.postmortem-publish|dev\.migration|dev\.release-tag|sec\.rotation|sec\.key-ceremony|growth\.price|growth\.pricing-page|docs\.release|docs\.publish-runbook|api\.contract|api\.version-retire|fe\.a11y|fe\.release|data\.publish-dataset|mobile\.release|mobile\.push-send|cloud\.autoscale-apply|cloud\.rotation-run|cloud\.budget-commit|db\.migration-apply|db\.partition-plan|embedded\.firmware-release|embedded\.key-provision|ml\.model-promote|ml\.training-run|research\.ethics-submit|research\.preprint-post|media\.rendition-publish|media\.rights-clearance|finops\.budget-commit|finops\.showback-invoice|legal\.filing-submit|legal\.regulatory-filing|legal\.notice-serve|privacy\.dsar-respond|privacy\.consent-change|people\.offer-send|people\.comp-change|revenue\.quote-issue|revenue\.discount-approve|marketing\.campaign-launch|marketing\.spend-commit|locale\.locale-release|locale\.glossary-commit|supply\.po-issue|supply\.supplier-commit|web3\.tx-sign|web3\.key-ceremony)/;
 const gatedIds = sp.SPECIALISTS.filter((s) => s.requiresApproval).map((s) => s.id);
 const ungatedDestructive = sp.SPECIALISTS.filter((s) => MUST_BE_GATED.test(s.id) && !s.requiresApproval).map((s) => s.id);
 ok("specialists that change production, spend money or touch customers are gated",
   ungatedDestructive.length === 0, ungatedDestructive.join(", "));
-ok("and the gate is a real set, not a single token", gatedIds.length === 7, `${gatedIds.length}: ${gatedIds.join(", ")}`);
+ok("and the gate is a real set, not a single token", gatedIds.length === 47 && gatedIds.length < status.total / 2,
+  `${gatedIds.length} gated of ${status.total}`);
+// Every specialist GATED by this release is a workflow, because each one's last step changes
+// something real. The original pack also gates a few engine tools (a measurement whose next
+// step acts), which is a different and legitimate shape — the distinction is pinned, not blurred.
+const NEW_DOMAINS = /^(mobile|cloud|db|embedded|ml|research|media|finops|legal|privacy|people|revenue|marketing|locale|supply|web3)\./;
+ok("every specialist this release gated is a workflow that changes something",
+  sp.SPECIALISTS.filter((s) => s.requiresApproval && NEW_DOMAINS.test(s.id)).every((s) => s.status === "workflow"),
+  sp.SPECIALISTS.filter((s) => s.requiresApproval && NEW_DOMAINS.test(s.id) && s.status !== "workflow").map((s) => s.id).join(", "));
+ok("and no domain is mostly gates — in every one, the ungated specialists outnumber the gated",
+  sp.DOMAINS.filter((d) => d.id !== "finance-in").every((d) => {
+    const list = sp.specialistsByDomain(d.id);
+    return list.filter((s) => !s.requiresApproval).length > list.filter((s) => s.requiresApproval).length;
+  }),
+  sp.DOMAINS.filter((d) => d.id !== "finance-in").map((d) => {
+    const list = sp.specialistsByDomain(d.id);
+    return `${d.id}:${list.filter((s) => !s.requiresApproval).length}/${list.filter((s) => s.requiresApproval).length}`;
+  }).join(" "));
 ok("a read-only audit is NOT gated, because a gate that always fires is noise",
   sp.SPECIALISTS.filter((s) => /(audit|sweep|inspect|read|check|watch|scan)/i.test(s.id)).every((s) => !s.requiresApproval),
   sp.SPECIALISTS.filter((s) => /(audit|sweep|inspect|read|check|watch|scan)/i.test(s.id) && s.requiresApproval).map((s) => s.id).join(", "));
@@ -368,6 +398,185 @@ ok("every domain has at least four specialists",
 ok("findSpecialist resolves an id", sp.findSpecialist("ops.deploy-gate")?.requiresApproval === true);
 ok("the finance pack is listed as a domain of this pack, not copied into it",
   sp.DOMAINS.some((d) => d.id === "finance-in" && d.label.includes("India")));
+
+/* ── 11 · the sixteen new domains (19.7.15) ────────────────────────────────────
+   Every engine added by the Cartographer release gets a pinned vector here: a number the
+   published rule or formula fixes, computed by hand, so a refactor that quietly changes an
+   answer fails the gate instead of shipping a different number to a user. */
+
+/* Every figure below is produced the way the surface produces it: through the registry, with
+   the tool's own declared defaults — not by calling an engine with an empty form. */
+const drive = (id: string) => {
+  const t = sp.toolById(id);
+  if (!t) throw new Error(`no such tool: ${id}`);
+  const defaults: Record<string, string | boolean> = {};
+  for (const f of t.fields) defaults[f.key] = f.def;
+  return t.run(defaults);
+};
+
+section("11. the new domains — mobile, cloud, database, embedded");
+const targets = drive("touch-targets");
+ok("a 32×32 control is under the 44pt floor and a 44×44 one is not",
+  targets.table!.rows.filter((r) => r[4] === "meets the floor").length === 1, JSON.stringify(targets.kpis));
+ok("an undersized-but-spaced target is reported as passing only by the spacing exception",
+  targets.table!.rows.some((r) => /spacing exception/.test(r[4]!)));
+ok("the smallest target is named", targets.table!.rows.some((r) => r[1] === "32×32"));
+
+const size = drive("app-size-budget");
+ok("2.52 MB per release crosses a 60 MB budget at release eight", /release 8/.test(size.headline), size.headline);
+ok("compounded at 6% the same budget lasts 6.1 releases",
+  size.kpis!.some((k) => k.label === "releases if it compounds" && k.value === "6.1"), JSON.stringify(size.kpis));
+
+const inst = drive("instance-sizing");
+ok("72% p95 against a 60% ceiling needs eight instances, not six",
+  inst.kpis!.some((k) => k.label === "instances needed" && k.value === "8"), JSON.stringify(inst.kpis));
+ok("and lands the fleet at 54% at the same load", inst.kpis!.some((k) => k.value === "54.0%"));
+
+const egress = drive("egress-cost");
+ok("an 85% hit rate turns a 360 bill into 122 — 238 saved",
+  egress.kpis!.some((k) => k.label === "with the cache" && k.value === "122") &&
+  egress.kpis!.some((k) => k.label === "saved / month" && k.value === "238"), JSON.stringify(egress.kpis));
+
+const idx = drive("index-selectivity");
+ok("a predicate matching 0.01% of a table should use the index", idx.ok === true, idx.headline);
+ok("and the rows-per-key figure is 333", idx.kpis!.some((k) => k.value === "333"));
+
+const pool = drive("pool-sizing");
+ok("300 rps at 18 ms is 5.4 queries in flight", pool.kpis!.some((k) => k.value === "5.4"), JSON.stringify(pool.kpis));
+ok("which is a pool of three per instance across three instances", pool.kpis!.some((k) => k.label === "pool per instance" && k.value === "3"));
+
+const power = drive("power-budget");
+ok("2000 mAh at a 4% duty of 45 mA with 20 µA sleep lasts about 1099 hours",
+  Math.abs(Number(power.kpis!.find((k) => k.label === "hours")!.value) - 1099.4) < 0.5, JSON.stringify(power.kpis));
+
+const sched = drive("timing-slack");
+ok("Liu & Layland on 2/20, 5/50, 12/200 gives U = 0.26",
+  sched.kpis!.some((k) => k.label === "utilisation" && k.value === "26.0%"), JSON.stringify(sched.kpis));
+ok("against a three-task bound of 0.780", sched.kpis!.some((k) => k.label === "RM bound" && k.value === "78.0%"));
+ok("so the task set passes the sufficient test", sched.ok === true);
+
+section("12. the new domains — ml, research, media, finops");
+const ev = drive("eval-interval");
+const evLo = Number(ev.kpis!.find((k) => k.label.startsWith("95%"))!.value.split("–")[0]!.replace("%", ""));
+const evHi = Number(ev.kpis!.find((k) => k.label.startsWith("95%"))!.value.split("–")[1]!.replace("%", ""));
+ok("431/500 is 86.2%, and the Wilson interval is about 82.9–88.9%",
+  Math.abs(evLo - 82.9) < 0.4 && Math.abs(evHi - 88.9) < 0.4, `${evLo}–${evHi}`);
+ok("the interval clears an 80% baseline, so the result is not sampling noise", ev.ok === true);
+
+const split = drive("split-audit");
+ok("an 80/10/10 split of 50,000 rows with no duplicates is clean",
+  split.ok === true && split.kpis!.some((k) => k.value === "5,000"), JSON.stringify(split.kpis));
+
+const cite = drive("citation-lint");
+ok("the draft cites two claims and leaves one numeric line uncited",
+  cite.kpis!.some((k) => k.label === "citations" && k.value === "2") &&
+  cite.kpis!.some((k) => k.label === "uncited numeric lines" && k.value === "1"), JSON.stringify(cite.kpis));
+
+const kap = drive("rater-agreement");
+ok("seven of eight labels agree — Po = 0.875",
+  kap.kpis!.some((k) => k.label === "observed agreement" && k.value === "87.5%"), JSON.stringify(kap.kpis));
+ok("and Cohen's κ is 0.805 once chance is removed",
+  Math.abs(Number(kap.kpis!.find((k) => k.label === "Cohen's κ")!.value) - 0.805) < 0.003, JSON.stringify(kap.kpis));
+
+const loud = drive("loudness-gain");
+ok("−9.4 LUFS to a −14 target is a 4.6 dB cut, peak still under the ceiling",
+  loud.kpis!.some((k) => k.value === "-4.6 dB") && loud.ok === true, JSON.stringify(loud.kpis));
+
+const bits = drive("bitrate-budget");
+ok("a 42-minute piece at 2000 kbps + 128 kbps audio is 670 MB, the only rung inside 800",
+  bits.kpis!.some((k) => k.value === "2000"), JSON.stringify(bits.kpis));
+
+const fc = drive("spend-forecast");
+ok("the six-month spend series trends up by about 1136 a month",
+  Math.abs(Number(fc.kpis!.find((k) => k.label === "trend / month")!.value) - 1135.7) < 1.5, JSON.stringify(fc.kpis));
+ok("and the projection for month nine is about 26,938",
+  Math.abs(Number(fc.kpis!.find((k) => k.label.startsWith("month 9"))!.value) - 26938) < 6, JSON.stringify(fc.kpis));
+
+const anom = drive("anomaly-z");
+ok("one day out of twelve is flagged at 3σ — the 24,000 day",
+  anom.kpis!.some((k) => k.label === "≥ 3σ" && k.value === "1") && !anom.ok, JSON.stringify(anom.kpis));
+ok("and it names day six", anom.table!.rows.some((r) => r[0] === "6"));
+
+section("13. the new domains — legal, privacy, people, revenue");
+const clause = drive("clause-lint");
+ok("the sample clause carries five undefined terms", clause.kpis!.some((k) => k.value === "5"), JSON.stringify(clause.kpis));
+ok("and the most frequent one is named in the lines",
+  clause.lines!.join(" ").includes("reasonable efforts"), clause.lines!.join(" "));
+
+const dates = drive("date-terms");
+ok("effective 1 Apr 2026 + 12 months ends 1 Apr 2027",
+  dates.kpis!.some((k) => k.value === "2027-04-01"), JSON.stringify(dates.kpis));
+ok("with 90 days' notice the last day to serve it is 1 Jan 2027",
+  dates.kpis!.some((k) => k.value === "2027-01-01"), JSON.stringify(dates.kpis));
+
+const pii = drive("pii-scan");
+ok("personal-data patterns are found, and every sample in the table is masked",
+  pii.table!.rows.every((r) => r[3]!.includes("•")) && !pii.table!.rows.some((r) => /@|\d{4} \d{4} \d{4} \d{4}/.test(r[3]!)),
+  JSON.stringify(pii.table!.rows.map((r) => r[3])));
+ok("a card-shaped number is only counted when Luhn passes",
+  pii.table!.rows.some((r) => r[0] === "card-shaped number" && r[1] === "1"), JSON.stringify(pii.table!.rows));
+
+const ret = drive("retention-clock");
+ok("two of the four categories are past their retention date", ret.kpis!.some((k) => k.value === "2"), JSON.stringify(ret.kpis));
+ok("and the overdue ones are at the top of the table", ret.table!.rows[0]![4]!.startsWith("-"), JSON.stringify(ret.table!.rows[0]));
+
+const hc = drive("headcount-model");
+ok("40 people, 3 hires a month and 1.5% attrition ends at 66.5 after a year",
+  Math.abs(Number(hc.kpis!.find((k) => k.label === "month 12")!.value) - 66.5) < 0.2, JSON.stringify(hc.kpis));
+
+const band = drive("comp-band");
+ok("2.52 against a 1.8–3.2 band is 51.4% of the way up",
+  band.kpis!.some((k) => k.value === "51.4%"), JSON.stringify(band.kpis));
+ok("and a compa-ratio of 105.0", band.kpis!.some((k) => k.value === "105.0"));
+
+const pipe = drive("pipeline-coverage");
+ok("a 12,000,000 quota against 9,790,000 weighted is 0.82× coverage",
+  pipe.kpis!.some((k) => k.value === "0.82×"), JSON.stringify(pipe.kpis));
+ok("which is under the 3.5× convention, so the tool says so", pipe.ok === false);
+
+const sla = drive("sla-clock");
+ok("two of four tickets miss their first-response target", sla.kpis!.some((k) => k.value === "2"), JSON.stringify(sla.kpis));
+ok("at 50% attainment", sla.kpis!.some((k) => k.value === "50.0%"));
+
+section("14. the new domains — marketing, localisation, supply chain, web3");
+const meta = drive("meta-lint");
+ok("the sample title fits the 60-character display limit",
+  meta.kpis!.some((k) => k.label === "title" && k.value.startsWith("52/")), JSON.stringify(meta.kpis));
+ok("and two filler words in the slug are flagged", meta.kpis!.some((k) => k.label === "filler words" && k.value === "2"));
+
+const crawl = drive("crawl-budget");
+ok("250,000 pages at 320 ms against a 5 req/s limit is under a day",
+  crawl.ok === true && /0\.2 days/.test(crawl.headline), crawl.headline);
+
+const cov = drive("locale-coverage");
+ok("two of four locales clear the 98% bar", cov.table!.rows.filter((r) => r[4] === "shippable").length === 2, JSON.stringify(cov.table!.rows));
+ok("and the worst locale is named as Tamil", /Tamil|ta-IN/.test(cov.headline), cov.headline);
+
+const expn = drive("string-expansion");
+ok("17 English characters become 21–23 in German",
+  expn.kpis!.some((k) => k.value === "21–23"), JSON.stringify(expn.kpis));
+ok("which overflows an 18-character budget, so the tool refuses to call it fine", expn.ok === false);
+
+const eoqRes = drive("eoq");
+ok("EOQ for 24,000 units at 450 an order and 12 held is 1,342 units",
+  eoqRes.kpis!.some((k) => k.value === "1342"), JSON.stringify(eoqRes.kpis));
+ok("meaning 17.9 orders a year", eoqRes.kpis!.some((k) => k.value === "17.9"));
+
+const ss = drive("safety-stock");
+ok("a 95% service level on 42 units of daily spread over 9 days holds 207 units",
+  ss.kpis!.some((k) => k.value === "207"), JSON.stringify(ss.kpis));
+ok("putting the reorder point at 1,827", ss.kpis!.some((k) => k.value === "1827"));
+
+const gas = drive("gas-plan");
+ok("145,000 gas at 19.5 gwei with ETH at 3,200 is 9.05 a call",
+  gas.kpis!.some((k) => k.value === "9.05"), JSON.stringify(gas.kpis));
+ok("and 2,262 for the batch of 250, which the tool flags", gas.ok === false);
+
+const dec = drive("token-decimals");
+ok("1.234567890123456789 tokens is exactly its base-unit integer",
+  dec.headline.includes("1.234567890123456789") && dec.ok === true, dec.headline);
+ok("and 1.5 tokens at 18 decimals is 1500000000000000000 base units",
+  dec.lines!.join(" ").includes("1500000000000000000"), dec.lines!.join(" "));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) { console.log("\nfailures:"); for (const f2 of failures) console.log(`  - ${f2}`); }

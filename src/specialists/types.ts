@@ -26,6 +26,22 @@ export type Domain =
   | "ops"
   | "docs"
   | "growth"
+  | "mobile"
+  | "cloud"
+  | "db"
+  | "embedded"
+  | "ml"
+  | "research"
+  | "media"
+  | "finops"
+  | "legal"
+  | "privacy"
+  | "people"
+  | "revenue"
+  | "marketing"
+  | "locale"
+  | "supply"
+  | "web3"
   | "finance-in";
 
 export type FieldKind = "text" | "number" | "select" | "toggle" | "textarea";

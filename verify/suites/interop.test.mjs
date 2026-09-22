@@ -268,9 +268,9 @@ function receiptToJsonl(rc) {
 }
 
 // src/version.ts
-var VH_VERSION = "19.7.14";
+var VH_VERSION = "19.7.15";
 var VH_SHORT = "19.7";
-var VH_CODENAME = "Munshi";
+var VH_CODENAME = "Cartographer";
 var VH_TITLE = `Velvet Hand (engine ${VH_SHORT} "${VH_CODENAME}")`;
 
 // src/vouch/engine/crossHarbor.ts
